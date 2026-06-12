@@ -658,7 +658,7 @@
     position:fixed;
     top:50%;
     left:50%;
-    z-index:90;
+    z-index:260;
     width:min(360px, calc(100vw - 48px));
     min-height:148px;
     transform:translate(-50%,-50%) scale(.88);
@@ -3759,7 +3759,8 @@
     background:linear-gradient(135deg, rgba(255,91,122,.34), rgba(255,143,199,.16));
     border-color:rgba(255,129,151,.34);
   }
-  .account-verify-modal{
+  .account-verify-modal,
+  .account-delete-modal{
     position:fixed;
     inset:0;
     z-index:150;
@@ -3774,12 +3775,14 @@
     pointer-events:none;
     transition:opacity .24s, visibility .24s;
   }
-  .account-verify-modal.open{
+  .account-verify-modal.open,
+  .account-delete-modal.open{
     opacity:1;
     visibility:visible;
     pointer-events:auto;
   }
-  .account-verify-card{
+  .account-verify-card,
+  .account-delete-card{
     position:relative;
     width:min(360px, 92vw);
     display:grid;
@@ -3793,14 +3796,17 @@
     transform:translateY(18px) scale(.96);
     transition:transform .24s;
   }
-  .account-verify-modal.open .account-verify-card{
+  .account-verify-modal.open .account-verify-card,
+  .account-delete-modal.open .account-delete-card{
     transform:translateY(0) scale(1);
   }
-  .account-verify-card h2{
+  .account-verify-card h2,
+  .account-delete-card h2{
     margin:0;
     font-size:22px;
   }
-  .account-verify-card p{
+  .account-verify-card p,
+  .account-delete-card p{
     margin:0;
     color:rgba(255,255,255,.62);
     font-size:12px;
@@ -3823,7 +3829,8 @@
     background:rgba(255,255,255,.12);
     border:1px solid rgba(255,255,255,.14);
   }
-  .account-verify-card button{
+  .account-verify-card button,
+  .account-delete-card button{
     min-height:42px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.2);
@@ -3839,6 +3846,27 @@
     width:30px;
     min-height:30px !important;
     background:rgba(255,255,255,.1) !important;
+  }
+  .account-delete-warning{
+    padding:12px 13px;
+    border-radius:16px;
+    color:#ffdce5;
+    font-size:12px;
+    font-weight:850;
+    line-height:1.65;
+    background:rgba(255,91,122,.14);
+    border:1px solid rgba(255,129,151,.24);
+  }
+  .account-delete-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  #accountDeleteCancelBtn{
+    background:rgba(255,255,255,.1);
+  }
+  #accountDeleteConfirmBtn{
+    background:linear-gradient(135deg, #ff5b7a, #ff8fc7);
   }
   .notice-carousel-card{
     min-height:315px;
@@ -4244,6 +4272,17 @@
     <label>当前用户名<input id="accountVerifyUsername" type="text" autocomplete="username" /></label>
     <label>当前密码<input id="accountVerifyPassword" type="password" autocomplete="current-password" /></label>
     <button id="accountVerifySubmitBtn" type="button">登录验证</button>
+  </div>
+</div>
+<div class="account-delete-modal" id="accountDeleteModal" aria-hidden="true">
+  <div class="account-delete-card" role="dialog" aria-modal="true" aria-labelledby="accountDeleteTitle">
+    <h2 id="accountDeleteTitle">确认注销账号</h2>
+    <p id="accountDeleteText">注销后将删除当前账号数据，无法恢复。</p>
+    <div class="account-delete-warning">该操作会清除账号资料、头像、签名、简介、标签和登录状态。请确认你真的要继续。</div>
+    <div class="account-delete-actions">
+      <button id="accountDeleteCancelBtn" type="button">取消</button>
+      <button id="accountDeleteConfirmBtn" type="button">确认注销</button>
+    </div>
   </div>
 </div>
 
@@ -4947,6 +4986,10 @@ const accountVerifyCloseBtn = document.getElementById('accountVerifyCloseBtn');
 const accountVerifyUsername = document.getElementById('accountVerifyUsername');
 const accountVerifyPassword = document.getElementById('accountVerifyPassword');
 const accountVerifySubmitBtn = document.getElementById('accountVerifySubmitBtn');
+const accountDeleteModal = document.getElementById('accountDeleteModal');
+const accountDeleteText = document.getElementById('accountDeleteText');
+const accountDeleteCancelBtn = document.getElementById('accountDeleteCancelBtn');
+const accountDeleteConfirmBtn = document.getElementById('accountDeleteConfirmBtn');
 const articleGrid = document.getElementById('articleGrid');
 const articlePageInfo = document.getElementById('articlePageInfo');
 const articlePrevBtn = document.getElementById('articlePrevBtn');
@@ -5435,17 +5478,28 @@ async function saveAccountChanges(){
   }
 }
 
-async function deleteCurrentAccount(){
+function openAccountDeleteModal(){
   const user = readSavedUser();
   if(!accountVerifiedPassword || !user){
     openAccountVerifyModal();
     return;
   }
-  const confirmed = confirm(`确定要注销账号 ${user.username} 吗？该操作会删除当前账号数据，无法恢复。`);
-  if(!confirmed) return;
+  if(accountDeleteText) accountDeleteText.textContent = `确定要注销账号 ${user.username} 吗？注销后将删除当前账号数据，无法恢复。`;
+  accountDeleteModal?.classList.add('open');
+  accountDeleteModal?.setAttribute('aria-hidden', 'false');
+}
+
+function closeAccountDeleteModal(){
+  accountDeleteModal?.classList.remove('open');
+  accountDeleteModal?.setAttribute('aria-hidden', 'true');
+}
+
+async function confirmDeleteCurrentAccount(){
   try{
     accountDeleteBtn.disabled = true;
+    accountDeleteConfirmBtn.disabled = true;
     accountDeleteBtn.textContent = '注销中...';
+    accountDeleteConfirmBtn.textContent = '注销中...';
     await authRequest('/api/account', {
       method:'DELETE',
       headers:authorizedHeaders(),
@@ -5453,6 +5507,7 @@ async function deleteCurrentAccount(){
     });
     sessionStorage.removeItem(AUTH_TOKEN_KEY);
     sessionStorage.removeItem(AUTH_USER_KEY);
+    closeAccountDeleteModal();
     closeProfileEditor();
     closeAccountVerifyModal();
     returnToLogin();
@@ -5461,7 +5516,9 @@ async function deleteCurrentAccount(){
     showLoginToast(error.message || '注销账号失败。', 'error', '注销失败');
   }finally{
     accountDeleteBtn.disabled = false;
+    accountDeleteConfirmBtn.disabled = false;
     accountDeleteBtn.textContent = '注销账号';
+    accountDeleteConfirmBtn.textContent = '确认注销';
   }
 }
 
@@ -5534,7 +5591,9 @@ if(accountVerifyOpenBtn) accountVerifyOpenBtn.addEventListener('click', openAcco
 if(accountVerifyCloseBtn) accountVerifyCloseBtn.addEventListener('click', closeAccountVerifyModal);
 if(accountVerifySubmitBtn) accountVerifySubmitBtn.addEventListener('click', verifyAccountForEdit);
 if(accountSaveBtn) accountSaveBtn.addEventListener('click', saveAccountChanges);
-if(accountDeleteBtn) accountDeleteBtn.addEventListener('click', deleteCurrentAccount);
+if(accountDeleteBtn) accountDeleteBtn.addEventListener('click', openAccountDeleteModal);
+if(accountDeleteCancelBtn) accountDeleteCancelBtn.addEventListener('click', closeAccountDeleteModal);
+if(accountDeleteConfirmBtn) accountDeleteConfirmBtn.addEventListener('click', confirmDeleteCurrentAccount);
 if(accountVerifyPassword){
   accountVerifyPassword.addEventListener('keydown', event=>{
     if(event.key === 'Enter') verifyAccountForEdit();
@@ -5543,6 +5602,11 @@ if(accountVerifyPassword){
 if(accountVerifyModal){
   accountVerifyModal.addEventListener('click', event=>{
     if(event.target === accountVerifyModal) closeAccountVerifyModal();
+  });
+}
+if(accountDeleteModal){
+  accountDeleteModal.addEventListener('click', event=>{
+    if(event.target === accountDeleteModal) closeAccountDeleteModal();
   });
 }
 if(profileMoodBtn){
