@@ -3502,7 +3502,7 @@
   .blog-main-area{
     min-width:0;
     display:grid;
-    grid-template-rows:minmax(280px, .95fr) minmax(220px, .75fr);
+    grid-template-rows:minmax(238px, 0.68fr) minmax(290px, 1fr);
     gap:24px;
   }
   .blog-hero-card{
@@ -3875,7 +3875,12 @@
     background:linear-gradient(135deg, rgba(255,255,255,.14), rgba(124,92,255,.16));
   }
   .mail-tabs button.active{background:linear-gradient(135deg, rgba(127,247,255,.28), rgba(255,143,199,.2));}
-  .mail-compose,.mail-list{display:grid;gap:10px;}
+  .mail-compose{display:grid;gap:10px;}
+  .mail-list{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:12px;
+  }
   .mail-compose label{
     display:grid;gap:6px;
     color:rgba(255,255,255,.72);
@@ -3887,16 +3892,91 @@
     border:1px solid rgba(255,255,255,.14);font:inherit;resize:none;
   }
   .mail-item{
-    padding:12px;
-    border-radius:18px;
-    background:rgba(255,255,255,.1);
+    min-height:136px;
+    padding:14px;
+    border-radius:22px;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(255,143,199,.18), transparent 34%),
+      rgba(255,255,255,.1);
     border:1px solid rgba(255,255,255,.13);
     text-align:left;
+    cursor:pointer;
+    transition:transform .22s, background .22s, box-shadow .22s;
+  }
+  .mail-item:hover{
+    transform:translateY(-3px);
+    background:rgba(255,255,255,.15);
+    box-shadow:0 18px 40px rgba(0,0,0,.2);
   }
   .mail-item strong{display:block;font-size:13px;}
   .mail-item small{display:block;margin:5px 0;color:#8fceff;font-weight:850;}
-  .mail-item p{margin:0;color:rgba(255,255,255,.68);font-size:12px;line-height:1.65;}
+  .mail-item p{
+    margin:0;
+    color:rgba(255,255,255,.68);
+    font-size:12px;
+    line-height:1.65;
+    display:-webkit-box;
+    -webkit-line-clamp:3;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
   .mail-user-link{color:#fff;text-decoration:underline;cursor:pointer;}
+  .mail-attach-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+  }
+  .mail-attach-row button,
+  .mail-attachment-link{
+    min-height:34px;
+    padding:0 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.2);
+    color:#fff;
+    font-weight:900;
+    cursor:pointer;
+    background:rgba(255,255,255,.12);
+  }
+  .mail-attachment-name{color:rgba(255,255,255,.62);font-size:12px;font-weight:850;}
+  .mail-read-modal{
+    position:fixed;
+    inset:0;
+    z-index:390;
+    display:grid;
+    place-items:center;
+    padding:22px;
+    background:rgba(8,10,26,.52);
+    backdrop-filter:blur(18px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .24s, visibility .24s;
+  }
+  .mail-read-modal.open{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+  .mail-read-card{
+    width:min(620px, 94vw);
+    display:grid;
+    gap:14px;
+    padding:24px;
+    border-radius:32px;
+    color:#fff;
+    background:
+      radial-gradient(circle at 18% 6%, rgba(255,143,199,.25), transparent 34%),
+      radial-gradient(circle at 88% 18%, rgba(127,247,255,.18), transparent 36%),
+      rgba(16,20,48,.92);
+    border:1px solid rgba(255,255,255,.22);
+    box-shadow:0 32px 96px rgba(0,0,0,.42);
+  }
+  .mail-read-head{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .mail-read-head h2{margin:0;font-size:22px;}
+  .mail-read-close{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.2);color:#fff;background:rgba(255,255,255,.1);cursor:pointer;}
+  .mail-read-meta{color:#8fceff;font-size:12px;font-weight:900;}
+  .mail-read-body{margin:0;color:rgba(255,255,255,.76);line-height:1.85;white-space:pre-wrap;}
   .tool-stats-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -4405,14 +4485,17 @@
     background:linear-gradient(135deg, #ff5b7a, #ff8fc7);
   }
   .notice-carousel-card{
-    min-height:315px;
+    min-height:260px;
+    max-height:330px;
     justify-content:space-between;
+    overflow:hidden;
+    padding:clamp(22px, 3vw, 38px);
   }
   .notice-topline{margin-bottom:18px;}
   .notice-carousel{
     position:relative;
     flex:1;
-    min-height:210px;
+    min-height:160px;
   }
   .notice-slide{
     position:absolute;
@@ -4437,22 +4520,22 @@
     letter-spacing:.18em;
   }
   .notice-slide h1{
-    max-width:720px;
+    max-width:620px;
     margin:18px 0 14px;
     font-family:"Trebuchet MS","Comic Sans MS","Segoe UI",cursive,sans-serif;
-    font-size:clamp(38px, 4.6vw, 66px);
+    font-size:clamp(30px, 3.7vw, 52px);
     line-height:.98;
     letter-spacing:-.06em;
     color:#fff;
     text-shadow:0 18px 50px rgba(0,0,0,.3);
   }
   .notice-slide p{
-    max-width:720px;
+    max-width:600px;
     margin:0;
     color:rgba(255,255,255,.72);
     font-size:14px;
     font-weight:750;
-    line-height:1.9;
+    line-height:1.72;
   }
   .notice-date{
     display:inline-block;
@@ -4463,11 +4546,14 @@
     letter-spacing:.08em;
   }
   .notice-image{
-    max-width:min(360px, 42%);
-    max-height:180px;
+    position:absolute;
+    right:0;
+    bottom:4px;
+    width:min(190px, 28%);
+    max-height:128px;
     object-fit:cover;
-    border-radius:24px;
-    margin-top:18px;
+    border-radius:22px;
+    margin-top:0;
     border:1px solid rgba(255,255,255,.2);
     box-shadow:0 18px 46px rgba(0,0,0,.24);
   }
@@ -4660,6 +4746,9 @@
       min-height:auto;
     }
     .blog-hero-card{min-height:430px;}
+    .notice-carousel-card{min-height:260px;max-height:330px;}
+    .notice-image{width:120px;max-height:86px;opacity:.72;}
+    .mail-list{grid-template-columns:1fr;}
     .article-grid{grid-template-columns:1fr;}
     .article-card{grid-template-columns:82px 1fr;}
     .article-pager{flex-wrap:wrap;}
@@ -5128,9 +5217,26 @@
       <label>收件用户名<input id="mailToInput" type="text" maxlength="20" placeholder="填写对方用户名" /></label>
       <label>主题<input id="mailSubjectInput" type="text" maxlength="80" placeholder="邮件主题" /></label>
       <label>内容<textarea id="mailBodyInput" maxlength="1200" placeholder="写下你想发送的内容"></textarea></label>
+      <div class="mail-attach-row">
+        <button id="mailAttachBtn" type="button">上传附件（≤10MB）</button>
+        <span class="mail-attachment-name" id="mailAttachmentName">未选择附件</span>
+        <button id="mailClearAttachBtn" type="button">清除附件</button>
+        <input id="mailAttachmentInput" type="file" hidden />
+      </div>
       <button class="mail-send-btn" id="mailSendBtn" type="button">发送邮件</button>
     </div>
     <div class="mail-list" id="mailListPanel"></div>
+  </div>
+</div>
+<div class="mail-read-modal" id="mailReadModal" aria-hidden="true">
+  <div class="mail-read-card" role="dialog" aria-modal="true" aria-labelledby="mailReadTitle">
+    <div class="mail-read-head">
+      <h2 id="mailReadTitle">邮件详情</h2>
+      <button class="mail-read-close" id="mailReadCloseBtn" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="mail-read-meta" id="mailReadMeta"></div>
+    <p class="mail-read-body" id="mailReadBody"></p>
+    <div id="mailReadAttachment"></div>
   </div>
 </div>
 <div class="owner-contact-modal" id="ownerContactModal" aria-hidden="true">
@@ -5651,6 +5757,16 @@ const mailToInput = document.getElementById('mailToInput');
 const mailSubjectInput = document.getElementById('mailSubjectInput');
 const mailBodyInput = document.getElementById('mailBodyInput');
 const mailSendBtn = document.getElementById('mailSendBtn');
+const mailAttachBtn = document.getElementById('mailAttachBtn');
+const mailClearAttachBtn = document.getElementById('mailClearAttachBtn');
+const mailAttachmentInput = document.getElementById('mailAttachmentInput');
+const mailAttachmentName = document.getElementById('mailAttachmentName');
+const mailReadModal = document.getElementById('mailReadModal');
+const mailReadCloseBtn = document.getElementById('mailReadCloseBtn');
+const mailReadTitle = document.getElementById('mailReadTitle');
+const mailReadMeta = document.getElementById('mailReadMeta');
+const mailReadBody = document.getElementById('mailReadBody');
+const mailReadAttachment = document.getElementById('mailReadAttachment');
 const ownerContactModal = document.getElementById('ownerContactModal');
 const ownerContactCloseBtn = document.getElementById('ownerContactCloseBtn');
 const ownerContactInfo = document.getElementById('ownerContactInfo');
@@ -5897,6 +6013,8 @@ const BLOG_ARTICLES = [
 let articlePage = 1;
 const ARTICLES_PER_PAGE = 4;
 let mailState = { inbox:[], sent:[] };
+let currentMailMode = 'inbox';
+let pendingMailAttachment = null;
 
 function updateToolStats(user = readSavedUser()){
   const profile = user?.profile || {};
@@ -6336,6 +6454,17 @@ function openMailCenter(mode = 'inbox', to = ''){
     showLoginToast('请先注册或登录账号后使用站内邮件。', 'warn', '需要账号');
     return;
   }
+  if(mailToInput){
+    if(isSiteOwnerUser(user)){
+      mailToInput.readOnly = false;
+      mailToInput.placeholder = '填写收件用户用户名';
+      mailToInput.value = to || mailToInput.value || '';
+    }else{
+      mailToInput.value = SITE_OWNER_USERNAME;
+      mailToInput.readOnly = true;
+      mailToInput.placeholder = '普通用户只能给站主 An 发邮件';
+    }
+  }
   if(to) mailToInput.value = to;
   mailModal?.classList.add('open');
   mailModal?.setAttribute('aria-hidden', 'false');
@@ -6345,9 +6474,11 @@ function openMailCenter(mode = 'inbox', to = ''){
 function closeMailCenter(){
   mailModal?.classList.remove('open');
   mailModal?.setAttribute('aria-hidden', 'true');
+  closeMailReader();
 }
 
 function setMailTab(mode){
+  currentMailMode = mode;
   [mailInboxTab, mailSentTab, mailComposeTab].forEach(btn=>btn?.classList.remove('active'));
   mailInboxTab?.classList.toggle('active', mode === 'inbox');
   mailSentTab?.classList.toggle('active', mode === 'sent');
@@ -6373,22 +6504,59 @@ function renderMailList(mode){
   const items = mailState[mode] || [];
   if(!mailListPanel) return;
   if(!items.length){
-    mailListPanel.innerHTML = `<div class="mail-item"><strong>${mode === 'inbox' ? '收件箱为空' : '发件箱为空'}</strong><p>这里会显示你的站内邮件记录。</p></div>`;
+    mailListPanel.innerHTML = `<div class="mail-item"><strong>${mode === 'inbox' ? '收件箱为空' : '发件箱为空'}</strong><p>邮件 24 小时后会自动清理，这里会同时展示最近 3 条。</p></div>`;
     return;
   }
-  mailListPanel.innerHTML = items.map(mail=>`
-    <article class="mail-item">
+  mailListPanel.innerHTML = items.slice(0, 3).map((mail, index)=>`
+    <article class="mail-item" data-mail-index="${index}">
       <strong>${escapeHtml(mail.subject || '无主题')}</strong>
       <small>${mode === 'inbox' ? '来自' : '发送给'} <span class="mail-user-link" data-mail-user="${escapeHtml(mode === 'inbox' ? mail.from : mail.to)}">${escapeHtml(mode === 'inbox' ? mail.from : mail.to)}</span> · ${escapeHtml(mail.createdAt || '')}</small>
       <p>${escapeHtml(mail.body || '')}</p>
+      ${mail.attachment ? `<small>📎 ${escapeHtml(mail.attachment.name || '附件')}</small>` : ''}
     </article>
   `).join('');
+  mailListPanel.querySelectorAll('[data-mail-index]').forEach(el=>{
+    el.addEventListener('click', ()=>openMailReader(items[Number(el.dataset.mailIndex)], mode));
+  });
   mailListPanel.querySelectorAll('[data-mail-user]').forEach(el=>{
-    el.addEventListener('click', ()=>{
+    el.addEventListener('click', event=>{
+      event.stopPropagation();
       mailToInput.value = el.dataset.mailUser || '';
       setMailTab('compose');
     });
   });
+}
+
+function openMailReader(mail, mode){
+  if(!mail) return;
+  if(mailReadTitle) mailReadTitle.textContent = mail.subject || '无主题邮件';
+  if(mailReadMeta) mailReadMeta.textContent = `${mode === 'inbox' ? '来自' : '发送给'} ${mode === 'inbox' ? mail.from : mail.to} · ${mail.createdAt || ''} · 24 小时后自动清理`;
+  if(mailReadBody) mailReadBody.textContent = mail.body || '这封邮件只有附件，没有正文。';
+  if(mailReadAttachment){
+    mailReadAttachment.innerHTML = mail.attachment ? `<a class="mail-attachment-link" href="${mail.attachment.data}" download="${escapeHtml(mail.attachment.name || '附件')}">下载附件：${escapeHtml(mail.attachment.name || '附件')}</a>` : '';
+  }
+  mailReadModal?.classList.add('open');
+  mailReadModal?.setAttribute('aria-hidden', 'false');
+}
+
+function closeMailReader(){
+  mailReadModal?.classList.remove('open');
+  mailReadModal?.setAttribute('aria-hidden', 'true');
+}
+
+function readFileAsDataUrl(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function clearMailAttachment(){
+  pendingMailAttachment = null;
+  if(mailAttachmentInput) mailAttachmentInput.value = '';
+  if(mailAttachmentName) mailAttachmentName.textContent = '未选择附件';
 }
 
 async function sendMail(){
@@ -6401,11 +6569,13 @@ async function sendMail(){
       body:JSON.stringify({
         to:mailToInput.value,
         subject:mailSubjectInput.value,
-        body:mailBodyInput.value
+        body:mailBodyInput.value,
+        attachment:pendingMailAttachment
       })
     });
     mailSubjectInput.value = '';
     mailBodyInput.value = '';
+    clearMailAttachment();
     showLoginToast('站内邮件已发送。', 'success', '发送成功');
     await loadMail('sent');
   }catch(error){
@@ -6444,6 +6614,33 @@ if(mailSentTab) mailSentTab.addEventListener('click', ()=>loadMail('sent'));
 if(mailComposeTab) mailComposeTab.addEventListener('click', ()=>setMailTab('compose'));
 if(mailSendBtn) mailSendBtn.addEventListener('click', sendMail);
 if(mailModal) mailModal.addEventListener('click', event=>{ if(event.target === mailModal) closeMailCenter(); });
+if(mailReadCloseBtn) mailReadCloseBtn.addEventListener('click', closeMailReader);
+if(mailReadModal) mailReadModal.addEventListener('click', event=>{ if(event.target === mailReadModal) closeMailReader(); });
+if(mailAttachBtn) mailAttachBtn.addEventListener('click', ()=>mailAttachmentInput?.click());
+if(mailClearAttachBtn) mailClearAttachBtn.addEventListener('click', clearMailAttachment);
+if(mailAttachmentInput){
+  mailAttachmentInput.addEventListener('change', async ()=>{
+    const file = mailAttachmentInput.files && mailAttachmentInput.files[0];
+    if(!file) return;
+    if(file.size > 10 * 1024 * 1024){
+      clearMailAttachment();
+      showLoginToast('附件不能超过 10MB。', 'warn', '附件过大');
+      return;
+    }
+    try{
+      pendingMailAttachment = {
+        name:file.name,
+        type:file.type || 'application/octet-stream',
+        size:file.size,
+        data:await readFileAsDataUrl(file)
+      };
+      if(mailAttachmentName) mailAttachmentName.textContent = `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)}MB`;
+    }catch(_){
+      clearMailAttachment();
+      showLoginToast('附件读取失败，请重新选择。', 'error', '上传失败');
+    }
+  });
+}
 if(ownerContactCloseBtn) ownerContactCloseBtn.addEventListener('click', closeOwnerContact);
 if(ownerContactModal) ownerContactModal.addEventListener('click', event=>{ if(event.target === ownerContactModal) closeOwnerContact(); });
 if(ownerMailBtn) ownerMailBtn.addEventListener('click', ()=>{ closeOwnerContact(); openMailCenter('compose', SITE_OWNER_USERNAME); });
