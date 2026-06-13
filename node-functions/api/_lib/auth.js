@@ -208,6 +208,25 @@ export function sanitizeUserProfile(input = {}, username = ''){
         }))
         .filter(file => file.name || file.url)
     : [];
+  const articles = Array.isArray(input.articles)
+    ? input.articles
+        .filter(article => article && typeof article === 'object' && !Array.isArray(article))
+        .slice(0, 100)
+        .map(article => ({
+          id: typeof article.id === 'string' ? article.id.slice(0, 80) : crypto.randomUUID(),
+          title: typeof article.title === 'string' ? article.title.trim().slice(0, 120) : '未命名文章',
+          category: typeof article.category === 'string' ? article.category.trim().slice(0, 40) : 'USER',
+          summary: typeof article.summary === 'string' ? article.summary.trim().slice(0, 260) : '',
+          content: typeof article.content === 'string' ? article.content.slice(0, 8_000_000) : '',
+          thumb: typeof article.thumb === 'string' && article.thumb.startsWith('data:image/') && Buffer.byteLength(article.thumb, 'utf8') <= 3_800_000
+            ? article.thumb
+            : 'linear-gradient(135deg,#7c5cff,#ff8fc7)',
+          fontFamily: typeof article.fontFamily === 'string' ? article.fontFamily.slice(0, 80) : '',
+          createdAt: typeof article.createdAt === 'string' ? article.createdAt.slice(0, 40) : nowIso(),
+          updatedAt: typeof article.updatedAt === 'string' ? article.updatedAt.slice(0, 40) : nowIso()
+        }))
+        .filter(article => article.title || article.content)
+    : [];
   return {
     avatar: sanitizeAvatar(input.avatar),
     nickname: typeof input.nickname === 'string' ? input.nickname.trim().slice(0, 40) : username,
@@ -215,7 +234,8 @@ export function sanitizeUserProfile(input = {}, username = ''){
     intro: typeof input.intro === 'string' ? input.intro.trim().slice(0, 500) : '',
     tags,
     texts,
-    files
+    files,
+    articles
   };
 }
 

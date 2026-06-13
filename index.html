@@ -221,10 +221,10 @@
   .home-settings-wrap::before{
     content:"";
     position:absolute;
-    top:-16px;
-    right:-28px;
-    width:420px;
-    height:250px;
+    top:0;
+    right:0;
+    width:44px;
+    height:44px;
     border-radius:999px;
     background:transparent;
     pointer-events:none;
@@ -238,7 +238,8 @@
     stroke-width:2.2;
     filter:drop-shadow(0 3px 7px rgba(0,0,0,.28));
   }
-  .home-settings-wrap.settings-open #homeSettingsBtn{
+  #homeSettingsBtn:hover,
+  #homeSettingsBtn:focus{
     background:linear-gradient(135deg, rgba(255,255,255,.42), rgba(255,143,199,.24));
     border-color:rgba(255,255,255,.86);
     transform:rotate(18deg) translateY(-1px);
@@ -389,7 +390,10 @@
     pointer-events:none;
     transition:opacity .28s, transform .28s, max-height .28s, padding-top .28s;
   }
-  .home-settings-wrap.settings-open .home-settings-menu{
+  #homeSettingsBtn:hover + .home-settings-menu,
+  #homeSettingsBtn:focus + .home-settings-menu,
+  .home-settings-menu:hover,
+  .home-settings-menu:focus-within{
     max-height:64px;
     padding-top:12px;
     opacity:1;
@@ -415,11 +419,17 @@
     transform:translateY(-8px) scale(.82);
     transition:opacity .25s, transform .25s, background .25s, box-shadow .25s;
   }
-  .home-settings-wrap.settings-open .home-tool-btn{
+  #homeSettingsBtn:hover + .home-settings-menu .home-tool-btn,
+  #homeSettingsBtn:focus + .home-settings-menu .home-tool-btn,
+  .home-settings-menu:hover .home-tool-btn,
+  .home-settings-menu:focus-within .home-tool-btn{
     opacity:1;
     transform:translateY(0) scale(1);
   }
-  .home-settings-wrap.settings-open .home-tool-btn{transition-delay:.04s;}
+  #homeSettingsBtn:hover + .home-settings-menu .home-tool-btn,
+  #homeSettingsBtn:focus + .home-settings-menu .home-tool-btn,
+  .home-settings-menu:hover .home-tool-btn,
+  .home-settings-menu:focus-within .home-tool-btn{transition-delay:.04s;}
   .home-tool-btn:hover{
     background:linear-gradient(135deg, rgba(255,255,255,.36), rgba(255,143,199,.26));
     box-shadow:0 16px 34px rgba(0,0,0,.25), 0 0 24px rgba(124,92,255,.28), inset 0 1px 0 rgba(255,255,255,.42);
@@ -3963,100 +3973,6 @@
   .mail-read-close{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.2);color:#fff;background:rgba(255,255,255,.1);cursor:pointer;}
   .mail-read-meta{color:#8fceff;font-size:12px;font-weight:900;}
   .mail-read-body{margin:0;color:rgba(255,255,255,.76);line-height:1.85;white-space:pre-wrap;}
-  .article-editor-modal{
-    position:fixed;
-    inset:0;
-    z-index:430;
-    display:grid;
-    place-items:center;
-    padding:22px;
-    background:rgba(8,10,26,.52);
-    backdrop-filter:blur(18px);
-    opacity:0;
-    visibility:hidden;
-    pointer-events:none;
-    transition:opacity .24s, visibility .24s;
-  }
-  .article-editor-modal.open{
-    opacity:1;
-    visibility:visible;
-    pointer-events:auto;
-  }
-  .article-editor-card{
-    width:min(920px, 95vw);
-    max-height:88vh;
-    overflow:auto;
-    display:grid;
-    gap:14px;
-    padding:22px;
-    border-radius:30px;
-    color:#fff;
-    background:rgba(16,20,48,.92);
-    border:1px solid rgba(255,255,255,.2);
-    box-shadow:0 30px 90px rgba(0,0,0,.42);
-  }
-  .article-editor-head{display:flex;align-items:center;justify-content:space-between;gap:14px;}
-  .article-editor-head h2{margin:0;font-size:22px;}
-  .article-editor-close{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.2);color:#fff;background:rgba(255,255,255,.1);cursor:pointer;}
-  .article-title-input{
-    width:100%;
-    height:46px;
-    border:none;
-    outline:none;
-    border-radius:16px;
-    padding:0 14px;
-    color:#fff;
-    font-size:18px;
-    font-weight:900;
-    background:rgba(255,255,255,.12);
-    border:1px solid rgba(255,255,255,.14);
-  }
-  .article-editor-toolbar{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-  }
-  .article-editor-toolbar button,
-  .article-editor-toolbar select,
-  .article-editor-toolbar input[type="color"]{
-    min-height:34px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.18);
-    color:#fff;
-    font-weight:900;
-    background:rgba(255,255,255,.12);
-    cursor:pointer;
-  }
-  .article-editor-toolbar button{padding:0 12px;}
-  .article-editor-toolbar select{padding:0 10px;color:#111827;background:rgba(255,255,255,.86);}
-  .article-content-editor{
-    min-height:330px;
-    padding:18px;
-    border-radius:22px;
-    color:#fff;
-    line-height:1.85;
-    background:rgba(255,255,255,.1);
-    border:1px solid rgba(255,255,255,.14);
-    outline:none;
-    overflow:auto;
-  }
-  .article-content-editor img{
-    max-width:100%;
-    border-radius:18px;
-    margin:10px 0;
-    box-shadow:0 16px 36px rgba(0,0,0,.24);
-  }
-  .article-editor-actions{display:flex;justify-content:flex-end;gap:10px;}
-  .article-editor-actions button{
-    min-height:40px;
-    padding:0 16px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.2);
-    color:#fff;
-    font-weight:950;
-    cursor:pointer;
-    background:linear-gradient(135deg, rgba(127,247,255,.22), rgba(255,143,199,.2));
-  }
   .tool-stats-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -4104,25 +4020,9 @@
     min-height:0;
     overflow:hidden;
   }
-  .article-head-actions{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-  .article-publish-btn{
-    min-height:34px;
-    padding:0 13px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.22);
-    color:#fff;
-    font-size:11px;
-    font-weight:950;
-    cursor:pointer;
-    background:linear-gradient(135deg, rgba(127,247,255,.24), rgba(255,143,199,.18));
-  }
   .blog-post-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns:repeat(3, minmax(0, 1fr));
     gap:14px;
     margin-top:18px;
   }
@@ -4163,7 +4063,7 @@
   }
   .blog-side-area{
     display:grid;
-    grid-template-rows:minmax(145px, .35fr) minmax(360px, 1fr);
+    grid-template-rows:minmax(330px, .78fr) minmax(240px, .72fr);
     gap:24px;
   }
   .blog-stat-card,
@@ -4174,21 +4074,23 @@
   .blog-stat-card{
     display:flex;
     flex-direction:column;
-    justify-content:center;
+    justify-content:flex-start;
+    min-height:0;
+    overflow:hidden;
   }
-  .blog-stat-card:not(.feature-orbit-card) span{
+  .blog-stat-card span{
     display:block;
     font-size:clamp(36px, 5vw, 64px);
     font-weight:950;
     line-height:1;
     letter-spacing:-.08em;
   }
-  .blog-stat-card:not(.feature-orbit-card) strong{
+  .blog-stat-card strong{
     display:block;
     margin-top:10px;
     font-size:15px;
   }
-  .blog-stat-card:not(.feature-orbit-card) p{
+  .blog-stat-card p{
     margin:8px 0 0;
     color:rgba(255,255,255,.55);
     font-size:11px;
@@ -4690,7 +4592,8 @@
   }
   .article-grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
-    min-height:272px;
+    min-height:0;
+    align-content:start;
   }
   .article-grid.turning{
     animation:articlePageTurn .46s cubic-bezier(.22,.08,.28,1) both;
@@ -4700,7 +4603,8 @@
     100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0);}
   }
   .article-card{
-    min-height:118px;
+    position:relative;
+    min-height:126px;
     display:grid;
     grid-template-columns:92px 1fr;
     gap:14px;
@@ -4710,21 +4614,188 @@
     border:1px solid rgba(255,255,255,.14);
     transition:transform .22s, background .22s, border-color .22s;
   }
-  .article-card-actions{
-    display:flex;
-    gap:8px;
-    margin-top:10px;
+  .article-card.selectable{
+    cursor:pointer;
   }
-  .article-delete-btn{
-    min-height:28px;
-    padding:0 10px;
-    border-radius:999px;
-    border:1px solid rgba(255,143,199,.32);
+  .article-card.selected{
+    outline:2px solid rgba(255,143,199,.72);
+    background:rgba(255,143,199,.16);
+  }
+  .article-select-mark{
+    position:absolute;
+    top:10px;
+    right:10px;
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
     color:#fff;
-    font-size:10px;
+    font-size:12px;
+    font-weight:950;
+    background:rgba(12,16,38,.72);
+    border:1px solid rgba(255,255,255,.28);
+  }
+  .article-toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    justify-content:flex-end;
+  }
+  .article-toolbar button{
+    min-height:34px;
+    padding:0 13px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;
+    font-size:11px;
+    font-weight:950;
+    cursor:pointer;
+    background:linear-gradient(135deg, rgba(127,247,255,.18), rgba(255,143,199,.16));
+  }
+  .article-toolbar button.danger{
+    background:linear-gradient(135deg, rgba(255,91,122,.28), rgba(255,143,199,.18));
+  }
+  .article-delete-tools{
+    display:none;
+    align-items:center;
+    gap:8px;
+  }
+  .article-delete-tools.active{display:flex;}
+  .article-editor-modal{
+    position:fixed;
+    inset:0;
+    z-index:420;
+    display:grid;
+    place-items:center;
+    padding:18px;
+    background:rgba(8,10,26,.54);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .24s, visibility .24s;
+  }
+  .article-editor-modal.open{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+  .article-editor-card{
+    width:min(1040px, 96vw);
+    max-height:90vh;
+    overflow:auto;
+    display:grid;
+    gap:14px;
+    padding:22px;
+    border-radius:32px;
+    color:#fff;
+    background:rgba(16,20,48,.93);
+    border:1px solid rgba(255,255,255,.22);
+    box-shadow:0 32px 96px rgba(0,0,0,.42);
+  }
+  .article-editor-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .article-editor-head h2{margin:0;font-size:22px;}
+  .article-editor-close{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.2);
+    color:#fff;
+    background:rgba(255,255,255,.1);
+    cursor:pointer;
+  }
+  .article-editor-meta{
+    display:grid;
+    grid-template-columns:1.2fr .8fr;
+    gap:10px;
+  }
+  .article-editor-meta label,
+  .article-style-panel label{
+    display:grid;
+    gap:6px;
+    color:rgba(255,255,255,.68);
+    font-size:11px;
+    font-weight:900;
+  }
+  .article-editor-meta input,
+  .article-editor-meta textarea,
+  .article-style-panel select,
+  .article-style-panel input{
+    width:100%;
+    border:none;
+    outline:none;
+    border-radius:14px;
+    padding:10px 11px;
+    color:#fff;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.14);
+    font:inherit;
+  }
+  .article-editor-meta label:nth-child(3){grid-column:1 / -1;}
+  .article-editor-meta textarea{resize:none;min-height:58px;}
+  .article-style-panel{
+    display:grid;
+    grid-template-columns:repeat(5, minmax(0, 1fr));
+    gap:10px;
+    padding:12px;
+    border-radius:22px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12);
+  }
+  .article-editor-switches{
+    grid-column:1 / -1;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .article-editor-switches button,
+  .article-editor-actions button{
+    min-height:36px;
+    padding:0 13px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;
     font-weight:900;
     cursor:pointer;
-    background:rgba(255,91,122,.18);
+    background:rgba(255,255,255,.1);
+  }
+  .article-editor-switches button.active{
+    background:linear-gradient(135deg, rgba(127,247,255,.24), rgba(255,143,199,.2));
+  }
+  .article-rich-editor{
+    min-height:300px;
+    max-height:48vh;
+    overflow:auto;
+    padding:18px;
+    border-radius:24px;
+    outline:none;
+    color:#fff;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.16);
+    line-height:1.8;
+  }
+  .article-rich-editor img{
+    max-width:min(320px, 92%);
+    max-height:220px;
+    object-fit:contain;
+    border-radius:18px;
+    display:inline-block;
+    margin:8px;
+    border:1px solid rgba(255,255,255,.18);
+  }
+  .article-editor-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    flex-wrap:wrap;
   }
   .article-card:hover{
     transform:translateY(-3px);
@@ -4804,6 +4875,7 @@
     display:flex;
     flex-direction:column;
     gap:12px;
+    overflow:hidden;
   }
   .feature-orbit-card small{
     color:#8fceff;
@@ -4838,11 +4910,13 @@
     background:linear-gradient(135deg, rgba(127,247,255,.18), rgba(255,143,199,.18));
   }
   #featureDescription{
-    margin:auto 0 0;
+    margin:0;
     color:rgba(255,255,255,.64);
     font-size:12px;
     font-weight:750;
-    line-height:1.75;
+    line-height:1.58;
+    max-height:72px;
+    overflow:auto;
   }
   .dashboard.active .blog-glass-card,
   .dashboard.active .blog-post-card{
@@ -5302,9 +5376,14 @@
       <section class="blog-posts-card blog-glass-card" id="blogPosts">
         <div class="blog-section-head">
           <span>文章收纳区</span>
-          <div class="article-head-actions">
-            <button class="article-publish-btn" id="articlePublishBtn" type="button">发布文章</button>
+          <div class="article-toolbar">
             <small id="articlePageInfo">第 1 / 1 页</small>
+            <button id="articlePublishBtn" type="button">发布文章</button>
+            <button id="articleDeleteModeBtn" class="danger" type="button">删除文章</button>
+            <div class="article-delete-tools" id="articleDeleteTools">
+              <button id="articleDeleteConfirmBtn" class="danger" type="button">确认删除</button>
+              <button id="articleDeleteCancelBtn" type="button">取消</button>
+            </div>
           </div>
         </div>
         <div class="blog-post-grid article-grid" id="articleGrid"></div>
@@ -5351,6 +5430,68 @@
     </aside>
   </div>
 </main>
+<div class="article-editor-modal" id="articleEditorModal" aria-hidden="true">
+  <div class="article-editor-card" role="dialog" aria-modal="true" aria-labelledby="articleEditorTitle">
+    <div class="article-editor-head">
+      <h2 id="articleEditorTitle">发布文章</h2>
+      <button class="article-editor-close" id="articleEditorCloseBtn" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="article-editor-meta">
+      <label>文章标题<input id="articleTitleInput" type="text" maxlength="120" placeholder="写一个清晰可爱的标题" /></label>
+      <label>分类标签<input id="articleCategoryInput" type="text" maxlength="40" placeholder="例如：AI / 生活 / 代码" /></label>
+      <label>简略摘要<textarea id="articleSummaryInput" maxlength="260" placeholder="用于文章收纳区简略显示，保持卡片布局不变"></textarea></label>
+    </div>
+    <div class="article-style-panel">
+      <label>热门字体
+        <select id="articleFontSelect">
+          <option value="'Microsoft YaHei','Segoe UI',sans-serif">微软雅黑</option>
+          <option value="'PingFang SC','Microsoft YaHei',sans-serif">苹方</option>
+          <option value="'Noto Sans SC','Microsoft YaHei',sans-serif">思源黑体</option>
+          <option value="'SimSun','Songti SC',serif">宋体</option>
+          <option value="'KaiTi','Kaiti SC',serif">楷体</option>
+          <option value="'FangSong','STFangsong',serif">仿宋</option>
+          <option value="'Arial','Helvetica',sans-serif">Arial</option>
+          <option value="'Georgia',serif">Georgia</option>
+          <option value="'Times New Roman',serif">Times New Roman</option>
+          <option value="'Trebuchet MS','Comic Sans MS',cursive">可爱手写风</option>
+          <option value="'Courier New',monospace">Courier New</option>
+        </select>
+      </label>
+      <label>字号<input id="articleFontSizeInput" type="number" min="12" max="48" value="16" /></label>
+      <label>字重
+        <select id="articleFontWeightSelect">
+          <option value="400">常规 400</option>
+          <option value="500">中等 500</option>
+          <option value="700">加粗 700</option>
+          <option value="900">超粗 900</option>
+        </select>
+      </label>
+      <label>颜色<input id="articleColorInput" type="color" value="#ffffff" /></label>
+      <label>标题级别
+        <select id="articleHeadingSelect">
+          <option value="P">正文</option>
+          <option value="H1">一级标题</option>
+          <option value="H2">二级标题</option>
+          <option value="H3">三级标题</option>
+          <option value="BLOCKQUOTE">引用块</option>
+        </select>
+      </label>
+      <div class="article-editor-switches">
+        <button id="articleBoldBtn" type="button">粗体开关</button>
+        <button id="articleItalicBtn" type="button">斜体开关</button>
+        <button id="articleUnderlineBtn" type="button">下划线开关</button>
+        <button id="articleInsertImageBtn" type="button">随处插入图片 ≤3MB</button>
+        <button id="articleClearFormatBtn" type="button">清除格式</button>
+      </div>
+    </div>
+    <div class="article-rich-editor" id="articleContentEditor" contenteditable="true" spellcheck="false">在这里写文章内容。图片会插入到光标所在位置，并自动缩小显示。</div>
+    <input id="articleImageInput" type="file" accept="image/*" hidden />
+    <div class="article-editor-actions">
+      <button id="articlePreviewBtn" type="button">功能开关已显示</button>
+      <button id="articleSaveBtn" type="button">发布并同步</button>
+    </div>
+  </div>
+</div>
 <div class="mail-modal" id="mailModal" aria-hidden="true">
   <div class="mail-card" role="dialog" aria-modal="true" aria-labelledby="mailTitle">
     <div class="mail-head">
@@ -5386,49 +5527,6 @@
     <div class="mail-read-meta" id="mailReadMeta"></div>
     <p class="mail-read-body" id="mailReadBody"></p>
     <div id="mailReadAttachment"></div>
-  </div>
-</div>
-<div class="article-editor-modal" id="articleEditorModal" aria-hidden="true">
-  <div class="article-editor-card" role="dialog" aria-modal="true" aria-labelledby="articleEditorTitle">
-    <div class="article-editor-head">
-      <h2 id="articleEditorTitle">发布新文章</h2>
-      <button class="article-editor-close" id="articleEditorCloseBtn" type="button" aria-label="关闭">×</button>
-    </div>
-    <input class="article-title-input" id="articleTitleInput" type="text" maxlength="100" placeholder="填写文章标题" />
-    <div class="article-editor-toolbar" aria-label="文章编辑工具栏">
-      <select id="articleBlockSelect" title="标题级别">
-        <option value="P">正文</option>
-        <option value="H1">一级标题</option>
-        <option value="H2">二级标题</option>
-        <option value="H3">三级标题</option>
-      </select>
-      <select id="articleFontSelect" title="字体">
-        <option value="Microsoft YaHei">微软雅黑</option>
-        <option value="SimSun">宋体</option>
-        <option value="KaiTi">楷体</option>
-        <option value="Arial">Arial</option>
-        <option value="Georgia">Georgia</option>
-      </select>
-      <select id="articleSizeSelect" title="字号">
-        <option value="2">小</option>
-        <option value="3" selected>正常</option>
-        <option value="4">中大</option>
-        <option value="5">大</option>
-        <option value="6">超大</option>
-      </select>
-      <button type="button" data-command="bold">加粗</button>
-      <button type="button" data-command="italic">斜体</button>
-      <button type="button" data-command="underline">下划线</button>
-      <button type="button" data-command="insertUnorderedList">列表</button>
-      <input id="articleColorInput" type="color" value="#ffffff" title="文字颜色" />
-      <button id="articleImageBtn" type="button">插入图片 ≤3MB</button>
-      <input id="articleImageInput" type="file" accept="image/*" hidden />
-    </div>
-    <div class="article-content-editor" id="articleContentEditor" contenteditable="true" data-placeholder="在这里写文章。点击任意位置后插入图片，图片会出现在光标所在处。"></div>
-    <div class="article-editor-actions">
-      <button id="articleEditorCancelBtn" type="button">取消</button>
-      <button id="articleEditorSaveBtn" type="button">发布并同步</button>
-    </div>
   </div>
 </div>
 <div class="owner-contact-modal" id="ownerContactModal" aria-hidden="true">
@@ -5475,7 +5573,6 @@ const langBtn = document.getElementById('langBtn');
 const langPanel = document.getElementById('langPanel');
 const homeLangBtn = document.getElementById('homeLangBtn');
 const homeSettingsBtn = document.getElementById('homeSettingsBtn');
-const homeSettingsWrap = document.getElementById('homeSettingsWrap');
 langBtn.addEventListener('click', (e)=>{
   e.stopPropagation();
   langPanel.classList.toggle('open');
@@ -5486,27 +5583,9 @@ if(homeLangBtn){
     langPanel.classList.toggle('open');
   });
 }
-if(homeSettingsBtn && homeSettingsWrap){
-  homeSettingsBtn.addEventListener('mouseenter', ()=>homeSettingsWrap.classList.add('settings-open'));
-  homeSettingsBtn.addEventListener('focus', ()=>homeSettingsWrap.classList.add('settings-open'));
-  homeSettingsWrap.addEventListener('mouseleave', ()=>homeSettingsWrap.classList.remove('settings-open'));
-  homeSettingsWrap.querySelectorAll('.home-tool-btn').forEach(btn=>{
-    btn.addEventListener('focus', ()=>homeSettingsWrap.classList.add('settings-open'));
-  });
-  homeSettingsWrap.addEventListener('focusout', ()=>{
-    setTimeout(()=>{
-      if(!homeSettingsWrap.contains(document.activeElement)){
-        homeSettingsWrap.classList.remove('settings-open');
-      }
-    }, 0);
-  });
-}
 document.addEventListener('click', (e)=>{
   if(!langPanel.contains(e.target) && e.target!==langBtn && e.target!==homeLangBtn && !homeLangBtn?.contains(e.target)){
     langPanel.classList.remove('open');
-  }
-  if(homeSettingsWrap && !homeSettingsWrap.contains(e.target)){
-    homeSettingsWrap.classList.remove('settings-open');
   }
 });
 
@@ -5938,18 +6017,28 @@ const articleNextBtn = document.getElementById('articleNextBtn');
 const articlePageInput = document.getElementById('articlePageInput');
 const articleJumpBtn = document.getElementById('articleJumpBtn');
 const articlePublishBtn = document.getElementById('articlePublishBtn');
+const articleDeleteModeBtn = document.getElementById('articleDeleteModeBtn');
+const articleDeleteTools = document.getElementById('articleDeleteTools');
+const articleDeleteConfirmBtn = document.getElementById('articleDeleteConfirmBtn');
+const articleDeleteCancelBtn = document.getElementById('articleDeleteCancelBtn');
 const articleEditorModal = document.getElementById('articleEditorModal');
 const articleEditorCloseBtn = document.getElementById('articleEditorCloseBtn');
-const articleEditorCancelBtn = document.getElementById('articleEditorCancelBtn');
-const articleEditorSaveBtn = document.getElementById('articleEditorSaveBtn');
 const articleTitleInput = document.getElementById('articleTitleInput');
-const articleContentEditor = document.getElementById('articleContentEditor');
-const articleBlockSelect = document.getElementById('articleBlockSelect');
+const articleCategoryInput = document.getElementById('articleCategoryInput');
+const articleSummaryInput = document.getElementById('articleSummaryInput');
 const articleFontSelect = document.getElementById('articleFontSelect');
-const articleSizeSelect = document.getElementById('articleSizeSelect');
+const articleFontSizeInput = document.getElementById('articleFontSizeInput');
+const articleFontWeightSelect = document.getElementById('articleFontWeightSelect');
 const articleColorInput = document.getElementById('articleColorInput');
-const articleImageBtn = document.getElementById('articleImageBtn');
+const articleHeadingSelect = document.getElementById('articleHeadingSelect');
+const articleBoldBtn = document.getElementById('articleBoldBtn');
+const articleItalicBtn = document.getElementById('articleItalicBtn');
+const articleUnderlineBtn = document.getElementById('articleUnderlineBtn');
+const articleInsertImageBtn = document.getElementById('articleInsertImageBtn');
+const articleClearFormatBtn = document.getElementById('articleClearFormatBtn');
+const articleContentEditor = document.getElementById('articleContentEditor');
 const articleImageInput = document.getElementById('articleImageInput');
+const articleSaveBtn = document.getElementById('articleSaveBtn');
 const homeSearchInput = document.getElementById('homeSearchInput');
 const homeSearchBtn = document.getElementById('homeSearchBtn');
 const searchResultsPanel = document.getElementById('searchResultsPanel');
@@ -6222,9 +6311,10 @@ function renderBlogHomeUser(userLike){
     blogProfileTags.innerHTML = tags.map(tag=>`<span>${escapeHtml(tag)}</span>`).join('');
   }
   updateToolStats(user);
+  if(typeof renderArticles === 'function') renderArticles();
 }
 
-const DEFAULT_BLOG_ARTICLES = [
+const BLOG_ARTICLES = [
   { title:'AI Agent 从入门到实践', category:'AI AGENT', date:'2026-06-11 20:30', summary:'记录一次从想法、流程拆解到自动化执行的完整路径。', thumb:'linear-gradient(135deg,#7c5cff,#3ad6ff)' },
   { title:'让脚本替你整理生活', category:'PYTHON', date:'2026-06-08 18:10', summary:'把重复的日常动作交给程序，留下更多时间给创造。', thumb:'linear-gradient(135deg,#42f5b6,#7c5cff)' },
   { title:'长期主义者的知识档案', category:'THINKING', date:'2026-06-01 09:20', summary:'把零散笔记连接起来，形成能持续生长的个人系统。', thumb:'linear-gradient(135deg,#ff8fc7,#ffd166)' },
@@ -6234,10 +6324,11 @@ const DEFAULT_BLOG_ARTICLES = [
   { title:'Python 文件整理器', category:'CODE', date:'2026-05-05 16:40', summary:'按日期、类型和关键词自动归类桌面文件。', thumb:'linear-gradient(135deg,#84fab0,#8fd3f4)' },
   { title:'写给未来自己的复盘', category:'LIFE', date:'2026-04-28 23:16', summary:'把每一次试错变成下一次行动的地图。', thumb:'linear-gradient(135deg,#d4fc79,#96e6a1)' }
 ];
-let userArticles = [];
 
 let articlePage = 1;
 let articlesPerPage = 4;
+let deleteArticleMode = false;
+let selectedArticleIds = new Set();
 let mailState = { inbox:[], sent:[] };
 let currentMailMode = 'inbox';
 let pendingMailAttachment = null;
@@ -6245,7 +6336,7 @@ let pendingMailAttachment = null;
 function updateToolStats(user = readSavedUser()){
   const profile = user?.profile || {};
   const tags = Array.isArray(profile.tags) ? profile.tags : [];
-  const articleCount = userArticles.length;
+  const articleCount = getUserArticles(user).length;
   if(toolArticleCount) toolArticleCount.textContent = articleCount;
   if(toolRegisterDays) toolRegisterDays.textContent = daysSince(user?.createdAt);
   if(toolTagCount) toolTagCount.textContent = tags.length;
@@ -6256,29 +6347,45 @@ function updateToolStats(user = readSavedUser()){
   }
 }
 
-function getAllArticles(){
-  return [...userArticles, ...DEFAULT_BLOG_ARTICLES];
+function getUserArticles(user = readSavedUser()){
+  const articles = user?.profile?.articles;
+  return Array.isArray(articles) ? articles : [];
 }
 
-function calculateArticlesPerPage(){
+function getAllArticles(){
+  return [...getUserArticles(), ...BLOG_ARTICLES.map((article, index)=>({ ...article, id:`demo-${index}`, demo:true }))];
+}
+
+function articleThumbStyle(article){
+  const thumb = String(article?.thumb || '');
+  if(thumb.startsWith('data:image/')) return `url("${thumb}")`;
+  return thumb || 'linear-gradient(135deg,#7c5cff,#ff8fc7)';
+}
+
+function computeArticlesPerPage(){
   if(!articleGrid) return 4;
   const rect = articleGrid.getBoundingClientRect();
-  const width = rect.width || 640;
-  const height = rect.height || 280;
-  const cols = width >= 860 ? 3 : width >= 560 ? 2 : 1;
-  const rows = height >= 420 ? 2 : 1;
-  return Math.max(2, Math.min(6, cols * rows));
+  const card = articleGrid.closest('.blog-posts-card');
+  const cardRect = card ? card.getBoundingClientRect() : rect;
+  const width = rect.width || cardRect.width || window.innerWidth;
+  const height = Math.max(180, (cardRect.height || 430) - 118);
+  const columns = width >= 960 ? 3 : width >= 560 ? 2 : 1;
+  const rows = Math.max(1, Math.floor(height / 148));
+  return Math.max(2, Math.min(12, columns * rows));
 }
 
-function articleThumbValue(article){
-  const thumb = article.thumb || '';
-  return thumb.startsWith('data:image/') ? `url("${thumb}")` : (thumb || 'linear-gradient(135deg,#7c5cff,#ff8fc7)');
+function refreshArticlePageSize(){
+  const next = computeArticlesPerPage();
+  if(next !== articlesPerPage){
+    articlesPerPage = next;
+    renderArticles();
+  }
 }
 
 function renderArticles(){
   if(!articleGrid) return;
+  articlesPerPage = computeArticlesPerPage();
   const articles = getAllArticles();
-  articlesPerPage = calculateArticlesPerPage();
   const totalPages = Math.max(1, Math.ceil(articles.length / articlesPerPage));
   articlePage = Math.min(Math.max(1, articlePage), totalPages);
   const start = (articlePage - 1) * articlesPerPage;
@@ -6287,35 +6394,178 @@ function renderArticles(){
   void articleGrid.offsetWidth;
   articleGrid.classList.add('turning');
   articleGrid.innerHTML = items.map(article=>`
-    <article class="article-card">
-      <div class="article-thumb" style="--article-thumb:${articleThumbValue(article)}"></div>
+    <article class="article-card ${deleteArticleMode && !article.demo ? 'selectable' : ''} ${selectedArticleIds.has(article.id) ? 'selected' : ''}" data-article-id="${escapeHtml(article.id || '')}" data-demo="${article.demo ? '1' : '0'}">
+      ${deleteArticleMode && !article.demo ? `<div class="article-select-mark">${selectedArticleIds.has(article.id) ? '✓' : ''}</div>` : ''}
+      <div class="article-thumb" style="--article-thumb:${articleThumbStyle(article)}"></div>
       <div>
-        <small>${escapeHtml(article.category)} · ${escapeHtml(article.date)}</small>
+        <small>${escapeHtml(article.category)} · ${escapeHtml(article.date || article.createdAt || '')}</small>
         <h3>${escapeHtml(article.title)}</h3>
         <p>${escapeHtml(article.summary)}</p>
-        ${article.owner ? `<div class="article-card-actions"><button class="article-delete-btn" type="button" data-article-id="${escapeHtml(article.id)}">删除</button></div>` : ''}
       </div>
     </article>
   `).join('');
-  articleGrid.querySelectorAll('[data-article-id]').forEach(btn=>{
-    btn.addEventListener('click', event=>{
-      event.stopPropagation();
-      deleteUserArticle(btn.dataset.articleId);
-    });
-  });
-  if(articlePageInfo) articlePageInfo.textContent = `第 ${articlePage} / ${totalPages} 页 · 本页 ${items.length} 篇`;
+  if(articlePageInfo) articlePageInfo.textContent = `第 ${articlePage} / ${totalPages} 页`;
   if(articlePageInput){
     articlePageInput.max = totalPages;
     articlePageInput.value = articlePage;
   }
   if(articlePrevBtn) articlePrevBtn.disabled = articlePage <= 1;
   if(articleNextBtn) articleNextBtn.disabled = articlePage >= totalPages;
+  articleGrid.querySelectorAll('.article-card.selectable').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const id = card.dataset.articleId;
+      if(!id) return;
+      if(selectedArticleIds.has(id)) selectedArticleIds.delete(id);
+      else selectedArticleIds.add(id);
+      renderArticles();
+    });
+  });
   updateToolStats();
 }
 
 function goArticlePage(nextPage){
   articlePage = Number(nextPage) || 1;
   renderArticles();
+}
+
+function requireRealUser(actionText = '使用文章功能'){
+  const user = readSavedUser();
+  if(!getAuthToken() || !user || user.username === 'guest'){
+    showLoginToast(`${actionText}需要先注册或登录账号。`, 'warn', '需要账号');
+    return null;
+  }
+  return user;
+}
+
+async function syncUserArticles(nextArticles){
+  const user = requireRealUser('同步文章');
+  if(!user) return null;
+  const nextProfile = {
+    ...(user.profile || {}),
+    articles:nextArticles
+  };
+  const result = await authRequest('/api/me/profile', {
+    method:'PUT',
+    headers:authorizedHeaders(),
+    body:JSON.stringify({ profile:nextProfile })
+  });
+  saveLoginSession(getAuthToken(), result.user);
+  renderBlogHomeUser(result.user);
+  return result.user;
+}
+
+function openArticleEditor(){
+  if(!requireRealUser('发布文章')) return;
+  articleTitleInput.value = '';
+  articleCategoryInput.value = 'USER';
+  articleSummaryInput.value = '';
+  articleFontSizeInput.value = 16;
+  articleFontWeightSelect.value = '400';
+  articleColorInput.value = '#ffffff';
+  articleHeadingSelect.value = 'P';
+  articleContentEditor.innerHTML = '在这里写文章内容。图片会插入到光标所在位置，并自动缩小显示。';
+  articleEditorModal?.classList.add('open');
+  articleEditorModal?.setAttribute('aria-hidden', 'false');
+  setTimeout(()=>articleContentEditor?.focus(), 80);
+}
+
+function closeArticleEditor(){
+  articleEditorModal?.classList.remove('open');
+  articleEditorModal?.setAttribute('aria-hidden', 'true');
+}
+
+function applyArticleCommand(command, value = null){
+  articleContentEditor?.focus();
+  document.execCommand(command, false, value);
+}
+
+function applyArticleFontSize(){
+  const size = Math.max(12, Math.min(48, Number(articleFontSizeInput?.value || 16)));
+  applyArticleCommand('fontSize', '4');
+  articleContentEditor?.querySelectorAll('font[size="4"]').forEach(font=>{
+    font.removeAttribute('size');
+    font.style.fontSize = `${size}px`;
+  });
+}
+
+function getFirstArticleImage(html){
+  const match = String(html || '').match(/<img[^>]+src=["']([^"']+)["']/i);
+  return match ? match[1] : 'linear-gradient(135deg,#7c5cff,#ff8fc7)';
+}
+
+async function insertArticleImage(file){
+  if(!file || !file.type.startsWith('image/')){
+    showLoginToast('请选择图片文件。', 'warn', '格式不对');
+    return;
+  }
+  if(file.size > 3 * 1024 * 1024){
+    showLoginToast('文章图片不能超过 3MB。', 'warn', '图片过大');
+    return;
+  }
+  const src = await readFileAsDataUrl(file);
+  articleContentEditor?.focus();
+  document.execCommand('insertHTML', false, `<img src="${src}" alt="文章图片" />`);
+}
+
+async function saveArticleFromEditor(){
+  const user = requireRealUser('发布文章');
+  if(!user) return;
+  const title = String(articleTitleInput?.value || '').trim();
+  const content = String(articleContentEditor?.innerHTML || '').trim();
+  if(!title || !content){
+    showLoginToast('请填写文章标题和正文。', 'warn', '内容不完整');
+    return;
+  }
+  try{
+    articleSaveBtn.disabled = true;
+    articleSaveBtn.textContent = '同步中...';
+    const article = {
+      id:`article-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      title:title.slice(0, 120),
+      category:String(articleCategoryInput?.value || 'USER').trim().slice(0, 40) || 'USER',
+      summary:String(articleSummaryInput?.value || articleContentEditor.textContent || '').trim().slice(0, 160),
+      content:content.slice(0, 8_000_000),
+      thumb:getFirstArticleImage(content),
+      fontFamily:articleFontSelect?.value || '',
+      createdAt:new Date().toISOString().slice(0, 16).replace('T', ' '),
+      updatedAt:new Date().toISOString()
+    };
+    await syncUserArticles([article, ...getUserArticles(user)]);
+    closeArticleEditor();
+    showLoginToast('文章已发布并同步到当前账号。', 'success', '发布成功');
+  }catch(error){
+    showLoginToast(error.message || '文章发布失败。', 'error', '发布失败');
+  }finally{
+    articleSaveBtn.disabled = false;
+    articleSaveBtn.textContent = '发布并同步';
+  }
+}
+
+function toggleArticleDeleteMode(on = !deleteArticleMode){
+  if(!requireRealUser('删除文章')) return;
+  deleteArticleMode = on;
+  if(!deleteArticleMode) selectedArticleIds.clear();
+  articleDeleteTools?.classList.toggle('active', deleteArticleMode);
+  articleDeleteModeBtn.textContent = deleteArticleMode ? '选择要删除的文章' : '删除文章';
+  renderArticles();
+}
+
+async function deleteSelectedArticles(){
+  const user = requireRealUser('删除文章');
+  if(!user) return;
+  if(!selectedArticleIds.size){
+    showLoginToast('请先勾选要删除的文章。', 'warn', '未选择文章');
+    return;
+  }
+  try{
+    const remain = getUserArticles(user).filter(article=>!selectedArticleIds.has(article.id));
+    await syncUserArticles(remain);
+    selectedArticleIds.clear();
+    toggleArticleDeleteMode(false);
+    showLoginToast('已删除选中的文章。', 'success', '删除成功');
+  }catch(error){
+    showLoginToast(error.message || '删除文章失败。', 'error', '删除失败');
+  }
 }
 
 if(articlePrevBtn) articlePrevBtn.addEventListener('click', ()=>goArticlePage(articlePage - 1));
@@ -6326,130 +6576,32 @@ if(articlePageInput){
     if(event.key === 'Enter') goArticlePage(articlePageInput.value);
   });
 }
-
-async function loadUserArticles(){
-  if(!getAuthToken() || readSavedUser()?.username === 'guest'){
-    userArticles = [];
-    renderArticles();
-    return;
-  }
-  try{
-    const data = await authRequest('/api/articles', { method:'GET', headers:authorizedHeaders() });
-    userArticles = Array.isArray(data.articles) ? data.articles.map(article=>({
-      ...article,
-      date:(article.createdAt || '').slice(0, 16).replace('T', ' ')
-    })) : [];
-  }catch(error){
-    userArticles = [];
-  }
-  renderArticles();
-}
-
-function openArticleEditor(){
-  if(!getAuthToken() || readSavedUser()?.username === 'guest'){
-    showLoginToast('请先注册或登录账号后发布文章。', 'warn', '需要账号');
-    return;
-  }
-  if(articleTitleInput) articleTitleInput.value = '';
-  if(articleContentEditor) articleContentEditor.innerHTML = '<p>在这里写下你的新文章。</p>';
-  articleEditorModal?.classList.add('open');
-  articleEditorModal?.setAttribute('aria-hidden', 'false');
-}
-
-function closeArticleEditor(){
-  articleEditorModal?.classList.remove('open');
-  articleEditorModal?.setAttribute('aria-hidden', 'true');
-}
-
-function execArticleCommand(command, value = null){
-  articleContentEditor?.focus();
-  document.execCommand(command, false, value);
-}
-
-async function insertArticleImage(file){
-  if(!file) return;
-  if(!file.type.startsWith('image/')){
-    showLoginToast('请选择图片文件。', 'warn', '格式不对');
-    return;
-  }
-  if(file.size > 3 * 1024 * 1024){
-    showLoginToast('文章图片不能超过 3MB。', 'warn', '图片过大');
-    return;
-  }
-  const dataUrl = await readFileAsDataUrl(file);
-  execArticleCommand('insertImage', dataUrl);
-}
-
-async function publishArticle(){
-  const title = String(articleTitleInput?.value || '').trim();
-  const content = String(articleContentEditor?.innerHTML || '').trim();
-  if(!title || !content || content === '<br>'){
-    showLoginToast('请填写文章标题和正文。', 'warn', '内容不完整');
-    return;
-  }
-  try{
-    articleEditorSaveBtn.disabled = true;
-    articleEditorSaveBtn.textContent = '发布中...';
-    const data = await authRequest('/api/articles', {
-      method:'POST',
-      headers:authorizedHeaders(),
-      body:JSON.stringify({ article:{ title, content, category:'USER POST' } })
-    });
-    userArticles = (data.articles || []).map(article=>({
-      ...article,
-      date:(article.createdAt || '').slice(0, 16).replace('T', ' ')
-    }));
-    closeArticleEditor();
-    renderArticles();
-    showLoginToast('文章已发布并同步到当前用户。', 'success', '发布成功');
-  }catch(error){
-    showLoginToast(error.message || '发布文章失败。', 'error', '发布失败');
-  }finally{
-    articleEditorSaveBtn.disabled = false;
-    articleEditorSaveBtn.textContent = '发布并同步';
-  }
-}
-
-async function deleteUserArticle(id){
-  if(!id) return;
-  try{
-    const data = await authRequest('/api/articles', {
-      method:'DELETE',
-      headers:authorizedHeaders(),
-      body:JSON.stringify({ id })
-    });
-    userArticles = (data.articles || []).map(article=>({
-      ...article,
-      date:(article.createdAt || '').slice(0, 16).replace('T', ' ')
-    }));
-    renderArticles();
-    showLoginToast('文章已删除。', 'success', '删除成功');
-  }catch(error){
-    showLoginToast(error.message || '删除文章失败。', 'error', '删除失败');
-  }
-}
-
 if(articlePublishBtn) articlePublishBtn.addEventListener('click', openArticleEditor);
+if(articleDeleteModeBtn) articleDeleteModeBtn.addEventListener('click', ()=>toggleArticleDeleteMode());
+if(articleDeleteCancelBtn) articleDeleteCancelBtn.addEventListener('click', ()=>toggleArticleDeleteMode(false));
+if(articleDeleteConfirmBtn) articleDeleteConfirmBtn.addEventListener('click', deleteSelectedArticles);
 if(articleEditorCloseBtn) articleEditorCloseBtn.addEventListener('click', closeArticleEditor);
-if(articleEditorCancelBtn) articleEditorCancelBtn.addEventListener('click', closeArticleEditor);
 if(articleEditorModal) articleEditorModal.addEventListener('click', event=>{ if(event.target === articleEditorModal) closeArticleEditor(); });
-document.querySelectorAll('.article-editor-toolbar [data-command]').forEach(btn=>{
-  btn.addEventListener('click', ()=>execArticleCommand(btn.dataset.command));
+if(articleBoldBtn) articleBoldBtn.addEventListener('click', ()=>applyArticleCommand('bold'));
+if(articleItalicBtn) articleItalicBtn.addEventListener('click', ()=>applyArticleCommand('italic'));
+if(articleUnderlineBtn) articleUnderlineBtn.addEventListener('click', ()=>applyArticleCommand('underline'));
+if(articleClearFormatBtn) articleClearFormatBtn.addEventListener('click', ()=>applyArticleCommand('removeFormat'));
+if(articleFontSelect) articleFontSelect.addEventListener('change', ()=>applyArticleCommand('fontName', articleFontSelect.value));
+if(articleFontWeightSelect) articleFontWeightSelect.addEventListener('change', ()=>{ articleContentEditor.style.fontWeight = articleFontWeightSelect.value; });
+if(articleFontSizeInput) articleFontSizeInput.addEventListener('change', applyArticleFontSize);
+if(articleColorInput) articleColorInput.addEventListener('input', ()=>applyArticleCommand('foreColor', articleColorInput.value));
+if(articleHeadingSelect) articleHeadingSelect.addEventListener('change', ()=>applyArticleCommand('formatBlock', articleHeadingSelect.value));
+if(articleInsertImageBtn) articleInsertImageBtn.addEventListener('click', ()=>articleImageInput?.click());
+if(articleImageInput) articleImageInput.addEventListener('change', async ()=>{
+  const file = articleImageInput.files && articleImageInput.files[0];
+  if(file) await insertArticleImage(file);
+  articleImageInput.value = '';
 });
-if(articleBlockSelect) articleBlockSelect.addEventListener('change', ()=>execArticleCommand('formatBlock', articleBlockSelect.value));
-if(articleFontSelect) articleFontSelect.addEventListener('change', ()=>execArticleCommand('fontName', articleFontSelect.value));
-if(articleSizeSelect) articleSizeSelect.addEventListener('change', ()=>execArticleCommand('fontSize', articleSizeSelect.value));
-if(articleColorInput) articleColorInput.addEventListener('input', ()=>execArticleCommand('foreColor', articleColorInput.value));
-if(articleImageBtn) articleImageBtn.addEventListener('click', ()=>articleImageInput?.click());
-if(articleImageInput) articleImageInput.addEventListener('change', ()=>insertArticleImage(articleImageInput.files && articleImageInput.files[0]));
-if(articleEditorSaveBtn) articleEditorSaveBtn.addEventListener('click', publishArticle);
-if(window.ResizeObserver && articleGrid){
-  const articleGridObserver = new ResizeObserver(()=>renderArticles());
-  articleGridObserver.observe(articleGrid);
-}else{
-  window.addEventListener('resize', renderArticles);
-}
 renderArticles();
+if(window.ResizeObserver && articleGrid){
+  new ResizeObserver(()=>refreshArticlePageSize()).observe(articleGrid);
+}
+window.addEventListener('resize', ()=>setTimeout(refreshArticlePageSize, 120));
 
 const DEFAULT_ANNOUNCEMENTS = [
   { id:'welcome', kicker:'✨ 星尘公告', title:'欢迎来到你的灵感档案馆', body:'这里会收纳文章、文件、灵感和成长记录。每一次登录，都是和未来的自己重逢。', updatedAt:'2026-06-13', image:'' },
@@ -6707,7 +6859,7 @@ function renderSearchResults(items){
     const article = item.article;
     return `
       <button class="search-result-item" type="button" data-result-type="article" data-index="${index}">
-        <div class="search-result-avatar" style="--result-avatar:${article.thumb}"></div>
+        <div class="search-result-avatar" style="--result-avatar:${articleThumbStyle(article)}"></div>
         <div><strong>${escapeHtml(article.title)}</strong><span>${escapeHtml(article.category)} · ${escapeHtml(article.summary)}</span></div>
         <em class="search-result-kind">ARTICLE</em>
       </button>
@@ -6759,6 +6911,7 @@ function renderPublicProfile(user){
   const profile = user.profile || {};
   const texts = userTexts(user);
   const tags = Array.isArray(profile.tags) ? profile.tags : [];
+  const publicArticles = Array.isArray(profile.articles) && profile.articles.length ? profile.articles : BLOG_ARTICLES.slice(0, 4);
   publicProfileBody.innerHTML = `
     <div class="public-profile-top">
       <div class="public-profile-avatar" style="--public-avatar:${publicAvatarStyle(profile.avatar || '')}"></div>
@@ -6779,7 +6932,7 @@ function renderPublicProfile(user){
     </div>
     <h3>公开文章</h3>
     <div class="public-profile-articles">
-      ${getAllArticles().slice(0, 4).map((article, index)=>`<article data-article-index="${index}"><small>${escapeHtml(article.category)} · ${escapeHtml(article.date)}</small><h3>${escapeHtml(article.title)}</h3><p>${escapeHtml(article.summary)}</p></article>`).join('')}
+      ${publicArticles.slice(0, 4).map((article, index)=>`<article data-public-article-title="${escapeHtml(article.title)}" data-article-index="${index}"><small>${escapeHtml(article.category)} · ${escapeHtml(article.date || article.createdAt || '')}</small><h3>${escapeHtml(article.title)}</h3><p>${escapeHtml(article.summary)}</p></article>`).join('')}
     </div>
   `;
   publicProfileBody.querySelectorAll('[data-copy]').forEach(el=>{
@@ -6787,8 +6940,9 @@ function renderPublicProfile(user){
   });
   publicProfileBody.querySelectorAll('[data-article-index]').forEach(el=>{
     el.addEventListener('click', ()=>{
-      const index = Number(el.dataset.articleIndex);
-      goArticlePage(Math.floor(index / articlesPerPage) + 1);
+      const title = el.dataset.publicArticleTitle || '';
+      const index = getAllArticles().findIndex(article=>article.title === title);
+      goArticlePage(Math.floor(Math.max(0, index) / articlesPerPage) + 1);
       closePublicProfile();
       document.getElementById('blogPosts')?.scrollIntoView({ behavior:'smooth', block:'center' });
     });
@@ -7085,7 +7239,6 @@ function enterDashboard(userLike){
   if(getAuthToken() && readSavedUser()?.username !== 'guest'){
     loadMail('inbox');
   }
-  loadUserArticles();
   pulseTransitionFlare();
   triggerLightFeathers();
   setTimeout(()=>{
@@ -7430,10 +7583,7 @@ function returnToLogin(){
   closePublicProfile();
   closeNoticeEditor();
   closeMailCenter();
-  closeArticleEditor();
   closeOwnerContact();
-  userArticles = [];
-  renderArticles();
   if(loginStage){
     loginStage.classList.remove('hidden','login-exit');
     loginStage.classList.add('login-enter');
