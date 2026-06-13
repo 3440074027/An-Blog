@@ -6915,7 +6915,7 @@ function getFirstArticleImage(html){
   return match ? match[1] : 'linear-gradient(135deg,#7c5cff,#ff8fc7)';
 }
 
-function compressArticleImageFile(file, maxSize = 1280, quality = .74){
+function compressArticleImageFile(file, maxSize = 720, quality = .58){
   return new Promise((resolve, reject)=>{
     const reader = new FileReader();
     reader.onerror = reject;
@@ -6960,6 +6960,10 @@ async function saveArticleFromEditor(){
   const content = String(articleContentEditor?.innerHTML || '').trim();
   if(!title || !content){
     showLoginToast('请填写文章标题和正文。', 'warn', '内容不完整');
+    return;
+  }
+  if(content.length > 1_600_000){
+    showLoginToast('文章内容或图片仍然过大，请减少图片数量或压缩后再发布。', 'warn', '内容过大');
     return;
   }
   try{
@@ -7052,8 +7056,16 @@ function isCurrentUserAuthor(article){
   return !!user && !!article && article.author === user.username;
 }
 
-function openArticleDetail(id){
-  const article = publicArticles.find(item=>item.id === id);
+async function fetchArticleDetail(id){
+  const data = await authRequest(`/api/articles?id=${encodeURIComponent(id)}`, { method:'GET' });
+  return data.article;
+}
+
+async function openArticleDetail(id){
+  const article = await fetchArticleDetail(id).catch(error=>{
+    showLoginToast(error.message || '读取文章详情失败。', 'error', '打开失败');
+    return null;
+  });
   if(!article) return;
   currentDetailArticleId = id;
   if(articleDetailTitle) articleDetailTitle.textContent = article.title || '未命名文章';
@@ -7072,8 +7084,11 @@ function closeArticleDetail(){
   articleDetailModal?.setAttribute('aria-hidden', 'true');
 }
 
-function editCurrentDetailArticle(){
-  const article = publicArticles.find(item=>item.id === currentDetailArticleId);
+async function editCurrentDetailArticle(){
+  const article = await fetchArticleDetail(currentDetailArticleId).catch(error=>{
+    showLoginToast(error.message || '读取文章详情失败。', 'error', '打开失败');
+    return null;
+  });
   if(!article) return;
   if(!isCurrentUserAuthor(article)){
     showLoginToast('只有文章发布者可以修改这篇文章。', 'warn', '无权限');
