@@ -3987,6 +3987,16 @@
       rgba(255,255,255,.1);
     border:1px solid rgba(255,255,255,.14);
     overflow:hidden;
+    cursor:pointer;
+    transition:transform .22s, background .22s, box-shadow .22s;
+  }
+  .tool-stat:hover,
+  .feature-pill:hover{
+    transform:translateY(-3px) scale(1.015);
+    background:
+      radial-gradient(circle at 15% 0%, rgba(255,143,199,.18), transparent 42%),
+      rgba(255,255,255,.14);
+    box-shadow:0 18px 38px rgba(0,0,0,.18), 0 0 24px rgba(127,247,255,.1);
   }
   .feature-orbit-card .tool-stat strong{
     display:block;
@@ -4613,6 +4623,12 @@
     background:rgba(255,255,255,.12);
     border:1px solid rgba(255,255,255,.14);
     transition:transform .22s, background .22s, border-color .22s;
+    cursor:pointer;
+  }
+  .article-card:hover{
+    transform:translateY(-3px);
+    background:rgba(255,255,255,.17);
+    border-color:rgba(255,255,255,.28);
   }
   .article-card.selectable{
     cursor:pointer;
@@ -4691,6 +4707,88 @@
     visibility:hidden;
     pointer-events:none;
     transition:opacity .24s, visibility .24s;
+  }
+  .article-detail-modal{
+    position:fixed;
+    inset:0;
+    z-index:430;
+    display:grid;
+    place-items:center;
+    padding:18px;
+    background:rgba(8,10,26,.55);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .24s, visibility .24s;
+  }
+  .article-detail-modal.open{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+  .article-detail-card{
+    width:min(940px, 96vw);
+    max-height:90vh;
+    overflow:auto;
+    display:grid;
+    gap:16px;
+    padding:26px;
+    border-radius:34px;
+    color:#fff;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(255,143,199,.22), transparent 34%),
+      radial-gradient(circle at 92% 12%, rgba(127,247,255,.16), transparent 34%),
+      rgba(16,20,48,.94);
+    border:1px solid rgba(255,255,255,.22);
+    box-shadow:0 34px 100px rgba(0,0,0,.44);
+  }
+  .article-detail-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+  }
+  .article-detail-head h2{margin:0;font-size:clamp(24px, 4vw, 42px);line-height:1.08;}
+  .article-detail-meta{color:#8fceff;font-size:12px;font-weight:900;}
+  .article-detail-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+  .article-detail-actions button{
+    min-height:34px;
+    padding:0 13px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.2);
+    color:#fff;
+    font-weight:900;
+    cursor:pointer;
+    background:rgba(255,255,255,.12);
+  }
+  .article-detail-content{
+    padding:18px;
+    border-radius:24px;
+    background:rgba(255,255,255,.09);
+    border:1px solid rgba(255,255,255,.12);
+    color:rgba(255,255,255,.86);
+    line-height:1.85;
+    overflow:hidden;
+  }
+  .article-detail-content img{max-width:min(420px, 92%);max-height:300px;object-fit:contain;border-radius:18px;margin:8px;border:1px solid rgba(255,255,255,.18);}
+  .article-category-chips{
+    grid-column:1 / -1;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .article-category-chips button{
+    min-height:30px;
+    padding:0 11px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.16);
+    color:#fff;
+    font-size:11px;
+    font-weight:900;
+    cursor:pointer;
+    background:rgba(255,255,255,.1);
   }
   .article-editor-modal.open{
     opacity:1;
@@ -5467,6 +5565,7 @@
           <span>文章收纳区</span>
           <div class="article-toolbar">
             <small id="articlePageInfo">第 1 / 1 页</small>
+            <button id="articleAllBtn" type="button">全部文章</button>
             <button id="articlePublishBtn" type="button">发布文章</button>
             <button id="articleDeleteModeBtn" class="danger" type="button">删除文章</button>
             <div class="article-delete-tools" id="articleDeleteTools">
@@ -5529,6 +5628,16 @@
       <label>文章标题<input id="articleTitleInput" type="text" maxlength="120" placeholder="写一个清晰可爱的标题" /></label>
       <label>分类标签<input id="articleCategoryInput" type="text" maxlength="40" placeholder="例如：AI / 生活 / 代码" /></label>
       <label>简略摘要<textarea id="articleSummaryInput" maxlength="260" placeholder="用于文章收纳区简略显示，保持卡片布局不变"></textarea></label>
+      <div class="article-category-chips" aria-label="常用分类">
+        <button type="button" data-category="随笔">随笔</button>
+        <button type="button" data-category="生活">生活</button>
+        <button type="button" data-category="学习">学习</button>
+        <button type="button" data-category="AI">AI</button>
+        <button type="button" data-category="代码">代码</button>
+        <button type="button" data-category="设计">设计</button>
+        <button type="button" data-category="复盘">复盘</button>
+        <button type="button" data-category="灵感">灵感</button>
+      </div>
     </div>
     <div class="article-style-panel">
       <label>热门字体
@@ -5597,6 +5706,21 @@
       <div class="article-progress" id="articlePublishProgress" aria-hidden="true"><span id="articlePublishProgressBar"></span></div>
       <button id="articleSaveBtn" type="button">发布</button>
     </div>
+  </div>
+</div>
+<div class="article-detail-modal" id="articleDetailModal" aria-hidden="true">
+  <div class="article-detail-card" role="dialog" aria-modal="true" aria-labelledby="articleDetailTitle">
+    <div class="article-detail-head">
+      <div>
+        <div class="article-detail-meta" id="articleDetailMeta"></div>
+        <h2 id="articleDetailTitle">文章标题</h2>
+      </div>
+      <div class="article-detail-actions">
+        <button id="articleDetailEditBtn" type="button">修改文章</button>
+        <button id="articleDetailCloseBtn" type="button">关闭</button>
+      </div>
+    </div>
+    <div class="article-detail-content" id="articleDetailContent"></div>
   </div>
 </div>
 <div class="mail-modal" id="mailModal" aria-hidden="true">
@@ -6123,6 +6247,7 @@ const articlePrevBtn = document.getElementById('articlePrevBtn');
 const articleNextBtn = document.getElementById('articleNextBtn');
 const articlePageInput = document.getElementById('articlePageInput');
 const articleJumpBtn = document.getElementById('articleJumpBtn');
+const articleAllBtn = document.getElementById('articleAllBtn');
 const articlePublishBtn = document.getElementById('articlePublishBtn');
 const articleDeleteModeBtn = document.getElementById('articleDeleteModeBtn');
 const articleDeleteTools = document.getElementById('articleDeleteTools');
@@ -6130,6 +6255,7 @@ const articleDeleteConfirmBtn = document.getElementById('articleDeleteConfirmBtn
 const articleDeleteCancelBtn = document.getElementById('articleDeleteCancelBtn');
 const articleEditorModal = document.getElementById('articleEditorModal');
 const articleEditorCloseBtn = document.getElementById('articleEditorCloseBtn');
+const articleEditorTitle = document.getElementById('articleEditorTitle');
 const articleTitleInput = document.getElementById('articleTitleInput');
 const articleCategoryInput = document.getElementById('articleCategoryInput');
 const articleSummaryInput = document.getElementById('articleSummaryInput');
@@ -6148,6 +6274,12 @@ const articleImageInput = document.getElementById('articleImageInput');
 const articleSaveBtn = document.getElementById('articleSaveBtn');
 const articlePublishProgress = document.getElementById('articlePublishProgress');
 const articlePublishProgressBar = document.getElementById('articlePublishProgressBar');
+const articleDetailModal = document.getElementById('articleDetailModal');
+const articleDetailCloseBtn = document.getElementById('articleDetailCloseBtn');
+const articleDetailEditBtn = document.getElementById('articleDetailEditBtn');
+const articleDetailTitle = document.getElementById('articleDetailTitle');
+const articleDetailMeta = document.getElementById('articleDetailMeta');
+const articleDetailContent = document.getElementById('articleDetailContent');
 const profileClockTime = document.getElementById('profileClockTime');
 const profileClockDate = document.getElementById('profileClockDate');
 const homeSearchInput = document.getElementById('homeSearchInput');
@@ -6452,6 +6584,10 @@ let articlesPerPage = 4;
 let deleteArticleMode = false;
 let selectedArticleIds = new Set();
 let savedArticleRange = null;
+let publicArticles = [];
+let articleFilterMode = 'all';
+let editingArticleId = '';
+let currentDetailArticleId = '';
 let mailState = { inbox:[], sent:[] };
 let currentMailMode = 'inbox';
 let pendingMailAttachment = null;
@@ -6471,12 +6607,14 @@ function updateToolStats(user = readSavedUser()){
 }
 
 function getUserArticles(user = readSavedUser()){
-  const articles = user?.profile?.articles;
-  return Array.isArray(articles) ? articles : [];
+  const username = user?.username || '';
+  return publicArticles.filter(article=>article.author === username);
 }
 
 function getAllArticles(){
-  return [...getUserArticles()];
+  const user = readSavedUser();
+  if(articleFilterMode === 'mine') return getUserArticles(user);
+  return publicArticles.slice();
 }
 
 function articleThumbStyle(article){
@@ -6521,19 +6659,19 @@ function renderArticles(){
       <article class="article-card">
         <div class="article-thumb" style="--article-thumb:linear-gradient(135deg,#7c5cff,#ff8fc7)"></div>
         <div>
-          <small>EMPTY · 当前账号</small>
-          <h3>还没有发布文章</h3>
-          <p>点击右上角“发布文章”，创建第一篇和账号绑定的文章。</p>
+          <small>EMPTY · ${articleFilterMode === 'mine' ? '我的文章' : '公开文章'}</small>
+          <h3>${articleFilterMode === 'mine' ? '你还没有发布文章' : '还没有公开文章'}</h3>
+          <p>${articleFilterMode === 'mine' ? '点击右上角“发布文章”，创建第一篇和账号绑定的文章。' : '所有用户发布的文章都会在这里公开显示。'}</p>
         </div>
       </article>
     `;
   }else{
   articleGrid.innerHTML = items.map(article=>`
-    <article class="article-card ${deleteArticleMode && !article.demo ? 'selectable' : ''} ${selectedArticleIds.has(article.id) ? 'selected' : ''}" data-article-id="${escapeHtml(article.id || '')}" data-demo="${article.demo ? '1' : '0'}">
-      ${deleteArticleMode && !article.demo ? `<input class="article-select-check" type="checkbox" ${selectedArticleIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}
+    <article class="article-card ${deleteArticleMode && isCurrentUserAuthor(article) ? 'selectable' : ''} ${selectedArticleIds.has(article.id) ? 'selected' : ''}" data-article-id="${escapeHtml(article.id || '')}" data-demo="${article.demo ? '1' : '0'}">
+      ${deleteArticleMode && isCurrentUserAuthor(article) ? `<input class="article-select-check" type="checkbox" ${selectedArticleIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}
       <div class="article-thumb" style="--article-thumb:${articleThumbStyle(article)}"></div>
       <div>
-        <small>${escapeHtml(article.category)} · ${escapeHtml(article.date || article.createdAt || '')}</small>
+        <small>${escapeHtml(article.category)} · ${escapeHtml(article.createdAt || '')} · @${escapeHtml(article.author || '')}</small>
         <h3>${escapeHtml(article.title)}</h3>
         <p>${escapeHtml(article.summary)}</p>
       </div>
@@ -6541,6 +6679,7 @@ function renderArticles(){
   `).join('');
   }
   if(articlePageInfo) articlePageInfo.textContent = `第 ${articlePage} / ${totalPages} 页`;
+  articleAllBtn?.classList.toggle('active', articleFilterMode === 'all');
   if(articlePageInput){
     articlePageInput.max = totalPages;
     articlePageInput.value = articlePage;
@@ -6561,6 +6700,12 @@ function renderArticles(){
     });
     card.querySelector('.article-select-check')?.addEventListener('change', toggle);
   });
+  articleGrid.querySelectorAll('.article-card:not(.selectable)').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const id = card.dataset.articleId;
+      if(id) openArticleDetail(id);
+    });
+  });
   updateToolStats();
 }
 
@@ -6578,39 +6723,41 @@ function requireRealUser(actionText = '使用文章功能'){
   return user;
 }
 
-async function syncUserArticles(nextArticles){
-  const user = requireRealUser('同步文章');
-  if(!user) return null;
-  const nextProfile = {
-    ...(user.profile || {}),
-    articles:nextArticles
-  };
-  const result = await authRequest('/api/me/profile', {
-    method:'PUT',
-    headers:authorizedHeaders(),
-    body:JSON.stringify({ profile:nextProfile })
-  });
-  saveLoginSession(getAuthToken(), result.user);
-  renderBlogHomeUser(result.user);
-  return result.user;
+async function loadPublicArticles(){
+  try{
+    const data = await authRequest('/api/articles', { method:'GET' });
+    publicArticles = Array.isArray(data.articles) ? data.articles : [];
+    renderArticles();
+    updateToolStats();
+  }catch(error){
+    console.error('load articles error:', error);
+  }
 }
 
-function openArticleEditor(){
-  if(!requireRealUser('发布文章')) return;
-  articleTitleInput.value = '';
-  articleCategoryInput.value = 'USER';
-  articleSummaryInput.value = '';
+function setArticleCategory(value){
+  if(articleCategoryInput) articleCategoryInput.value = value;
+}
+
+function openArticleEditor(article = null){
+  if(!requireRealUser(article ? '修改文章' : '发布文章')) return;
+  editingArticleId = article?.id || '';
+  articleTitleInput.value = article?.title || '';
+  articleCategoryInput.value = article?.category || '随笔';
+  articleSummaryInput.value = article?.summary || '';
   articleFontSizeInput.value = 16;
   articleFontWeightSelect.value = '400';
   articleColorInput.value = '#ffffff';
   articleHeadingSelect.value = 'P';
-  articleContentEditor.innerHTML = '在这里写文章内容。图片会插入到光标所在位置，并自动缩小显示。';
+  articleContentEditor.innerHTML = article?.content || '在这里写文章内容。图片会插入到光标所在位置，并自动缩小显示。';
+  if(articleEditorTitle) articleEditorTitle.textContent = article ? '修改文章' : '发布文章';
+  if(articleSaveBtn) articleSaveBtn.textContent = article ? '保存修改' : '发布';
   articleEditorModal?.classList.add('open');
   articleEditorModal?.setAttribute('aria-hidden', 'false');
   setTimeout(()=>articleContentEditor?.focus(), 80);
 }
 
 function closeArticleEditor(){
+  editingArticleId = '';
   articleEditorModal?.classList.remove('open');
   articleEditorModal?.setAttribute('aria-hidden', 'true');
 }
@@ -6637,6 +6784,39 @@ function applyArticleCommand(command, value = null){
   saveArticleSelection();
 }
 
+function applyArticleInlineStyle(styleMap = {}){
+  restoreArticleSelection();
+  const selection = window.getSelection();
+  if(!selection || !selection.rangeCount) return;
+  const range = selection.getRangeAt(0);
+  const span = document.createElement('span');
+  Object.assign(span.style, styleMap);
+  if(range.collapsed){
+    span.appendChild(document.createTextNode('\u200b'));
+    range.insertNode(span);
+    const nextRange = document.createRange();
+    nextRange.setStart(span.firstChild, 1);
+    nextRange.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(nextRange);
+  }else{
+    span.appendChild(range.extractContents());
+    range.insertNode(span);
+    const nextRange = document.createRange();
+    nextRange.selectNodeContents(span);
+    nextRange.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(nextRange);
+  }
+  saveArticleSelection();
+}
+
+function applyArticleBlock(format){
+  restoreArticleSelection();
+  document.execCommand('formatBlock', false, format);
+  saveArticleSelection();
+}
+
 function markArticleControlApplied(control){
   if(!control) return;
   control.classList.add('active');
@@ -6653,11 +6833,7 @@ function markArticleControlApplied(control){
 
 function applyArticleFontSize(){
   const size = Math.max(12, Math.min(48, Number(articleFontSizeInput?.value || 16)));
-  applyArticleCommand('fontSize', '4');
-  articleContentEditor?.querySelectorAll('font[size="4"]').forEach(font=>{
-    font.removeAttribute('size');
-    font.style.fontSize = `${size}px`;
-  });
+  applyArticleInlineStyle({ fontSize:`${size}px` });
 }
 
 function getFirstArticleImage(html){
@@ -6681,7 +6857,7 @@ async function insertArticleImage(file){
 }
 
 async function saveArticleFromEditor(){
-  const user = requireRealUser('发布文章');
+  const user = requireRealUser(editingArticleId ? '修改文章' : '发布文章');
   if(!user) return;
   const title = String(articleTitleInput?.value || '').trim();
   const content = String(articleContentEditor?.innerHTML || '').trim();
@@ -6691,13 +6867,14 @@ async function saveArticleFromEditor(){
   }
   try{
     articleSaveBtn.disabled = true;
-    articleSaveBtn.textContent = '发布中...';
+    articleSaveBtn.textContent = editingArticleId ? '保存中...' : '发布中...';
     articlePublishProgress?.classList.add('active');
     if(articlePublishProgressBar) articlePublishProgressBar.style.width = '18%';
     const article = {
-      id:`article-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      id:editingArticleId || `article-${Date.now()}-${Math.random().toString(16).slice(2)}`,
       title:title.slice(0, 120),
-      category:String(articleCategoryInput?.value || 'USER').trim().slice(0, 40) || 'USER',
+      category:String(articleCategoryInput?.value || '随笔').trim().slice(0, 40) || '随笔',
+      tags:String(articleCategoryInput?.value || '随笔').split(/[,，/、\s]+/).map(tag=>tag.trim()).filter(Boolean).slice(0, 8),
       summary:String(articleSummaryInput?.value || articleContentEditor.textContent || '').trim().slice(0, 160),
       content:content.slice(0, 8_000_000),
       thumb:getFirstArticleImage(content),
@@ -6706,10 +6883,16 @@ async function saveArticleFromEditor(){
       updatedAt:new Date().toISOString()
     };
     if(articlePublishProgressBar) articlePublishProgressBar.style.width = '62%';
-    await syncUserArticles([article, ...getUserArticles(user)]);
+    const result = await authRequest('/api/articles', {
+      method:editingArticleId ? 'PUT' : 'POST',
+      headers:authorizedHeaders(),
+      body:JSON.stringify({ article })
+    });
     if(articlePublishProgressBar) articlePublishProgressBar.style.width = '100%';
+    await loadPublicArticles();
     closeArticleEditor();
-    showLoginToast('文章已发布并同步到当前账号。', 'success', '发布成功');
+    if(result.article?.id) currentDetailArticleId = result.article.id;
+    showLoginToast(editingArticleId ? '文章已保存，所有用户都可查看。' : '文章已发布，所有用户都可查看。', 'success', editingArticleId ? '保存成功' : '发布成功');
   }catch(error){
     showLoginToast(error.message || '文章发布失败。', 'error', '发布失败');
   }finally{
@@ -6717,7 +6900,7 @@ async function saveArticleFromEditor(){
       articlePublishProgress?.classList.remove('active');
       if(articlePublishProgressBar) articlePublishProgressBar.style.width = '0%';
       articleSaveBtn.disabled = false;
-      articleSaveBtn.textContent = '发布';
+      articleSaveBtn.textContent = editingArticleId ? '保存修改' : '发布';
     }, 360);
   }
 }
@@ -6740,14 +6923,54 @@ async function deleteSelectedArticles(){
     return;
   }
   try{
-    const remain = getUserArticles(user).filter(article=>!selectedArticleIds.has(article.id));
-    await syncUserArticles(remain);
+    await authRequest('/api/articles', {
+      method:'DELETE',
+      headers:authorizedHeaders(),
+      body:JSON.stringify({ ids:Array.from(selectedArticleIds) })
+    });
+    await loadPublicArticles();
     selectedArticleIds.clear();
     toggleArticleDeleteMode(false);
     showLoginToast('已删除选中的文章。', 'success', '删除成功');
   }catch(error){
     showLoginToast(error.message || '删除文章失败。', 'error', '删除失败');
   }
+}
+
+function isCurrentUserAuthor(article){
+  const user = readSavedUser();
+  return !!user && !!article && article.author === user.username;
+}
+
+function openArticleDetail(id){
+  const article = publicArticles.find(item=>item.id === id);
+  if(!article) return;
+  currentDetailArticleId = id;
+  if(articleDetailTitle) articleDetailTitle.textContent = article.title || '未命名文章';
+  if(articleDetailMeta) articleDetailMeta.textContent = `${article.category || '随笔'} · @${article.author || '未知用户'} · ${article.createdAt || ''}`;
+  if(articleDetailContent) {
+    articleDetailContent.style.fontFamily = article.fontFamily || '';
+    articleDetailContent.innerHTML = article.content || '<p>这篇文章暂时没有内容。</p>';
+  }
+  if(articleDetailEditBtn) articleDetailEditBtn.style.display = isCurrentUserAuthor(article) ? 'inline-flex' : 'none';
+  articleDetailModal?.classList.add('open');
+  articleDetailModal?.setAttribute('aria-hidden', 'false');
+}
+
+function closeArticleDetail(){
+  articleDetailModal?.classList.remove('open');
+  articleDetailModal?.setAttribute('aria-hidden', 'true');
+}
+
+function editCurrentDetailArticle(){
+  const article = publicArticles.find(item=>item.id === currentDetailArticleId);
+  if(!article) return;
+  if(!isCurrentUserAuthor(article)){
+    showLoginToast('只有文章发布者可以修改这篇文章。', 'warn', '无权限');
+    return;
+  }
+  closeArticleDetail();
+  openArticleEditor(article);
 }
 
 if(articlePrevBtn) articlePrevBtn.addEventListener('click', ()=>goArticlePage(articlePage - 1));
@@ -6758,10 +6981,25 @@ if(articlePageInput){
     if(event.key === 'Enter') goArticlePage(articlePageInput.value);
   });
 }
-if(articlePublishBtn) articlePublishBtn.addEventListener('click', openArticleEditor);
+if(articlePublishBtn) articlePublishBtn.addEventListener('click', ()=>openArticleEditor());
 if(articleDeleteModeBtn) articleDeleteModeBtn.addEventListener('click', ()=>toggleArticleDeleteMode());
+if(articleAllBtn) articleAllBtn.addEventListener('click', ()=>{
+  articleFilterMode = 'all';
+  articlePage = 1;
+  renderArticles();
+});
 if(articleDeleteCancelBtn) articleDeleteCancelBtn.addEventListener('click', ()=>toggleArticleDeleteMode(false));
 if(articleDeleteConfirmBtn) articleDeleteConfirmBtn.addEventListener('click', deleteSelectedArticles);
+document.querySelectorAll('[data-category]').forEach(btn=>btn.addEventListener('click', ()=>setArticleCategory(btn.dataset.category || '随笔')));
+if(toolArticleCount) toolArticleCount.closest('.tool-stat')?.addEventListener('click', ()=>{
+  articleFilterMode = 'mine';
+  articlePage = 1;
+  renderArticles();
+  document.getElementById('blogPosts')?.scrollIntoView({ behavior:'smooth', block:'center' });
+});
+if(articleDetailCloseBtn) articleDetailCloseBtn.addEventListener('click', closeArticleDetail);
+if(articleDetailEditBtn) articleDetailEditBtn.addEventListener('click', editCurrentDetailArticle);
+if(articleDetailModal) articleDetailModal.addEventListener('click', event=>{ if(event.target === articleDetailModal) closeArticleDetail(); });
 if(articleEditorCloseBtn) articleEditorCloseBtn.addEventListener('click', closeArticleEditor);
 if(articleEditorModal) articleEditorModal.addEventListener('click', event=>{ if(event.target === articleEditorModal) closeArticleEditor(); });
 if(articleContentEditor){
@@ -6773,11 +7011,11 @@ if(articleBoldBtn) articleBoldBtn.addEventListener('click', ()=>{ applyArticleCo
 if(articleItalicBtn) articleItalicBtn.addEventListener('click', ()=>{ applyArticleCommand('italic'); articleItalicBtn.classList.toggle('active'); });
 if(articleUnderlineBtn) articleUnderlineBtn.addEventListener('click', ()=>{ applyArticleCommand('underline'); articleUnderlineBtn.classList.toggle('active'); });
 if(articleClearFormatBtn) articleClearFormatBtn.addEventListener('click', ()=>{ applyArticleCommand('removeFormat'); [articleBoldBtn, articleItalicBtn, articleUnderlineBtn].forEach(btn=>btn?.classList.remove('active')); markArticleControlApplied(articleClearFormatBtn); });
-if(articleFontSelect) articleFontSelect.addEventListener('change', ()=>{ applyArticleCommand('fontName', articleFontSelect.value); markArticleControlApplied(articleFontSelect); });
-if(articleFontWeightSelect) articleFontWeightSelect.addEventListener('change', ()=>{ articleContentEditor.style.fontWeight = articleFontWeightSelect.value; markArticleControlApplied(articleFontWeightSelect); });
+if(articleFontSelect) articleFontSelect.addEventListener('change', ()=>{ applyArticleInlineStyle({ fontFamily:articleFontSelect.value }); markArticleControlApplied(articleFontSelect); });
+if(articleFontWeightSelect) articleFontWeightSelect.addEventListener('change', ()=>{ applyArticleInlineStyle({ fontWeight:articleFontWeightSelect.value }); markArticleControlApplied(articleFontWeightSelect); });
 if(articleFontSizeInput) articleFontSizeInput.addEventListener('change', ()=>{ applyArticleFontSize(); markArticleControlApplied(articleFontSizeInput); });
-if(articleColorInput) articleColorInput.addEventListener('input', ()=>{ applyArticleCommand('foreColor', articleColorInput.value); markArticleControlApplied(articleColorInput); });
-if(articleHeadingSelect) articleHeadingSelect.addEventListener('change', ()=>{ applyArticleCommand('formatBlock', articleHeadingSelect.value); markArticleControlApplied(articleHeadingSelect); });
+if(articleColorInput) articleColorInput.addEventListener('input', ()=>{ applyArticleInlineStyle({ color:articleColorInput.value }); markArticleControlApplied(articleColorInput); });
+if(articleHeadingSelect) articleHeadingSelect.addEventListener('change', ()=>{ applyArticleBlock(articleHeadingSelect.value); markArticleControlApplied(articleHeadingSelect); });
 if(articleInsertImageBtn) articleInsertImageBtn.addEventListener('click', ()=>articleImageInput?.click());
 if(articleImageInput) articleImageInput.addEventListener('change', async ()=>{
   const file = articleImageInput.files && articleImageInput.files[0];
@@ -6786,6 +7024,7 @@ if(articleImageInput) articleImageInput.addEventListener('change', async ()=>{
 });
 if(articleSaveBtn) articleSaveBtn.addEventListener('click', saveArticleFromEditor);
 renderArticles();
+loadPublicArticles();
 if(window.ResizeObserver && articleGrid){
   new ResizeObserver(()=>refreshArticlePageSize()).observe(articleGrid);
 }
@@ -7060,9 +7299,10 @@ function renderSearchResults(items){
   searchResultsPanel.querySelectorAll('[data-result-type="article"]').forEach(btn=>{
     const index = Number(btn.dataset.index);
     const articleTitle = items[index]?.article?.title || '';
-    const articleIndex = getAllArticles().findIndex(article=>article.title === articleTitle);
+    const articleIndex = publicArticles.findIndex(article=>article.title === articleTitle);
     if(articleIndex >= 0){
       btn.addEventListener('click', ()=>{
+        articleFilterMode = 'all';
         goArticlePage(Math.floor(articleIndex / articlesPerPage) + 1);
         searchResultsPanel.classList.remove('open');
         document.getElementById('blogPosts')?.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -7078,7 +7318,7 @@ async function runHomeSearch(){
     searchResultsPanel.classList.remove('open');
     return;
   }
-  const articleMatches = getAllArticles()
+  const articleMatches = publicArticles
     .filter(article => [article.title, article.category, article.summary, article.date].join(' ').toLowerCase().includes(query.toLowerCase()))
     .slice(0, 8)
     .map(article=>({ type:'article', article }));
@@ -7100,7 +7340,7 @@ function renderPublicProfile(user){
   const profile = user.profile || {};
   const texts = userTexts(user);
   const tags = Array.isArray(profile.tags) ? profile.tags : [];
-  const publicArticles = Array.isArray(profile.articles) && profile.articles.length ? profile.articles : BLOG_ARTICLES.slice(0, 4);
+  const profileArticles = publicArticles.filter(article=>article.author === user.username);
   publicProfileBody.innerHTML = `
     <div class="public-profile-top">
       <div class="public-profile-avatar" style="--public-avatar:${publicAvatarStyle(profile.avatar || '')}"></div>
@@ -7121,7 +7361,7 @@ function renderPublicProfile(user){
     </div>
     <h3>公开文章</h3>
     <div class="public-profile-articles">
-      ${publicArticles.slice(0, 4).map((article, index)=>`<article data-public-article-title="${escapeHtml(article.title)}" data-article-index="${index}"><small>${escapeHtml(article.category)} · ${escapeHtml(article.date || article.createdAt || '')}</small><h3>${escapeHtml(article.title)}</h3><p>${escapeHtml(article.summary)}</p></article>`).join('')}
+      ${profileArticles.slice(0, 4).map((article, index)=>`<article data-public-article-title="${escapeHtml(article.title)}" data-article-index="${index}"><small>${escapeHtml(article.category)} · ${escapeHtml(article.createdAt || '')}</small><h3>${escapeHtml(article.title)}</h3><p>${escapeHtml(article.summary)}</p></article>`).join('') || '<article><small>EMPTY</small><h3>暂无公开文章</h3><p>这个用户还没有发布公开文章。</p></article>'}
     </div>
   `;
   publicProfileBody.querySelectorAll('[data-copy]').forEach(el=>{
@@ -7130,7 +7370,8 @@ function renderPublicProfile(user){
   publicProfileBody.querySelectorAll('[data-article-index]').forEach(el=>{
     el.addEventListener('click', ()=>{
       const title = el.dataset.publicArticleTitle || '';
-      const index = getAllArticles().findIndex(article=>article.title === title);
+      const index = publicArticles.findIndex(article=>article.title === title);
+      articleFilterMode = 'all';
       goArticlePage(Math.floor(Math.max(0, index) / articlesPerPage) + 1);
       closePublicProfile();
       document.getElementById('blogPosts')?.scrollIntoView({ behavior:'smooth', block:'center' });
