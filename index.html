@@ -292,6 +292,13 @@
     background:linear-gradient(135deg, rgba(255,255,255,.36), rgba(255,143,199,.28), rgba(127,247,255,.24));
     box-shadow:0 18px 40px rgba(0,0,0,.28), 0 0 24px rgba(255,143,199,.24), inset 0 1px 0 rgba(255,255,255,.52);
   }
+  #homeSearchBtn svg{
+    width:20px;
+    height:20px;
+    stroke:#fff;
+    stroke-width:2.35;
+    filter:drop-shadow(0 3px 7px rgba(0,0,0,.32));
+  }
   #homeSearchInput{
     position:absolute;
     top:0;
@@ -4560,7 +4567,12 @@
     <div class="home-search-popover" id="homeSearchPopover" aria-label="首页搜索">
       <div class="search-star" aria-hidden="true">✦</div>
       <input id="homeSearchInput" type="search" placeholder="搜索用户、文章、标签和灵感..." autocomplete="off" />
-      <button id="homeSearchBtn" type="button" title="搜索" aria-label="搜索">搜索</button>
+      <button id="homeSearchBtn" type="button" title="搜索" aria-label="搜索">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5"/>
+          <path d="m16 16 4.2 4.2"/>
+        </svg>
+      </button>
       <div class="search-results-panel" id="searchResultsPanel" aria-live="polite"></div>
     </div>
     <button class="icon-btn" id="homeSettingsBtn" type="button" title="设置" aria-label="设置">

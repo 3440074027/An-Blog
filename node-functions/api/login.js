@@ -2,6 +2,7 @@ import {
   json,
   readJsonBody,
   getUser,
+  setUser,
   verifyPassword,
   createToken,
   publicUser
@@ -20,6 +21,7 @@ export async function onRequestPost(context){
     if(!verifyPassword(password, user.password)){
       return json({ error:'密码错误，请重新输入。' }, 401);
     }
+    await setUser(user);
 
     return json({
       ok:true,

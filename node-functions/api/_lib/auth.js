@@ -1,10 +1,12 @@
 import { Redis } from '@upstash/redis';
 import crypto from 'crypto';
 
-const redis = Redis.fromEnv();
+export const redis = Redis.fromEnv();
 const AUTH_SECRET = process.env.AUTH_SECRET || 'change-this-auth-secret-please';
 const LEGACY_USER_STORE_KEY = 'users';
 const USER_KEY_PREFIX = 'user:';
+const USER_INDEX_KEY = 'site:user-index';
+export const SITE_OWNER_USERNAME = 'An';
 
 export const defaultUserProfile = {
   avatar: '',
@@ -75,12 +77,54 @@ export async function getUser(username){
   return null;
 }
 
+export function isSiteOwner(userOrUsername){
+  const username = typeof userOrUsername === 'string' ? userOrUsername : userOrUsername?.username;
+  return username === SITE_OWNER_USERNAME;
+}
+
+export async function listUsers(){
+  const users = new Map();
+  try{
+    const indexedUsernames = await redis.smembers(USER_INDEX_KEY);
+    for(const username of indexedUsernames.slice(0, 500)){
+      const user = await getUser(username);
+      if(user && user.username) users.set(user.username, user);
+    }
+  }catch(error){
+    console.error('list indexed users error:', error);
+  }
+  try{
+    const keys = await redis.keys(`${USER_KEY_PREFIX}*`);
+    for(const key of keys.slice(0, 300)){
+      const user = await redis.get(key);
+      if(user && user.username) users.set(user.username, user);
+    }
+  }catch(error){
+    console.error('list user keys error:', error);
+  }
+  const legacyUsers = await getUsers();
+  Object.values(legacyUsers).forEach(user=>{
+    if(user && user.username && !users.has(user.username)) users.set(user.username, user);
+  });
+  return Array.from(users.values());
+}
+
 export async function setUser(user){
   await redis.set(`${USER_KEY_PREFIX}${user.username}`, user);
+  try{
+    await redis.sadd(USER_INDEX_KEY, user.username);
+  }catch(error){
+    console.error('user index add error:', error);
+  }
 }
 
 export async function deleteUser(username){
   await redis.del(`${USER_KEY_PREFIX}${username}`);
+  try{
+    await redis.srem(USER_INDEX_KEY, username);
+  }catch(error){
+    console.error('user index remove error:', error);
+  }
   const legacyUsers = await getUsers();
   if(legacyUsers[username]){
     delete legacyUsers[username];
@@ -96,8 +140,18 @@ export async function renameUser(user, nextUsername){
   }
   user.updatedAt = nowIso();
   await redis.set(`${USER_KEY_PREFIX}${nextUsername}`, user);
+  try{
+    await redis.sadd(USER_INDEX_KEY, nextUsername);
+  }catch(error){
+    console.error('user index rename add error:', error);
+  }
   if(previousUsername !== nextUsername){
     await redis.del(`${USER_KEY_PREFIX}${previousUsername}`);
+    try{
+      await redis.srem(USER_INDEX_KEY, previousUsername);
+    }catch(error){
+      console.error('user index rename remove error:', error);
+    }
     const legacyUsers = await getUsers();
     if(legacyUsers[previousUsername]){
       delete legacyUsers[previousUsername];
