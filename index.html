@@ -200,6 +200,10 @@
     transition:transform .25s, background .25s, opacity .25s;
   }
   .return-btn.visible{display:flex;}
+  .home-settings-wrap .return-btn{
+    margin-top:10px;
+    flex:0 0 auto;
+  }
   .return-btn:hover{
     background:rgba(255,255,255,.32);
     transform:translateY(-2px);
@@ -209,8 +213,8 @@
     display:none;
     position:relative;
     width:44px;
-    min-height:110px;
-    margin-bottom:-66px;
+    min-height:44px;
+    margin-bottom:0;
     pointer-events:auto;
   }
   .home-settings-wrap::before{
@@ -219,7 +223,7 @@
     top:-14px;
     right:-28px;
     width:112px;
-    height:138px;
+    height:190px;
     border-radius:999px;
     background:transparent;
     pointer-events:auto;
@@ -240,7 +244,9 @@
     transform:rotate(18deg) translateY(-1px);
   }
   .top-tools.portal-mode .home-settings-wrap{
-    display:block;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
   }
   .top-tools.portal-mode #langBtn{
     display:none !important;
@@ -257,21 +263,25 @@
     right:0;
   }
   .home-settings-menu{
-    position:absolute;
-    top:52px;
-    right:0;
+    position:relative;
+    top:auto;
+    right:auto;
     display:flex;
     flex-direction:column;
     align-items:center;
     gap:12px;
-    padding-top:4px;
+    max-height:0;
+    padding-top:0;
+    overflow:hidden;
     opacity:0;
     transform:translateY(-10px) scale(.92);
     pointer-events:none;
-    transition:opacity .28s, transform .28s;
+    transition:opacity .28s, transform .28s, max-height .28s, padding-top .28s;
   }
   .home-settings-wrap:hover .home-settings-menu,
   .home-settings-wrap:focus-within .home-settings-menu{
+    max-height:64px;
+    padding-top:12px;
     opacity:1;
     transform:translateY(0) scale(1);
     pointer-events:auto;
@@ -3147,6 +3157,7 @@
     height:100%;
     display:grid;
     grid-template-columns:minmax(235px, 280px) minmax(0, 1fr) minmax(245px, 310px);
+    grid-template-rows:auto minmax(0, 1fr);
     gap:24px;
     align-items:stretch;
   }
@@ -3173,9 +3184,106 @@
     opacity:.75;
   }
   .blog-glass-card > *{position:relative;z-index:1;}
+  .home-search-card{
+    grid-column:1 / -1;
+    min-height:76px;
+    border-radius:28px;
+    padding:14px 18px;
+    display:grid;
+    grid-template-columns:auto minmax(0, 1fr) auto;
+    align-items:center;
+    gap:14px;
+    overflow:visible;
+  }
+  .home-search-card .search-star{
+    width:42px;
+    height:42px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    color:#fff;
+    background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.82), rgba(255,143,199,.38) 38%, rgba(124,92,255,.26));
+    box-shadow:0 12px 32px rgba(255,143,199,.2), inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .home-search-card input{
+    width:100%;
+    height:48px;
+    border:none;
+    outline:none;
+    border-radius:999px;
+    padding:0 18px;
+    color:#fff;
+    font-size:14px;
+    font-weight:850;
+    background:linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.09));
+    border:1px solid rgba(255,255,255,.2);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .home-search-card input::placeholder{color:rgba(255,255,255,.58);}
+  .home-search-card button{
+    height:44px;
+    padding:0 18px;
+    border:none;
+    border-radius:999px;
+    color:#fff;
+    font-weight:950;
+    cursor:pointer;
+    background:linear-gradient(135deg, rgba(127,247,255,.35), rgba(255,143,199,.34));
+    border:1px solid rgba(255,255,255,.28);
+  }
+  .search-results-panel{
+    position:absolute;
+    left:74px;
+    right:18px;
+    top:72px;
+    z-index:20;
+    display:none;
+    max-height:min(430px, 58vh);
+    overflow:auto;
+    padding:12px;
+    border-radius:22px;
+    background:rgba(12,16,38,.88);
+    border:1px solid rgba(255,255,255,.2);
+    box-shadow:0 24px 70px rgba(0,0,0,.34);
+    backdrop-filter:blur(18px);
+  }
+  .search-results-panel.open{display:grid;gap:10px;}
+  .search-result-item{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    align-items:center;
+    gap:10px;
+    padding:11px;
+    border-radius:18px;
+    color:#fff;
+    text-align:left;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.13);
+    cursor:pointer;
+  }
+  .search-result-item:hover{background:rgba(255,255,255,.16);}
+  .search-result-avatar{
+    width:38px;
+    height:38px;
+    border-radius:15px;
+    background:var(--result-avatar, linear-gradient(135deg,#7c5cff,#ff8fc7));
+    background-size:cover;
+    background-position:center;
+  }
+  .search-result-item strong{display:block;font-size:13px;}
+  .search-result-item span{display:block;margin-top:3px;color:rgba(255,255,255,.58);font-size:11px;font-weight:800;}
+  .search-result-kind{
+    padding:5px 8px;
+    border-radius:999px;
+    color:#8fceff;
+    font-size:10px;
+    font-weight:950;
+    background:rgba(127,247,255,.1);
+  }
   .blog-profile-card{
     position:sticky;
     top:0;
+    grid-row:2;
     height:calc(100dvh - 84px);
     min-height:620px;
     border-radius:34px;
@@ -3273,8 +3381,49 @@
     background:linear-gradient(135deg, rgba(255,255,255,.18), rgba(124,92,255,.22));
     box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 14px 30px rgba(0,0,0,.18);
   }
+  .profile-extra-grid{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:16px;
+  }
+  .profile-extra-item{
+    min-height:58px;
+    padding:10px;
+    border-radius:16px;
+    text-align:left;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.14);
+  }
+  .profile-extra-item span{
+    display:block;
+    color:#8fceff;
+    font-size:10px;
+    font-weight:950;
+    letter-spacing:.12em;
+    margin-bottom:5px;
+  }
+  .profile-extra-item strong{
+    display:block;
+    color:#fff;
+    font-size:12px;
+    line-height:1.4;
+    word-break:break-all;
+  }
+  .owner-contact-btn{
+    width:100%;
+    min-height:40px;
+    margin-top:12px;
+    border:1px solid rgba(255,255,255,.2);
+    border-radius:999px;
+    color:#fff;
+    font-weight:950;
+    cursor:pointer;
+    background:linear-gradient(135deg, rgba(255,143,199,.26), rgba(127,247,255,.18));
+  }
   .blog-profile-tags{
-    margin-top:auto;
+    margin-top:16px;
     display:flex;
     flex-wrap:wrap;
     justify-content:center;
@@ -3290,6 +3439,7 @@
     border:1px solid rgba(255,255,255,.14);
   }
   .blog-main-area{
+    grid-row:2;
     min-width:0;
     display:grid;
     grid-template-rows:minmax(280px, .95fr) minmax(220px, .75fr);
@@ -3333,6 +3483,11 @@
     font-size:10px;
     font-weight:800;
     letter-spacing:.16em;
+  }
+  .notice-topline > div{
+    display:flex;
+    align-items:center;
+    gap:10px;
   }
   .blog-hero-card h1{
     margin:32px 0 12px;
@@ -3378,6 +3533,207 @@
     background:rgba(255,255,255,.13);
     border:1px solid rgba(255,255,255,.16);
   }
+  .notice-slide h1 .type-caret,
+  .notice-slide p .type-caret{
+    display:inline-block;
+    width:2px;
+    height:1em;
+    margin-left:3px;
+    vertical-align:-.12em;
+    background:rgba(255,255,255,.8);
+    animation:caretBlink .8s steps(1) infinite;
+  }
+  @keyframes caretBlink{50%{opacity:0;}}
+  .notice-dots{
+    position:absolute;
+    left:50%;
+    bottom:22px;
+    z-index:3;
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    transform:translateX(-50%);
+  }
+  .notice-dots button{
+    width:9px;
+    height:9px;
+    padding:0;
+    border:none;
+    border-radius:999px;
+    cursor:pointer;
+    background:rgba(255,255,255,.36);
+    transition:width .2s, background .2s;
+  }
+  .notice-dots button.active{
+    width:28px;
+    background:linear-gradient(90deg,#7ff7ff,#ff8fc7);
+  }
+  .owner-notice-edit-btn{
+    display:none;
+    height:34px;
+    padding:0 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.24);
+    color:#fff;
+    font-size:11px;
+    font-weight:950;
+    cursor:pointer;
+    background:rgba(255,255,255,.13);
+  }
+  body.site-owner .owner-notice-edit-btn{display:inline-flex;align-items:center;}
+  .notice-editor-modal,
+  .public-profile-modal{
+    position:fixed;
+    inset:0;
+    z-index:160;
+    display:grid;
+    place-items:center;
+    padding:22px;
+    background:rgba(8,10,26,.5);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .24s, visibility .24s;
+  }
+  .notice-editor-modal.open,
+  .public-profile-modal.open{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+  .notice-editor-card,
+  .public-profile-card{
+    width:min(760px, 94vw);
+    max-height:86vh;
+    overflow:auto;
+    display:grid;
+    gap:14px;
+    padding:22px;
+    border-radius:30px;
+    color:#fff;
+    background:rgba(16,20,48,.9);
+    border:1px solid rgba(255,255,255,.2);
+    box-shadow:0 30px 90px rgba(0,0,0,.4);
+  }
+  .notice-editor-head,
+  .public-profile-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+  }
+  .notice-editor-head h2,
+  .public-profile-head h2{margin:0;font-size:22px;}
+  .notice-editor-close,
+  .public-profile-close{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.2);
+    color:#fff;
+    background:rgba(255,255,255,.1);
+    cursor:pointer;
+  }
+  .notice-editor-list{display:grid;gap:12px;}
+  .notice-editor-row{
+    display:grid;
+    gap:8px;
+    padding:13px;
+    border-radius:18px;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.13);
+  }
+  .notice-editor-row label{
+    display:grid;
+    gap:6px;
+    color:rgba(255,255,255,.68);
+    font-size:11px;
+    font-weight:900;
+  }
+  .notice-editor-row input,
+  .notice-editor-row textarea{
+    width:100%;
+    border:none;
+    outline:none;
+    border-radius:13px;
+    padding:10px;
+    color:#fff;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.14);
+    resize:none;
+  }
+  .notice-editor-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .notice-editor-actions button,
+  .notice-remove-btn{
+    min-height:38px;
+    padding:0 14px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.2);
+    color:#fff;
+    font-weight:900;
+    cursor:pointer;
+    background:linear-gradient(135deg, rgba(255,255,255,.14), rgba(124,92,255,.16));
+  }
+  .public-profile-top{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:14px;
+    align-items:center;
+  }
+  .public-profile-avatar{
+    width:74px;
+    height:74px;
+    border-radius:28px;
+    background:var(--public-avatar, linear-gradient(135deg,#7c5cff,#ff8fc7));
+    background-size:cover;
+    background-position:center;
+  }
+  .public-profile-info-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:10px;
+  }
+  .public-profile-info-grid div{
+    padding:11px;
+    border-radius:16px;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.13);
+  }
+  .public-profile-info-grid span{
+    display:block;
+    color:#8fceff;
+    font-size:10px;
+    font-weight:950;
+    margin-bottom:5px;
+  }
+  .public-profile-info-grid strong,
+  .public-profile-info-grid p{
+    margin:0;
+    color:#fff;
+    font-size:12px;
+    line-height:1.55;
+    word-break:break-all;
+  }
+  .public-profile-articles{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:10px;
+  }
+  .public-profile-articles article{
+    padding:12px;
+    border-radius:16px;
+    background:rgba(255,255,255,.09);
+    border:1px solid rgba(255,255,255,.12);
+  }
+  .public-profile-articles small{color:#8fceff;font-size:10px;font-weight:900;}
+  .public-profile-articles h3{margin:7px 0;font-size:14px;}
+  .public-profile-articles p{margin:0;color:rgba(255,255,255,.62);font-size:11px;line-height:1.6;}
   .blog-posts-card{
     border-radius:30px;
     padding:22px;
@@ -3424,6 +3780,7 @@
     font-weight:800;
   }
   .blog-side-area{
+    grid-row:2;
     display:grid;
     grid-template-rows:minmax(145px, .35fr) minmax(360px, 1fr);
     gap:24px;
@@ -3918,24 +4275,6 @@
     font-weight:750;
     line-height:1.9;
   }
-  .notice-dots{
-    display:flex;
-    gap:8px;
-    margin-top:18px;
-  }
-  .notice-dots button{
-    width:28px;
-    height:6px;
-    border:none;
-    border-radius:999px;
-    cursor:pointer;
-    background:rgba(255,255,255,.24);
-    transition:width .25s, background .25s;
-  }
-  .notice-dots button.active{
-    width:48px;
-    background:linear-gradient(90deg,#7ff7ff,#ff8fc7);
-  }
   .article-grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
     min-height:272px;
@@ -4176,12 +4515,6 @@
       </div>
     </div>
   </div>
-  <button class="return-btn" id="returnLoginBtn" type="button" title="返回登录" aria-label="返回登录">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M19 12H5"/>
-      <path d="M12 19l-7-7 7-7"/>
-    </svg>
-  </button>
   <div class="home-settings-wrap" id="homeSettingsWrap">
     <button class="icon-btn" id="homeSettingsBtn" type="button" title="设置" aria-label="设置">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -4198,6 +4531,12 @@
         </svg>
       </button>
     </div>
+    <button class="return-btn" id="returnLoginBtn" type="button" title="返回登录" aria-label="返回登录">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5"/>
+        <path d="M12 19l-7-7 7-7"/>
+      </svg>
+    </button>
   </div>
 </div>
 <div class="transition-flare" id="transitionFlare" aria-hidden="true"></div>
@@ -4406,6 +4745,12 @@
 <!-- 登录成功后的同页博客首页，不新开 HTML，也不新开浏览器标签 -->
 <main class="dashboard" id="blogHome" aria-hidden="true">
   <div class="blog-home-shell">
+    <section class="home-search-card blog-glass-card" aria-label="首页搜索">
+      <div class="search-star" aria-hidden="true">✦</div>
+      <input id="homeSearchInput" type="search" placeholder="搜索用户、文章、标签和灵感..." autocomplete="off" />
+      <button id="homeSearchBtn" type="button">搜索</button>
+      <div class="search-results-panel" id="searchResultsPanel" aria-live="polite"></div>
+    </section>
     <aside class="blog-profile-card blog-glass-card">
       <div class="blog-user-chip">
         <div class="blog-user-mini-avatar" id="blogMiniAvatar" aria-hidden="true"></div>
@@ -4427,6 +4772,25 @@
         <span>个人简介</span>
         <p id="profileIntroText">这里会记录你的创作、灵感、文章和成长轨迹。</p>
       </section>
+      <div class="profile-extra-grid">
+        <div class="profile-extra-item">
+          <span>生日</span>
+          <strong id="profileBirthdayText">未填写</strong>
+        </div>
+        <div class="profile-extra-item">
+          <span>星座</span>
+          <strong id="profileZodiacText">未填写</strong>
+        </div>
+        <div class="profile-extra-item">
+          <span>QQ</span>
+          <strong id="profileQqText">未填写</strong>
+        </div>
+        <div class="profile-extra-item">
+          <span>邮箱</span>
+          <strong id="profileEmailText">未填写</strong>
+        </div>
+      </div>
+      <button class="owner-contact-btn" id="contactOwnerBtn" type="button">联系站主 An</button>
       <div class="profile-quick-grid">
         <button class="profile-quick-btn" id="profileEditBtn" type="button">编辑资料</button>
         <button class="profile-quick-btn" id="profileMoodBtn" type="button">今日灵感</button>
@@ -4459,6 +4823,10 @@
         <label>身份说明<input id="profileRoleInput" type="text" maxlength="120" placeholder="例如：江大计算机学子 ｜ AI Agent 开发者" /></label>
         <label>个性签名<input id="profileSignatureInput" type="text" maxlength="120" /></label>
         <label>个人简介<textarea id="profileIntroInput" maxlength="500"></textarea></label>
+        <label>生日<input id="profileBirthdayInput" type="text" maxlength="40" placeholder="例如：2000-01-01" /></label>
+        <label>星座<input id="profileZodiacInput" type="text" maxlength="20" placeholder="例如：白羊座" /></label>
+        <label>QQ<input id="profileQqInput" type="text" maxlength="40" placeholder="用于展示联系方式" /></label>
+        <label>邮箱<input id="profileEmailInput" type="email" maxlength="120" placeholder="用于展示联系方式" /></label>
         <label>身份标签<input id="profileTagsInput" type="text" placeholder="用逗号分隔，例如 AI, Python, 生活" /></label>
         <input id="profileAvatarInput" type="file" accept="image/*" hidden />
         <section class="account-security-box">
@@ -4485,30 +4853,12 @@
       <section class="blog-hero-card blog-glass-card notice-carousel-card">
         <div class="blog-hero-topline notice-topline">
           <span>公告栏 NOTICE</span>
-          <small id="noticeIndex">01 / 04</small>
+          <div>
+            <button class="owner-notice-edit-btn" id="noticeEditBtn" type="button">编辑公告</button>
+            <small id="noticeIndex">01 / 06</small>
+          </div>
         </div>
-        <div class="notice-carousel" id="noticeCarousel">
-          <article class="notice-slide active">
-            <span>✨ 星尘公告</span>
-            <h1>欢迎来到你的灵感档案馆</h1>
-            <p>这里会收纳文章、文件、灵感和成长记录。每一次登录，都是和未来的自己重逢。</p>
-          </article>
-          <article class="notice-slide">
-            <span>🌙 创作提醒</span>
-            <h1>把今天的想法留下来</h1>
-            <p>一段文字、一张配图、一次复盘，都可以成为下一篇博客的起点。</p>
-          </article>
-          <article class="notice-slide">
-            <span>💫 系统计划</span>
-            <h1>文章系统正在扩展</h1>
-            <p>后续会加入文章编辑、文件收纳、分类检索和独立文章详情页。</p>
-          </article>
-          <article class="notice-slide">
-            <span>🫧 温柔提示</span>
-            <h1>资料已和账号绑定</h1>
-            <p>头像、签名、简介和标签都可以同步保存，换设备登录也能继续显示。</p>
-          </article>
-        </div>
+        <div class="notice-carousel" id="noticeCarousel"></div>
         <div class="notice-dots" id="noticeDots"></div>
       </section>
 
@@ -4554,6 +4904,28 @@
     </aside>
   </div>
 </main>
+<div class="public-profile-modal" id="publicProfileModal" aria-hidden="true">
+  <div class="public-profile-card" role="dialog" aria-modal="true" aria-labelledby="publicProfileTitle">
+    <div class="public-profile-head">
+      <h2 id="publicProfileTitle">用户公开资料</h2>
+      <button class="public-profile-close" id="publicProfileCloseBtn" type="button" aria-label="关闭">×</button>
+    </div>
+    <div id="publicProfileBody"></div>
+  </div>
+</div>
+<div class="notice-editor-modal" id="noticeEditorModal" aria-hidden="true">
+  <div class="notice-editor-card" role="dialog" aria-modal="true" aria-labelledby="noticeEditorTitle">
+    <div class="notice-editor-head">
+      <h2 id="noticeEditorTitle">编辑公告栏</h2>
+      <button class="notice-editor-close" id="noticeEditorCloseBtn" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="notice-editor-list" id="noticeEditorList"></div>
+    <div class="notice-editor-actions">
+      <button id="noticeAddBtn" type="button">新增公告</button>
+      <button id="noticeSaveBtn" type="button">保存公告</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* =============== 语言下拉 =============== */
@@ -4957,6 +5329,11 @@ const blogProfileMeta = document.getElementById('blogProfileMeta');
 const blogProfileRole = document.getElementById('blogProfileRole');
 const profileSignatureText = document.getElementById('profileSignatureText');
 const profileIntroText = document.getElementById('profileIntroText');
+const profileBirthdayText = document.getElementById('profileBirthdayText');
+const profileZodiacText = document.getElementById('profileZodiacText');
+const profileQqText = document.getElementById('profileQqText');
+const profileEmailText = document.getElementById('profileEmailText');
+const contactOwnerBtn = document.getElementById('contactOwnerBtn');
 const profileEditBtn = document.getElementById('profileEditBtn');
 const profileMoodBtn = document.getElementById('profileMoodBtn');
 const profileEditor = document.getElementById('profileEditor');
@@ -4966,6 +5343,10 @@ const profileMetaInput = document.getElementById('profileMetaInput');
 const profileRoleInput = document.getElementById('profileRoleInput');
 const profileSignatureInput = document.getElementById('profileSignatureInput');
 const profileIntroInput = document.getElementById('profileIntroInput');
+const profileBirthdayInput = document.getElementById('profileBirthdayInput');
+const profileZodiacInput = document.getElementById('profileZodiacInput');
+const profileQqInput = document.getElementById('profileQqInput');
+const profileEmailInput = document.getElementById('profileEmailInput');
 const profileTagsInput = document.getElementById('profileTagsInput');
 const profileAvatarUpload = document.getElementById('profileAvatarUpload');
 const profileAvatarInput = document.getElementById('profileAvatarInput');
@@ -4994,11 +5375,24 @@ const articlePrevBtn = document.getElementById('articlePrevBtn');
 const articleNextBtn = document.getElementById('articleNextBtn');
 const articlePageInput = document.getElementById('articlePageInput');
 const articleJumpBtn = document.getElementById('articleJumpBtn');
-const noticeSlides = Array.from(document.querySelectorAll('.notice-slide'));
+const homeSearchInput = document.getElementById('homeSearchInput');
+const homeSearchBtn = document.getElementById('homeSearchBtn');
+const searchResultsPanel = document.getElementById('searchResultsPanel');
+const noticeCarousel = document.getElementById('noticeCarousel');
 const noticeDots = document.getElementById('noticeDots');
 const noticeIndex = document.getElementById('noticeIndex');
+const noticeEditBtn = document.getElementById('noticeEditBtn');
+const noticeEditorModal = document.getElementById('noticeEditorModal');
+const noticeEditorCloseBtn = document.getElementById('noticeEditorCloseBtn');
+const noticeEditorList = document.getElementById('noticeEditorList');
+const noticeAddBtn = document.getElementById('noticeAddBtn');
+const noticeSaveBtn = document.getElementById('noticeSaveBtn');
+const publicProfileModal = document.getElementById('publicProfileModal');
+const publicProfileCloseBtn = document.getElementById('publicProfileCloseBtn');
+const publicProfileBody = document.getElementById('publicProfileBody');
 const featureDescription = document.getElementById('featureDescription');
 const guestLoginBtn = document.getElementById('guestLoginBtn');
+const SITE_OWNER_USERNAME = 'An';
 const AUTH_TOKEN_KEY = 'ans_blog_auth_token';
 const AUTH_USER_KEY = 'ans_blog_auth_user';
 const AUTH_API_BASE = (window.AUTH_API_BASE || window.PROFILE_API_BASE || '').replace(/\/$/, '');
@@ -5126,6 +5520,10 @@ function readSavedUser(){
   }
 }
 
+function isSiteOwnerUser(user){
+  return !!user && user.username === SITE_OWNER_USERNAME;
+}
+
 function applyBlogAvatarPreview(avatar){
   [blogMiniAvatar, blogProfileAvatar].forEach(el=>{
     if(!el) return;
@@ -5155,6 +5553,10 @@ function renderBlogHomeUser(userLike){
   const avatar = profile.avatar || '';
   const profileMeta = profileTexts.profileMeta || tr('profileMeta');
   const profileRole = profileTexts.profileRole || tr('profileRole');
+  const birthday = profileTexts.birthday || '未填写';
+  const zodiac = profileTexts.zodiac || '未填写';
+  const qq = profileTexts.qq || '未填写';
+  const email = profileTexts.email || '未填写';
   const signature = profile.signature || tr('profileSlogan');
   const intro = profile.intro || '这里会记录你的创作、灵感、文章和成长轨迹。';
   const tags = Array.isArray(profile.tags) && profile.tags.length
@@ -5169,12 +5571,21 @@ function renderBlogHomeUser(userLike){
   if(blogProfileSlogan) blogProfileSlogan.textContent = signature;
   if(profileSignatureText) profileSignatureText.textContent = signature;
   if(profileIntroText) profileIntroText.textContent = intro;
+  if(profileBirthdayText) profileBirthdayText.textContent = birthday;
+  if(profileZodiacText) profileZodiacText.textContent = zodiac;
+  if(profileQqText) profileQqText.textContent = qq;
+  if(profileEmailText) profileEmailText.textContent = email;
   if(profileNameInput) profileNameInput.value = displayName;
   if(profileMetaInput) profileMetaInput.value = profileMeta;
   if(profileRoleInput) profileRoleInput.value = profileRole;
   if(profileSignatureInput) profileSignatureInput.value = signature;
   if(profileIntroInput) profileIntroInput.value = intro;
+  if(profileBirthdayInput) profileBirthdayInput.value = profileTexts.birthday || '';
+  if(profileZodiacInput) profileZodiacInput.value = profileTexts.zodiac || '';
+  if(profileQqInput) profileQqInput.value = profileTexts.qq || '';
+  if(profileEmailInput) profileEmailInput.value = profileTexts.email || '';
   if(profileTagsInput) profileTagsInput.value = tags.join(', ');
+  document.body.classList.toggle('site-owner', isSiteOwnerUser(user));
   applyProfileEditorAvatarPreview(avatar);
 
   applyBlogAvatarPreview(avatar);
@@ -5241,28 +5652,341 @@ if(articlePageInput){
 }
 renderArticles();
 
+const DEFAULT_ANNOUNCEMENTS = [
+  { id:'welcome', kicker:'✨ 星尘公告', title:'欢迎来到你的灵感档案馆', body:'这里会收纳文章、文件、灵感和成长记录。每一次登录，都是和未来的自己重逢。' },
+  { id:'writing', kicker:'🌙 创作提醒', title:'把今天的想法留下来', body:'一段文字、一张配图、一次复盘，都可以成为下一篇博客的起点。' },
+  { id:'roadmap', kicker:'💫 系统计划', title:'文章系统正在扩展', body:'后续会加入文章编辑、文件收纳、分类检索和独立文章详情页。' },
+  { id:'profile', kicker:'🫧 温柔提示', title:'资料已和账号绑定', body:'头像、签名、简介和标签都可以同步保存，换设备登录也能继续显示。' },
+  { id:'owner', kicker:'💌 站主小纸条', title:'如果迷路了，可以联系站主 An', body:'站主资料卡里会同步 QQ 和邮箱，点击联系站主就能快速查看。' },
+  { id:'search', kicker:'🔎 搜索上线', title:'顶部搜索可以查找用户和文章', body:'输入用户名、标签或文章关键词，就能打开公开资料或定位内容。' }
+];
 let noticeTimer = 0;
+let noticeTypeTimer = 0;
 let noticeCurrent = 0;
+let currentAnnouncements = DEFAULT_ANNOUNCEMENTS.slice();
+
+function getNoticeSlides(){
+  return Array.from(document.querySelectorAll('.notice-slide'));
+}
+
+function renderNoticeSlides(){
+  if(!noticeCarousel) return;
+  noticeCarousel.innerHTML = currentAnnouncements.map((item, index)=>`
+    <article class="notice-slide ${index === noticeCurrent ? 'active' : ''}">
+      <span>${escapeHtml(item.kicker || '')}</span>
+      <h1></h1>
+      <p></p>
+    </article>
+  `).join('');
+}
+
 function renderNoticeDots(){
   if(!noticeDots) return;
-  noticeDots.innerHTML = noticeSlides.map((_, index)=>`<button type="button" aria-label="第 ${index + 1} 条公告"></button>`).join('');
+  noticeDots.innerHTML = currentAnnouncements.map((_, index)=>`<button type="button" aria-label="第 ${index + 1} 条公告"></button>`).join('');
   Array.from(noticeDots.children).forEach((dot, index)=>{
     dot.addEventListener('click', ()=>showNotice(index));
   });
 }
+
+function typeTextInto(el, text, done){
+  if(!el) return done?.();
+  let index = 0;
+  clearInterval(noticeTypeTimer);
+  el.innerHTML = '<span class="type-caret"></span>';
+  noticeTypeTimer = setInterval(()=>{
+    index += 1;
+    el.innerHTML = `${escapeHtml(text.slice(0, index))}<span class="type-caret"></span>`;
+    if(index >= text.length){
+      clearInterval(noticeTypeTimer);
+      el.textContent = text;
+      done?.();
+    }
+  }, 42);
+}
+
+function playNoticeTyping(slide, item){
+  if(!slide || !item) return;
+  const titleEl = slide.querySelector('h1');
+  const bodyEl = slide.querySelector('p');
+  if(bodyEl) bodyEl.textContent = '';
+  typeTextInto(titleEl, item.title || '', ()=>{
+    typeTextInto(bodyEl, item.body || '');
+  });
+}
+
 function showNotice(index){
-  if(!noticeSlides.length) return;
-  noticeCurrent = (index + noticeSlides.length) % noticeSlides.length;
-  noticeSlides.forEach((slide, i)=>slide.classList.toggle('active', i === noticeCurrent));
+  if(!currentAnnouncements.length) return;
+  const slides = getNoticeSlides();
+  noticeCurrent = (index + currentAnnouncements.length) % currentAnnouncements.length;
+  slides.forEach((slide, i)=>slide.classList.toggle('active', i === noticeCurrent));
   if(noticeDots){
     Array.from(noticeDots.children).forEach((dot, i)=>dot.classList.toggle('active', i === noticeCurrent));
   }
-  if(noticeIndex) noticeIndex.textContent = `${String(noticeCurrent + 1).padStart(2,'0')} / ${String(noticeSlides.length).padStart(2,'0')}`;
+  if(noticeIndex) noticeIndex.textContent = `${String(noticeCurrent + 1).padStart(2,'0')} / ${String(currentAnnouncements.length).padStart(2,'0')}`;
+  playNoticeTyping(slides[noticeCurrent], currentAnnouncements[noticeCurrent]);
   clearInterval(noticeTimer);
-  noticeTimer = setInterval(()=>showNotice(noticeCurrent + 1), 5200);
+  noticeTimer = setInterval(()=>showNotice(noticeCurrent + 1), 7600);
 }
-renderNoticeDots();
-showNotice(0);
+
+async function loadAnnouncements(){
+  try{
+    const data = await authRequest('/api/announcements', { method:'GET' });
+    currentAnnouncements = Array.isArray(data.announcements) && data.announcements.length ? data.announcements : DEFAULT_ANNOUNCEMENTS.slice();
+  }catch(_){
+    currentAnnouncements = DEFAULT_ANNOUNCEMENTS.slice();
+  }
+  noticeCurrent = Math.min(noticeCurrent, currentAnnouncements.length - 1);
+  renderNoticeSlides();
+  renderNoticeDots();
+  showNotice(noticeCurrent);
+}
+
+function openNoticeEditor(){
+  const user = readSavedUser();
+  if(!isSiteOwnerUser(user)){
+    showLoginToast('只有站主 An 可以编辑公告栏。', 'warn', '需要站主权限');
+    return;
+  }
+  renderNoticeEditor();
+  noticeEditorModal?.classList.add('open');
+  noticeEditorModal?.setAttribute('aria-hidden', 'false');
+}
+
+function closeNoticeEditor(){
+  noticeEditorModal?.classList.remove('open');
+  noticeEditorModal?.setAttribute('aria-hidden', 'true');
+}
+
+function renderNoticeEditor(){
+  if(!noticeEditorList) return;
+  noticeEditorList.innerHTML = currentAnnouncements.map((item, index)=>`
+    <div class="notice-editor-row" data-index="${index}">
+      <label>公告标签<input data-field="kicker" value="${escapeHtml(item.kicker || '')}" maxlength="60" /></label>
+      <label>公告标题<input data-field="title" value="${escapeHtml(item.title || '')}" maxlength="80" /></label>
+      <label>公告信息<textarea data-field="body" maxlength="500">${escapeHtml(item.body || '')}</textarea></label>
+      <button class="notice-remove-btn" type="button" data-remove="${index}">删除这条</button>
+    </div>
+  `).join('');
+  noticeEditorList.querySelectorAll('[data-remove]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const index = Number(btn.dataset.remove);
+      currentAnnouncements.splice(index, 1);
+      if(!currentAnnouncements.length) currentAnnouncements.push({ id:`notice-${Date.now()}`, kicker:'✨ 新公告', title:'新的公告标题', body:'在这里填写公告内容。' });
+      renderNoticeEditor();
+    });
+  });
+}
+
+function collectNoticeEditorItems(){
+  return Array.from(noticeEditorList?.querySelectorAll('.notice-editor-row') || []).map((row, index)=>({
+    id:currentAnnouncements[index]?.id || `notice-${Date.now()}-${index}`,
+    kicker:row.querySelector('[data-field="kicker"]')?.value.trim() || '',
+    title:row.querySelector('[data-field="title"]')?.value.trim() || '',
+    body:row.querySelector('[data-field="body"]')?.value.trim() || ''
+  })).filter(item=>item.kicker || item.title || item.body);
+}
+
+async function saveNoticeEditor(){
+  const user = readSavedUser();
+  if(!isSiteOwnerUser(user)){
+    showLoginToast('只有站主 An 可以保存公告栏。', 'warn', '需要站主权限');
+    return;
+  }
+  const nextItems = collectNoticeEditorItems();
+  try{
+    noticeSaveBtn.disabled = true;
+    noticeSaveBtn.textContent = '保存中...';
+    const result = await authRequest('/api/announcements', {
+      method:'PUT',
+      headers:authorizedHeaders(),
+      body:JSON.stringify({ announcements:nextItems })
+    });
+    currentAnnouncements = result.announcements || nextItems;
+    noticeCurrent = 0;
+    renderNoticeSlides();
+    renderNoticeDots();
+    showNotice(0);
+    closeNoticeEditor();
+    showLoginToast('公告栏已更新。', 'success', '保存成功');
+  }catch(error){
+    showLoginToast(error.message || '公告保存失败。', 'error', '保存失败');
+  }finally{
+    noticeSaveBtn.disabled = false;
+    noticeSaveBtn.textContent = '保存公告';
+  }
+}
+
+if(noticeEditBtn) noticeEditBtn.addEventListener('click', openNoticeEditor);
+if(noticeEditorCloseBtn) noticeEditorCloseBtn.addEventListener('click', closeNoticeEditor);
+if(noticeAddBtn) noticeAddBtn.addEventListener('click', ()=>{
+  currentAnnouncements.push({ id:`notice-${Date.now()}`, kicker:'✨ 新公告', title:'新的公告标题', body:'在这里填写公告内容。' });
+  renderNoticeEditor();
+});
+if(noticeSaveBtn) noticeSaveBtn.addEventListener('click', saveNoticeEditor);
+if(noticeEditorModal){
+  noticeEditorModal.addEventListener('click', event=>{
+    if(event.target === noticeEditorModal) closeNoticeEditor();
+  });
+}
+loadAnnouncements();
+
+function userDisplayName(user){
+  return user?.profile?.nickname || user?.username || '访客';
+}
+
+function userTexts(user){
+  const texts = user?.profile?.texts;
+  return texts && typeof texts === 'object' ? texts : {};
+}
+
+function publicAvatarStyle(avatar){
+  return avatar ? `url("${avatar}")` : 'linear-gradient(135deg,#7c5cff,#3ad6ff 55%,#ff8fc7)';
+}
+
+function renderSearchResults(items){
+  if(!searchResultsPanel) return;
+  if(!items.length){
+    searchResultsPanel.innerHTML = '<div class="search-result-item"><div class="search-result-avatar"></div><div><strong>没有找到结果</strong><span>换个关键词试试，例如用户名、标签或文章标题</span></div><em class="search-result-kind">EMPTY</em></div>';
+    searchResultsPanel.classList.add('open');
+    return;
+  }
+  searchResultsPanel.innerHTML = items.map((item, index)=>{
+    if(item.type === 'user'){
+      const user = item.user;
+      const profile = user.profile || {};
+      const texts = userTexts(user);
+      return `
+        <button class="search-result-item" type="button" data-result-type="user" data-username="${escapeHtml(user.username)}" data-index="${index}">
+          <div class="search-result-avatar" style="--result-avatar:${publicAvatarStyle(profile.avatar || '')}"></div>
+          <div><strong>${escapeHtml(userDisplayName(user))}</strong><span>@${escapeHtml(user.username)} · ${escapeHtml(texts.profileRole || profile.signature || '公开用户')}</span></div>
+          <em class="search-result-kind">USER</em>
+        </button>
+      `;
+    }
+    const article = item.article;
+    return `
+      <button class="search-result-item" type="button" data-result-type="article" data-index="${index}">
+        <div class="search-result-avatar" style="--result-avatar:${article.thumb}"></div>
+        <div><strong>${escapeHtml(article.title)}</strong><span>${escapeHtml(article.category)} · ${escapeHtml(article.summary)}</span></div>
+        <em class="search-result-kind">ARTICLE</em>
+      </button>
+    `;
+  }).join('');
+  searchResultsPanel.classList.add('open');
+  searchResultsPanel.querySelectorAll('[data-result-type="user"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>openPublicUserProfile(btn.dataset.username));
+  });
+  searchResultsPanel.querySelectorAll('[data-result-type="article"]').forEach(btn=>{
+    const index = Number(btn.dataset.index);
+    const articleTitle = items[index]?.article?.title || '';
+    const articleIndex = BLOG_ARTICLES.findIndex(article=>article.title === articleTitle);
+    if(articleIndex >= 0){
+      btn.addEventListener('click', ()=>{
+        goArticlePage(Math.floor(articleIndex / ARTICLES_PER_PAGE) + 1);
+        searchResultsPanel.classList.remove('open');
+        document.getElementById('blogPosts')?.scrollIntoView({ behavior:'smooth', block:'center' });
+      });
+    }
+  });
+}
+
+async function runHomeSearch(){
+  const query = String(homeSearchInput?.value || '').trim();
+  if(!query){
+    renderSearchResults([]);
+    return;
+  }
+  const articleMatches = BLOG_ARTICLES
+    .filter(article => [article.title, article.category, article.summary, article.date].join(' ').toLowerCase().includes(query.toLowerCase()))
+    .slice(0, 8)
+    .map(article=>({ type:'article', article }));
+  let userMatches = [];
+  try{
+    const data = await authRequest(`/api/users/search?q=${encodeURIComponent(query)}`, { method:'GET' });
+    userMatches = (data.users || []).slice(0, 8).map(user=>({ type:'user', user }));
+  }catch(_){}
+  renderSearchResults([...userMatches, ...articleMatches].slice(0, 16));
+}
+
+function closePublicProfile(){
+  publicProfileModal?.classList.remove('open');
+  publicProfileModal?.setAttribute('aria-hidden', 'true');
+}
+
+function renderPublicProfile(user){
+  if(!publicProfileBody) return;
+  const profile = user.profile || {};
+  const texts = userTexts(user);
+  const tags = Array.isArray(profile.tags) ? profile.tags : [];
+  publicProfileBody.innerHTML = `
+    <div class="public-profile-top">
+      <div class="public-profile-avatar" style="--public-avatar:${publicAvatarStyle(profile.avatar || '')}"></div>
+      <div>
+        <h3>${escapeHtml(userDisplayName(user))}</h3>
+        <p>@${escapeHtml(user.username)} · 公开资料只读，不可编辑</p>
+      </div>
+    </div>
+    <div class="public-profile-info-grid">
+      <div><span>身份说明</span><strong>${escapeHtml(texts.profileRole || '未填写')}</strong></div>
+      <div><span>资料副标题</span><strong>${escapeHtml(texts.profileMeta || '未填写')}</strong></div>
+      <div><span>个性签名</span><strong>${escapeHtml(profile.signature || '未填写')}</strong></div>
+      <div><span>生日 / 星座</span><strong>${escapeHtml(texts.birthday || '未填写')} · ${escapeHtml(texts.zodiac || '未填写')}</strong></div>
+      <div><span>QQ</span><strong>${escapeHtml(texts.qq || '未填写')}</strong></div>
+      <div><span>邮箱</span><strong>${escapeHtml(texts.email || '未填写')}</strong></div>
+      <div style="grid-column:1 / -1"><span>个人简介</span><p>${escapeHtml(profile.intro || '这个用户暂时还没有填写简介。')}</p></div>
+      <div style="grid-column:1 / -1"><span>标签</span><strong>${tags.map(escapeHtml).join(' · ') || '未填写'}</strong></div>
+    </div>
+    <h3>公开文章</h3>
+    <div class="public-profile-articles">
+      ${BLOG_ARTICLES.slice(0, 4).map(article=>`<article><small>${escapeHtml(article.category)} · ${escapeHtml(article.date)}</small><h3>${escapeHtml(article.title)}</h3><p>${escapeHtml(article.summary)}</p></article>`).join('')}
+    </div>
+  `;
+}
+
+async function openPublicUserProfile(username){
+  if(!username) return;
+  try{
+    const data = await authRequest(`/api/users/profile?username=${encodeURIComponent(username)}`, { method:'GET' });
+    renderPublicProfile(data.user);
+    publicProfileModal?.classList.add('open');
+    publicProfileModal?.setAttribute('aria-hidden', 'false');
+    searchResultsPanel?.classList.remove('open');
+  }catch(error){
+    showLoginToast(error.message || '获取用户资料失败。', 'error', '查看失败');
+  }
+}
+
+async function contactSiteOwner(){
+  try{
+    const data = await authRequest(`/api/users/profile?username=${encodeURIComponent(SITE_OWNER_USERNAME)}`, { method:'GET' });
+    const texts = userTexts(data.user);
+    showLoginToast(`QQ：${texts.qq || '未填写'}  邮箱：${texts.email || '未填写'}`, 'success', '站主 An 的联系方式');
+    renderPublicProfile(data.user);
+    publicProfileModal?.classList.add('open');
+    publicProfileModal?.setAttribute('aria-hidden', 'false');
+  }catch(error){
+    showLoginToast(error.message || '暂时无法获取站主联系方式。', 'error', '联系失败');
+  }
+}
+
+if(homeSearchBtn) homeSearchBtn.addEventListener('click', runHomeSearch);
+if(homeSearchInput){
+  homeSearchInput.addEventListener('input', ()=>{
+    clearTimeout(homeSearchInput._searchTimer);
+    homeSearchInput._searchTimer = setTimeout(runHomeSearch, 260);
+  });
+  homeSearchInput.addEventListener('keydown', event=>{
+    if(event.key === 'Enter') runHomeSearch();
+    if(event.key === 'Escape') searchResultsPanel?.classList.remove('open');
+  });
+}
+if(publicProfileCloseBtn) publicProfileCloseBtn.addEventListener('click', closePublicProfile);
+if(publicProfileModal){
+  publicProfileModal.addEventListener('click', event=>{
+    if(event.target === publicProfileModal) closePublicProfile();
+  });
+}
+if(contactOwnerBtn) contactOwnerBtn.addEventListener('click', contactSiteOwner);
 
 const FEATURE_TEXT = {
   writing:'进入沉浸式写作状态，整理今日想法和下一篇文章提纲。',
@@ -5532,7 +6256,11 @@ async function saveProfileEditor(){
     texts:{
       ...(currentProfile.texts && typeof currentProfile.texts === 'object' ? currentProfile.texts : {}),
       profileMeta:String(profileMetaInput?.value || '').trim().slice(0, 80),
-      profileRole:String(profileRoleInput?.value || '').trim().slice(0, 120)
+      profileRole:String(profileRoleInput?.value || '').trim().slice(0, 120),
+      birthday:String(profileBirthdayInput?.value || '').trim().slice(0, 40),
+      zodiac:String(profileZodiacInput?.value || '').trim().slice(0, 20),
+      qq:String(profileQqInput?.value || '').trim().slice(0, 40),
+      email:String(profileEmailInput?.value || '').trim().slice(0, 120)
     }
   };
   try{
@@ -5627,6 +6355,10 @@ function returnToLogin(){
   }
   if(returnLoginBtn) returnLoginBtn.classList.remove('visible');
   if(topTools) topTools.classList.remove('portal-mode');
+  document.body.classList.remove('site-owner');
+  searchResultsPanel?.classList.remove('open');
+  closePublicProfile();
+  closeNoticeEditor();
   if(loginStage){
     loginStage.classList.remove('hidden','login-exit');
     loginStage.classList.add('login-enter');
