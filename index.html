@@ -3914,29 +3914,28 @@
   .mail-brand small{color:rgba(255,255,255,.68);font-weight:900;}
   .mail-global-search{
     flex:1;
-    max-width:380px;
+    max-width:460px;
     min-height:40px;
     display:flex;
     align-items:center;
     gap:8px;
     padding:0 14px;
+    margin:0 auto;
     border-radius:999px;
     background:rgba(255,255,255,.2);
     border:1px solid rgba(255,190,221,.34);
   }
   .mail-global-search input{width:100%;border:none;outline:none;color:#fff;background:transparent;font-weight:850;}
   .mail-global-search input::placeholder{color:rgba(255,255,255,.58);}
-  .mail-page-title{
-    min-width:120px;
-    height:40px;
-    display:grid;
-    place-items:center;
+  .mail-global-search button{
+    min-height:30px;
+    padding:0 12px;
     border-radius:999px;
+    border:1px solid rgba(255,255,255,.2);
     color:#fff;
-    font-size:18px;
-    font-weight:950;
-    background:rgba(255,255,255,.16);
-    border:1px solid rgba(255,255,255,.22);
+    font-weight:900;
+    cursor:pointer;
+    background:rgba(255,255,255,.18);
   }
   .mail-close,.owner-contact-close{
     width:38px;height:38px;border-radius:50%;
@@ -3969,18 +3968,6 @@
     gap:14px;
     padding:14px;
   }
-  .mail-compose-open{
-    min-height:48px;
-    border:none;
-    border-radius:22px;
-    color:#fff;
-    font-weight:950;
-    cursor:pointer;
-    background:linear-gradient(135deg,#ff9ccc,#ffc6df 56%,#ffeeb7);
-    box-shadow:0 14px 30px rgba(255,156,204,.22), inset 0 1px 0 rgba(255,255,255,.5);
-    transition:transform .2s, box-shadow .2s;
-  }
-  .mail-compose-open:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 20px 36px rgba(255,156,204,.28);}
   .mail-sidebar .mail-tabs{display:grid;gap:8px;}
   .mail-sidebar .mail-tabs button{
     width:100%;
@@ -3997,8 +3984,6 @@
     border-radius:999px;
     background:rgba(255,156,204,.28);
   }
-  .mail-side-apps{margin-top:auto;display:flex;gap:8px;justify-content:center;}
-  .mail-side-apps button{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.16);cursor:pointer;}
   .mail-list-panel{padding:12px;overflow:auto;}
   .mail-content-panel{padding:14px;display:grid;align-content:start;}
   .mail-tabs button,.owner-contact-actions button,.mail-send-btn{
@@ -4160,9 +4145,9 @@
   .mail-modal .mail-card{
     color:#6b5b6d;
     background:
-      radial-gradient(circle at 8% 0%, rgba(255,221,233,.9), transparent 30%),
-      radial-gradient(circle at 90% 8%, rgba(196,239,255,.82), transparent 32%),
-      linear-gradient(135deg, rgba(255,252,246,.97), rgba(247,242,255,.94));
+      radial-gradient(circle at 8% 0%, rgba(231,211,224,.74), transparent 30%),
+      radial-gradient(circle at 90% 8%, rgba(201,220,232,.68), transparent 32%),
+      linear-gradient(135deg, rgba(250,246,241,.97), rgba(236,232,245,.94));
     border:1px solid rgba(208,188,212,.72);
     box-shadow:0 34px 96px rgba(98,84,125,.25), inset 0 1px 0 rgba(255,255,255,.9);
   }
@@ -4184,8 +4169,8 @@
   }
   .mail-modal .mail-page-title,
   .mail-modal .mail-global-search{
-    background:rgba(255,255,255,.72);
-    border-color:rgba(178,155,186,.58);
+    background:rgba(250,247,243,.82);
+    border-color:rgba(166,150,174,.5);
   }
   .mail-modal .mail-global-search input,
   .mail-modal .mail-global-search span{
@@ -4200,8 +4185,8 @@
   .mail-modal .mail-sidebar,
   .mail-modal .mail-list-panel,
   .mail-modal .mail-content-panel{
-    background:rgba(255,255,255,.62);
-    border-color:rgba(208,188,212,.56);
+    background:rgba(250,247,243,.62);
+    border-color:rgba(190,174,198,.5);
     box-shadow:0 14px 34px rgba(168,145,180,.12), inset 0 1px 0 rgba(255,255,255,.8);
   }
   .mail-modal .mail-sidebar .mail-tabs button,
@@ -4209,13 +4194,13 @@
   .mail-modal .mail-list-toolbar button,
   .mail-modal .mail-send-btn{
     color:#6b5b6d;
-    background:linear-gradient(135deg,#fff,#ffe5f0);
-    border-color:rgba(208,188,212,.62);
+    background:linear-gradient(135deg,#faf6f1,#eee7f1);
+    border-color:rgba(190,174,198,.54);
   }
   .mail-modal .mail-sidebar .mail-tabs button.active{
     color:#6a4a66;
-    background:linear-gradient(135deg,#ffe0ec,#dff8ff);
-    box-shadow:0 12px 24px rgba(255,169,204,.18);
+    background:linear-gradient(135deg,#ead8e4,#dce8ef);
+    box-shadow:0 12px 24px rgba(150,126,158,.14);
   }
   .mail-modal .mail-sidebar .mail-tabs b{
     color:#fff;
@@ -4223,8 +4208,8 @@
   }
   .mail-modal .mail-item{
     background:
-      radial-gradient(circle at 8% 0%, rgba(255,224,236,.88), transparent 34%),
-      linear-gradient(135deg, rgba(255,255,255,.92), rgba(247,251,255,.82));
+      radial-gradient(circle at 8% 0%, rgba(234,216,228,.66), transparent 34%),
+      linear-gradient(135deg, rgba(250,247,243,.92), rgba(235,240,244,.82));
     border-color:rgba(208,188,212,.55);
     color:#6b5b6d;
     box-shadow:0 12px 26px rgba(168,145,180,.11);
@@ -4250,7 +4235,7 @@
   .mail-modal .mail-read-card,
   .mail-modal .mail-attachment-preview,
   .mail-modal .mail-list-toolbar{
-    background:rgba(255,255,255,.76);
+    background:rgba(250,247,243,.76);
     border-color:rgba(208,188,212,.55);
     color:#6b5b6d;
   }
@@ -4262,7 +4247,7 @@
   }
   .mail-modal .mail-delete-btn{
     color:#fff;
-    background:linear-gradient(135deg,#ff8faf,#ffb9cf);
+    background:linear-gradient(135deg,#c98299,#d9a8ba);
   }
   .mail-modal .mail-draft-soft{
     opacity:.72;
@@ -6374,19 +6359,16 @@
   <div class="mail-card" role="dialog" aria-modal="true" aria-labelledby="mailTitle">
     <div class="mail-head mail-topbar">
       <div class="mail-brand"><span id="mailUserAvatar"></span><h2 id="mailUserName">An</h2></div>
-      <div class="mail-global-search"><span>⌕</span><input type="text" placeholder="搜索发件人、主题、正文..." autocomplete="new-password" data-lpignore="true" /></div>
-      <div class="mail-page-title" id="mailTitle">邮箱</div>
+      <div class="mail-global-search"><input id="mailSearchInput" type="text" placeholder="搜索用户、标题、内容、附件名..." autocomplete="new-password" data-lpignore="true" /><button id="mailSearchBtn" type="button">搜索</button></div>
       <button class="mail-close" id="mailCloseBtn" type="button" aria-label="关闭">×</button>
     </div>
     <div class="mail-layout">
       <aside class="mail-sidebar">
-        <button class="mail-compose-open" id="mailComposeTab" type="button">羽毛写信</button>
         <div class="mail-tabs">
           <button id="mailInboxTab" class="active" type="button"><span>💌 收件箱</span><b id="mailInboxMiniCount">0</b></button>
           <button id="mailSentTab" type="button"><span>🛩 发件箱</span><b id="mailSentMiniCount">0</b></button>
-          <button type="button" class="mail-draft-soft"><span>✏ 草稿箱</span><b>0</b></button>
+          <button id="mailDraftTab" type="button" class="mail-draft-soft"><span>✏ 草稿箱</span><b>0</b></button>
         </div>
-        <div class="mail-side-apps"><button title="通讯录">🌸</button><button title="日历">🌙</button><button title="文件">☁</button></div>
       </aside>
       <section class="mail-list-panel">
         <div class="mail-list" id="mailListPanel"></div>
@@ -6968,9 +6950,12 @@ const mailModal = document.getElementById('mailModal');
 const mailCloseBtn = document.getElementById('mailCloseBtn');
 const mailInboxTab = document.getElementById('mailInboxTab');
 const mailSentTab = document.getElementById('mailSentTab');
+const mailDraftTab = document.getElementById('mailDraftTab');
 const mailInboxMiniCount = document.getElementById('mailInboxMiniCount');
 const mailSentMiniCount = document.getElementById('mailSentMiniCount');
 const mailComposeTab = document.getElementById('mailComposeTab');
+const mailSearchInput = document.getElementById('mailSearchInput');
+const mailSearchBtn = document.getElementById('mailSearchBtn');
 const mailComposePanel = document.getElementById('mailComposePanel');
 const mailListPanel = document.getElementById('mailListPanel');
 const mailToInput = document.getElementById('mailToInput');
@@ -8232,6 +8217,7 @@ async function openPublicUserProfile(username, prefetchedUser = null){
 }
 
 let ownerContactUser = null;
+let mailSearchQuery = '';
 
 async function contactSiteOwner(){
   try{
@@ -8288,9 +8274,10 @@ function closeMailCenter(){
 
 function setMailTab(mode){
   currentMailMode = mode;
-  [mailInboxTab, mailSentTab, mailComposeTab].forEach(btn=>btn?.classList.remove('active'));
+  [mailInboxTab, mailSentTab, mailDraftTab, mailComposeTab].forEach(btn=>btn?.classList.remove('active'));
   mailInboxTab?.classList.toggle('active', mode === 'inbox');
   mailSentTab?.classList.toggle('active', mode === 'sent');
+  mailDraftTab?.classList.toggle('active', mode === 'draft');
   mailComposeTab?.classList.toggle('active', mode === 'compose');
   if(mailComposePanel) mailComposePanel.hidden = mode !== 'compose';
   if(mailReadModal) mailReadModal.hidden = mode === 'compose';
@@ -8318,9 +8305,24 @@ function backToMailList(){
   loadMail(currentMailMode === 'compose' ? 'sent' : currentMailMode);
 }
 
+function runMailSearch(){
+  mailSearchQuery = String(mailSearchInput?.value || '').trim();
+  const mode = currentMailMode === 'compose' ? 'inbox' : currentMailMode;
+  renderMailList(mode === 'draft' ? 'draft' : mode);
+  if(mailSearchQuery && !(mailState[mode] || []).length && mode !== 'draft'){
+    loadMail(mode);
+  }
+}
+
 async function loadMail(mode = 'inbox'){
   setMailTab(mode);
   if(mode === 'compose') return;
+  if(mode === 'draft'){
+    renderMailList('draft');
+    closeMailReader();
+    return;
+  }
+  renderMailList(mode);
   try{
     const data = await authRequest('/api/mail', { method:'GET', headers:authorizedHeaders() });
     mailState = { inbox:data.inbox || [], sent:data.sent || [] };
@@ -8333,17 +8335,34 @@ async function loadMail(mode = 'inbox'){
 }
 
 function renderMailList(mode){
-  const items = mailState[mode] || [];
+  const sourceItems = mode === 'draft' ? [] : (mailState[mode] || []);
+  const query = mailSearchQuery.toLowerCase();
+  const items = query ? sourceItems.filter(mail=>[
+    mail.from,
+    mail.to,
+    mail.subject,
+    mail.body,
+    mail.createdAt,
+    mail.attachment?.name,
+    mail.attachment?.type
+  ].join(' ').toLowerCase().includes(query)) : sourceItems;
   if(!mailListPanel) return;
-  const modeTitle = mode === 'sent' ? '发件箱' : '收件箱';
+  const modeTitle = mode === 'sent' ? '发件箱' : mode === 'draft' ? '草稿箱' : '收件箱';
   const toolbar = `
     <div class="mail-list-toolbar">
-      <strong>${modeTitle} · ${items.length} 封</strong>
-      ${mode === 'sent' ? '<button id="mailQuickComposeBtn" type="button">写新邮件</button>' : '<span>点击邮件可查看详情</span>'}
+      <strong>${modeTitle} · ${items.length} 封${mailSearchQuery ? ` · 搜索“${escapeHtml(mailSearchQuery)}”` : ''}</strong>
+      ${mode === 'sent' ? '<button id="mailQuickComposeBtn" type="button">写新邮件</button>' : mode === 'draft' ? '<span>草稿功能预留中</span>' : '<span>点击邮件可查看详情</span>'}
     </div>
   `;
   if(!items.length){
-    mailListPanel.innerHTML = `${toolbar}<div class="mail-item"><strong>${modeTitle}为空</strong><p>${mode === 'sent' ? '点击“写新邮件”给对方发送站内信。' : '这里会显示最近收到的站内邮件，邮件 24 小时后会自动清理。'}</p></div>`;
+    const emptyText = mailSearchQuery
+      ? '没有搜索到相关邮件，请换个用户、标题、内容或附件名试试。'
+      : mode === 'sent'
+        ? '点击“写新邮件”给对方发送站内信。'
+        : mode === 'draft'
+          ? '草稿箱暂时为空，后续写信草稿会出现在这里。'
+          : '这里会显示最近收到的站内邮件，邮件 24 小时后会自动清理。';
+    mailListPanel.innerHTML = `${toolbar}<div class="mail-item"><strong>${modeTitle}为空</strong><p>${emptyText}</p></div>`;
     mailListPanel.querySelector('#mailQuickComposeBtn')?.addEventListener('click', ()=>openMailCompose());
     return;
   }
@@ -8528,9 +8547,21 @@ if(homeMailBtn) homeMailBtn.addEventListener('click', ()=>openMailCenter('inbox'
 if(mailCloseBtn) mailCloseBtn.addEventListener('click', closeMailCenter);
 if(mailInboxTab) mailInboxTab.addEventListener('click', ()=>loadMail('inbox'));
 if(mailSentTab) mailSentTab.addEventListener('click', ()=>loadMail('sent'));
+if(mailDraftTab) mailDraftTab.addEventListener('click', ()=>loadMail('draft'));
 if(mailComposeTab) mailComposeTab.addEventListener('click', ()=>setMailTab('compose'));
 if(mailSendBtn) mailSendBtn.addEventListener('click', sendMail);
 if(mailBackListBtn) mailBackListBtn.addEventListener('click', backToMailList);
+if(mailSearchBtn) mailSearchBtn.addEventListener('click', runMailSearch);
+if(mailSearchInput){
+  mailSearchInput.addEventListener('keydown', event=>{
+    if(event.key === 'Enter') runMailSearch();
+    if(event.key === 'Escape'){
+      mailSearchInput.value = '';
+      mailSearchQuery = '';
+      renderMailList(currentMailMode === 'compose' ? 'inbox' : currentMailMode);
+    }
+  });
+}
 if(mailModal) mailModal.addEventListener('click', event=>{ if(event.target === mailModal) closeMailCenter(); });
 if(mailReadCloseBtn) mailReadCloseBtn.addEventListener('click', closeMailReader);
 if(mailReadModal) mailReadModal.addEventListener('click', event=>{ if(event.target === mailReadModal) closeMailReader(); });
