@@ -45,7 +45,7 @@ function sanitizeMail(mail){
     from: String(mail.from || '').trim().slice(0, 20),
     to: String(mail.to || '').trim().slice(0, 20),
     subject: String(mail.subject || '').trim().slice(0, 80),
-    body: String(mail.body || '').trim().slice(0, 1200),
+    body: String(mail.body || '').trim().slice(0, 12000),
     createdAt: typeof mail.createdAt === 'string' ? mail.createdAt : nowIso(),
     expiresAt: typeof mail.expiresAt === 'string' ? mail.expiresAt : new Date(Date.now() + MAIL_TTL_MS).toISOString(),
     read: Boolean(mail.read),
