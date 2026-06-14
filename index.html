@@ -4025,7 +4025,7 @@
     position:fixed;
     inset:50% auto auto 50%;
     transform:translate(-50%,-50%);
-    z-index:520;
+    z-index:900;
     width:min(760px, 94vw);
     height:min(720px, 88vh);
     display:grid;
@@ -4037,8 +4037,11 @@
       radial-gradient(circle at 8% 0%, rgba(255,216,232,.82), transparent 32%),
       radial-gradient(circle at 92% 10%, rgba(207,230,255,.76), transparent 34%),
       rgba(250,247,243,.96);
-    border:1px solid rgba(218,200,225,.82);
-    box-shadow:0 34px 100px rgba(88,72,104,.34), inset 0 1px 0 rgba(255,255,255,.86);
+    border:1px solid rgba(218,200,225,.86);
+    box-shadow:
+      0 0 0 9999px rgba(48,42,64,.34),
+      0 34px 100px rgba(88,72,104,.36),
+      inset 0 1px 0 rgba(255,255,255,.86);
     animation:mailPopIn .24s cubic-bezier(.22,.08,.28,1) both;
   }
   .mail-compose[hidden]{display:none !important;}
@@ -4067,21 +4070,25 @@
   .mail-rich-toolbar{
     display:flex;
     flex-wrap:wrap;
-    gap:6px;
-    padding:10px;
-    border-radius:22px;
-    background:linear-gradient(135deg, rgba(255,234,242,.76), rgba(232,242,255,.68));
+    gap:7px;
+    padding:11px;
+    border-radius:24px;
+    background:
+      radial-gradient(circle at 8% 0%, rgba(255,255,255,.86), transparent 32%),
+      linear-gradient(135deg, rgba(255,236,244,.86), rgba(232,242,255,.78));
     border:1px solid rgba(218,200,225,.75);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 10px 22px rgba(176,158,200,.12);
   }
   .mail-rich-toolbar button,
   .mail-rich-toolbar select,
   .mail-rich-toolbar label{
-    min-height:28px;
-    padding:0 9px;
+    min-height:30px;
+    padding:0 10px;
     border-radius:999px;
     border:1px solid rgba(218,200,225,.7);
-    background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(250,245,252,.82));
+    background:
+      radial-gradient(circle at 20% 0%, rgba(255,255,255,.95), transparent 42%),
+      linear-gradient(135deg,rgba(255,255,255,.92),rgba(250,245,252,.84));
     color:#6b5b6d;
     font-weight:900;
     font-size:11px;
@@ -4089,11 +4096,33 @@
     display:inline-flex;
     align-items:center;
     gap:4px;
-    transition:transform .18s, box-shadow .18s, background .18s;
+    box-shadow:0 5px 12px rgba(176,158,200,.1), inset 0 1px 0 rgba(255,255,255,.72);
+    transition:transform .18s, box-shadow .18s, background .18s, border-color .18s;
   }
   .mail-rich-toolbar button:hover,
   .mail-rich-toolbar label:hover,
-  .mail-rich-toolbar select:hover{transform:translateY(-1px) scale(1.03);background:#fff;box-shadow:0 8px 18px rgba(176,158,200,.18);}
+  .mail-rich-toolbar select:hover{
+    transform:translateY(-2px) scale(1.035);
+    background:linear-gradient(135deg,#fff,#fff4fa);
+    border-color:rgba(240,182,212,.85);
+    box-shadow:0 10px 22px rgba(176,158,200,.2), 0 0 0 3px rgba(255,214,232,.28);
+  }
+  .mail-rich-toolbar button:active,
+  .mail-rich-toolbar label:active{
+    transform:translateY(0) scale(.97);
+  }
+  .mail-rich-toolbar button b,
+  .mail-rich-toolbar button i,
+  .mail-rich-toolbar button u,
+  .mail-rich-toolbar button s{
+    min-width:18px;
+    height:18px;
+    display:grid;
+    place-items:center;
+    border-radius:999px;
+    background:linear-gradient(135deg,#ffe2ee,#e5f3ff);
+    text-decoration:inherit;
+  }
   .mail-rich-toolbar input[type="color"]{
     width:26px;height:26px;border:none;border-radius:999px;background:none;padding:0;cursor:pointer;
   }
@@ -4107,9 +4136,23 @@
     border-radius:999px;
     padding:0 8px;
     font-weight:900;
+    text-align:center;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.82);
   }
   .mail-rich-toolbar select{
-    max-width:150px;
+    max-width:160px;
+    appearance:none;
+    padding-right:24px;
+    background-image:
+      linear-gradient(45deg, transparent 50%, #b78fab 50%),
+      linear-gradient(135deg, #b78fab 50%, transparent 50%),
+      linear-gradient(135deg,rgba(255,255,255,.92),rgba(250,245,252,.84));
+    background-position:
+      calc(100% - 13px) 13px,
+      calc(100% - 8px) 13px,
+      0 0;
+    background-size:5px 5px,5px 5px,100% 100%;
+    background-repeat:no-repeat;
   }
   .mail-align-menu{
     position:relative;
@@ -4240,6 +4283,30 @@
     color:#fff;
     border-color:rgba(255,255,255,.8);
     box-shadow:0 12px 26px rgba(214,150,196,.32);
+  }
+  .mail-compose label{
+    display:grid;
+    gap:6px;
+    color:#7a657d;
+    font-size:12px;
+    font-weight:900;
+  }
+  .mail-compose input[type="text"]{
+    width:100%;
+    min-height:38px;
+    border-radius:16px;
+    border:1px solid rgba(218,200,225,.72);
+    outline:none;
+    color:#5f5263;
+    background:#fffafd;
+    padding:0 12px;
+    font-weight:850;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+    transition:border-color .18s, box-shadow .18s;
+  }
+  .mail-compose input[type="text"]:focus{
+    border-color:#f0b6d4;
+    box-shadow:0 0 0 3px rgba(255,179,210,.2), inset 0 1px 0 rgba(255,255,255,.9);
   }
   .mail-emoji-panel{
     position:absolute;
@@ -6669,86 +6736,6 @@
         <div class="mail-list" id="mailListPanel"></div>
       </section>
       <section class="mail-content-panel">
-        <div class="mail-compose" id="mailComposePanel" hidden>
-          <div class="mail-rich-toolbar">
-            <select id="mailFontFamily" title="字体">
-              <optgroup label="常用字体">
-                <option value="Microsoft YaHei">微软雅黑</option>
-                <option value="SimSun">宋体</option>
-                <option value="SimHei">黑体</option>
-                <option value="KaiTi">楷体</option>
-                <option value="FangSong">仿宋</option>
-                <option value="Arial">Arial</option>
-                <option value="Verdana">Verdana</option>
-                <option value="Tahoma">Tahoma</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Times New Roman">Times New Roman</option>
-              </optgroup>
-              <optgroup label="个性字体">
-                <option value="Comic Sans MS">Comic Sans</option>
-                <option value="Trebuchet MS">Trebuchet</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Lucida Handwriting">Lucida Handwriting</option>
-                <option value="Brush Script MT">Brush Script</option>
-                <option value="Papyrus">Papyrus</option>
-                <option value="Impact">Impact</option>
-                <option value="Segoe Print">Segoe Print</option>
-                <option value="Yu Gothic">游ゴシック</option>
-                <option value="PingFang SC">苹方</option>
-              </optgroup>
-              <optgroup label="手写字体">
-                <option value="Segoe Print">Segoe Print</option>
-                <option value="Segoe Script">Segoe Script</option>
-                <option value="Bradley Hand ITC">Bradley Hand</option>
-                <option value="Ink Free">Ink Free</option>
-                <option value="Kristen ITC">Kristen ITC</option>
-                <option value="Lucida Handwriting">Lucida Handwriting</option>
-                <option value="Comic Sans MS">Comic Sans 手写</option>
-                <option value="Brush Script MT">Brush Script</option>
-                <option value="STXingkai">华文行楷</option>
-                <option value="KaiTi">楷体手写</option>
-              </optgroup>
-              <optgroup label="其他字体">
-                <option value="serif">Serif</option>
-                <option value="sans-serif">Sans Serif</option>
-                <option value="monospace">Monospace</option>
-                <option value="cursive">Cursive</option>
-                <option value="fantasy">Fantasy</option>
-              </optgroup>
-            </select>
-            <label class="mail-size-control" title="字号">字号 <input id="mailFontSize" type="number" min="10" max="72" value="14" /></label>
-            <button type="button" data-rich="bold" title="加粗"><b>粗</b></button>
-            <button type="button" data-rich="italic" title="斜体"><i>斜</i></button>
-            <button type="button" data-rich="underline" title="下划线"><u>下</u></button>
-            <button type="button" data-rich="strikeThrough" title="删除线"><s>删</s></button>
-            <label title="字体颜色">🎨<input id="mailFontColor" type="color" value="#5b4d5f" /></label>
-            <div class="mail-align-menu">
-              <button id="mailAlignToggle" type="button" title="对齐方式">对齐⌄</button>
-              <div class="mail-align-options" id="mailAlignOptions">
-                <button type="button" data-align="justifyLeft">左对齐</button>
-                <button type="button" data-align="justifyCenter">居中</button>
-                <button type="button" data-align="justifyRight">右对齐</button>
-              </div>
-            </div>
-            <button id="mailInsertEmojiBtn" type="button" title="插入表情">✨ 表情</button>
-            <div class="mail-emoji-panel" id="mailEmojiPanel"></div>
-            <button id="mailAttachBtn" type="button" title="添加附件">📎 附件</button>
-            <button id="mailAttachLinkBtn" type="button" title="插入文件链接">🔗 文件链接</button>
-          </div>
-          <div class="mail-scroll-area">
-            <label>收件用户名<input id="mailToInput" type="text" maxlength="20" placeholder="填写对方用户名" autocomplete="off" data-lpignore="true" /></label>
-            <label>主题<input id="mailSubjectInput" type="text" maxlength="80" placeholder="写下邮件主题吧✨" autocomplete="off" data-lpignore="true" /></label>
-            <div id="mailBodyEditor" class="mail-rich-editor" contenteditable="true" data-placeholder="像写一张温柔信纸一样，写下想说的话"></div>
-            <div class="mail-attachments-bar" id="mailAttachmentsBar"></div>
-            <input id="mailAttachmentInput" type="file" hidden multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.txt,.md,.zip,.rar,.7z,.json,.js,.ts,.html,.css,.py" />
-          </div>
-          <div class="mail-compose-footer">
-            <button id="mailSaveDraftBtn" type="button">💾 存草稿</button>
-            <button id="mailDiscardDraftBtn" type="button">🗑 清空</button>
-            <button id="mailBackListBtn" type="button">返回列表</button>
-            <button class="mail-send-btn" id="mailSendBtn" type="button">✿ 发送邮件</button>
-          </div>
-        </div>
         <div class="mail-read-card" id="mailReadModal" aria-hidden="false">
           <div class="mail-read-head">
             <h2 id="mailReadTitle">选择一封邮件</h2>
@@ -6765,6 +6752,86 @@
         </div>
       </section>
     </div>
+  </div>
+</div>
+<div class="mail-compose" id="mailComposePanel" hidden>
+  <div class="mail-rich-toolbar">
+    <select id="mailFontFamily" title="字体">
+      <optgroup label="常用字体">
+        <option value="Microsoft YaHei">微软雅黑</option>
+        <option value="SimSun">宋体</option>
+        <option value="SimHei">黑体</option>
+        <option value="KaiTi">楷体</option>
+        <option value="FangSong">仿宋</option>
+        <option value="Arial">Arial</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Tahoma">Tahoma</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Times New Roman">Times New Roman</option>
+      </optgroup>
+      <optgroup label="个性字体">
+        <option value="Comic Sans MS">Comic Sans</option>
+        <option value="Trebuchet MS">Trebuchet</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Lucida Handwriting">Lucida Handwriting</option>
+        <option value="Brush Script MT">Brush Script</option>
+        <option value="Papyrus">Papyrus</option>
+        <option value="Impact">Impact</option>
+        <option value="Segoe Print">Segoe Print</option>
+        <option value="Yu Gothic">游ゴシック</option>
+        <option value="PingFang SC">苹方</option>
+      </optgroup>
+      <optgroup label="手写字体">
+        <option value="Segoe Print">Segoe Print</option>
+        <option value="Segoe Script">Segoe Script</option>
+        <option value="Bradley Hand ITC">Bradley Hand</option>
+        <option value="Ink Free">Ink Free</option>
+        <option value="Kristen ITC">Kristen ITC</option>
+        <option value="Lucida Handwriting">Lucida Handwriting</option>
+        <option value="Comic Sans MS">Comic Sans 手写</option>
+        <option value="Brush Script MT">Brush Script</option>
+        <option value="STXingkai">华文行楷</option>
+        <option value="KaiTi">楷体手写</option>
+      </optgroup>
+      <optgroup label="其他字体">
+        <option value="serif">Serif</option>
+        <option value="sans-serif">Sans Serif</option>
+        <option value="monospace">Monospace</option>
+        <option value="cursive">Cursive</option>
+        <option value="fantasy">Fantasy</option>
+      </optgroup>
+    </select>
+    <label class="mail-size-control" title="字号">字号 <input id="mailFontSize" type="number" min="10" max="72" value="14" /></label>
+    <button type="button" data-rich="bold" title="加粗"><b>粗</b></button>
+    <button type="button" data-rich="italic" title="斜体"><i>斜</i></button>
+    <button type="button" data-rich="underline" title="下划线"><u>下</u></button>
+    <button type="button" data-rich="strikeThrough" title="删除线"><s>删</s></button>
+    <label title="字体颜色">🎨<input id="mailFontColor" type="color" value="#5b4d5f" /></label>
+    <div class="mail-align-menu">
+      <button id="mailAlignToggle" type="button" title="对齐方式">对齐⌄</button>
+      <div class="mail-align-options" id="mailAlignOptions">
+        <button type="button" data-align="justifyLeft">左对齐</button>
+        <button type="button" data-align="justifyCenter">居中</button>
+        <button type="button" data-align="justifyRight">右对齐</button>
+      </div>
+    </div>
+    <button id="mailInsertEmojiBtn" type="button" title="插入表情">✨ 表情</button>
+    <div class="mail-emoji-panel" id="mailEmojiPanel"></div>
+    <button id="mailAttachBtn" type="button" title="添加附件">📎 附件</button>
+    <button id="mailAttachLinkBtn" type="button" title="插入文件链接">🔗 文件链接</button>
+  </div>
+  <div class="mail-scroll-area">
+    <label>收件用户名<input id="mailToInput" type="text" maxlength="20" placeholder="填写对方用户名" autocomplete="off" data-lpignore="true" /></label>
+    <label>主题<input id="mailSubjectInput" type="text" maxlength="80" placeholder="写下邮件主题吧✨" autocomplete="off" data-lpignore="true" /></label>
+    <div id="mailBodyEditor" class="mail-rich-editor" contenteditable="true" data-placeholder="像写一张温柔信纸一样，写下想说的话"></div>
+    <div class="mail-attachments-bar" id="mailAttachmentsBar"></div>
+    <input id="mailAttachmentInput" type="file" hidden multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.txt,.md,.zip,.rar,.7z,.json,.js,.ts,.html,.css,.py" />
+  </div>
+  <div class="mail-compose-footer">
+    <button id="mailSaveDraftBtn" type="button">💾 存草稿</button>
+    <button id="mailDiscardDraftBtn" type="button">🗑 清空</button>
+    <button id="mailBackListBtn" type="button">关闭编辑</button>
+    <button class="mail-send-btn" id="mailSendBtn" type="button">✿ 发送邮件</button>
   </div>
 </div>
 <div class="owner-contact-modal" id="ownerContactModal" aria-hidden="true">
