@@ -3929,13 +3929,19 @@
   .mail-global-search input::placeholder{color:rgba(255,255,255,.58);}
   .mail-global-search button{
     min-height:30px;
-    padding:0 12px;
+    padding:0 16px;
     border-radius:999px;
-    border:1px solid rgba(255,255,255,.2);
-    color:#fff;
-    font-weight:900;
+    border:1px solid rgba(255,255,255,.72);
+    color:#6a4765;
+    font-weight:950;
     cursor:pointer;
-    background:rgba(255,255,255,.18);
+    background:linear-gradient(135deg,#ffe1ee,#cfe9ff);
+    box-shadow:0 10px 22px rgba(176,135,170,.2), inset 0 1px 0 rgba(255,255,255,.85);
+    transition:transform .18s, box-shadow .18s;
+  }
+  .mail-global-search button:hover{
+    transform:translateY(-2px) scale(1.04);
+    box-shadow:0 14px 28px rgba(176,135,170,.28), 0 0 0 3px rgba(255,214,232,.28);
   }
   .mail-close,.owner-contact-close{
     width:38px;height:38px;border-radius:50%;
@@ -4138,18 +4144,22 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.82);
   }
   .mail-rich-toolbar select{
-    max-width:176px;
+    max-width:220px;
+    min-width:178px;
     appearance:none;
-    padding-right:24px;
+    padding-left:34px;
+    padding-right:28px;
     background-image:
+      radial-gradient(circle at 17px 50%, #ffb9d3 0 5px, transparent 6px),
       linear-gradient(45deg, transparent 50%, #b78fab 50%),
       linear-gradient(135deg, #b78fab 50%, transparent 50%),
       linear-gradient(135deg,rgba(255,255,255,.92),rgba(250,245,252,.84));
     background-position:
+      0 0,
       calc(100% - 13px) 13px,
       calc(100% - 8px) 13px,
       0 0;
-    background-size:5px 5px,5px 5px,100% 100%;
+    background-size:32px 100%,5px 5px,5px 5px,100% 100%;
     background-repeat:no-repeat;
   }
   .mail-align-menu{
@@ -4248,9 +4258,13 @@
     display:flex;
     flex-wrap:wrap;
     gap:8px;
-    max-height:120px;
+    min-height:40px;
+    max-height:92px;
     overflow:auto;
-    padding:4px 2px;
+    padding:8px;
+    border-radius:18px;
+    background:linear-gradient(135deg,rgba(255,248,251,.78),rgba(239,247,255,.68));
+    border:1px dashed rgba(218,200,225,.72);
   }
   .mail-attach-chip{
     display:inline-flex;
@@ -4281,6 +4295,12 @@
     color:#fff;
     border-color:rgba(255,255,255,.8);
     box-shadow:0 12px 26px rgba(214,150,196,.32);
+  }
+  #mailBackListBtn{
+    color:#6a4a66;
+    background:linear-gradient(135deg,#fff7fb,#eaf6ff);
+    border-color:rgba(218,200,225,.82);
+    box-shadow:0 10px 22px rgba(176,158,200,.15), inset 0 1px 0 rgba(255,255,255,.85);
   }
   .mail-compose label{
     display:grid;
@@ -4483,13 +4503,19 @@
   .mail-list-toolbar strong{font-size:14px;}
   .mail-list-toolbar button{
     min-height:32px;
-    padding:0 12px;
+    padding:0 16px;
     border-radius:999px;
-    border:1px solid rgba(255,255,255,.2);
-    color:#fff;
-    font-weight:900;
+    border:1px solid rgba(255,255,255,.75);
+    color:#6d4b69;
+    font-weight:950;
     cursor:pointer;
-    background:linear-gradient(135deg, rgba(143,247,255,.2), rgba(255,156,204,.18));
+    background:linear-gradient(135deg,#ffd8e8,#d9efff);
+    box-shadow:0 10px 24px rgba(176,135,170,.18), inset 0 1px 0 rgba(255,255,255,.85);
+    transition:transform .18s, box-shadow .18s;
+  }
+  .mail-list-toolbar button:hover{
+    transform:translateY(-2px) scale(1.04);
+    box-shadow:0 14px 30px rgba(176,135,170,.26);
   }
   .mail-attach-row{
     display:flex;
@@ -6763,48 +6789,62 @@
 <div class="mail-compose" id="mailComposePanel" hidden>
   <div class="mail-rich-toolbar">
     <select id="mailFontFamily" title="字体">
-      <optgroup label="常用字体">
-        <option value="Microsoft YaHei">微软雅黑</option>
-        <option value="SimSun">宋体</option>
-        <option value="SimHei">黑体</option>
-        <option value="KaiTi">楷体</option>
-        <option value="FangSong">仿宋</option>
-        <option value="Arial">Arial</option>
-        <option value="Verdana">Verdana</option>
-        <option value="Tahoma">Tahoma</option>
-        <option value="Georgia">Georgia</option>
-        <option value="Times New Roman">Times New Roman</option>
+      <optgroup label="中文基础">
+        <option value="'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif">微软雅黑</option>
+        <option value="'SimSun','Songti SC','Noto Serif SC',serif">宋体</option>
+        <option value="'KaiTi','STKaiti','Kaiti SC',serif">楷体</option>
+        <option value="'FangSong','STFangsong',serif">仿宋</option>
+        <option value="'YouYuan','Yuanti SC','Microsoft YaHei',sans-serif">圆体</option>
+        <option value="'SimHei','Heiti SC','Microsoft YaHei',sans-serif">黑体</option>
+        <option value="'STHeiti','Microsoft YaHei',sans-serif">华文黑体</option>
+        <option value="'STKaiti','KaiTi',serif">华文楷体</option>
       </optgroup>
-      <optgroup label="个性字体">
-        <option value="Comic Sans MS">Comic Sans</option>
-        <option value="Trebuchet MS">Trebuchet</option>
-        <option value="Courier New">Courier New</option>
-        <option value="Lucida Handwriting">Lucida Handwriting</option>
-        <option value="Brush Script MT">Brush Script</option>
-        <option value="Papyrus">Papyrus</option>
-        <option value="Impact">Impact</option>
-        <option value="Segoe Print">Segoe Print</option>
-        <option value="Yu Gothic">游ゴシック</option>
-        <option value="PingFang SC">苹方</option>
+      <optgroup label="可爱个性">
+        <option value="'元气泡泡','YouYuan','Comic Sans MS','Microsoft YaHei',sans-serif">元气泡泡</option>
+        <option value="'字由奇巧','YouYuan','Comic Sans MS','Microsoft YaHei',sans-serif">字由奇巧</option>
+        <option value="'字由蜡笔','Comic Sans MS','Segoe Print','Microsoft YaHei',cursive">字由蜡笔</option>
+        <option value="'谷秋体','KaiTi','STKaiti','Microsoft YaHei',serif">谷秋体</option>
+        <option value="'站酷快乐体','YouYuan','Microsoft YaHei',sans-serif">站酷快乐体</option>
+        <option value="'站酷庆科黄油体','YouYuan','Microsoft YaHei',sans-serif">站酷庆科黄油体</option>
+        <option value="'汉仪小麦体','YouYuan','Microsoft YaHei',sans-serif">汉仪小麦体</option>
+        <option value="'方正喵呜体','Comic Sans MS','YouYuan',cursive">方正喵呜体</option>
       </optgroup>
-      <optgroup label="手写字体">
-        <option value="Segoe Print">Segoe Print</option>
-        <option value="Segoe Script">Segoe Script</option>
-        <option value="Bradley Hand ITC">Bradley Hand</option>
-        <option value="Ink Free">Ink Free</option>
-        <option value="Kristen ITC">Kristen ITC</option>
-        <option value="Lucida Handwriting">Lucida Handwriting</option>
-        <option value="Comic Sans MS">Comic Sans 手写</option>
-        <option value="Brush Script MT">Brush Script</option>
-        <option value="STXingkai">华文行楷</option>
-        <option value="KaiTi">楷体手写</option>
+      <optgroup label="手写清新">
+        <option value="'Segoe Print','Comic Sans MS','Microsoft YaHei',cursive">Segoe Print</option>
+        <option value="'Segoe Script','Brush Script MT','Microsoft YaHei',cursive">Segoe Script</option>
+        <option value="'Bradley Hand ITC','Comic Sans MS','Microsoft YaHei',cursive">Bradley Hand</option>
+        <option value="'Ink Free','Comic Sans MS','Microsoft YaHei',cursive">Ink Free</option>
+        <option value="'Kristen ITC','Comic Sans MS','Microsoft YaHei',cursive">Kristen ITC</option>
+        <option value="'Lucida Handwriting','Brush Script MT','Microsoft YaHei',cursive">Lucida Handwriting</option>
+        <option value="'Comic Sans MS','Trebuchet MS','Microsoft YaHei',cursive">Comic Sans 手写</option>
+        <option value="'Brush Script MT','Segoe Script','Microsoft YaHei',cursive">Brush Script</option>
+        <option value="'STXingkai','KaiTi','Microsoft YaHei',cursive">华文行楷</option>
+        <option value="'HanziPen SC','KaiTi','Microsoft YaHei',cursive">翩翩体</option>
       </optgroup>
-      <optgroup label="其他字体">
-        <option value="serif">Serif</option>
-        <option value="sans-serif">Sans Serif</option>
-        <option value="monospace">Monospace</option>
-        <option value="cursive">Cursive</option>
-        <option value="fantasy">Fantasy</option>
+      <optgroup label="现代无衬线">
+        <option value="'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif">苹方</option>
+        <option value="'Noto Sans SC','Microsoft YaHei',sans-serif">思源黑体</option>
+        <option value="'HarmonyOS Sans SC','Microsoft YaHei',sans-serif">鸿蒙 Sans</option>
+        <option value="'Source Han Sans SC','Noto Sans SC',sans-serif">Source Han Sans</option>
+        <option value="'Arial','Helvetica',sans-serif">Arial</option>
+        <option value="'Verdana','Arial',sans-serif">Verdana</option>
+        <option value="'Tahoma','Arial',sans-serif">Tahoma</option>
+        <option value="'Trebuchet MS','Arial',sans-serif">Trebuchet</option>
+      </optgroup>
+      <optgroup label="衬线与阅读">
+        <option value="'Noto Serif SC','Songti SC','SimSun',serif">思源宋体</option>
+        <option value="'Georgia','Times New Roman',serif">Georgia</option>
+        <option value="'Times New Roman',serif">Times New Roman</option>
+        <option value="'Palatino Linotype','Book Antiqua',serif">Palatino</option>
+        <option value="'Garamond','Times New Roman',serif">Garamond</option>
+        <option value="'Cambria','Georgia',serif">Cambria</option>
+      </optgroup>
+      <optgroup label="代码与等宽">
+        <option value="'Consolas','Courier New',monospace">Consolas</option>
+        <option value="'Courier New',monospace">Courier New</option>
+        <option value="'Monaco','Consolas',monospace">Monaco</option>
+        <option value="'Cascadia Mono','Consolas',monospace">Cascadia Mono</option>
+        <option value="'Lucida Console','Consolas',monospace">Lucida Console</option>
       </optgroup>
     </select>
     <label class="mail-size-control" title="字号">字号 <input id="mailFontSize" type="number" min="10" max="72" value="14" /></label>
@@ -6829,8 +6869,8 @@
   <div class="mail-scroll-area">
     <label>收件用户名<input id="mailToInput" type="text" maxlength="20" placeholder="填写对方用户名" autocomplete="off" data-lpignore="true" /></label>
     <label>主题<input id="mailSubjectInput" type="text" maxlength="80" placeholder="写下邮件主题吧✨" autocomplete="off" data-lpignore="true" /></label>
-    <div id="mailBodyEditor" class="mail-rich-editor" contenteditable="true" data-placeholder="像写一张温柔信纸一样，写下想说的话"></div>
     <div class="mail-attachments-bar" id="mailAttachmentsBar"></div>
+    <div id="mailBodyEditor" class="mail-rich-editor" contenteditable="true" data-placeholder="像写一张温柔信纸一样，写下想说的话"></div>
     <input id="mailAttachmentInput" type="file" hidden multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.txt,.md,.zip,.rar,.7z,.json,.js,.ts,.html,.css,.py" />
   </div>
   <div class="mail-compose-footer">
@@ -8852,7 +8892,7 @@ function renderMailList(mode){
   const toolbar = `
     <div class="mail-list-toolbar">
       <strong>${modeTitle} · ${items.length} 封${mailSearchQuery ? ` · 搜索“${escapeHtml(mailSearchQuery)}”` : ''}</strong>
-      ${mode === 'sent' || mode === 'draft' ? '<button id="mailQuickComposeBtn" type="button">✿ 写新邮件</button>' : '<span>点击邮件可查看详情</span>'}
+      <button id="mailQuickComposeBtn" type="button">✿ 写新邮件</button>
     </div>
   `;
   if(!items.length){
