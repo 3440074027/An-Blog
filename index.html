@@ -3990,6 +3990,7 @@
   .mail-content-panel > .mail-read-card{height:100%;}
   .mail-content-panel .mail-read-card[hidden],
   .mail-content-panel .mail-compose[hidden]{display:none !important;}
+  .mail-compose[hidden]{display:none !important;}
   .mail-scroll-area{
     overflow:auto;
     max-height:calc(560px - 56px);
@@ -4020,29 +4021,70 @@
   }
   .mail-tabs button:hover,.mail-send-btn:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(0,0,0,.18);}
   .mail-tabs button.active{background:linear-gradient(135deg, rgba(143,247,255,.32), rgba(255,190,221,.26), rgba(255,239,177,.16));}
-  .mail-compose{display:grid;gap:12px;padding:16px;border-radius:28px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.18);}
-  .mail-compose .mail-scroll-area{display:grid;gap:12px;padding-right:8px;}
+  .mail-compose{
+    position:fixed;
+    inset:50% auto auto 50%;
+    transform:translate(-50%,-50%);
+    z-index:520;
+    width:min(760px, 94vw);
+    height:min(720px, 88vh);
+    display:grid;
+    grid-template-rows:auto minmax(0,1fr) auto;
+    gap:12px;
+    padding:16px;
+    border-radius:32px;
+    background:
+      radial-gradient(circle at 8% 0%, rgba(255,216,232,.82), transparent 32%),
+      radial-gradient(circle at 92% 10%, rgba(207,230,255,.76), transparent 34%),
+      rgba(250,247,243,.96);
+    border:1px solid rgba(218,200,225,.82);
+    box-shadow:0 34px 100px rgba(88,72,104,.34), inset 0 1px 0 rgba(255,255,255,.86);
+    animation:mailPopIn .24s cubic-bezier(.22,.08,.28,1) both;
+  }
+  .mail-compose[hidden]{display:none !important;}
+  .mail-compose::before{
+    content:"写新邮件";
+    position:absolute;
+    top:-15px;
+    left:26px;
+    padding:6px 14px;
+    border-radius:999px;
+    color:#8b5e7b;
+    font-size:12px;
+    font-weight:950;
+    background:linear-gradient(135deg,#fff8fb,#eef6ff);
+    border:1px solid rgba(218,200,225,.82);
+    box-shadow:0 10px 24px rgba(176,158,200,.18);
+  }
+  .mail-compose .mail-scroll-area{
+    display:grid;
+    gap:12px;
+    min-height:0;
+    max-height:none;
+    padding-right:8px;
+    overflow:auto;
+  }
   .mail-rich-toolbar{
     display:flex;
     flex-wrap:wrap;
     gap:6px;
-    padding:8px 10px;
-    border-radius:18px;
-    background:linear-gradient(135deg, rgba(255,224,235,.55), rgba(207,230,255,.5));
+    padding:10px;
+    border-radius:22px;
+    background:linear-gradient(135deg, rgba(255,234,242,.76), rgba(232,242,255,.68));
     border:1px solid rgba(218,200,225,.75);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 10px 22px rgba(176,158,200,.12);
   }
   .mail-rich-toolbar button,
   .mail-rich-toolbar select,
   .mail-rich-toolbar label{
-    min-height:30px;
-    padding:0 10px;
+    min-height:28px;
+    padding:0 9px;
     border-radius:999px;
     border:1px solid rgba(218,200,225,.7);
-    background:rgba(255,255,255,.7);
+    background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(250,245,252,.82));
     color:#6b5b6d;
     font-weight:900;
-    font-size:12px;
+    font-size:11px;
     cursor:pointer;
     display:inline-flex;
     align-items:center;
@@ -4050,7 +4092,8 @@
     transition:transform .18s, box-shadow .18s, background .18s;
   }
   .mail-rich-toolbar button:hover,
-  .mail-rich-toolbar label:hover{transform:translateY(-1px);background:#fff;box-shadow:0 8px 18px rgba(176,158,200,.18);}
+  .mail-rich-toolbar label:hover,
+  .mail-rich-toolbar select:hover{transform:translateY(-1px) scale(1.03);background:#fff;box-shadow:0 8px 18px rgba(176,158,200,.18);}
   .mail-rich-toolbar input[type="color"]{
     width:26px;height:26px;border:none;border-radius:999px;background:none;padding:0;cursor:pointer;
   }
@@ -4093,10 +4136,10 @@
     grid-template-columns:auto minmax(90px, 1fr);
     gap:9px;
     align-items:center;
-    max-width:min(360px, 100%);
+    max-width:min(260px, 100%);
     margin:6px 5px;
-    padding:10px 12px;
-    border-radius:18px;
+    padding:8px 10px;
+    border-radius:16px;
     color:#65546a;
     text-decoration:none;
     background:linear-gradient(135deg,#fff8fb,#eef7ff);
@@ -4105,8 +4148,8 @@
     user-select:none;
   }
   .mail-file-card .file-icon{
-    width:34px;
-    height:34px;
+    width:30px;
+    height:30px;
     display:grid;
     place-items:center;
     border-radius:13px;
@@ -4119,20 +4162,20 @@
     text-overflow:ellipsis;
     white-space:nowrap;
   }
-  .mail-file-card strong{font-size:12px;}
-  .mail-file-card small{font-size:10px;color:#927f96;margin-top:2px;}
+  .mail-file-card strong{font-size:11px;}
+  .mail-file-card small{font-size:9px;color:#927f96;margin-top:2px;}
   .mail-file-card img,
   .mail-file-card video{
     grid-column:1 / -1;
     max-width:100%;
-    max-height:170px;
+    max-height:92px;
     border-radius:14px;
     object-fit:contain;
     background:rgba(255,255,255,.62);
   }
   .mail-rich-editor{
-    min-height:160px;
-    max-height:340px;
+    min-height:220px;
+    max-height:none;
     overflow:auto;
     padding:14px 16px;
     border-radius:20px;
@@ -4186,11 +4229,52 @@
     border:none;background:transparent;cursor:pointer;color:#c8456b;font-weight:950;
   }
   .mail-compose-footer{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;}
+  .mail-compose-footer{
+    position:relative;
+    padding-top:10px;
+    border-top:1px dashed rgba(218,200,225,.75);
+    background:linear-gradient(180deg,rgba(250,247,243,.15),rgba(250,247,243,.9));
+  }
   .mail-compose-footer .mail-send-btn{
     background:linear-gradient(135deg,#ffb1cf,#a9d1ff);
     color:#fff;
     border-color:rgba(255,255,255,.8);
     box-shadow:0 12px 26px rgba(214,150,196,.32);
+  }
+  .mail-emoji-panel{
+    position:absolute;
+    z-index:10;
+    top:44px;
+    left:10px;
+    display:none;
+    width:min(430px, 88vw);
+    max-height:290px;
+    overflow:auto;
+    padding:10px;
+    border-radius:22px;
+    background:rgba(255,250,253,.98);
+    border:1px solid rgba(218,200,225,.82);
+    box-shadow:0 22px 50px rgba(176,158,200,.28);
+    scrollbar-width:thin;
+    scrollbar-color:#f3b6cf transparent;
+  }
+  .mail-rich-toolbar.emoji-open .mail-emoji-panel{display:grid;gap:10px;}
+  .mail-emoji-section strong{
+    display:block;
+    margin:0 0 6px;
+    color:#7d657f;
+    font-size:12px;
+  }
+  .mail-emoji-grid{
+    display:grid;
+    grid-template-columns:repeat(10, 1fr);
+    gap:5px;
+  }
+  .mail-emoji-grid button{
+    min-height:30px;
+    padding:0;
+    font-size:18px;
+    justify-content:center;
   }
   .mail-list{
     display:grid;
@@ -6612,6 +6696,18 @@
                 <option value="Yu Gothic">游ゴシック</option>
                 <option value="PingFang SC">苹方</option>
               </optgroup>
+              <optgroup label="手写字体">
+                <option value="Segoe Print">Segoe Print</option>
+                <option value="Segoe Script">Segoe Script</option>
+                <option value="Bradley Hand ITC">Bradley Hand</option>
+                <option value="Ink Free">Ink Free</option>
+                <option value="Kristen ITC">Kristen ITC</option>
+                <option value="Lucida Handwriting">Lucida Handwriting</option>
+                <option value="Comic Sans MS">Comic Sans 手写</option>
+                <option value="Brush Script MT">Brush Script</option>
+                <option value="STXingkai">华文行楷</option>
+                <option value="KaiTi">楷体手写</option>
+              </optgroup>
               <optgroup label="其他字体">
                 <option value="serif">Serif</option>
                 <option value="sans-serif">Sans Serif</option>
@@ -6635,6 +6731,7 @@
               </div>
             </div>
             <button id="mailInsertEmojiBtn" type="button" title="插入表情">✨ 表情</button>
+            <div class="mail-emoji-panel" id="mailEmojiPanel"></div>
             <button id="mailAttachBtn" type="button" title="添加附件">📎 附件</button>
             <button id="mailAttachLinkBtn" type="button" title="插入文件链接">🔗 文件链接</button>
           </div>
@@ -6652,7 +6749,7 @@
             <button class="mail-send-btn" id="mailSendBtn" type="button">✿ 发送邮件</button>
           </div>
         </div>
-        <div class="mail-read-card" id="mailReadModal" aria-hidden="true" hidden>
+        <div class="mail-read-card" id="mailReadModal" aria-hidden="false">
           <div class="mail-read-head">
             <h2 id="mailReadTitle">选择一封邮件</h2>
             <div style="display:flex;gap:8px;">
@@ -7242,6 +7339,7 @@ const mailFontColor = document.getElementById('mailFontColor');
 const mailAlignToggle = document.getElementById('mailAlignToggle');
 const mailAlignOptions = document.getElementById('mailAlignOptions');
 const mailInsertEmojiBtn = document.getElementById('mailInsertEmojiBtn');
+const mailEmojiPanel = document.getElementById('mailEmojiPanel');
 const mailAttachLinkBtn = document.getElementById('mailAttachLinkBtn');
 const mailReadReplyBtn = document.getElementById('mailReadReplyBtn');
 const mailReadModal = document.getElementById('mailReadModal');
@@ -8549,6 +8647,7 @@ function openMailCenter(mode = 'inbox', to = ''){
 function closeMailCenter(){
   mailModal?.classList.remove('open');
   mailModal?.setAttribute('aria-hidden', 'true');
+  if(mailComposePanel) mailComposePanel.hidden = true;
   closeMailReader();
 }
 
@@ -8559,26 +8658,19 @@ function setMailTab(mode){
   mailSentTab?.classList.toggle('active', mode === 'sent');
   mailDraftTab?.classList.toggle('active', mode === 'draft');
   mailComposeTab?.classList.toggle('active', mode === 'compose');
-  // 编辑面板与详情面板互斥显示
-  if(mode === 'compose'){
-    if(mailComposePanel) mailComposePanel.hidden = false;
-    if(mailReadModal){
-      mailReadModal.hidden = true;
-      mailReadModal.classList.remove('open');
-    }
-    renderMailAttachmentChips();
-  }else{
-    if(mailComposePanel) mailComposePanel.hidden = true;
-    if(mailReadModal){
-      mailReadModal.hidden = false;
-    }
+  // 邮件详情页常驻显示，写信页只作为独立弹窗出现
+  if(mailReadModal){
+    mailReadModal.hidden = false;
+    mailReadModal.setAttribute('aria-hidden', 'false');
   }
+  if(mode !== 'compose' && mailComposePanel) mailComposePanel.hidden = true;
   if(mailListPanel) mailListPanel.hidden = false;
 }
 
 function openMailCompose(to = '', preset = null){
   const user = readSavedUser();
-  setMailTab('compose');
+  if(mailComposePanel) mailComposePanel.hidden = false;
+  if(mailReadModal) mailReadModal.hidden = false;
   if(mailToInput){
     if(isSiteOwnerUser(user)){
       mailToInput.readOnly = false;
@@ -8601,7 +8693,8 @@ function openMailCompose(to = '', preset = null){
 }
 
 function backToMailList(){
-  loadMail(currentMailMode === 'compose' ? 'sent' : currentMailMode);
+  if(mailComposePanel) mailComposePanel.hidden = true;
+  renderMailList(currentMailMode === 'compose' ? 'sent' : currentMailMode);
 }
 
 function runMailSearch(){
@@ -8858,6 +8951,7 @@ function closeMailReader(){
   if(mailReadModal){
     mailReadModal.classList.remove('open');
     mailReadModal.setAttribute('aria-hidden', 'true');
+    mailReadModal.hidden = false;
   }
 }
 
@@ -8918,6 +9012,10 @@ function applyMailInlineStyle(styleName, value){
   restoreMailSelection();
   const selection = window.getSelection();
   if(!selection || !selection.rangeCount) return;
+  const commandMap = { fontFamily:'fontName', color:'foreColor' };
+  if(commandMap[styleName]){
+    try{ document.execCommand(commandMap[styleName], false, value); }catch(_){}
+  }
   const range = selection.getRangeAt(0);
   const span = document.createElement('span');
   span.style[styleName] = value;
@@ -8969,6 +9067,34 @@ function createMailFileCard(att){
     <span><strong>${name}</strong><small>${type}${att.size ? ` · ${(att.size/1024/1024).toFixed(2)}MB` : ''}</small></span>
     ${preview}
   </a>&nbsp;`;
+}
+
+const MAIL_EMOJI_GROUPS = {
+  '常用': '😀 😃 😄 😁 😆 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😜 🤪 😝 🤑 🤗 🤭 🤫 🤔'.split(' '),
+  '可爱': '🥺 🥹 😳 😴 😪 🤤 😵‍💫 🤯 🥳 😎 🤓 🧐 😕 😟 🙁 ☹️ 😮 😯 😲 😧 😦 😢 😭'.split(' '),
+  '爱心': '💖 💗 💓 💞 💕 💘 💝 💟 ❤️ 🧡 💛 💚 💙 💜 🤎 🖤 🤍 💌 💋 💍 🎀'.split(' '),
+  '自然': '🌸 🌷 🌹 🌺 🌻 🌼 🍀 🌿 🍃 🍂 🍁 🌙 ⭐ 🌟 ✨ ☁️ 🌈 ❄️ 🌊 🔥 🌤️'.split(' '),
+  '动物': '🐰 🐱 🐶 🐻 🐼 🐨 🦊 🐹 🐭 🐥 🐣 🐧 🦄 🐝 🦋 🐳 🐬 🐟 🐾 🐈 🐕'.split(' '),
+  '食物': '🍓 🍒 🍑 🍉 🍇 🍰 🧁 🍪 🍩 🍭 🍬 🍫 🍮 🍯 🥛 ☕ 🍵 🧋 🍕 🍔 🍟'.split(' '),
+  '手势': '👍 👎 👏 🙌 🫶 🤲 🙏 ✌️ 🤞 🤟 🤘 👌 🤌 👈 👉 👆 👇 ☝️ 👋 🤝 💪'.split(' ')
+};
+
+function renderEmojiPanel(){
+  if(!mailEmojiPanel) return;
+  mailEmojiPanel.innerHTML = Object.entries(MAIL_EMOJI_GROUPS).map(([title, emojis])=>`
+    <div class="mail-emoji-section">
+      <strong>${escapeHtml(title)}</strong>
+      <div class="mail-emoji-grid">
+        ${emojis.map(emoji=>`<button type="button" data-emoji="${emoji}">${emoji}</button>`).join('')}
+      </div>
+    </div>
+  `).join('');
+  mailEmojiPanel.querySelectorAll('[data-emoji]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      insertMailHtmlAtCursor(btn.dataset.emoji || '');
+      mailEmojiPanel.closest('.mail-rich-toolbar')?.classList.remove('emoji-open');
+    });
+  });
 }
 
 function renderMailAttachmentChips(){
@@ -9180,12 +9306,13 @@ document.addEventListener('click', event=>{
   if(!event.target.closest?.('.mail-align-menu')){
     document.querySelector('.mail-align-menu')?.classList.remove('open');
   }
+  if(!event.target.closest?.('.mail-rich-toolbar')){
+    document.querySelector('.mail-rich-toolbar')?.classList.remove('emoji-open');
+  }
 });
 if(mailInsertEmojiBtn) mailInsertEmojiBtn.addEventListener('click', ()=>{
-  const emojis = ['✨','💖','🌸','🍓','🌙','☁️','🌷','🐰','🍰','🌟','💌','🎀'];
-  const pick = emojis[Math.floor(Math.random()*emojis.length)];
-  mailBodyEditor?.focus();
-  document.execCommand('insertText', false, pick);
+  renderEmojiPanel();
+  mailInsertEmojiBtn.closest('.mail-rich-toolbar')?.classList.toggle('emoji-open');
 });
 if(mailAttachLinkBtn) mailAttachLinkBtn.addEventListener('click', ()=>{
   const url = prompt('请输入文件链接地址');
