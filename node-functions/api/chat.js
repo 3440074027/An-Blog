@@ -239,6 +239,8 @@ async function readAllConversationsForUser(me){
       await writeConversation(fixedConv);
     }
     const summary = summarizeConversation(fixedConv, me);
+    // 解除好友后，不再在会话列表显示该用户（站主例外）。
+    if(summary.other !== SITE_OWNER_USERNAME && !targets.has(summary.other)) continue;
     seen.add(summary.other);
     result.push(summary);
   }
