@@ -37,6 +37,7 @@ const MAX_BODY_LEN = 4000;
 // 因此聊天单次附件总 data 字符串限制在 7.5MB，前端单文件限制 6MB。
 const MAX_ATTACHMENT_DATA_CHARS = 7.5 * 1024 * 1024;
 const MAX_ATTACHMENT_COUNT = 6;
+const ATTACHMENT_TTL_MS = 24 * 60 * 60 * 1000;
 
 function parseStoredJson(value, fallback){
   if(!value) return fallback;
@@ -74,7 +75,7 @@ async function readConversation(a, b){
   if(!value){
     return { id, a:[a, b].sort()[0], b:[a, b].sort()[1], messages:[], reads:{}, updatedAt:'' };
   }
-  return {
+  const conv = {
     id,
     a: value.a || [a, b].sort()[0],
     b: value.b || [a, b].sort()[1],
@@ -82,6 +83,11 @@ async function readConversation(a, b){
     reads: value.reads && typeof value.reads === 'object' ? value.reads : {},
     updatedAt: value.updatedAt || ''
   };
+  const changed = cleanupExpiredAttachments(conv);
+  if(changed){
+    await writeConversation(conv);
+  }
+  return conv;
 }
 
 async function writeConversation(conv){
@@ -128,6 +134,7 @@ function sanitizeAttachments(attachments){
       type: String(att.type || 'application/octet-stream').trim().slice(0, 120),
       size: Number.isFinite(size) ? Math.max(0, size) : 0,
       data,
+      expiresAt: new Date(Date.now() + ATTACHMENT_TTL_MS).toISOString(),
       kind: String(att.kind || '').trim().slice(0, 40)
     };
   });
@@ -138,6 +145,26 @@ function sanitizeAttachments(attachments){
     throw error;
   }
   return list;
+}
+
+function cleanupExpiredAttachments(conv){
+  const now = Date.now();
+  let changed = false;
+  conv.messages = (conv.messages || []).map(message => {
+    if(!Array.isArray(message.attachments) || !message.attachments.length) return message;
+    const attachments = message.attachments.map(att => {
+      if(!att || typeof att !== 'object') return att;
+      const expiresAt = att.expiresAt ? Date.parse(att.expiresAt) : 0;
+      if(expiresAt && expiresAt <= now && att.data){
+        changed = true;
+        const { data, ...rest } = att;
+        return { ...rest, expired:true };
+      }
+      return att;
+    });
+    return { ...message, attachments };
+  });
+  return changed;
 }
 
 function summarizeConversation(conv, me){
@@ -226,10 +253,12 @@ async function readAllConversationsForUser(me){
 async function summarizePeerProfile(username){
   if(!username) return null;
   if(username === SITE_OWNER_USERNAME){
+    const owner = await getUser(SITE_OWNER_USERNAME).catch(()=>null);
+    const profile = owner?.profile || {};
     return {
       username: SITE_OWNER_USERNAME,
-      nickname: '站主 An',
-      avatar: '',
+      nickname: profile.nickname || '站主 An',
+      avatar: profile.avatar || '',
       isOwner: true,
       description: '站主 An——本站的搭建者与守门人，欢迎来聊。'
     };

@@ -71,15 +71,16 @@ async function writeFriendRecord(username, record){
   return payload;
 }
 
-function makeOwnerProfileSummary(){
+function makeOwnerProfileSummary(ownerUser = null){
+  const profile = ownerUser?.profile || {};
   return {
     username: SITE_OWNER_USERNAME,
     profile: {
-      avatar: '',
-      nickname: '站主 An',
-      signature: '本站站主，欢迎随时来聊。',
-      intro: SITE_OWNER_INTRO,
-      tags: ['站主', '官方', '客服'],
+      avatar: profile.avatar || '',
+      nickname: profile.nickname || '站主 An',
+      signature: profile.signature || '本站站主，欢迎随时来聊。',
+      intro: profile.intro || SITE_OWNER_INTRO,
+      tags: Array.isArray(profile.tags) && profile.tags.length ? profile.tags : ['站主', '官方', '客服'],
       isOwner: true
     },
     isOwner: true,
@@ -89,7 +90,10 @@ function makeOwnerProfileSummary(){
 
 async function summarizeUser(username){
   if(!username) return null;
-  if(username === SITE_OWNER_USERNAME) return makeOwnerProfileSummary();
+  if(username === SITE_OWNER_USERNAME){
+    const owner = await getUser(SITE_OWNER_USERNAME).catch(()=>null);
+    return makeOwnerProfileSummary(owner);
+  }
   const user = await getUser(username);
   if(!user) return { username, profile:{ nickname:username }, missing:true };
   const pub = publicUser(user);

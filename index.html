@@ -3971,29 +3971,45 @@
   .chat-messages::-webkit-scrollbar{width:6px;}
   .chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18); border-radius:3px;}
   .chat-msg{
+    width:fit-content;
+    min-width:44px;
     max-width:min(76%, 520px); padding:10px 14px; border-radius:20px; font-size:13.5px; line-height:1.62;
     word-wrap:break-word; word-break:break-word; white-space:pre-wrap;
     box-shadow:0 12px 28px rgba(0,0,0,.20); position:relative;
     border:1px solid rgba(255,255,255,.13);
   }
   .chat-msg.mine{
-    margin-left:auto;
     background:linear-gradient(135deg, #ffd6e6, #ff9ec3 60%, #ffcf86); color:#3d1e2c;
     border-bottom-right-radius:6px;
   }
   .chat-msg.theirs{
-    margin-right:auto;
     background:linear-gradient(135deg, rgba(255,255,255,.17), rgba(255,255,255,.08)); color:#f5edff;
     border-bottom-left-radius:6px;
   }
-  .chat-msg time{
-    display:block; font-size:10px; color:rgba(0,0,0,.45); margin-top:4px;
+  .chat-msg-row{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    max-width:100%;
   }
-  .chat-msg.theirs time{color:rgba(255,255,255,.45);}
+  .chat-msg-row.mine{align-items:flex-end;}
+  .chat-msg-time{
+    display:block;
+    margin:4px 8px 0;
+    font-size:10px;
+    color:rgba(255,255,255,.48);
+    line-height:1.2;
+  }
   .chat-msg .chat-msg-attach{
     display:block; margin-top:8px; padding:8px 10px; border-radius:14px;
     background:rgba(0,0,0,.18); color:inherit; font-size:11px; text-decoration:none;
     border:1px solid rgba(255,255,255,.14);
+  }
+  .chat-msg .chat-expire-tip{
+    display:block;
+    margin-top:6px;
+    font-size:10px;
+    opacity:.72;
   }
   .chat-msg img.chat-msg-image,
   .chat-msg video.chat-msg-video{
@@ -4017,7 +4033,10 @@
     background:rgba(255,255,255,.07); color:#fff;
     padding:10px 14px; font-size:13.5px; font-family:inherit;
     outline:none;
+    overflow-y:auto;
+    scrollbar-width:none;
   }
+  .chat-input-area textarea::-webkit-scrollbar{display:none;}
   .chat-input-area textarea:focus{border-color:#ffb3d2; box-shadow:0 0 0 3px rgba(255,179,210,.22);}
   .chat-input-area textarea::placeholder{color:rgba(255,255,255,.44);}
   .chat-input-area .chat-tool-btn{
@@ -4041,7 +4060,8 @@
     background:rgba(255,255,255,.1); border-radius:12px;
     padding:4px 8px 4px 4px; font-size:11px;
   }
-  .chat-attach-chip img{width:28px;height:28px;border-radius:8px;object-fit:cover;}
+  .chat-attach-chip img,
+  .chat-attach-chip video{width:28px;height:28px;border-radius:8px;object-fit:cover;}
   .chat-attach-chip button{
     border:none; background:transparent; color:#ffb3c5; cursor:pointer;
   }
@@ -6982,7 +7002,7 @@
           <div class="tool-stat"><strong id="toolArticleCount">0</strong><span>个人文章记录</span></div>
           <div class="tool-stat"><strong id="toolRegisterDays">0</strong><span>注册天数</span></div>
           <div class="tool-stat"><strong id="toolTagCount">0</strong><span>资料标签</span></div>
-          <div class="tool-stat"><strong id="toolMailCount">0</strong><span>收件箱邮件</span></div>
+          <div class="tool-stat"><strong id="toolMailCount">0</strong><span>未读信息</span></div>
         </div>
         <p id="featureDescription">结合生日、星座、标签和文章记录，为你生成今日灵感。</p>
       </section>
@@ -8206,7 +8226,7 @@ function updateToolStats(user = readSavedUser()){
   if(toolArticleCount) toolArticleCount.textContent = articleCount;
   if(toolRegisterDays) toolRegisterDays.textContent = daysSince(user?.createdAt);
   if(toolTagCount) toolTagCount.textContent = tags.length;
-  if(toolMailCount) toolMailCount.textContent = mailState.inbox.length;
+  if(toolMailCount) toolMailCount.textContent = '0';
   updateMailBadge();
   const activeTool = document.querySelector('.feature-pill.active');
   if(featureDescription && activeTool && typeof getFeatureText === 'function'){
@@ -10158,7 +10178,10 @@ function enterDashboard(userLike){
   if(returnLoginBtn) returnLoginBtn.classList.add('visible');
   if(topTools) topTools.classList.add('portal-mode');
   if(getAuthToken() && readSavedUser()?.username !== 'guest'){
-    loadMail('inbox');
+    setTimeout(()=>{
+      if(typeof refreshFriends === 'function') refreshFriends({ silent:true });
+      if(typeof refreshChats === 'function') refreshChats({ silent:true });
+    }, 300);
   }
   pulseTransitionFlare();
   triggerLightFeathers();
@@ -10980,7 +11003,7 @@ if(returnLoginBtn) returnLoginBtn.addEventListener('click', returnToLogin);
  * 每 6 秒拉一次 /api/site-versions，对比版本号，变了就只刷对应模块。
  * 这样公告 / 文章 / 邮件 / 当前用户资料在其他端被修改后，本端可以快速看到更新。
  */
-const SITE_VERSION_POLL_MS = 6000;
+const SITE_VERSION_POLL_MS = 2500;
 let _siteVersions = { announcements:0, articles:0, user:0, mail:0, friends:0, chat:0 };
 let _siteVersionTimer = null;
 let _siteVersionInFlight = false;
@@ -11433,26 +11456,32 @@ function startSiteVersionPoll(){
         attachHtml = m.attachments.map(att=>{
           const safeName = escapeHtmlSafe(att.name || '附件');
           const safeType = escapeHtmlSafe(att.type || 'application/octet-stream');
+          if(att.expired || !att.data){
+            return `<span class="chat-msg-attach">⌛ 文件已过期（24小时后自动删除） · ${safeName}</span>`;
+          }
+          const expireTip = att.expiresAt ? `<span class="chat-expire-tip">文件将在 ${escapeHtmlSafe(formatMessageTime(att.expiresAt))} 后过期删除</span>` : '<span class="chat-expire-tip">文件将在24小时后过期删除</span>';
           if(att.type && att.type.startsWith('image/') && att.data){
-            return `<img class="chat-msg-image" src="${att.data}" alt="${safeName}" title="点击查看原文件" onclick="window.open(this.src,'_blank')">`;
+            return `<img class="chat-msg-image" src="${att.data}" alt="${safeName}" title="点击查看原文件" onclick="window.open(this.src,'_blank')">${expireTip}`;
           }
           if(att.type && att.type.startsWith('video/') && att.data){
-            return `<video class="chat-msg-video" src="${att.data}" controls preload="metadata" title="${safeName}"></video><a class="chat-msg-attach" href="${att.data}" target="_blank" download="${safeName}">打开 / 下载视频 · ${safeName}</a>`;
+            return `<video class="chat-msg-video" src="${att.data}" controls preload="metadata" title="${safeName}"></video><a class="chat-msg-attach" href="${att.data}" target="_blank" download="${safeName}">打开 / 下载视频 · ${safeName}</a>${expireTip}`;
           }
           if(att.type && att.type.startsWith('audio/') && att.data){
-            return `<audio class="chat-msg-audio" src="${att.data}" controls preload="metadata"></audio><a class="chat-msg-attach" href="${att.data}" target="_blank" download="${safeName}">打开 / 下载音频 · ${safeName}</a>`;
+            return `<audio class="chat-msg-audio" src="${att.data}" controls preload="metadata"></audio><a class="chat-msg-attach" href="${att.data}" target="_blank" download="${safeName}">打开 / 下载音频 · ${safeName}</a>${expireTip}`;
           }
           if((att.type === 'application/pdf' || /\.pdf$/i.test(att.name || '')) && att.data){
-            return `<a class="chat-msg-attach" href="${att.data}" target="_blank">📄 点击预览 PDF · ${safeName}</a>`;
+            return `<a class="chat-msg-attach" href="${att.data}" target="_blank">📄 点击预览 PDF · ${safeName}</a>${expireTip}`;
           }
-          return `<a class="chat-msg-attach" href="${att.data || '#'}" download="${safeName}" target="_blank">📎 ${safeName}<br><small>${safeType}</small></a>`;
+          return `<a class="chat-msg-attach" href="${att.data || '#'}" download="${safeName}" target="_blank">📎 ${safeName}<br><small>${safeType}</small></a>${expireTip}`;
         }).join('');
       }
       return `
-        <div class="chat-msg ${mine ? 'mine' : 'theirs'}" data-msg-id="${escapeHtmlSafe(m.id)}">
-          ${m.body ? escapeHtmlSafe(m.body) : ''}
-          ${attachHtml}
-          <time>${escapeHtmlSafe(formatMessageTime(m.createdAt))}</time>
+        <div class="chat-msg-row ${mine ? 'mine' : 'theirs'}">
+          <div class="chat-msg ${mine ? 'mine' : 'theirs'}" data-msg-id="${escapeHtmlSafe(m.id)}">
+            ${m.body ? escapeHtmlSafe(m.body) : ''}
+            ${attachHtml}
+          </div>
+          <time class="chat-msg-time">${escapeHtmlSafe(formatMessageTime(m.createdAt))}</time>
         </div>`;
     }).join('');
     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -11461,7 +11490,7 @@ function startSiteVersionPoll(){
   function attachmentIcon(att){
     const type = String(att.type || '');
     if(type.startsWith('image/')) return `<img src="${att.data}" alt="">`;
-    if(type.startsWith('video/')) return '🎞️';
+    if(type.startsWith('video/')) return `<video src="${att.data}" muted preload="metadata"></video>`;
     if(type.startsWith('audio/')) return '🎧';
     if(type === 'application/pdf' || /\.pdf$/i.test(att.name || '')) return '📄';
     return '📎';
@@ -11493,6 +11522,7 @@ function startSiteVersionPoll(){
     let total = 0;
     (conversationsState.conversations || []).forEach(c=>{ total += (c.unread || 0); });
     total += (friendsState.incoming || []).length;
+    if(toolMailCount) toolMailCount.textContent = String(total);
     if(homeChatBadgeEl){
       if(total > 0){
         homeChatBadgeEl.textContent = total > 99 ? '99+' : String(total);
@@ -11532,6 +11562,18 @@ function startSiteVersionPoll(){
       return;
     }
     if(chatSendBtn) chatSendBtn.disabled = true;
+    const originalSendText = chatSendBtn ? chatSendBtn.textContent : '';
+    if(chatSendBtn) chatSendBtn.textContent = '发送中…';
+    const sendingId = 'sending_' + Date.now();
+    if(chatMessages){
+      const previewText = text || (pendingAttachments.length ? `正在上传 ${pendingAttachments.length} 个文件…` : '发送中…');
+      chatMessages.insertAdjacentHTML('beforeend', `
+        <div class="chat-msg-row mine" data-sending-id="${sendingId}">
+          <div class="chat-msg mine">${escapeHtmlSafe(previewText)}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
+          <time class="chat-msg-time">发送中</time>
+        </div>`);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
     try{
       const data = await authRequest('/api/chat', {
         method:'POST',
@@ -11547,8 +11589,11 @@ function startSiteVersionPoll(){
       chatToast(data.message?.attachments?.length ? '文件上传并发送成功。' : '消息已发送。', 'success');
     }catch(error){
       chatToast(error.message || '发送失败。', 'error');
+      const sendingNode = document.querySelector(`[data-sending-id="${sendingId}"] .chat-expire-tip`);
+      if(sendingNode) sendingNode.textContent = `发送失败：${error.message || '未知原因'}`;
     }finally{
       if(chatSendBtn) chatSendBtn.disabled = false;
+      if(chatSendBtn) chatSendBtn.textContent = originalSendText || '发送';
     }
   }
 
@@ -11587,7 +11632,7 @@ function startSiteVersionPoll(){
           data:dataUrl,
           kind:file.type && file.type.startsWith('image/') ? 'image' : (file.type && file.type.startsWith('video/') ? 'video' : 'file')
         });
-        chatToast(`「${file.name}」已添加，发送后上传。`, 'success');
+        chatToast(`「${file.name}」已添加，发送后上传，上传文件将在24小时后过期删除。`, 'success');
       }catch(error){
         chatToast(`读取「${file.name}」失败：${error.message || '浏览器无法读取该文件'}`, 'error');
       }
