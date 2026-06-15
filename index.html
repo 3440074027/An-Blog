@@ -3943,6 +3943,7 @@
   }
   .chat-main{
     display:grid; grid-template-rows:auto 1fr auto; min-height:0;
+    position:relative;
   }
   .chat-main-head{
     padding:14px 60px 14px 18px; border-bottom:1px solid rgba(255,255,255,.1);
@@ -4034,7 +4035,6 @@
   .chat-input-area{
     padding:12px 16px 16px; border-top:1px solid rgba(255,255,255,.1);
     display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:end;
-    position:relative;
   }
   .chat-input-area textarea{
     grid-column:2/3;
@@ -4077,7 +4077,7 @@
     display:flex; flex-direction:column;
     box-shadow:0 -12px 40px rgba(0,0,0,.35);
     animation:emojiSlideUp .22s cubic-bezier(.22,.08,.28,1) both;
-    z-index:10;
+    z-index:50;
   }
   @keyframes emojiSlideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
   .emoji-picker-head{
@@ -7445,15 +7445,15 @@
         <button type="button" class="chat-tool-btn" id="chatEmojiBtn" title="表情">😊</button>
         <textarea id="chatInputText" placeholder="说点什么…  (Ctrl+Enter 快速发送)" rows="1"></textarea>
         <button type="submit" class="chat-send-btn" id="chatSendBtn">发送</button>
-        <div class="emoji-picker" id="emojiPicker" hidden>
-          <div class="emoji-picker-head">
-            <input type="text" id="emojiSearchInput" class="emoji-search" placeholder="搜索表情…" autocomplete="off">
-            <button type="button" class="emoji-picker-close" id="emojiPickerCloseBtn">×</button>
-          </div>
-          <div class="emoji-categories" id="emojiCategories"></div>
-          <div class="emoji-grid" id="emojiGrid"></div>
-        </div>
       </form>
+      <div class="emoji-picker" id="emojiPicker" hidden>
+        <div class="emoji-picker-head">
+          <input type="text" id="emojiSearchInput" class="emoji-search" placeholder="搜索表情…" autocomplete="off">
+          <button type="button" class="emoji-picker-close" id="emojiPickerCloseBtn">×</button>
+        </div>
+        <div class="emoji-categories" id="emojiCategories"></div>
+        <div class="emoji-grid" id="emojiGrid"></div>
+      </div>
     </main>
   </div>
 </div>
@@ -11795,23 +11795,24 @@ function startSiteVersionPoll(){
     chatInputText.focus();
   }
 
-  function toggleEmojiPicker(){
-    if(!emojiPicker) return;
-    emojiPickerOpen = !emojiPickerOpen;
-    if(emojiPickerOpen){
-      emojiPicker.hidden = false;
-      if(emojiSearchInput) emojiSearchInput.value = '';
-      initEmojiPicker();
-      setTimeout(()=>emojiSearchInput && emojiSearchInput.focus(), 60);
-    }else{
-      emojiPicker.hidden = true;
-    }
+  function openEmojiPicker(){
+    if(!emojiPicker || emojiPickerOpen) return;
+    emojiPickerOpen = true;
+    emojiPicker.hidden = false;
+    if(emojiSearchInput) emojiSearchInput.value = '';
+    initEmojiPicker();
+    setTimeout(()=>emojiSearchInput && emojiSearchInput.focus(), 60);
   }
 
   function closeEmojiPicker(){
-    if(!emojiPicker) return;
+    if(!emojiPicker || !emojiPickerOpen) return;
     emojiPickerOpen = false;
     emojiPicker.hidden = true;
+  }
+
+  function toggleEmojiPicker(){
+    if(emojiPickerOpen) closeEmojiPicker();
+    else openEmojiPicker();
   }
 
   function setIncomingRequestCount(count){
