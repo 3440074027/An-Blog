@@ -9326,6 +9326,32 @@ function clearMailAttachment(){
   renderMailAttachmentChips();
 }
 
+function normalizeMailBodyForSend(body, attachments = []){
+  const html = String(body || '');
+  if(!html || !html.includes('data:')) return html;
+  const box = document.createElement('div');
+  box.innerHTML = html;
+  const attachmentMap = new Map((attachments || []).map(att=>[String(att.id || ''), att]));
+  box.querySelectorAll('[data-attach-id]').forEach(node=>{
+    const id = node.getAttribute('data-attach-id') || '';
+    const att = attachmentMap.get(id);
+    if(!att) return;
+    node.setAttribute('href', '#mail-attachment-' + encodeURIComponent(id));
+    node.removeAttribute('download');
+    node.querySelectorAll('img,video,audio,source').forEach(previewNode=>{
+      previewNode.removeAttribute('src');
+      previewNode.removeAttribute('poster');
+      if(previewNode.tagName !== 'SOURCE'){
+        previewNode.textContent = '';
+      }
+    });
+  });
+  box.querySelectorAll('img[src^="data:"], video[src^="data:"], audio[src^="data:"], source[src^="data:"]').forEach(node=>{
+    node.removeAttribute('src');
+  });
+  return box.innerHTML.slice(0, 240000);
+}
+
 function getMailComposePayload(){
   return {
     to: mailToInput?.value || '',
@@ -9376,7 +9402,8 @@ function discardCompose(){
 async function sendMail(){
   if(!mailSendBtn) return;
   const payload = getMailComposePayload();
-  if(!payload.to || !payload.subject || !stripHtmlForPreview(payload.body)){
+  const safeBody = normalizeMailBodyForSend(payload.body, pendingMailAttachments);
+  if(!payload.to || !payload.subject || (!stripHtmlForPreview(payload.body) && !payload.attachments.length)){
     showLoginToast('收件人、主题、正文都需要填写。', 'warn', '信息不完整');
     return;
   }
@@ -9390,7 +9417,7 @@ async function sendMail(){
       body:JSON.stringify({
         to: payload.to,
         subject: payload.subject,
-        body: payload.body,
+        body: safeBody,
         attachment: firstAttachment,
         attachments: payload.attachments
       })
@@ -9418,19 +9445,42 @@ if(homeSearchBtn) homeSearchBtn.addEventListener('click', ()=>{
   if(String(homeSearchInput?.value || '').trim()) runHomeSearch();
 });
 if(homeSearchInput){
-  homeSearchInput.value = '';
+  let homeSearchUserTyped = false;
+  function resetHomeSearchInput(force = false){
+    if(!homeSearchInput) return;
+    if(force || !homeSearchUserTyped){
+      homeSearchInput.value = '';
+      homeSearchInput.defaultValue = '';
+      homeSearchInput.removeAttribute('value');
+      searchResultsPanel?.classList.remove('open');
+    }
+  }
+  resetHomeSearchInput(true);
   homeSearchInput.setAttribute('autocomplete', 'new-password');
+  homeSearchInput.setAttribute('aria-autocomplete', 'none');
   homeSearchInput.setAttribute('readonly', 'readonly');
-  setTimeout(()=>homeSearchInput.removeAttribute('readonly'), 350);
-  window.addEventListener('pageshow', ()=>{ homeSearchInput.value = ''; searchResultsPanel?.classList.remove('open'); });
+  setTimeout(()=>{
+    homeSearchInput.removeAttribute('readonly');
+    resetHomeSearchInput(true);
+  }, 350);
+  setTimeout(()=>resetHomeSearchInput(true), 900);
+  window.addEventListener('load', ()=>resetHomeSearchInput(true));
+  window.addEventListener('pageshow', ()=>resetHomeSearchInput(true));
   homeSearchInput.addEventListener('input', ()=>{
+    homeSearchUserTyped = true;
     searchResultsPanel.innerHTML = '';
     searchResultsPanel.classList.remove('open');
   });
-  homeSearchInput.addEventListener('focus', ()=>homeSearchInput.removeAttribute('readonly'));
+  homeSearchInput.addEventListener('focus', ()=>{
+    homeSearchInput.removeAttribute('readonly');
+    if(!homeSearchUserTyped) resetHomeSearchInput(true);
+  });
   homeSearchInput.addEventListener('keydown', event=>{
     if(event.key === 'Enter') runHomeSearch();
-    if(event.key === 'Escape') searchResultsPanel?.classList.remove('open');
+    if(event.key === 'Escape'){
+      homeSearchUserTyped = false;
+      resetHomeSearchInput(true);
+    }
   });
 }
 if(publicProfileCloseBtn) publicProfileCloseBtn.addEventListener('click', closePublicProfile);

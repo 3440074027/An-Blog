@@ -1,12 +1,19 @@
 import { Redis } from '@upstash/redis';
 import { json } from './_lib/auth.js';
-import { VISITOR_COUNT_KEY } from './_lib/db-keys.js';
+import { DB_VISITOR_COUNT_KEY, LEGACY_VISITOR_COUNT_KEY } from './_lib/db-keys.js';
 
 const redis = Redis.fromEnv();
 
 export async function onRequestGet(){
   try{
-    const value = Number(await redis.get(VISITOR_COUNT_KEY) || 0);
+    let value = Number(await redis.get(DB_VISITOR_COUNT_KEY) || 0);
+    if(!value){
+      const legacy = Number(await redis.get(LEGACY_VISITOR_COUNT_KEY) || 0);
+      if(legacy){
+        value = legacy;
+        await redis.set(DB_VISITOR_COUNT_KEY, legacy);
+      }
+    }
     return json({ ok:true, value });
   }catch(error){
     console.error('visitor-count get error:', error);
@@ -16,7 +23,7 @@ export async function onRequestGet(){
 
 export async function onRequestPost(){
   try{
-    const value = await redis.incr(VISITOR_COUNT_KEY);
+    const value = await redis.incr(DB_VISITOR_COUNT_KEY);
     return json({ ok:true, value });
   }catch(error){
     console.error('visitor-count post error:', error);

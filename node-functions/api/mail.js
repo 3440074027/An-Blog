@@ -11,7 +11,8 @@ import {
   bumpMailVersion
 } from './_lib/auth.js';
 import {
-  mailboxKey,
+  DB_MAILS_HASH,
+  legacyMailboxKey,
   legacyInboxKey,
   legacySentKey
 } from './_lib/db-keys.js';
@@ -75,9 +76,9 @@ function sanitizeMail(mail){
   };
 }
 
-// 一次性读取用户邮箱：优先读 mail:box:<u>，失败再回退到老的 inbox/sent 键并自动迁移
+// 一次性读取用户邮箱：优先读集中表 db:mails，失败再回退到老键并自动迁移
 async function readUserMailbox(username){
-  const box = await redis.get(mailboxKey(username));
+  const box = await redis.hget(DB_MAILS_HASH, username);
   if(box){
     const inbox = Array.isArray(box.inbox) ? box.inbox.map(sanitizeMail).filter(item=>!isExpired(item)) : [];
     const sent = Array.isArray(box.sent) ? box.sent.map(sanitizeMail).filter(item=>!isExpired(item)) : [];
@@ -88,7 +89,14 @@ async function readUserMailbox(username){
     return { inbox, sent };
   }
 
-  // 旧版兜底：mget 一次性把两个键拉回来
+  // 旧版兜底：先读 mail:box:<u>，再读 inbox/sent 分离键
+  const legacyBox = await redis.get(legacyMailboxKey(username));
+  if(legacyBox){
+    const inbox = Array.isArray(legacyBox.inbox) ? legacyBox.inbox.map(sanitizeMail).filter(item=>!isExpired(item)) : [];
+    const sent = Array.isArray(legacyBox.sent) ? legacyBox.sent.map(sanitizeMail).filter(item=>!isExpired(item)) : [];
+    await writeUserMailbox(username, { inbox, sent }, { skipBump:true });
+    return { inbox, sent };
+  }
   const [legacyInbox, legacySent] = await redis.mget(legacyInboxKey(username), legacySentKey(username));
   const inbox = Array.isArray(legacyInbox) ? legacyInbox.map(sanitizeMail).filter(item=>!isExpired(item)) : [];
   const sent = Array.isArray(legacySent) ? legacySent.map(sanitizeMail).filter(item=>!isExpired(item)) : [];
@@ -102,7 +110,7 @@ async function writeUserMailbox(username, box, { skipBump = false } = {}){
     sent:(box.sent || []).map(sanitizeMail).filter(item=>!isExpired(item)).slice(0, 100),
     updatedAt:nowIso()
   };
-  await redis.set(mailboxKey(username), payload);
+  await redis.hset(DB_MAILS_HASH, { [username]: payload });
   if(!skipBump) await bumpMailVersion(username);
 }
 

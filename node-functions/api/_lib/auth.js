@@ -1,11 +1,13 @@
 import { Redis } from '@upstash/redis';
 import crypto from 'crypto';
 import {
-  USER_KEY_PREFIX,
-  USER_INDEX_KEY,
+  DB_USERS_HASH,
+  DB_VERSIONS_HASH,
+  VERSION_FIELDS,
+  LEGACY_USER_INDEX_KEY,
   LEGACY_USER_STORE_KEY,
-  userKey,
-  VERSION_KEYS
+  legacyUserKey,
+  legacyVersionKey
 } from './db-keys.js';
 
 export const redis = Redis.fromEnv();
@@ -13,11 +15,9 @@ const AUTH_SECRET = process.env.AUTH_SECRET || 'change-this-auth-secret-please';
 export const SITE_OWNER_USERNAME = 'An';
 
 export {
-  USER_KEY_PREFIX,
-  USER_INDEX_KEY,
-  LEGACY_USER_STORE_KEY,
-  userKey,
-  VERSION_KEYS
+  DB_USERS_HASH,
+  DB_VERSIONS_HASH,
+  VERSION_FIELDS
 };
 
 export const defaultUserProfile = {
@@ -70,10 +70,7 @@ export function nowIso(){
   return new Date().toISOString();
 }
 
-/* ------------------ 进程内短期缓存 ------------------
- * 在同一个 Worker 实例内复用 Redis 查询结果，避免重复网络往返。
- * Edge / Serverless 实例会被回收，所以 TTL 都很短 —— 只是为同一次冷启动后的多次调用加速。
- */
+/* ------------------ 进程内短期缓存 ------------------ */
 const _cache = new Map();
 function cacheGet(key){
   const entry = _cache.get(key);
@@ -94,54 +91,79 @@ function cacheInvalidate(prefix){
 }
 
 /* ------------------ 用户字典遗留兼容 ------------------ */
-async function getLegacyUsers(){
-  const cached = cacheGet('legacy-users');
+async function getLegacyUsersDict(){
+  const cached = cacheGet('legacy-users-dict');
   if(cached !== undefined) return cached;
-  const users = await redis.get(LEGACY_USER_STORE_KEY);
-  const value = users && typeof users === 'object' && !Array.isArray(users) ? users : {};
-  cacheSet('legacy-users', value, 8000);
-  return value;
+  try{
+    const users = await redis.get(LEGACY_USER_STORE_KEY);
+    const value = users && typeof users === 'object' && !Array.isArray(users) ? users : {};
+    cacheSet('legacy-users-dict', value, 8000);
+    return value;
+  }catch(error){
+    console.error('getLegacyUsersDict error:', error);
+    return {};
+  }
 }
 
-async function setLegacyUsers(users){
-  cacheInvalidate('legacy-users');
-  await redis.set(LEGACY_USER_STORE_KEY, users);
+async function readLegacyUser(username){
+  // 1) user:<username>
+  try{
+    const direct = await redis.get(legacyUserKey(username));
+    if(direct) return direct;
+  }catch(_){ }
+  // 2) users 字典
+  const dict = await getLegacyUsersDict();
+  return dict[username] || null;
+}
+
+async function migrateUserToHash(user){
+  if(!user || !user.username) return;
+  try{
+    await redis.hset(DB_USERS_HASH, { [user.username]: user });
+  }catch(error){
+    console.error('migrate user to hash error:', error);
+  }
 }
 
 /* ------------------ 用户存在性 / 读写 ------------------ */
 
-// 仅判断“用户名是否被注册”，不读完整资料 —— 让注册时的可用性检查更快。
+// 仅判断"用户名是否被注册"，不读完整资料
 export async function userExists(username){
   if(!username) return false;
   const cacheKey = `exists:${username}`;
   const cached = cacheGet(cacheKey);
   if(cached !== undefined) return cached;
 
-  // 优先用 SISMEMBER 命中索引（最便宜：返回 0/1）
+  // 1) 集中表 db:users
   try{
-    const inIndex = await redis.sismember(USER_INDEX_KEY, username);
+    const exists = await redis.hexists(DB_USERS_HASH, username);
+    if(exists){
+      cacheSet(cacheKey, true, 4000);
+      return true;
+    }
+  }catch(error){
+    console.error('userExists hexists error:', error);
+  }
+  // 2) 旧版 user:<u>
+  try{
+    const direct = await redis.exists(legacyUserKey(username));
+    if(direct){
+      cacheSet(cacheKey, true, 4000);
+      return true;
+    }
+  }catch(error){
+    console.error('userExists legacy exists error:', error);
+  }
+  // 3) 旧版 users 字典
+  try{
+    const inIndex = await redis.sismember(LEGACY_USER_INDEX_KEY, username);
     if(inIndex){
       cacheSet(cacheKey, true, 4000);
       return true;
     }
-  }catch(error){
-    console.error('userExists sismember error:', error);
-  }
-  // EXISTS 命中独立 user:<username> 键
-  try{
-    const exists = await redis.exists(userKey(username));
-    if(exists){
-      // 顺手把索引补回去
-      try{ await redis.sadd(USER_INDEX_KEY, username); }catch(_){ }
-      cacheSet(cacheKey, true, 4000);
-      return true;
-    }
-  }catch(error){
-    console.error('userExists redis exists error:', error);
-  }
-  // 旧版 users 字典兜底
-  const legacy = await getLegacyUsers();
-  const found = !!legacy[username];
+  }catch(_){ }
+  const dict = await getLegacyUsersDict();
+  const found = !!dict[username];
   cacheSet(cacheKey, found, found ? 4000 : 1500);
   return found;
 }
@@ -152,17 +174,23 @@ export async function getUser(username){
   const cached = cacheGet(cacheKey);
   if(cached !== undefined) return cached;
 
-  const user = await redis.get(userKey(username));
-  if(user){
-    cacheSet(cacheKey, user, 3000);
-    return user;
+  // 集中表优先
+  try{
+    const user = await redis.hget(DB_USERS_HASH, username);
+    if(user){
+      cacheSet(cacheKey, user, 3000);
+      return user;
+    }
+  }catch(error){
+    console.error('getUser hget error:', error);
   }
 
-  const legacyUsers = await getLegacyUsers();
-  const legacyUser = legacyUsers[username];
-  if(legacyUser){
-    await setUser(legacyUser);
-    return legacyUser;
+  // 兜底 + 自动迁移
+  const legacy = await readLegacyUser(username);
+  if(legacy){
+    await migrateUserToHash(legacy);
+    cacheSet(cacheKey, legacy, 3000);
+    return legacy;
   }
   cacheSet(cacheKey, null, 1500);
   return null;
@@ -181,20 +209,18 @@ export async function listUsers({ ttlMs = 6000 } = {}){
   }
   const users = new Map();
   try{
-    const indexedUsernames = await redis.smembers(USER_INDEX_KEY);
-    if(Array.isArray(indexedUsernames) && indexedUsernames.length){
-      // 用 mget 一次拉取，比逐个 get 快得多
-      const keys = indexedUsernames.slice(0, 500).map(userKey);
-      const values = keys.length ? await redis.mget(...keys) : [];
-      values.forEach(user=>{
+    const all = await redis.hvals(DB_USERS_HASH);
+    if(Array.isArray(all)){
+      all.forEach(user=>{
         if(user && user.username) users.set(user.username, user);
       });
     }
   }catch(error){
-    console.error('list indexed users error:', error);
+    console.error('listUsers hvals error:', error);
   }
-  const legacyUsers = await getLegacyUsers();
-  Object.values(legacyUsers).forEach(user=>{
+  // 旧字典兜底（仅在集中表为空或迁移中）
+  const dict = await getLegacyUsersDict();
+  Object.values(dict).forEach(user=>{
     if(user && user.username && !users.has(user.username)) users.set(user.username, user);
   });
   _userListCache = Array.from(users.values());
@@ -207,17 +233,12 @@ function invalidateListUsersCache(){
 }
 
 export async function setUser(user){
-  // 一次 pipeline，避免多次往返
+  if(!user || !user.username) return;
   try{
-    await redis.multi()
-      .set(userKey(user.username), user)
-      .sadd(USER_INDEX_KEY, user.username)
-      .exec();
+    await redis.hset(DB_USERS_HASH, { [user.username]: user });
   }catch(error){
-    // 兜底：单独执行
-    await redis.set(userKey(user.username), user);
-    try{ await redis.sadd(USER_INDEX_KEY, user.username); }catch(_){ }
-    console.error('setUser pipeline error:', error);
+    console.error('setUser hset error:', error);
+    throw error;
   }
   cacheInvalidate(`user:${user.username}`);
   cacheInvalidate(`exists:${user.username}`);
@@ -226,21 +247,23 @@ export async function setUser(user){
 }
 
 export async function deleteUser(username){
+  if(!username) return;
   try{
-    await redis.multi()
-      .del(userKey(username))
-      .srem(USER_INDEX_KEY, username)
-      .exec();
+    await redis.hdel(DB_USERS_HASH, username);
   }catch(error){
-    await redis.del(userKey(username));
-    try{ await redis.srem(USER_INDEX_KEY, username); }catch(_){ }
-    console.error('deleteUser pipeline error:', error);
+    console.error('deleteUser hdel error:', error);
   }
-  const legacyUsers = await getLegacyUsers();
-  if(legacyUsers[username]){
-    delete legacyUsers[username];
-    await setLegacyUsers(legacyUsers);
-  }
+  // 顺手清理旧键，避免再次"复活"
+  try{ await redis.del(legacyUserKey(username)); }catch(_){ }
+  try{ await redis.srem(LEGACY_USER_INDEX_KEY, username); }catch(_){ }
+  try{
+    const dict = await getLegacyUsersDict();
+    if(dict[username]){
+      delete dict[username];
+      await redis.set(LEGACY_USER_STORE_KEY, dict);
+    }
+  }catch(_){ }
+  cacheInvalidate('legacy-users-dict');
   cacheInvalidate(`user:${username}`);
   cacheInvalidate(`exists:${username}`);
   invalidateListUsersCache();
@@ -254,24 +277,26 @@ export async function renameUser(user, nextUsername){
     user.profile.nickname = nextUsername;
   }
   user.updatedAt = nowIso();
-  await redis.set(userKey(nextUsername), user);
-  try{ await redis.sadd(USER_INDEX_KEY, nextUsername); }catch(_){ }
-  if(previousUsername !== nextUsername){
-    try{
-      await redis.multi()
-        .del(userKey(previousUsername))
-        .srem(USER_INDEX_KEY, previousUsername)
-        .exec();
-    }catch(_){
-      await redis.del(userKey(previousUsername));
-      try{ await redis.srem(USER_INDEX_KEY, previousUsername); }catch(_){ }
+  try{
+    await redis.hset(DB_USERS_HASH, { [nextUsername]: user });
+    if(previousUsername !== nextUsername){
+      await redis.hdel(DB_USERS_HASH, previousUsername);
     }
-    const legacyUsers = await getLegacyUsers();
-    if(legacyUsers[previousUsername]){
-      delete legacyUsers[previousUsername];
-      await setLegacyUsers(legacyUsers);
-    }
+  }catch(error){
+    console.error('renameUser hset/hdel error:', error);
   }
+  if(previousUsername !== nextUsername){
+    try{ await redis.del(legacyUserKey(previousUsername)); }catch(_){ }
+    try{ await redis.srem(LEGACY_USER_INDEX_KEY, previousUsername); }catch(_){ }
+    try{
+      const dict = await getLegacyUsersDict();
+      if(dict[previousUsername]){
+        delete dict[previousUsername];
+        await redis.set(LEGACY_USER_STORE_KEY, dict);
+      }
+    }catch(_){ }
+  }
+  cacheInvalidate('legacy-users-dict');
   cacheInvalidate(`user:${previousUsername}`);
   cacheInvalidate(`user:${nextUsername}`);
   cacheInvalidate(`exists:${previousUsername}`);
@@ -402,55 +427,59 @@ export async function requireUser(request){
   return { user };
 }
 
-/* ------------------ 版本号 / 实时同步 ------------------ */
-export async function bumpVersion(key){
+/* ------------------ 版本号 / 实时同步 ------------------
+ * 全部存放在 db:versions 这一个 HASH 中，HINCRBY 一次往返。
+ */
+export async function bumpVersion(field){
+  if(!field) return 0;
   try{
-    return await redis.incr(key);
+    return await redis.hincrby(DB_VERSIONS_HASH, field, 1);
   }catch(error){
-    console.error('bumpVersion error:', key, error);
+    console.error('bumpVersion error:', field, error);
     return 0;
   }
 }
 
 export async function bumpAnnouncementsVersion(){
-  return bumpVersion(VERSION_KEYS.announcements);
+  return bumpVersion(VERSION_FIELDS.announcements);
 }
 
 export async function bumpArticlesVersion(){
-  return bumpVersion(VERSION_KEYS.articles);
+  return bumpVersion(VERSION_FIELDS.articles);
 }
 
 export async function bumpUserVersion(username){
   if(!username) return 0;
-  return bumpVersion(VERSION_KEYS.user(username));
+  return bumpVersion(VERSION_FIELDS.user(username));
 }
 
 export async function bumpMailVersion(username){
   if(!username) return 0;
-  return bumpVersion(VERSION_KEYS.mail(username));
+  return bumpVersion(VERSION_FIELDS.mail(username));
 }
 
-export async function readVersion(key){
+export async function readVersionFields(fields){
+  if(!fields || !fields.length) return [];
   try{
-    const value = await redis.get(key);
-    const num = Number(value);
-    return Number.isFinite(num) ? num : 0;
-  }catch(error){
-    console.error('readVersion error:', key, error);
-    return 0;
-  }
-}
-
-export async function readVersions(keys){
-  if(!keys || !keys.length) return [];
-  try{
-    const values = await redis.mget(...keys);
-    return values.map(value=>{
+    const values = await redis.hmget(DB_VERSIONS_HASH, ...fields);
+    const list = Array.isArray(values) ? values : (values && typeof values === 'object' ? fields.map(f=>values[f]) : []);
+    let out = list.map(value=>{
       const num = Number(value);
       return Number.isFinite(num) ? num : 0;
     });
+    // 兜底：若集中表为 0，再去看一眼旧的 site:version:* 字符串键，方便迁移期数据不丢
+    if(out.every(v=>v === 0)){
+      try{
+        const legacy = await redis.mget(...fields.map(f=>legacyVersionKey(f)));
+        out = (Array.isArray(legacy) ? legacy : []).map(value=>{
+          const num = Number(value);
+          return Number.isFinite(num) ? num : 0;
+        });
+      }catch(_){ }
+    }
+    return out;
   }catch(error){
-    console.error('readVersions error:', error);
-    return keys.map(()=>0);
+    console.error('readVersionFields error:', error);
+    return fields.map(()=>0);
   }
 }

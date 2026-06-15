@@ -2,7 +2,7 @@ import {
   json, readJsonBody, requireUser, isSiteOwner, redis, nowIso,
   bumpAnnouncementsVersion
 } from './_lib/auth.js';
-import { ANNOUNCEMENTS_KEY } from './_lib/db-keys.js';
+import { DB_ANNOUNCEMENTS_KEY, LEGACY_ANNOUNCEMENTS_KEY } from './_lib/db-keys.js';
 
 const DEFAULT_ANNOUNCEMENTS = [
   { id:'welcome', kicker:'✨ 星尘公告', title:'欢迎来到你的灵感档案馆', body:'这里会收纳文章、文件、灵感和成长记录。每一次登录，都是和未来的自己重逢。', updatedAt:'2026-06-13', image:'' },
@@ -32,7 +32,11 @@ function sanitizeAnnouncements(input){
 
 export async function onRequestGet(){
   try{
-    const saved = await redis.get(ANNOUNCEMENTS_KEY);
+    let saved = await redis.get(DB_ANNOUNCEMENTS_KEY);
+    if(!saved){
+      saved = await redis.get(LEGACY_ANNOUNCEMENTS_KEY);
+      if(saved) await redis.set(DB_ANNOUNCEMENTS_KEY, sanitizeAnnouncements(saved));
+    }
     return json({ ok:true, announcements:sanitizeAnnouncements(saved || DEFAULT_ANNOUNCEMENTS) });
   }catch(error){
     console.error('announcements get error:', error);
@@ -51,7 +55,7 @@ export async function onRequestPut(context){
   try{
     const body = await readJsonBody(context.request);
     const announcements = sanitizeAnnouncements(body.announcements);
-    await redis.set(ANNOUNCEMENTS_KEY, announcements);
+    await redis.set(DB_ANNOUNCEMENTS_KEY, announcements);
     await bumpAnnouncementsVersion();
     return json({ ok:true, updatedAt:nowIso(), announcements });
   }catch(error){

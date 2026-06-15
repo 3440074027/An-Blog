@@ -1,68 +1,61 @@
 /*
- * 数据库键 / 数据结构总览（Upstash Redis）
+ * 数据库总览（Upstash Redis）
  * --------------------------------------------------
- * 所有数据库的键名、用途、值类型集中在此处，方便查看和修改。
- * 修改键名时请同步更新 auth.js / mail.js / articles.js / announcements.js / visitor-count.js 等使用方。
+ * 全站采用集中式 HASH 存储结构，便于查看与维护：
  *
- *  ┌─────────────── 用户 ───────────────┐
- *  user:<username>            string(JSON)  单个用户的资料 + 密码哈希 + profile
- *  site:user-index            set           所有注册用户名的集合（用于快速枚举与是否注册检查）
- *  users                      string(JSON)  历史遗留：旧版用户字典；新代码只读，按需迁移
+ *  db:users           HASH    用户全表：field=username, value=user JSON（含 password、profile）
+ *  db:mails           HASH    邮件全表：field=username, value={ inbox:[], sent:[], updatedAt }
+ *  db:articles        HASH    文章全表：field=articleId, value=article JSON（含正文与作者）
+ *  db:announcements   STRING  公告：JSON 数组（站主统一编辑）
+ *  db:versions        HASH    版本号表：field=announcements/articles/user:<u>/mail:<u>, value=int
+ *  db:visitor-count   STRING  访问量计数器
  *
- *  ┌─────────────── 公告 ───────────────┐
- *  site:announcements         string(JSON)  公告数组（站主可编辑）
- *
- *  ┌─────────────── 文章 ───────────────┐
- *  site:article-index:v2      string(JSON)  文章元数据数组（用于列表）
- *  site:article:<id>          string(JSON)  单篇文章正文 + 完整数据
- *  site:articles              string(JSON)  历史遗留：旧版完整文章数组，仅在迁移时读取
- *
- *  ┌─────────────── 站内邮件 ───────────────┐
- *  mail:box:<username>        string(JSON)  用户的邮箱：{ inbox:[], sent:[], updatedAt }
- *  mail:inbox:<username>      string(JSON)  历史遗留：仅在 mail:box:* 不存在时读取一次以迁移
- *  mail:sent:<username>       string(JSON)  历史遗留：同上
- *
- *  ┌─────────────── 访问量 ───────────────┐
- *  site:visitor-count         string(int)   访问量计数器
- *
- *  ┌─────────────── 内容版本（用于跨用户实时同步） ───────────────┐
- *  site:version:announcements string(int)   公告每次写入 +1
- *  site:version:articles      string(int)   文章每次写入/删除 +1
- *  site:version:user:<username> string(int) 该用户资料每次更新 +1
- *  site:version:mail:<username> string(int) 该用户邮箱每次变化 +1
+ * 历史遗留键（仅在新键缺失时读取并自动迁移到上面的集中表，新代码不再写入）：
+ *   user:<username>          / site:user-index / users
+ *   site:announcements
+ *   site:article-index:v2    / site:article:<id> / site:articles
+ *   mail:box:<u>             / mail:inbox:<u> / mail:sent:<u>
+ *   site:visitor-count
+ *   site:version:<...>
  */
 
-// 用户
-export const USER_KEY_PREFIX = 'user:';
-export const USER_INDEX_KEY = 'site:user-index';
+// 集中数据表
+export const DB_USERS_HASH = 'db:users';
+export const DB_MAILS_HASH = 'db:mails';
+export const DB_ARTICLES_HASH = 'db:articles';
+export const DB_ANNOUNCEMENTS_KEY = 'db:announcements';
+export const DB_VERSIONS_HASH = 'db:versions';
+export const DB_VISITOR_COUNT_KEY = 'db:visitor-count';
+
+// 版本字段名（写入 db:versions 这个 HASH 的 field）
+export const VERSION_FIELDS = {
+  announcements: 'announcements',
+  articles: 'articles',
+  user: username => `user:${username}`,
+  mail: username => `mail:${username}`
+};
+
+// ----- 历史遗留键（只读迁移用） -----
+export const LEGACY_USER_KEY_PREFIX = 'user:';
+export const LEGACY_USER_INDEX_KEY = 'site:user-index';
 export const LEGACY_USER_STORE_KEY = 'users';
-export const userKey = username => `${USER_KEY_PREFIX}${username}`;
+export const legacyUserKey = username => `${LEGACY_USER_KEY_PREFIX}${username}`;
 
-// 公告
-export const ANNOUNCEMENTS_KEY = 'site:announcements';
+export const LEGACY_ANNOUNCEMENTS_KEY = 'site:announcements';
 
-// 文章
-export const ARTICLE_INDEX_KEY = 'site:article-index:v2';
-export const ARTICLE_KEY_PREFIX = 'site:article:';
+export const LEGACY_ARTICLE_INDEX_KEY = 'site:article-index:v2';
+export const LEGACY_ARTICLE_KEY_PREFIX = 'site:article:';
 export const LEGACY_ARTICLES_KEY = 'site:articles';
-export const articleKey = id => `${ARTICLE_KEY_PREFIX}${id}`;
+export const legacyArticleKey = id => `${LEGACY_ARTICLE_KEY_PREFIX}${id}`;
 
-// 邮件
-export const MAILBOX_KEY_PREFIX = 'mail:box:';
+export const LEGACY_MAILBOX_KEY_PREFIX = 'mail:box:';
 export const LEGACY_INBOX_KEY_PREFIX = 'mail:inbox:';
 export const LEGACY_SENT_KEY_PREFIX = 'mail:sent:';
-export const mailboxKey = username => `${MAILBOX_KEY_PREFIX}${username}`;
+export const legacyMailboxKey = username => `${LEGACY_MAILBOX_KEY_PREFIX}${username}`;
 export const legacyInboxKey = username => `${LEGACY_INBOX_KEY_PREFIX}${username}`;
 export const legacySentKey = username => `${LEGACY_SENT_KEY_PREFIX}${username}`;
 
-// 访问量
-export const VISITOR_COUNT_KEY = 'site:visitor-count';
+export const LEGACY_VISITOR_COUNT_KEY = 'site:visitor-count';
 
-// 版本号（实时同步轮询使用）
-export const VERSION_PREFIX = 'site:version:';
-export const VERSION_KEYS = {
-  announcements: `${VERSION_PREFIX}announcements`,
-  articles: `${VERSION_PREFIX}articles`,
-  user: username => `${VERSION_PREFIX}user:${username}`,
-  mail: username => `${VERSION_PREFIX}mail:${username}`
-};
+export const LEGACY_VERSION_PREFIX = 'site:version:';
+export const legacyVersionKey = field => `${LEGACY_VERSION_PREFIX}${field}`;

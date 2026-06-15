@@ -2,8 +2,8 @@ import {
   json,
   getRequestUrl,
   verifyToken,
-  readVersions,
-  VERSION_KEYS
+  readVersionFields,
+  VERSION_FIELDS
 } from './_lib/auth.js';
 
 /*
@@ -12,6 +12,8 @@ import {
  *
  * - announcements / articles 是站点级，所有人可见，不需登录。
  * - user / mail 是用户级：用 Authorization 或 ?username= 解析当前账号。
+ *
+ * 所有版本号集中放在一个 HASH（db:versions）里，一次 HMGET 拉完。
  */
 export async function onRequestGet(context){
   try{
@@ -22,12 +24,12 @@ export async function onRequestGet(context){
     const queryUsername = String(url.searchParams.get('username') || '').trim();
     const username = tokenUsername || queryUsername;
 
-    const keys = [VERSION_KEYS.announcements, VERSION_KEYS.articles];
+    const fields = [VERSION_FIELDS.announcements, VERSION_FIELDS.articles];
     if(username){
-      keys.push(VERSION_KEYS.user(username));
-      keys.push(VERSION_KEYS.mail(username));
+      fields.push(VERSION_FIELDS.user(username));
+      fields.push(VERSION_FIELDS.mail(username));
     }
-    const values = await readVersions(keys);
+    const values = await readVersionFields(fields);
 
     const result = {
       announcements: values[0] || 0,

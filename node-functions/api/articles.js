@@ -8,10 +8,10 @@ import {
   bumpArticlesVersion
 } from './_lib/auth.js';
 import {
-  ARTICLE_INDEX_KEY,
-  ARTICLE_KEY_PREFIX,
+  DB_ARTICLES_HASH,
+  LEGACY_ARTICLE_INDEX_KEY,
   LEGACY_ARTICLES_KEY,
-  articleKey
+  legacyArticleKey
 } from './_lib/db-keys.js';
 
 function cleanHtml(html){
@@ -80,20 +80,42 @@ function toArticleMeta(article){
 }
 
 async function readArticleIndex(){
-  const index = await redis.get(ARTICLE_INDEX_KEY);
-  if(Array.isArray(index) && index.length){
-    return index.map(item=>toArticleMeta(sanitizeArticle(item, item.author))).filter(item=>item.author && item.id);
+  try{
+    const articles = await redis.hvals(DB_ARTICLES_HASH);
+    if(Array.isArray(articles) && articles.length){
+      return articles
+        .map(article=>toArticleMeta(sanitizeArticle(article, article.author)))
+        .filter(item=>item.author && item.id)
+        .sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+    }
+  }catch(error){
+    console.error('read articles hash error:', error);
   }
+
+  const legacyIndex = await redis.get(LEGACY_ARTICLE_INDEX_KEY);
+  if(Array.isArray(legacyIndex) && legacyIndex.length){
+    const migrated = [];
+    for(const item of legacyIndex.slice(0, 1000)){
+      const full = await redis.get(legacyArticleKey(item.id));
+      migrated.push(sanitizeArticle(full || item, item.author));
+    }
+    const valid = migrated.filter(article=>article.author && article.id);
+    if(valid.length){
+      const payload = Object.fromEntries(valid.map(article=>[article.id, article]));
+      await redis.hset(DB_ARTICLES_HASH, payload);
+      return valid.map(toArticleMeta).sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+    }
+  }
+
   try{
     const legacyArticles = await redis.get(LEGACY_ARTICLES_KEY);
     if(Array.isArray(legacyArticles) && legacyArticles.length){
       const migrated = legacyArticles.map(article=>sanitizeArticle(article, article.author)).filter(article=>article.author && article.id);
-      for(const article of migrated.slice(0, 200)){
-        await redis.set(articleKey(article.id), article);
+      if(migrated.length){
+        const payload = Object.fromEntries(migrated.slice(0, 1000).map(article=>[article.id, article]));
+        await redis.hset(DB_ARTICLES_HASH, payload);
       }
-      const meta = migrated.map(toArticleMeta);
-      await writeArticleIndex(meta);
-      return meta;
+      return migrated.map(toArticleMeta).sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
     }
   }catch(error){
     console.error('legacy articles migration skipped:', error);
@@ -102,23 +124,24 @@ async function readArticleIndex(){
 }
 
 async function writeArticleIndex(index){
-  await redis.set(ARTICLE_INDEX_KEY, index.slice(0, 1000).map(toArticleMeta));
+  // 集中表模式下不再维护单独索引；列表由 db:articles 的 HVALS 生成。
+  return index;
 }
 
 async function getArticle(id){
-  const article = await redis.get(articleKey(id));
-  return article ? sanitizeArticle(article, article.author) : null;
+  const article = await redis.hget(DB_ARTICLES_HASH, id);
+  if(article) return sanitizeArticle(article, article.author);
+  const legacy = await redis.get(legacyArticleKey(id));
+  if(legacy){
+    const migrated = sanitizeArticle(legacy, legacy.author);
+    await redis.hset(DB_ARTICLES_HASH, { [migrated.id]: migrated });
+    return migrated;
+  }
+  return null;
 }
 
 async function saveArticle(article){
-  await redis.set(articleKey(article.id), article);
-  const index = await readArticleIndex();
-  const existing = index.findIndex(item=>item.id === article.id);
-  const meta = toArticleMeta(article);
-  if(existing >= 0) index[existing] = meta;
-  else index.unshift(meta);
-  index.sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
-  await writeArticleIndex(index);
+  await redis.hset(DB_ARTICLES_HASH, { [article.id]: article });
   await bumpArticlesVersion();
 }
 
@@ -179,7 +202,6 @@ export async function onRequestDelete(context){
     const body = await readJsonBody(context.request);
     const ids = Array.isArray(body.ids) ? body.ids.map(id=>String(id)) : [];
     if(!ids.length) return json({ error:'请选择要删除的文章。' }, 400);
-    const index = await readArticleIndex();
     const targetArticles = [];
     for(const id of ids){
       const article = await getArticle(id);
@@ -188,9 +210,8 @@ export async function onRequestDelete(context){
     const forbidden = targetArticles.some(article=>article.author !== auth.user.username);
     if(forbidden) return json({ error:'只能删除自己发布的文章。' }, 403);
     for(const article of targetArticles){
-      await redis.del(articleKey(article.id));
+      await redis.hdel(DB_ARTICLES_HASH, article.id);
     }
-    await writeArticleIndex(index.filter(article=>!ids.includes(article.id)));
     await bumpArticlesVersion();
     return json({ ok:true, deleted:targetArticles.length });
   }catch(error){
