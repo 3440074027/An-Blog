@@ -33,7 +33,10 @@ import {
 
 const MAX_MESSAGES_PER_CONV = 500;
 const MAX_BODY_LEN = 4000;
+// Upstash 请求体限制约 10MB。文件会以 base64 dataURL 存入消息体，
+// 这里保守限制编码后的附件总量，避免刚好触顶导致整条请求失败。
 const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
+const MAX_ATTACHMENT_COUNT = 6;
 
 function parseStoredJson(value, fallback){
   if(!value) return fallback;
@@ -95,26 +98,42 @@ async function writeConversation(conv){
 
 function sanitizeAttachments(attachments){
   if(!Array.isArray(attachments)) return [];
-  const list = attachments
-    .map(att => {
-      if(!att || typeof att !== 'object') return null;
-      const data = String(att.data || '');
-      const size = Number(att.size || 0);
-      if(!data || data.length > MAX_ATTACHMENT_BYTES) return null;
-      return {
-        id: typeof att.id === 'string' ? att.id : crypto.randomUUID(),
-        name: String(att.name || '附件').trim().slice(0, 120),
-        type: String(att.type || 'application/octet-stream').trim().slice(0, 120),
-        size: Number.isFinite(size) ? Math.max(0, size) : 0,
-        data,
-        kind: String(att.kind || '').trim().slice(0, 40)
-      };
-    })
-    .filter(Boolean)
-    .slice(0, 6);
+  if(attachments.length > MAX_ATTACHMENT_COUNT){
+    const error = new Error(`一次最多上传 ${MAX_ATTACHMENT_COUNT} 个文件。`);
+    error.status = 400;
+    throw error;
+  }
+  const list = attachments.map(att => {
+    if(!att || typeof att !== 'object'){
+      const error = new Error('附件格式不正确。');
+      error.status = 400;
+      throw error;
+    }
+    const data = String(att.data || '');
+    const size = Number(att.size || 0);
+    const name = String(att.name || '附件').trim().slice(0, 120);
+    if(!data){
+      const error = new Error(`「${name}」没有读取到文件内容。`);
+      error.status = 400;
+      throw error;
+    }
+    if(data.length > MAX_ATTACHMENT_BYTES){
+      const error = new Error(`「${name}」编码后超过 Upstash 单次上传安全限制，请压缩后再上传。`);
+      error.status = 400;
+      throw error;
+    }
+    return {
+      id: typeof att.id === 'string' ? att.id : crypto.randomUUID(),
+      name,
+      type: String(att.type || 'application/octet-stream').trim().slice(0, 120),
+      size: Number.isFinite(size) ? Math.max(0, size) : 0,
+      data,
+      kind: String(att.kind || '').trim().slice(0, 40)
+    };
+  });
   const total = list.reduce((s, it)=>s + (it.data?.length || 0), 0);
   if(total > MAX_ATTACHMENT_BYTES){
-    const error = new Error('附件总大小超过限制。');
+    const error = new Error('附件总大小超过 Upstash 单次上传安全限制，请减少文件数量或压缩后再发送。');
     error.status = 400;
     throw error;
   }

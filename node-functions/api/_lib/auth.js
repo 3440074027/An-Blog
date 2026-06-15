@@ -505,11 +505,6 @@ export async function bumpUserVersion(username){
   return bumpVersion(VERSION_FIELDS.user(username));
 }
 
-export async function bumpMailVersion(username){
-  if(!username) return 0;
-  return bumpVersion(VERSION_FIELDS.mail(username));
-}
-
 export async function bumpFriendsVersion(username){
   if(!username) return 0;
   return bumpVersion(VERSION_FIELDS.friends(username));
