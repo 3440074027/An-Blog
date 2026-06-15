@@ -3963,76 +3963,55 @@
   }
   .chat-main-head .chat-head-actions button:hover{background:rgba(255,255,255,.16);}
   .chat-messages{
-    overflow-y:auto; padding:14px 16px; display:flex; flex-direction:column; gap:6px;
+    overflow-y:auto; padding:16px 18px; display:grid; gap:6px; align-content:start;
     background:
-      radial-gradient(circle at 0% 0%, rgba(255,190,221,.08), transparent 35%),
-      radial-gradient(circle at 100% 28%, rgba(143,247,255,.06), transparent 38%),
-      linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.01));
+      radial-gradient(circle at 0% 0%, rgba(255,190,221,.10), transparent 35%),
+      radial-gradient(circle at 100% 28%, rgba(143,247,255,.08), transparent 38%),
+      linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
     contain:layout paint;
   }
-  @keyframes chatBubblePop{0%{opacity:0;transform:translateY(6px) scale(.96);}60%{transform:translateY(-1px) scale(1.005);}100%{opacity:1;transform:none;}}
-  @keyframes chatBubbleShine{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
-  .chat-messages::-webkit-scrollbar{width:5px;}
-  .chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14); border-radius:3px;}
+  @keyframes chatSoftIn{from{opacity:0;transform:translateY(6px) scale(.985);}to{opacity:1;transform:none;}}
+  @keyframes chatBubblePop{0%{opacity:0;transform:translateY(8px) scale(.94);}60%{transform:translateY(-1px) scale(1.008);}100%{opacity:1;transform:none;}}
+  @keyframes chatBubbleShimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+  .chat-messages::-webkit-scrollbar{width:4px;}
+  .chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12); border-radius:2px;}
   .chat-msg{
     width:fit-content;
     min-width:36px;
-    max-width:min(72%, 380px); padding:7px 11px; border-radius:16px; font-size:13px; line-height:1.5;
+    max-width:min(72%, 380px); padding:7px 11px; border-radius:16px; font-size:13px; line-height:1.52;
     word-wrap:break-word; word-break:break-word; white-space:pre-wrap;
+    box-shadow:0 4px 12px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.18);
     position:relative;
     border:1px solid rgba(255,255,255,.1);
-    animation:chatBubblePop .25s cubic-bezier(.22,.08,.28,1) both;
+    animation:chatBubblePop .3s cubic-bezier(.22,.08,.28,1) both;
     backdrop-filter:blur(8px);
     -webkit-backdrop-filter:blur(8px);
-    transition:box-shadow .2s;
+    transition:box-shadow .18s;
   }
-  .chat-msg:hover{box-shadow:0 6px 20px rgba(0,0,0,.2);}
+  .chat-msg:hover{box-shadow:0 6px 20px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.22);}
   .chat-msg.mine{
-    background:linear-gradient(135deg, #ffd6e8, #ffb0d0 50%, #ffc87a); color:#3d1e2c;
+    background:linear-gradient(135deg, #ffd6e8, #ffaec8 50%, #ffd4a8); color:#3d1e2c;
     border-bottom-right-radius:5px;
-    box-shadow:0 4px 14px rgba(255,158,195,.2);
+    background-size:200% 200%;
   }
+  .chat-msg.mine:hover{animation:chatBubbleShimmer 2s ease-in-out, chatBubblePop .3s cubic-bezier(.22,.08,.28,1) both;}
   .chat-msg.theirs{
-    background:linear-gradient(135deg, rgba(255,255,255,.14), rgba(210,225,255,.08)); color:#f0e8ff;
+    background:linear-gradient(135deg, rgba(255,255,255,.16), rgba(210,225,255,.08)); color:#f0e8ff;
     border-bottom-left-radius:5px;
-    box-shadow:0 4px 14px rgba(0,0,0,.12);
   }
   .chat-msg-row{
     display:flex;
     flex-direction:column;
     align-items:flex-start;
     max-width:100%;
-    margin:2px 0 4px;
+    margin:1px 0 3px;
   }
   .chat-msg-row.mine{align-items:flex-end;}
   .chat-msg-time{
-    display:block;
-    margin:2px 6px 0;
-    font-size:10px;
-    color:rgba(255,255,255,.38);
-    line-height:1.2;
+    font-size:10px; color:rgba(255,255,255,.35); margin-top:2px; padding:0 4px;
+    animation:chatSoftIn .25s ease both;
   }
-  .chat-msg .chat-msg-attach{
-    display:block; margin-top:8px; padding:8px 10px; border-radius:14px;
-    background:rgba(0,0,0,.18); color:inherit; font-size:11px; text-decoration:none;
-    border:1px solid rgba(255,255,255,.14);
-  }
-  .chat-msg .chat-expire-tip{
-    display:block;
-    margin-top:6px;
-    font-size:10px;
-    opacity:.72;
-  }
-  .chat-msg img.chat-msg-image,
-  .chat-msg video.chat-msg-video{
-    display:block; width:auto; max-width:min(260px, 58vw); max-height:220px; border-radius:15px; margin-top:7px; cursor:zoom-in;
-    box-shadow:0 9px 20px rgba(0,0,0,.18);
-    background:rgba(255,255,255,.08);
-    object-fit:cover;
-  }
-  .chat-msg audio.chat-msg-audio{
-    display:block; width:min(320px, 62vw); margin-top:8px;
-  }
+  .chat-msg-row.mine .chat-msg-time{text-align:right;}
   .chat-msg-empty{
     margin:auto; color:rgba(255,255,255,.5); text-align:center; font-size:13px;
   }
@@ -4053,102 +4032,114 @@
   .chat-confirm-actions .cancel{background:rgba(255,255,255,.12); color:#fff;}
   .chat-confirm-actions .danger{background:linear-gradient(135deg,#ff8ba9,#ffd07a); color:#3d1e2c;}
   .chat-input-area{
-    padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08);
+    padding:12px 16px 16px; border-top:1px solid rgba(255,255,255,.1);
     display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:end;
-    background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,190,221,.04));
+    position:relative;
   }
   .chat-input-area textarea{
     grid-column:2/3;
-    width:100%; resize:none; min-height:38px; max-height:140px;
-    border-radius:20px; border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.06); color:#fff;
-    padding:9px 14px; font-size:13px; font-family:inherit;
+    width:100%; resize:none; min-height:40px; max-height:160px;
+    border-radius:18px; border:1px solid rgba(255,255,255,.16);
+    background:rgba(255,255,255,.07); color:#fff;
+    padding:10px 14px; font-size:13.5px; font-family:inherit;
     outline:none;
     overflow-y:auto;
     scrollbar-width:none;
-    transition:border-color .2s, box-shadow .2s;
   }
   .chat-input-area textarea::-webkit-scrollbar{display:none;}
-  .chat-input-area textarea:focus{border-color:#ffb3d2; box-shadow:0 0 0 3px rgba(255,179,210,.18), 0 4px 16px rgba(255,179,210,.12);}
-  .chat-input-area textarea::placeholder{color:rgba(255,255,255,.38);}
+  .chat-input-area textarea:focus{border-color:#ffb3d2; box-shadow:0 0 0 3px rgba(255,179,210,.22);}
+  .chat-input-area textarea::placeholder{color:rgba(255,255,255,.44);}
   .chat-input-area .chat-tool-btn{
-    width:38px;height:38px;border-radius:50%;
-    border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.06);
-    color:#fff; cursor:pointer; font-size:18px; display:grid; place-items:center;
-    transition:background .18s, transform .18s, box-shadow .18s;
+    width:40px;height:40px;border-radius:16px;
+    border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06);
+    color:#fff; cursor:pointer; font-size:16px; display:grid; place-items:center;
   }
-  .chat-input-area .chat-tool-btn:hover{background:rgba(255,255,255,.14); transform:scale(1.08);}
-  .chat-input-area .chat-tool-btn:active{transform:scale(.95);}
+  .chat-input-area .chat-tool-btn:hover{background:rgba(255,255,255,.16);}
   .chat-input-area .chat-send-btn{
-    border:none; padding:8px 18px; border-radius:20px; cursor:pointer;
+    border:none; padding:9px 16px; border-radius:18px; cursor:pointer;
     background:linear-gradient(135deg,#ff9ec3,#ffd07a); color:#3d1e2c; font-weight:900; font-size:13px;
-    box-shadow:0 6px 16px rgba(255,158,195,.28);
-    transition:transform .15s, box-shadow .15s, opacity .15s;
+    box-shadow:0 8px 18px rgba(255,158,195,.32);
   }
-  .chat-input-area .chat-send-btn:hover{transform:translateY(-1px); box-shadow:0 8px 20px rgba(255,158,195,.38);}
-  .chat-input-area .chat-send-btn:active{transform:translateY(0) scale(.97);}
-  .chat-input-area .chat-send-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+  .chat-input-area .chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
   #chatRefreshBtn.loading,
   .chat-input-area .chat-tool-btn.loading{
     animation:chatSpin .72s linear infinite;
     background:linear-gradient(135deg, rgba(255,190,221,.28), rgba(143,247,255,.24));
   }
-  @keyframes chatSpin{to{transform:rotate(360deg);}}
 
-  /* ===== 表情选择器 ===== */
-  .chat-emoji-picker{
-    position:absolute; bottom:calc(100% + 8px); left:0; z-index:10;
-    width:min(340px, 80vw); height:min(360px, 55vh);
-    border-radius:20px; overflow:hidden;
-    background:
-      radial-gradient(circle at 10% 0%, rgba(255,224,236,.28), transparent 40%),
-      radial-gradient(circle at 90% 10%, rgba(143,247,255,.22), transparent 42%),
-      linear-gradient(180deg, #2a2e4a, #1e2040);
-    box-shadow:0 16px 48px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.12);
-    display:grid; grid-template-rows:auto 1fr;
-    animation:emojiPickerIn .2s cubic-bezier(.22,.08,.28,1) both;
+  /* ====================== 表情选择器 ====================== */
+  .emoji-picker{
+    position:absolute; bottom:100%; left:0; right:0;
+    max-height:320px; border-radius:20px 20px 0 0;
+    background:rgba(18,20,42,.96);
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.12); border-bottom:none;
+    display:flex; flex-direction:column;
+    box-shadow:0 -12px 40px rgba(0,0,0,.35);
+    animation:emojiSlideUp .22s cubic-bezier(.22,.08,.28,1) both;
+    z-index:10;
   }
-  @keyframes emojiPickerIn{from{opacity:0;transform:translateY(8px) scale(.95);}to{opacity:1;transform:none;}}
-  .chat-emoji-picker-head{
-    padding:8px 10px 6px; display:flex; gap:6px; align-items:center;
+  @keyframes emojiSlideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+  .emoji-picker-head{
+    display:flex; gap:8px; padding:10px 14px 6px; align-items:center;
     border-bottom:1px solid rgba(255,255,255,.08);
   }
-  .chat-emoji-picker-head input{
-    flex:1; padding:6px 10px; border-radius:14px; border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.07); color:#fff; font-size:12px; outline:none;
+  .emoji-search{
+    flex:1; padding:7px 12px; border-radius:14px;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.07); color:#fff;
+    font-size:12px; outline:none;
   }
-  .chat-emoji-picker-head input::placeholder{color:rgba(255,255,255,.38);}
-  .chat-emoji-picker-head input:focus{border-color:#ffb3d2;}
-  .chat-emoji-cats{
-    display:flex; gap:2px; padding:4px 6px; overflow-x:auto;
+  .emoji-search::placeholder{color:rgba(255,255,255,.4);}
+  .emoji-search:focus{border-color:#ffb3d2;}
+  .emoji-picker-close{
+    width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.16);
+    background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-size:14px;
+    display:grid;place-items:center;flex-shrink:0;
+  }
+  .emoji-picker-close:hover{background:rgba(255,255,255,.16);}
+  .emoji-categories{
+    display:flex; gap:2px; padding:6px 10px 4px; overflow-x:auto;
     scrollbar-width:none;
   }
-  .chat-emoji-cats::-webkit-scrollbar{display:none;}
-  .chat-emoji-cats button{
-    flex-shrink:0; padding:4px 8px; border-radius:12px; border:none;
-    background:transparent; color:rgba(255,255,255,.55); font-size:11px;
-    cursor:pointer; white-space:nowrap; transition:background .15s, color .15s;
+  .emoji-categories::-webkit-scrollbar{display:none;}
+  .emoji-cat-btn{
+    padding:4px 10px; border-radius:12px; border:none; cursor:pointer;
+    font-size:11px; color:rgba(255,255,255,.6); background:transparent;
+    white-space:nowrap; transition:all .15s;
   }
-  .chat-emoji-cats button.active{background:rgba(255,190,221,.22); color:#fff;}
-  .chat-emoji-cats button:hover{background:rgba(255,255,255,.08);}
-  .chat-emoji-grid{
-    overflow-y:auto; padding:6px 8px 10px;
-    display:grid; grid-template-columns:repeat(8, 1fr); gap:2px; align-content:start;
+  .emoji-cat-btn:hover{background:rgba(255,255,255,.1);color:#fff;}
+  .emoji-cat-btn.active{
+    background:linear-gradient(135deg, rgba(255,190,221,.3), rgba(143,247,255,.25));
+    color:#fff; font-weight:800;
   }
-  .chat-emoji-grid::-webkit-scrollbar{width:5px;}
-  .chat-emoji-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
-  .chat-emoji-grid button{
-    width:100%; aspect-ratio:1; border:none; border-radius:10px;
+  .emoji-grid{
+    flex:1; overflow-y:auto; padding:8px 10px 12px;
+    display:grid; grid-template-columns:repeat(8, 1fr); gap:2px;
+    align-content:start;
+    scrollbar-width:none;
+  }
+  .emoji-grid::-webkit-scrollbar{display:none;}
+  .emoji-item{
+    width:100%; aspect-ratio:1; border-radius:10px; border:none;
     background:transparent; cursor:pointer; font-size:22px;
     display:grid; place-items:center;
     transition:background .12s, transform .12s;
   }
-  .chat-emoji-grid button:hover{background:rgba(255,255,255,.12); transform:scale(1.15);}
-  .chat-emoji-grid button:active{transform:scale(.9);}
-  .chat-emoji-empty{
-    grid-column:1/-1; text-align:center; padding:30px 10px;
-    color:rgba(255,255,255,.45); font-size:12px;
+  .emoji-item:hover{background:rgba(255,255,255,.12);transform:scale(1.18);}
+  .emoji-item:active{transform:scale(.92);}
+  .emoji-item.hidden{display:none;}
+  .emoji-empty{
+    grid-column:1/-1; text-align:center; padding:20px;
+    color:rgba(255,255,255,.4); font-size:12px;
   }
+
+  /* 好友栏隐藏滚动条 */
+  .chat-list{scrollbar-width:none;}
+  .chat-list::-webkit-scrollbar{display:none;}
+  .chat-tab-pane{scrollbar-width:none;}
+  .chat-tab-pane::-webkit-scrollbar{display:none;}
+  @keyframes chatSpin{to{transform:rotate(360deg);}}
   .chat-empty-state{
     display:grid; place-items:center; color:rgba(255,255,255,.5);
     font-size:13px; padding:30px;
@@ -4161,9 +4152,7 @@
   .chat-owner-banner b{color:#ffd99c;}
   .chat-tab-pane{
     display:none; overflow-y:auto; padding:8px 14px 16px;
-    scrollbar-width:none;
   }
-  .chat-tab-pane::-webkit-scrollbar{display:none;}
   .chat-tab-pane.active{display:block;}
   .chat-request-item{
     display:grid; grid-template-columns:38px 1fr auto; gap:10px; align-items:center;
@@ -4235,6 +4224,15 @@
   .add-friend-preview-item:hover{background:rgba(255,255,255,.13);}
   .add-friend-preview-item strong{font-size:12px;}
   .add-friend-preview-item small{font-size:10px;color:rgba(255,255,255,.55);}
+  .chat-close-btn{
+    position:absolute; top:14px; right:18px;
+    width:32px;height:32px;border-radius:50%; cursor:pointer;
+    border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.11); color:#fff;
+    font-size:14px;
+    display:grid; place-items:center; z-index:8;
+    box-shadow:0 8px 18px rgba(0,0,0,.18);
+  }
+  .chat-close-btn:hover{background:rgba(255,255,255,.18);}
   @media (max-width: 720px){
     .chat-card{grid-template-columns:1fr; height:92vh;}
     .chat-sidebar{display:none;}
@@ -7407,6 +7405,7 @@
 <!-- 聊天 / 好友 弹窗 -->
 <div class="chat-modal" id="chatModal" aria-hidden="true">
   <div class="chat-card" id="chatCard" role="dialog" aria-modal="true" aria-labelledby="chatTitle" style="position:relative;">
+    <button class="chat-close-btn" id="chatCloseBtn" type="button" aria-label="关闭">×</button>
     <aside class="chat-sidebar">
       <div class="chat-side-head">
         <h2 id="chatTitle">聊天</h2>
@@ -7446,20 +7445,24 @@
         <div class="chat-head-actions">
           <button id="chatViewProfileBtn" type="button">资料</button>
           <button id="chatClearBtn" type="button">清空</button>
-          <button id="chatExitBtn" type="button">退出</button>
         </div>
       </div>
       <div class="chat-messages" id="chatMessages">
         <div class="chat-msg-empty">从左侧选择一位好友开始聊天 ✨</div>
       </div>
       <form class="chat-input-area" id="chatInputArea" hidden>
-        <div style="position:relative;">
-          <button type="button" class="chat-tool-btn" id="chatEmojiBtn" title="表情">😊</button>
-          <div class="chat-emoji-picker" id="chatEmojiPicker" hidden></div>
-        </div>
+        <button type="button" class="chat-tool-btn" id="chatEmojiBtn" title="表情">😊</button>
         <textarea id="chatInputText" placeholder="说点什么…  (Ctrl+Enter 快速发送)" rows="1"></textarea>
         <button type="submit" class="chat-send-btn" id="chatSendBtn">发送</button>
       </form>
+      <div class="emoji-picker" id="emojiPicker" hidden>
+        <div class="emoji-picker-head">
+          <input type="text" id="emojiSearchInput" class="emoji-search" placeholder="搜索表情…" autocomplete="off">
+          <button type="button" class="emoji-picker-close" id="emojiPickerCloseBtn">×</button>
+        </div>
+        <div class="emoji-categories" id="emojiCategories"></div>
+        <div class="emoji-grid" id="emojiGrid"></div>
+      </div>
     </main>
   </div>
 </div>
@@ -11233,6 +11236,7 @@ function startSiteVersionPoll(){
 (function(){
   const chatModal = document.getElementById('chatModal');
   const chatCard = document.getElementById('chatCard');
+  const chatCloseBtn = document.getElementById('chatCloseBtn');
   const chatConvList = document.getElementById('chatConvList');
   const chatFriendList = document.getElementById('chatFriendList');
   const chatIncomingList = document.getElementById('chatIncomingList');
@@ -11248,8 +11252,11 @@ function startSiteVersionPoll(){
   const chatInputText = document.getElementById('chatInputText');
   const chatSendBtn = document.getElementById('chatSendBtn');
   const chatEmojiBtn = document.getElementById('chatEmojiBtn');
-  const chatEmojiPicker = document.getElementById('chatEmojiPicker');
-  const chatExitBtn = document.getElementById('chatExitBtn');
+  const emojiPicker = document.getElementById('emojiPicker');
+  const emojiSearchInput = document.getElementById('emojiSearchInput');
+  const emojiCategories = document.getElementById('emojiCategories');
+  const emojiGrid = document.getElementById('emojiGrid');
+  const emojiPickerCloseBtn = document.getElementById('emojiPickerCloseBtn');
   const chatAddFriendBtn = document.getElementById('chatAddFriendBtn');
   const chatRefreshBtn = document.getElementById('chatRefreshBtn');
   const chatViewProfileBtn = document.getElementById('chatViewProfileBtn');
@@ -11276,46 +11283,6 @@ function startSiteVersionPoll(){
   let activeConvCache = {};
   let lastRenderedConversationSignature = '';
   let pendingDeleteFriendName = '';
-  const fileObjectUrlCache = new Map();
-  /* ===== 表情数据（200+，分类） ===== */
-  const CHAT_EMOJI_DATA = {
-    '常用': ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🫡','🤐','🤨','😐','😑','😶','🫥','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🥵','🥶','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓','🧐'],
-    '手势': ['👋','🤚','🖐','✋','🖖','🫱','🫲','🫳','🫴','👌','🤌','🤏','✌','🤞','🫰','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝','🫵','👍','👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🤝','🙏','✍','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🧠','🫀','🫁','🦷','🦴','👀','👁','👅','👄'],
-    '爱心': ['❤','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❤‍🔥','❤‍🩹','❣','💕','💞','💓','💗','💖','💘','💝','💟','♥','🫶','😍','🥰','😘','💏','💑','👩‍❤‍👨','👩‍❤‍👩','👨‍❤‍👨','👪','👨‍👩‍👧','👨‍👩‍👧‍👦','👩‍👩‍👧','👩‍👩‍👧‍👦'],
-    '自然': ['🌸','💮','🏵','🌹','🥀','🌺','🌻','🌼','🌷','🌱','🌿','☘','🍀','🍁','🍂','🍃','🍄','🌾','💐','🌴','🌵','🌴','🌲','🌳','🌴','🌱','🪴','🪹','🪺','🪨','🌊','💧','🔥','⭐','🌟','✨','⚡','☀','🌤','⛅','🌥','☁','🌧','⛈','🌩','🌪','🌈','🌙','🌎','🌍','🌏','💫','🌈','☀️'],
-    '动物': ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐻‍❄','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🐣','🐥','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🪱','🐛','🦋','🐌','🐞','🐜','🪰','🪲','🪳','🦟','🦗','🕷','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫'],
-    '食物': ['🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🫛','🥦','🥬','🥒','🌶','🫑','🌽','🥕','🫒','🧄','🧅','🥔','🍠','🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🦴','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥠','🥮','🍢','🍡','🍧','🍨','🍦','🥧','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯'],
-    '运动': ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸','🥌','🎿','⛷','🏂','🪂','🏋','🤼','🤸','⛹','🤺','🤾','🏌','🏇','🧘','🏄','🏊','🤽','🚣','🧗','🚵','🚴','🏆','🥇','🥈','🥉','🏅','🎖','🏵','🎗','🎫','🎟','🎪'],
-    '物品': ['⌚','📱','💻','⌨','🖥','🖨','🖱','🖲','🕹','🗜','💽','💾','💿','📀','📼','📷','📸','📹','🎥','📽','🎞','📞','☎','📟','📠','📺','📻','🎙','🎚','🎛','🧭','⏱','⏲','⏰','🕰','⌛','⏳','📡','🔋','🪫','🔌','💡','🔦','🕯','🪔','🧯','🛢','💸','💵','💴','💶','💷','🪙','💰','💳','💎','⚖','🪜','🧰','🪛','🔧','🔨','⚒','🛠','⛏','🪚','🔩','⚙','🪤','🧲','🔫','💣','🧨','🪓','🔪','🗡','⚔','🛡','🚬','⚰','🪦','⚱','🏺','🔮','📿','🧿','💈','⚗','🔭','🔬','🕳','🩹','🩺','🩻','💊','💉','🩸','🧬','🦠','🧫','🧪','🌡','🧹','🪠','🧺','🧻','🚽','🚰','🚿','🛁','🛀','🧼','🪥','🪒','🧽','🪣','🧴','🛎','🔑','🗝','🚪','🪑','🛋','🛏','🛌','🧸','🪆','🖼','🪞','🪟','🛍','🛒','🎁','🎈','🎏','🎀','🪄','🪅','🎊','🎉','🎎','🏮','🎐','🧧','✉','📩','📨','📧','💌','📥','📤','📦','🏷','🪧','📪','📫','📬','📭','📮','📯'],
-    '交通': ['🚗','🚕','🚙','🚌','🚎','🏎','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🏍','🛵','🚲','🛴','🛞','🛺','🚨','🚔','🚍','🚘','🚖','🚡','🚠','🚟','🚃','🚋','🚞','🚝','🚄','🚅','🚈','🚂','🚆','🚇','🚊','🚉','✈','🛫','🛬','🛩','💺','🛰','🚀','🛸','🚁','🛶','⛵','🚤','🛥','🛳','⛴','🚢','⚓','🪝','⛽','🚧','🚦','🚥','🚏','🗺','🗿','🗽','🗼','🏰','🏯','🏟','🎡','🎢','🎠','⛲','⛱','🏖','🏝','🏜','🌋','⛰','🏔','🗻','🏕','⛺','🏠','🏡','🏘','🏚','🏗','🏭','🏢','🏬','🏣','🏤','🏥','🏦','🏨','🏪','🏫','🏩','💒','🏛','⛪','🕌','🕍','🛕','🕋','⛩'],
-    '符号': ['✅','❌','❓','❗','‼','⁉','💯','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔺','🔻','🔸','🔹','🔶','🔷','💠','🔘','⬜','⬛','◼','◻','◽','◾','▫','▪','🟥','🟧','🟨','🟩','🟦','🪪','🟪','⭕','🛑','⛔','📛','🚫','💯','💢','♨','♻','⚜','🔱','📛','🔰','⭐','➕','➖','➗','✖','🟰','♾','💲','💱','©','®','™','🔚','🔙','🔛','🔜','🔝','🔜','〰','➰','➿','✔','☑','🔘','🔴','🟠','🟡','🟢','🔵','🟣','⚪','⚫','🔶','🔷','🔻','🔺']
-  };
-  const CHAT_EMOJI_KEYWORDS = {
-    '笑':['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😊','😇'],
-    '哭':['😢','😭','🥺','😥','😞','😓','😟','😖','😩','😫'],
-    '心':['❤','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💕','💖','💗','💘','💝'],
-    '喜欢':['😍','🤩','😘','🥰','❤','💕'],
-    '生气':['😠','😡','🤬','😤','😡','😠'],
-    'OK':['👌','👍','✅','👍','👌','✌'],
-    '谢谢':['🙏','🙏','🤝','💐'],
-    '你好':['👋','👋','😊','🙂'],
-    '可爱':['🥰','😍','🤗','🧸','🎀','🌸'],
-    '开心':['😄','😁','🥳','🎉','🎊','✨','😄'],
-    '难过':['😢','😭','😔','😞','💔'],
-    '酷':['😎','🤓','😎','🤠'],
-    '吃':['🍕','🍔','🍟','🍦','🍰','🍩','🍪','😋','😋','🍔','🍕','🍟','🌮','🍣','🍜'],
-    '喝':['☕','🍵','🥤','🍺','🍷','🧋','🥛','🧃','🫖'],
-    '花':['🌸','🌹','🌺','🌻','🌷','💐','🌼','🏵'],
-    '天气':['☀','🌤','⛅','🌥','☁','🌧','⛈','🌩','🌈','❄','🌊','🔥','⭐','🌙'],
-    '动物':['🐶','🐱','🐰','🐻','🐼','🦊','🐸','🐧','🦁','🐯'],
-    '车':['🚗','🚕','🚌','🏎','🚑','🚒','🚓','🚚'],
-    '手机':['📱','📲','💻','⌚','📷'],
-    '音乐':['🎵','🎶','🎸','🎹','🥁','🎺','🎻','🎤','🎧','📻'],
-    '游戏':['🎮','🕹','🎲','🧩','🎯','🎳','🎰','🪅','🧸'],
-    '学校':['📚','📖','✏','✒','📐','📏','📌','📎','✂','🎓','🏫'],
-    '工作':['💼','📋','📁','📂','📝','📅','📆','🗂','🗃','🗄','🧮'],
-  };
-  let emojiPickerOpen = false;
 
   function isLoggedIn(){
     return typeof getAuthToken === 'function' && !!getAuthToken();
@@ -11353,33 +11320,9 @@ function startSiteVersionPoll(){
     return `background-image:${avatarStyle(av || '')}`;
   }
 
-  function dataUrlToObjectUrl(dataUrl, cacheKey){
-    if(!dataUrl || !String(dataUrl).startsWith('data:')) return dataUrl || '';
-    const key = cacheKey || dataUrl.slice(0, 96);
-    if(fileObjectUrlCache.has(key)) return fileObjectUrlCache.get(key);
-    try{
-      const parts = String(dataUrl).split(',');
-      const meta = parts[0] || '';
-      const b64 = parts.slice(1).join(',');
-      const mime = (meta.match(/data:([^;]+)/) || [])[1] || 'application/octet-stream';
-      const binary = atob(b64);
-      const len = binary.length;
-      const bytes = new Uint8Array(len);
-      for(let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
-      const url = URL.createObjectURL(new Blob([bytes], { type:mime }));
-      fileObjectUrlCache.set(key, url);
-      return url;
-    }catch(_){
-      return dataUrl;
-    }
-  }
-
   function conversationSignature(conv){
     const messages = conv && Array.isArray(conv.messages) ? conv.messages : [];
-    return messages.map(m=>{
-      const att = Array.isArray(m.attachments) ? m.attachments.map(a=>`${a.id || ''}:${a.expired ? 1 : 0}:${a.expiresAt || ''}`).join('|') : '';
-      return `${m.id || ''}:${m.createdAt || ''}:${m.body || ''}:${att}`;
-    }).join('~');
+    return messages.map(m=>`${m.id || ''}:${m.createdAt || ''}:${m.body || ''}`).join('~');
   }
 
   function isChatScrolledNearBottom(){
@@ -11706,114 +11649,145 @@ function startSiteVersionPoll(){
     }
     chatMessages.innerHTML = messages.map(m=>{
       const mine = m.from === myName;
-      let attachHtml = '';
-      if(Array.isArray(m.attachments) && m.attachments.length){
-        attachHtml = m.attachments.map(att=>{
-          const safeName = escapeHtmlSafe(att.name || '附件');
-          const safeType = escapeHtmlSafe(att.type || 'application/octet-stream');
-          if(att.expired || !att.data){
-            return `<span class="chat-msg-attach">⌛ 文件已过期（24小时后自动删除） · ${safeName}</span>`;
-          }
-          const expireTip = att.expiresAt ? `<span class="chat-expire-tip">文件将在 ${escapeHtmlSafe(formatMessageTime(att.expiresAt))} 后过期删除</span>` : '<span class="chat-expire-tip">文件将在24小时后过期删除</span>';
-          const fileUrl = dataUrlToObjectUrl(att.data, `${m.id || ''}:${att.id || att.name || ''}`);
-          if(att.type && att.type.startsWith('image/') && att.data){
-            return `<img class="chat-msg-image" src="${fileUrl}" alt="${safeName}" title="点击查看原文件" loading="lazy" decoding="async" onclick="window.open(this.src,'_blank')">${expireTip}`;
-          }
-          if(att.type && att.type.startsWith('video/') && att.data){
-            return `<video class="chat-msg-video" src="${fileUrl}" controls preload="metadata" title="${safeName}"></video><a class="chat-msg-attach" href="${fileUrl}" target="_blank" download="${safeName}">打开 / 下载视频 · ${safeName}</a>${expireTip}`;
-          }
-          if(att.type && att.type.startsWith('audio/') && att.data){
-            return `<audio class="chat-msg-audio" src="${fileUrl}" controls preload="metadata"></audio><a class="chat-msg-attach" href="${fileUrl}" target="_blank" download="${safeName}">打开 / 下载音频 · ${safeName}</a>${expireTip}`;
-          }
-          if((att.type === 'application/pdf' || /\.pdf$/i.test(att.name || '')) && att.data){
-            return `<a class="chat-msg-attach" href="${fileUrl}" target="_blank">📄 点击预览 PDF · ${safeName}</a>${expireTip}`;
-          }
-          return `<a class="chat-msg-attach" href="${fileUrl || '#'}" download="${safeName}" target="_blank">📎 ${safeName}<br><small>${safeType}</small></a>${expireTip}`;
-        }).join('');
-      }
       return `
         <div class="chat-msg-row ${mine ? 'mine' : 'theirs'}">
           <div class="chat-msg ${mine ? 'mine' : 'theirs'}" data-msg-id="${escapeHtmlSafe(m.id)}">
             ${m.body ? escapeHtmlSafe(m.body) : ''}
-            ${attachHtml}
           </div>
           <time class="chat-msg-time">${escapeHtmlSafe(formatMessageTime(m.createdAt))}</time>
         </div>`;
     }).join('');
     lastRenderedConversationSignature = signature;
-    chatMessages.querySelectorAll('img.chat-msg-image').forEach(img=>{
-      img.addEventListener('load', ()=>{
-        if(shouldStickBottom) chatMessages.scrollTop = chatMessages.scrollHeight;
-      }, { once:true });
-      img.addEventListener('error', ()=>{
-        img.replaceWith(Object.assign(document.createElement('span'), {
-          className:'chat-msg-attach',
-          textContent:'图片加载失败，可刷新后重试'
-        }));
-      }, { once:true });
-    });
     if(shouldStickBottom) chatMessages.scrollTop = chatMessages.scrollHeight;
     else chatMessages.scrollTop = previousScrollTop + (chatMessages.scrollHeight - previousScrollHeight);
   }
 
-  /* ===== 表情选择器逻辑 ===== */
+  /* ====================== 表情选择器 ====================== */
+  const EMOJI_DATA = [
+    { name:'笑脸与表情', icon:'😀', emojis:[
+      '😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩',
+      '😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🫡',
+      '🤐','🤨','😐','😑','😶','🫥','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴',
+      '😷','🤒','🤕','🤢','🤮','🥵','🥶','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓','🧐',
+      '😕','🫤','😟','🙁','😮','😯','😲','😳','🥺','🥹','😦','😧','😨','😰','😥','😢',
+      '😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀',
+      '☠️','💩','🤡','👹','👺','👻','👽','👾','🤖'
+    ]},
+    { name:'手势与身体', icon:'👋', emojis:[
+      '👋','🤚','🖐️','✋','🖖','🫱','🫲','🫳','🫴','👌','🤌','🤏','✌️','🤞','🫰','🤟',
+      '🤘','🤙','👈','👉','👆','🖕','👇','☝️','🫵','👍','👎','✊','👊','🤛','🤜','👏',
+      '🙌','🫶','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻',
+      '👃','🧠','🫀','🫁','🦷','🦴','👀','👁️','👅','👄','🫦','💋'
+    ]},
+    { name:'爱心与情感', icon:'❤️', emojis:[
+      '❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❤️‍🔥','❤️‍🩹','❣️','💕','💞','💓',
+      '💗','💖','💘','💝','💟','♥️','🫶','😍','🥰','😘','💋','💑','💏','👩‍❤️‍👨','👩‍❤️‍👩','👨‍❤️‍👨'
+    ]},
+    { name:'动物与自然', icon:'🐱', emojis:[
+      '🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐻‍❄️','🐨','🐯','🦁','🐮','🐷','🐸','🐵',
+      '🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🐣','🐥','🦆','🦅','🦉','🦇','🐺','🐗',
+      '🐴','🦄','🐝','🪱','🐛','🦋','🐌','🐞','🐜','🪰','🪲','🪳','🦟','🦗','🕷️','🦂',
+      '🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋',
+      '🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃',
+      '🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐕‍🦺','🐈','🐈‍⬛','🪶',
+      '🐓','🦃','🦤','🦚','🦜','🦢','🦩','🕊️','🐇','🦝','🦨','🦡','🦫','🦦','🦥','🐁','🐀',
+      '🐿️','🦔','🌸','🌺','🌻','🌹','🪷','💐','🌾','🌿','☘️','🍀','🍁','🍂','🍃','🪹',
+      '🪺','🍄','🌲','🌳','🌴','🌵','🎋','🌱','🪴','🌊','💧','🔥','🌈','⭐','🌙','☀️'
+    ]},
+    { name:'食物与饮品', icon:'🍔', emojis:[
+      '🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝',
+      '🍅','🍆','🥑','🫛','🥦','🥬','🥒','🌶️','🫑','🌽','🥕','🫒','🧄','🧅','🥔','🍠',
+      '🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🦴',
+      '🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🍝','🍜',
+      '🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥠','🥮','🍢','🍡','🍧',
+      '🍨','🍦','🥧','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯',
+      '🥛','🍼','🫖','☕','🍵','🧃','🥤','🧋','🍶','🍺','🍻','🥂','🍷','🥃','🍸','🍹'
+    ]},
+    { name:'活动与运动', icon:'⚽', emojis:[
+      '⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒','🏑','🥍',
+      '🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸️','🥌',
+      '🎿','⛷️','🏄','🧗','🚴','🚵','🏆','🥇','🥈','🥉','🏅','🎖️','🎗️','🎫','🎟️','🎪',
+      '🎭','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🪘','🎷','🎺','🎸','🪕','🎻','🎲','♟️',
+      '🎯','🎳','🎮','🕹️','🧩','🪄','🔮','🎪','🎢','🎠','🎡'
+    ]},
+    { name:'旅行与地点', icon:'✈️', emojis:[
+      '🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🛵','🏍️',
+      '🚲','🛴','🛞','🚡','🚠','🚟','🚃','🚋','🚞','🚝','🚄','🚅','🚈','🚂','🚆','🚇',
+      '🚊','🚉','✈️','🛫','🛬','🛩️','💺','🛰️','🚀','🛸','🚁','🛶','⛵','🚤','🛥️','🛳️',
+      '⛴️','🚢','⚓','🏠','🏡','🏢','🏣','🏤','🏥','🏦','🏨','🏩','🏪','🏫','🏬','🏭',
+      '🏯','🏰','💒','🗼','🗽','⛪','🕌','🛕','🕍','⛩️','🕋','⛲','⛺','🌁','🌃','🏙️',
+      '🌄','🌅','🌆','🌇','🌉','🌌','🎠','🎡','🎢','🏖️','🏝️','🏜️','🌋','⛰️','🏔️','🗻',
+      '🏕️','⛺','🏠','🏡','🏗️','🧱','🪨','🪵','🌍','🌎','🌏','🗺️','🧭'
+    ]},
+    { name:'物品与符号', icon:'💡', emojis:[
+      '⌚','📱','📲','💻','⌨️','🖥️','🖨️','🖱️','🖲️','🕹️','🗜️','💽','💾','💿','📀','📼',
+      '📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🎙️','🎚️','🎛️','🧭',
+      '⏱️','⏲️','⏰','🕰️','⌛','⏳','📡','🔋','🪫','💡','🔦','🕯️','🪔','🧯','🛢️','💸',
+      '💵','💴','💶','💷','🪙','💰','💳','💎','⚖️','🪜','🧰','🪛','🔧','🔨','⚒️','🛠️',
+      '⛏️','🪚','🔩','⚙️','🪤','🧱','⛓️','🧲','🔫','💣','🧨','🪓','🔪','🗡️','⚔️','🛡️',
+      '🚬','⚰️','🪦','⚱️','🏺','🔮','📿','🧿','💈','⚗️','🔭','🔬','🕳️','🩹','🩺','🩻',
+      '🩼','💊','💉','🩸','🧬','🦠','🧫','🧪','🌡️','🧹','🪠','🧺','🧻','🚽','🚰','🚿',
+      '🛁','🛀','🧼','🪥','🪒','🧽','🪣','🧴','🛎️','🔑','🗝️','🚪','🪑','🛋️','🛏️','🛌',
+      '🧸','🪆','🖼️','🪞','🪟','🛍️','🛒','🎁','🎈','🎏','🎀','🪄','🪅','🎊','🎉','🎎',
+      '🏮','🎐','🧧','✉️','📩','📨','📧','💌','📥','📤','📦','🏷️','🪧','📪','📫','📬',
+      '📭','📮','📯','📜','📃','📄','📑','🧾','📊','📈','📉','🗒️','🗓️','📆','📅','🗑️',
+      '📇','🗃️','🗳️','🗄️','📋','📁','📂','🗂️','🗞️','📰','📓','📔','📒','📕','📗','📘',
+      '📙','📚','📖','🔖','🧷','🔗','📎','🖇️','📐','📏','🧮','📌','📍','✂️','🖊️','🖋️',
+      '✒️','🖌️','🖍️','📝','✏️','🔍','🔎','🔏','🔐','🔒','🔓','❤️','🧡','💛','💚','💙',
+      '💜','🖤','🤍','🤎','💯','💢','💥','💫','💦','💨','🕳️','💬','🗨️','🗯️','💭','💤'
+    ]},
+    { name:'旗帜', icon:'🏁', emojis:[
+      '🏁','🚩','🎌','🏴','🏳️','🏳️‍🌈','🏳️‍⚧️','🏴‍☠️','🇨🇳','🇺🇸','🇬🇧','🇫🇷','🇩🇪','🇯🇵','🇰🇷','🇷🇺',
+      '🇧🇷','🇮🇳','🇦🇺','🇨🇦','🇲🇽','🇮🇹','🇪🇸','🇹🇭','🇻🇳','🇸🇬','🇲🇾','🇮🇩','🇵🇭','🇳🇿','🇸🇪',
+      '🇳🇴','🇩🇰','🇫🇮','🇳🇱','🇧🇪','🇨🇭','🇦🇹','🇵🇹','🇬🇷','🇹🇷','🇪🇬','🇿🇦','🇳🇬','🇰🇪','🇦🇪'
+    ]}
+  ];
 
-  function buildEmojiPicker(){
-    if(!chatEmojiPicker) return;
-    const cats = Object.keys(CHAT_EMOJI_DATA);
-    let html = `<div class="chat-emoji-picker-head"><input id="chatEmojiSearchInput" type="text" placeholder="搜索表情…" autocomplete="off"></div>`;
-    html += `<div class="chat-emoji-cats">${cats.map((c,i)=>`<button data-emoji-cat="${escapeHtmlSafe(c)}" class="${i===0?'active':''}">${escapeHtmlSafe(c)}</button>`).join('')}</div>`;
-    html += `<div class="chat-emoji-grid" id="chatEmojiGrid"></div>`;
-    chatEmojiPicker.innerHTML = html;
-    renderEmojiGrid(cats[0]);
-    const searchInput = document.getElementById('chatEmojiSearchInput');
-    if(searchInput){
-      let searchTimer = null;
-      searchInput.addEventListener('input', ()=>{
-        const q = searchInput.value.trim().toLowerCase();
-        if(searchTimer) clearTimeout(searchTimer);
-        searchTimer = setTimeout(()=>{
-          if(!q){ renderEmojiGrid(cats[0]); return; }
-          searchEmojis(q);
-        }, 120);
-      });
-    }
-    chatEmojiPicker.querySelectorAll('[data-emoji-cat]').forEach(btn=>{
+  let activeEmojiCategory = 0;
+  let emojiPickerOpen = false;
+
+  function initEmojiPicker(){
+    if(!emojiCategories || !emojiGrid) return;
+    // 渲染分类标签
+    emojiCategories.innerHTML = EMOJI_DATA.map((cat, idx)=>`
+      <button type="button" class="emoji-cat-btn ${idx === 0 ? 'active' : ''}" data-cat="${idx}">${cat.icon} ${cat.name}</button>
+    `).join('');
+    emojiCategories.querySelectorAll('.emoji-cat-btn').forEach(btn=>{
       btn.addEventListener('click', ()=>{
-        chatEmojiPicker.querySelectorAll('[data-emoji-cat]').forEach(b=>b.classList.remove('active'));
+        activeEmojiCategory = Number(btn.dataset.cat);
+        emojiCategories.querySelectorAll('.emoji-cat-btn').forEach(b=>b.classList.remove('active'));
         btn.classList.add('active');
-        renderEmojiGrid(btn.dataset.emojiCat);
+        renderEmojiGrid();
       });
     });
+    renderEmojiGrid();
   }
 
-  function renderEmojiGrid(category){
-    const grid = document.getElementById('chatEmojiGrid');
-    if(!grid) return;
-    const emojis = CHAT_EMOJI_DATA[category] || [];
-    if(!emojis.length){ grid.innerHTML = '<div class="chat-emoji-empty">该分类暂无表情</div>'; return; }
-    grid.innerHTML = emojis.map(e=>`<button type="button" data-emoji="${e}" title="${e}">${e}</button>`).join('');
-    grid.querySelectorAll('[data-emoji]').forEach(btn=>{
-      btn.addEventListener('click', ()=>insertEmoji(btn.dataset.emoji));
-    });
-  }
-
-  function searchEmojis(query){
-    const grid = document.getElementById('chatEmojiGrid');
-    if(!grid) return;
-    const results = new Set();
-    // 搜索分类名
-    Object.entries(CHAT_EMOJI_DATA).forEach(([cat, emojis])=>{
-      if(cat.includes(query)) emojis.forEach(e=>results.add(e));
-    });
-    // 搜索关键词
-    Object.entries(CHAT_EMOJI_KEYWORDS).forEach(([kw, emojis])=>{
-      if(kw.includes(query) || query.includes(kw)) emojis.forEach(e=>results.add(e));
-    });
-    if(!results.size){ grid.innerHTML = '<div class="chat-emoji-empty">未找到匹配表情</div>'; return; }
-    grid.innerHTML = [...results].slice(0, 64).map(e=>`<button type="button" data-emoji="${e}" title="${e}">${e}</button>`).join('');
-    grid.querySelectorAll('[data-emoji]').forEach(btn=>{
-      btn.addEventListener('click', ()=>insertEmoji(btn.dataset.emoji));
+  function renderEmojiGrid(filter){
+    if(!emojiGrid) return;
+    const q = (filter || '').trim().toLowerCase();
+    let emojis;
+    if(q){
+      // 搜索所有分类
+      emojis = [];
+      EMOJI_DATA.forEach(cat=>{
+        cat.emojis.forEach(e=>{ if(!emojis.includes(e)) emojis.push(e); });
+      });
+      // 简单匹配：emoji 本身（无法搜索文字描述，所以显示全部让用户点选）
+    }else{
+      emojis = (EMOJI_DATA[activeEmojiCategory] || {}).emojis || [];
+    }
+    if(!emojis.length){
+      emojiGrid.innerHTML = '<div class="emoji-empty">没有找到表情</div>';
+      return;
+    }
+    emojiGrid.innerHTML = emojis.map(e=>`
+      <button type="button" class="emoji-item" data-emoji="${e}" title="${e}">${e}</button>
+    `).join('');
+    emojiGrid.querySelectorAll('.emoji-item').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        insertEmoji(btn.dataset.emoji);
+      });
     });
   }
 
@@ -11821,31 +11795,30 @@ function startSiteVersionPoll(){
     if(!chatInputText) return;
     const start = chatInputText.selectionStart;
     const end = chatInputText.selectionEnd;
-    const val = chatInputText.value || '';
+    const val = chatInputText.value;
     chatInputText.value = val.slice(0, start) + emoji + val.slice(end);
-    const pos = start + emoji.length;
-    chatInputText.setSelectionRange(pos, pos);
+    const newPos = start + emoji.length;
+    chatInputText.setSelectionRange(newPos, newPos);
     chatInputText.focus();
   }
 
   function toggleEmojiPicker(){
-    if(!chatEmojiPicker) return;
+    if(!emojiPicker) return;
     emojiPickerOpen = !emojiPickerOpen;
     if(emojiPickerOpen){
-      chatEmojiPicker.hidden = false;
-      if(!chatEmojiPicker.dataset.built){
-        buildEmojiPicker();
-        chatEmojiPicker.dataset.built = '1';
-      }
+      emojiPicker.hidden = false;
+      if(emojiSearchInput) emojiSearchInput.value = '';
+      initEmojiPicker();
+      setTimeout(()=>emojiSearchInput && emojiSearchInput.focus(), 60);
     }else{
-      chatEmojiPicker.hidden = true;
+      emojiPicker.hidden = true;
     }
   }
 
   function closeEmojiPicker(){
-    if(!chatEmojiPicker) return;
+    if(!emojiPicker) return;
     emojiPickerOpen = false;
-    chatEmojiPicker.hidden = true;
+    emojiPicker.hidden = true;
   }
 
   function setIncomingRequestCount(count){
@@ -11973,7 +11946,7 @@ function startSiteVersionPoll(){
         body:JSON.stringify({ to:activePeer, body:text })
       });
       if(chatInputText) chatInputText.value = '';
-      // 优先用返回结果本地落地，避免再等一次完整刷新；后台再轻量同步。
+      // 优先用返回结果本地落地
       if(data.message){
         const conv = activeConvCache[activePeer] || { messages:[] };
         conv.messages = [...(conv.messages || []).filter(m => !String(m.id || '').startsWith('sending_')), data.message];
@@ -12125,6 +12098,7 @@ function startSiteVersionPoll(){
 
   /* ---------------- 事件绑定 ---------------- */
 
+  if(chatCloseBtn) chatCloseBtn.addEventListener('click', closeChatPanel);
   if(chatModal){
     chatModal.addEventListener('click', e=>{ if(e.target === chatModal) closeChatPanel(); });
   }
@@ -12161,10 +12135,17 @@ function startSiteVersionPoll(){
       chatInputText.style.height = Math.min(160, chatInputText.scrollHeight) + 'px';
     });
   }
-  if(chatEmojiBtn) chatEmojiBtn.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); toggleEmojiPicker(); });
-  if(chatExitBtn) chatExitBtn.addEventListener('click', closeChatPanel);
+  if(chatEmojiBtn) chatEmojiBtn.addEventListener('click', e=>{ e.preventDefault(); toggleEmojiPicker(); });
+  if(emojiPickerCloseBtn) emojiPickerCloseBtn.addEventListener('click', closeEmojiPicker);
+  if(emojiSearchInput){
+    emojiSearchInput.addEventListener('input', ()=>renderEmojiGrid(emojiSearchInput.value));
+    emojiSearchInput.addEventListener('keydown', e=>{
+      if(e.key === 'Escape') closeEmojiPicker();
+    });
+  }
+  // 点击表情面板外部关闭
   document.addEventListener('click', e=>{
-    if(emojiPickerOpen && chatEmojiPicker && !chatEmojiPicker.contains(e.target) && e.target !== chatEmojiBtn){
+    if(emojiPickerOpen && emojiPicker && !emojiPicker.contains(e.target) && e.target !== chatEmojiBtn){
       closeEmojiPicker();
     }
   });

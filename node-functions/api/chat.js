@@ -33,11 +33,6 @@ import {
 
 const MAX_MESSAGES_PER_CONV = 500;
 const MAX_BODY_LEN = 4000;
-// Upstash REST 单次请求限制约 10MB。文件转 dataURL/base64 后会膨胀约 33%，
-// 因此聊天单次附件总 data 字符串限制在 7.5MB，前端单文件限制 6MB。
-const MAX_ATTACHMENT_DATA_CHARS = 7.5 * 1024 * 1024;
-const MAX_ATTACHMENT_COUNT = 1;
-const ATTACHMENT_TTL_MS = 24 * 60 * 60 * 1000;
 const MESSAGE_TTL_MS = 24 * 60 * 60 * 1000;
 
 function parseStoredJson(value, fallback){
@@ -103,51 +98,6 @@ async function writeConversation(conv){
   return payload;
 }
 
-function sanitizeAttachments(attachments){
-  if(!Array.isArray(attachments)) return [];
-  if(attachments.length > MAX_ATTACHMENT_COUNT){
-    const error = new Error(`一次最多只能上传 ${MAX_ATTACHMENT_COUNT} 个文件。`);
-    error.status = 400;
-    throw error;
-  }
-  const list = attachments.map(att => {
-    if(!att || typeof att !== 'object'){
-      const error = new Error('附件格式不正确。');
-      error.status = 400;
-      throw error;
-    }
-    const data = String(att.data || '');
-    const size = Number(att.size || 0);
-    const name = String(att.name || '附件').trim().slice(0, 120);
-    if(!data){
-      const error = new Error(`「${name}」内容为空，上传失败。`);
-      error.status = 400;
-      throw error;
-    }
-    if(data.length > MAX_ATTACHMENT_DATA_CHARS){
-      const error = new Error(`「${name}」超过数据库单次上传限制，请压缩后再发送。`);
-      error.status = 400;
-      throw error;
-    }
-    return {
-      id: typeof att.id === 'string' ? att.id : crypto.randomUUID(),
-      name,
-      type: String(att.type || 'application/octet-stream').trim().slice(0, 120),
-      size: Number.isFinite(size) ? Math.max(0, size) : 0,
-      data,
-      expiresAt: new Date(Date.now() + ATTACHMENT_TTL_MS).toISOString(),
-      kind: String(att.kind || '').trim().slice(0, 40)
-    };
-  });
-  const total = list.reduce((s, it)=>s + (it.data?.length || 0), 0);
-  if(total > MAX_ATTACHMENT_DATA_CHARS){
-    const error = new Error('附件总大小超过数据库单次上传限制，请减少文件数量或压缩文件。');
-    error.status = 400;
-    throw error;
-  }
-  return list;
-}
-
 function cleanupExpiredConversation(conv){
   const now = Date.now();
   let changed = false;
@@ -158,19 +108,6 @@ function cleanupExpiredConversation(conv){
       return false;
     }
     return true;
-  }).map(message => {
-    if(!Array.isArray(message.attachments) || !message.attachments.length) return message;
-    const attachments = message.attachments.map(att => {
-      if(!att || typeof att !== 'object') return att;
-      const expiresAt = att.expiresAt ? Date.parse(att.expiresAt) : 0;
-      if(expiresAt && expiresAt <= now && att.data){
-        changed = true;
-        const { data, ...rest } = att;
-        return { ...rest, expired:true };
-      }
-      return att;
-    });
-    return { ...message, attachments };
   });
   return changed;
 }
@@ -334,9 +271,8 @@ export async function onRequestPost(context){
     const body = await readJsonBody(context.request);
     const to = String(body.to || '').trim();
     const text = String(body.body || '').trim().slice(0, MAX_BODY_LEN);
-    const attachments = sanitizeAttachments(body.attachments);
     if(!to) return json({ error:'缺少接收方用户名。' }, 400);
-    if(!text && !attachments.length) return json({ error:'消息内容不能为空。' }, 400);
+    if(!text) return json({ error:'消息内容不能为空。' }, 400);
 
     const target = await getUser(to);
     if(!target && to !== SITE_OWNER_USERNAME){
@@ -352,7 +288,6 @@ export async function onRequestPost(context){
       from: auth.user.username,
       to: peerUsername,
       body: text,
-      attachments,
       createdAt: nowIso()
     };
     conv.messages = [...conv.messages, message].slice(-MAX_MESSAGES_PER_CONV);
