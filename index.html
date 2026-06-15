@@ -3942,7 +3942,7 @@
     padding:0 6px; height:16px; line-height:16px; border-radius:8px;
   }
   .chat-main{
-    display:grid; grid-template-rows:auto 1fr auto; min-height:0;
+    display:grid; grid-template-rows:auto 1fr auto auto; min-height:0;
     position:relative;
   }
   .chat-main-head{
@@ -4069,16 +4069,16 @@
 
   /* ====================== 表情选择器 ====================== */
   .emoji-picker{
-    position:absolute; bottom:100%; left:0; right:0;
-    max-height:320px; border-radius:20px 20px 0 0;
+    max-height:260px;
     background:rgba(18,20,42,.96);
     backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-    border:1px solid rgba(255,255,255,.12); border-bottom:none;
+    border-top:1px solid rgba(255,255,255,.12);
     display:flex; flex-direction:column;
-    box-shadow:0 -12px 40px rgba(0,0,0,.35);
+    box-shadow:0 -4px 20px rgba(0,0,0,.25);
     animation:emojiSlideUp .22s cubic-bezier(.22,.08,.28,1) both;
-    z-index:50;
+    overflow:hidden;
   }
+  .emoji-picker[hidden]{display:none;}
   @keyframes emojiSlideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
   .emoji-picker-head{
     display:flex; gap:8px; padding:10px 14px 6px; align-items:center;
@@ -7441,11 +7441,6 @@
       <div class="chat-messages" id="chatMessages">
         <div class="chat-msg-empty">从左侧选择一位好友开始聊天 ✨</div>
       </div>
-      <form class="chat-input-area" id="chatInputArea" hidden>
-        <button type="button" class="chat-tool-btn" id="chatEmojiBtn" title="表情">😊</button>
-        <textarea id="chatInputText" placeholder="说点什么…  (Ctrl+Enter 快速发送)" rows="1"></textarea>
-        <button type="submit" class="chat-send-btn" id="chatSendBtn">发送</button>
-      </form>
       <div class="emoji-picker" id="emojiPicker" hidden>
         <div class="emoji-picker-head">
           <input type="text" id="emojiSearchInput" class="emoji-search" placeholder="搜索表情…" autocomplete="off">
@@ -7454,6 +7449,11 @@
         <div class="emoji-categories" id="emojiCategories"></div>
         <div class="emoji-grid" id="emojiGrid"></div>
       </div>
+      <form class="chat-input-area" id="chatInputArea" hidden>
+        <button type="button" class="chat-tool-btn" id="chatEmojiBtn" title="表情">😊</button>
+        <textarea id="chatInputText" placeholder="说点什么…  (Ctrl+Enter 快速发送)" rows="1"></textarea>
+        <button type="submit" class="chat-send-btn" id="chatSendBtn">发送</button>
+      </form>
     </main>
   </div>
 </div>
