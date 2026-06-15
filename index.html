@@ -3977,27 +3977,27 @@
   .chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12); border-radius:2px;}
   .chat-msg{
     width:fit-content;
-    min-width:36px;
-    max-width:min(72%, 380px); padding:7px 11px; border-radius:16px; font-size:13px; line-height:1.52;
+    min-width:32px;
+    max-width:min(68%, 340px); padding:6px 10px; border-radius:18px; font-size:13px; line-height:1.5;
     word-wrap:break-word; word-break:break-word; white-space:pre-wrap;
-    box-shadow:0 4px 12px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.18);
+    box-shadow:0 3px 10px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.2);
     position:relative;
-    border:1px solid rgba(255,255,255,.1);
-    animation:chatBubblePop .3s cubic-bezier(.22,.08,.28,1) both;
-    backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px);
-    transition:box-shadow .18s;
+    border:1px solid rgba(255,255,255,.12);
+    animation:chatBubblePop .32s cubic-bezier(.22,.08,.28,1) both;
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    transition:box-shadow .2s, transform .15s;
   }
-  .chat-msg:hover{box-shadow:0 6px 20px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.22);}
+  .chat-msg:hover{box-shadow:0 5px 16px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.24); transform:translateY(-1px);}
   .chat-msg.mine{
-    background:linear-gradient(135deg, #ffd6e8, #ffaec8 50%, #ffd4a8); color:#3d1e2c;
-    border-bottom-right-radius:5px;
+    background:linear-gradient(135deg, #ffe0ec, #ffb8d0 50%, #ffd6b0); color:#3d1e2c;
+    border-bottom-right-radius:4px;
     background-size:200% 200%;
   }
-  .chat-msg.mine:hover{animation:chatBubbleShimmer 2s ease-in-out, chatBubblePop .3s cubic-bezier(.22,.08,.28,1) both;}
+  .chat-msg.mine:hover{animation:chatBubbleShimmer 2.5s ease-in-out;}
   .chat-msg.theirs{
-    background:linear-gradient(135deg, rgba(255,255,255,.16), rgba(210,225,255,.08)); color:#f0e8ff;
-    border-bottom-left-radius:5px;
+    background:linear-gradient(135deg, rgba(255,255,255,.14), rgba(200,218,255,.10)); color:#eee6ff;
+    border-bottom-left-radius:4px;
   }
   .chat-msg-row{
     display:flex;
@@ -4224,15 +4224,6 @@
   .add-friend-preview-item:hover{background:rgba(255,255,255,.13);}
   .add-friend-preview-item strong{font-size:12px;}
   .add-friend-preview-item small{font-size:10px;color:rgba(255,255,255,.55);}
-  .chat-close-btn{
-    position:absolute; top:14px; right:18px;
-    width:32px;height:32px;border-radius:50%; cursor:pointer;
-    border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.11); color:#fff;
-    font-size:14px;
-    display:grid; place-items:center; z-index:8;
-    box-shadow:0 8px 18px rgba(0,0,0,.18);
-  }
-  .chat-close-btn:hover{background:rgba(255,255,255,.18);}
   @media (max-width: 720px){
     .chat-card{grid-template-columns:1fr; height:92vh;}
     .chat-sidebar{display:none;}
@@ -7405,7 +7396,6 @@
 <!-- 聊天 / 好友 弹窗 -->
 <div class="chat-modal" id="chatModal" aria-hidden="true">
   <div class="chat-card" id="chatCard" role="dialog" aria-modal="true" aria-labelledby="chatTitle" style="position:relative;">
-    <button class="chat-close-btn" id="chatCloseBtn" type="button" aria-label="关闭">×</button>
     <aside class="chat-sidebar">
       <div class="chat-side-head">
         <h2 id="chatTitle">聊天</h2>
@@ -7445,6 +7435,7 @@
         <div class="chat-head-actions">
           <button id="chatViewProfileBtn" type="button">资料</button>
           <button id="chatClearBtn" type="button">清空</button>
+          <button id="chatCloseBtn" type="button" aria-label="关闭" style="font-size:16px;line-height:1;">✕</button>
         </div>
       </div>
       <div class="chat-messages" id="chatMessages">
@@ -7454,15 +7445,15 @@
         <button type="button" class="chat-tool-btn" id="chatEmojiBtn" title="表情">😊</button>
         <textarea id="chatInputText" placeholder="说点什么…  (Ctrl+Enter 快速发送)" rows="1"></textarea>
         <button type="submit" class="chat-send-btn" id="chatSendBtn">发送</button>
-      </form>
-      <div class="emoji-picker" id="emojiPicker" hidden>
-        <div class="emoji-picker-head">
-          <input type="text" id="emojiSearchInput" class="emoji-search" placeholder="搜索表情…" autocomplete="off">
-          <button type="button" class="emoji-picker-close" id="emojiPickerCloseBtn">×</button>
+        <div class="emoji-picker" id="emojiPicker" hidden>
+          <div class="emoji-picker-head">
+            <input type="text" id="emojiSearchInput" class="emoji-search" placeholder="搜索表情…" autocomplete="off">
+            <button type="button" class="emoji-picker-close" id="emojiPickerCloseBtn">×</button>
+          </div>
+          <div class="emoji-categories" id="emojiCategories"></div>
+          <div class="emoji-grid" id="emojiGrid"></div>
         </div>
-        <div class="emoji-categories" id="emojiCategories"></div>
-        <div class="emoji-grid" id="emojiGrid"></div>
-      </div>
+      </form>
     </main>
   </div>
 </div>
@@ -11753,7 +11744,8 @@ function startSiteVersionPoll(){
       <button type="button" class="emoji-cat-btn ${idx === 0 ? 'active' : ''}" data-cat="${idx}">${cat.icon} ${cat.name}</button>
     `).join('');
     emojiCategories.querySelectorAll('.emoji-cat-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
+      btn.addEventListener('click', e=>{
+        e.preventDefault(); e.stopPropagation();
         activeEmojiCategory = Number(btn.dataset.cat);
         emojiCategories.querySelectorAll('.emoji-cat-btn').forEach(b=>b.classList.remove('active'));
         btn.classList.add('active');
@@ -11785,7 +11777,8 @@ function startSiteVersionPoll(){
       <button type="button" class="emoji-item" data-emoji="${e}" title="${e}">${e}</button>
     `).join('');
     emojiGrid.querySelectorAll('.emoji-item').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
+      btn.addEventListener('click', e=>{
+        e.preventDefault(); e.stopPropagation();
         insertEmoji(btn.dataset.emoji);
       });
     });
@@ -12135,12 +12128,13 @@ function startSiteVersionPoll(){
       chatInputText.style.height = Math.min(160, chatInputText.scrollHeight) + 'px';
     });
   }
-  if(chatEmojiBtn) chatEmojiBtn.addEventListener('click', e=>{ e.preventDefault(); toggleEmojiPicker(); });
-  if(emojiPickerCloseBtn) emojiPickerCloseBtn.addEventListener('click', closeEmojiPicker);
+  if(chatEmojiBtn) chatEmojiBtn.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); toggleEmojiPicker(); });
+  if(emojiPickerCloseBtn) emojiPickerCloseBtn.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); closeEmojiPicker(); });
   if(emojiSearchInput){
-    emojiSearchInput.addEventListener('input', ()=>renderEmojiGrid(emojiSearchInput.value));
+    emojiSearchInput.addEventListener('input', e=>{ e.stopPropagation(); renderEmojiGrid(emojiSearchInput.value); });
     emojiSearchInput.addEventListener('keydown', e=>{
       if(e.key === 'Escape') closeEmojiPicker();
+      if(e.key === 'Enter') e.preventDefault();
     });
   }
   // 点击表情面板外部关闭
