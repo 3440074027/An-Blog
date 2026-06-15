@@ -4307,6 +4307,38 @@
   .mail-attach-chip button{
     border:none;background:transparent;cursor:pointer;color:#c8456b;font-weight:950;
   }
+  .mail-send-progress{
+    display:none;
+    gap:7px;
+    align-items:center;
+    padding:9px 12px;
+    margin-top:8px;
+    border-radius:18px;
+    background:linear-gradient(135deg,rgba(255,248,252,.92),rgba(235,247,255,.9));
+    border:1px solid rgba(233,199,222,.78);
+    box-shadow:0 10px 22px rgba(176,158,200,.15);
+    color:#6b5b6d;
+    font-size:12px;
+    font-weight:950;
+  }
+  .mail-send-progress.open{display:grid;}
+  .mail-send-progress .progress-meta{display:flex;justify-content:space-between;gap:10px;}
+  .mail-send-progress .progress-track{
+    position:relative;
+    height:12px;
+    overflow:hidden;
+    border-radius:999px;
+    background:rgba(255,255,255,.78);
+    border:1px solid rgba(255,255,255,.85);
+  }
+  .mail-send-progress .progress-fill{
+    width:0%;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,#ffb6d4,#ffd7a8,#bde8ff);
+    box-shadow:0 0 16px rgba(255,178,211,.5);
+    transition:width .25s ease;
+  }
   .mail-compose-footer{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;}
   .mail-compose-footer{
     position:relative;
@@ -6274,7 +6306,7 @@
   <div class="home-settings-wrap" id="homeSettingsWrap">
     <div class="home-search-popover" id="homeSearchPopover" aria-label="首页搜索">
       <div class="search-star" aria-hidden="true">✦</div>
-      <input id="homeSearchInput" type="text" name="not_login_search_field_2026" placeholder="搜索用户、文章、标签和灵感..." autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" data-lpignore="true" data-1p-ignore="true" data-form-type="other" />
+      <input id="homeSearchInput" type="search" placeholder="搜索用户、文章标题..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" data-lpignore="true" data-1p-ignore="true" data-form-type="other" />
       <button id="homeSearchBtn" type="button" title="搜索" aria-label="搜索">
         <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="11" cy="11" r="6.5"/>
@@ -6920,6 +6952,10 @@
     <div class="mail-attachments-bar" id="mailAttachmentsBar"></div>
     <div id="mailBodyEditor" class="mail-rich-editor" contenteditable="true" data-placeholder="像写一张温柔信纸一样，写下想说的话"></div>
     <input id="mailAttachmentInput" type="file" hidden multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.txt,.md,.zip,.rar,.7z,.json,.js,.ts,.html,.css,.py" />
+    <div class="mail-send-progress" id="mailSendProgress" aria-live="polite">
+      <div class="progress-meta"><span id="mailSendProgressText">准备发送...</span><b id="mailSendProgressPercent">0%</b></div>
+      <div class="progress-track"><div class="progress-fill" id="mailSendProgressFill"></div></div>
+    </div>
   </div>
   <div class="mail-compose-footer">
     <button id="mailSaveDraftBtn" type="button">💾 存草稿</button>
@@ -7450,6 +7486,7 @@ const articleDetailMeta = document.getElementById('articleDetailMeta');
 const articleDetailContent = document.getElementById('articleDetailContent');
 const profileClockTime = document.getElementById('profileClockTime');
 const profileClockDate = document.getElementById('profileClockDate');
+const homeSearchPopover = document.getElementById('homeSearchPopover');
 const homeSearchInput = document.getElementById('homeSearchInput');
 const homeSearchBtn = document.getElementById('homeSearchBtn');
 const homeMailBtn = document.getElementById('homeMailBtn');
@@ -7489,6 +7526,10 @@ const mailToInput = document.getElementById('mailToInput');
 const mailSubjectInput = document.getElementById('mailSubjectInput');
 const mailBodyEditor = document.getElementById('mailBodyEditor');
 const mailSendBtn = document.getElementById('mailSendBtn');
+const mailSendProgress = document.getElementById('mailSendProgress');
+const mailSendProgressText = document.getElementById('mailSendProgressText');
+const mailSendProgressPercent = document.getElementById('mailSendProgressPercent');
+const mailSendProgressFill = document.getElementById('mailSendProgressFill');
 const mailBackListBtn = document.getElementById('mailBackListBtn');
 const mailAttachBtn = document.getElementById('mailAttachBtn');
 const mailAttachmentInput = document.getElementById('mailAttachmentInput');
@@ -8571,7 +8612,7 @@ function renderSearchResults(items){
     searchResultsPanel.innerHTML = `
       <div class="search-result-item">
         <div class="search-result-avatar"></div>
-        <div><strong>没有找到相关结果</strong><span>可以换个关键词，或搜索用户名、文章标题、分类标签。</span></div>
+        <div><strong>没有找到相关结果</strong><span>可以换个关键词，或搜索用户、文章标题。</span></div>
         <em class="search-result-kind">EMPTY</em>
       </div>
     `;
@@ -8626,7 +8667,7 @@ const homeSearchCache = new Map();
 function getLocalSearchResults(query){
   const lower = query.toLowerCase();
   const articleMatches = publicArticles
-    .filter(article => [article.title, article.category, article.summary, article.createdAt, article.author, ...(article.tags || [])].join(' ').toLowerCase().includes(lower))
+    .filter(article => String(article.title || '').toLowerCase().includes(lower))
     .slice(0, 8)
     .map(article=>({ type:'article', article }));
   const savedUser = readSavedUser();
@@ -8646,7 +8687,7 @@ function setSearchLoading(query, localItems = []){
     renderSearchResults(localItems);
     return;
   }
-  searchResultsPanel.innerHTML = '<div class="search-result-item"><div class="search-result-avatar"></div><div><strong>正在搜索...</strong><span>正在快速匹配用户和公开文章</span></div><em class="search-result-kind">SEARCH</em></div>';
+  searchResultsPanel.innerHTML = '<div class="search-result-item"><div class="search-result-avatar"></div><div><strong>正在搜索...</strong><span>正在快速匹配用户和文章标题</span></div><em class="search-result-kind">SEARCH</em></div>';
   searchResultsPanel.classList.add('open');
 }
 
@@ -9352,6 +9393,27 @@ function normalizeMailBodyForSend(body, attachments = []){
   return box.innerHTML.slice(0, 240000);
 }
 
+function setMailSendProgress(done, total, label = ''){
+  if(!mailSendProgress) return;
+  const safeTotal = Math.max(1, Number(total) || 1);
+  const safeDone = Math.max(0, Math.min(safeTotal, Number(done) || 0));
+  const percent = Math.round((safeDone / safeTotal) * 100);
+  mailSendProgress.classList.add('open');
+  if(mailSendProgressText) mailSendProgressText.textContent = label || `正在发送 ${safeDone}/${safeTotal}`;
+  if(mailSendProgressPercent) mailSendProgressPercent.textContent = `${percent}%`;
+  if(mailSendProgressFill) mailSendProgressFill.style.width = `${percent}%`;
+}
+
+function hideMailSendProgress(delay = 900){
+  if(!mailSendProgress) return;
+  setTimeout(()=>{
+    mailSendProgress.classList.remove('open');
+    if(mailSendProgressFill) mailSendProgressFill.style.width = '0%';
+    if(mailSendProgressPercent) mailSendProgressPercent.textContent = '0%';
+    if(mailSendProgressText) mailSendProgressText.textContent = '准备发送...';
+  }, delay);
+}
+
 function getMailComposePayload(){
   return {
     to: mailToInput?.value || '',
@@ -9410,18 +9472,33 @@ async function sendMail(){
   try{
     mailSendBtn.disabled = true;
     mailSendBtn.textContent = '发送中...';
-    const firstAttachment = payload.attachments[0] || null;
-    await authRequest('/api/mail', {
-      method:'POST',
-      headers:authorizedHeaders(),
-      body:JSON.stringify({
-        to: payload.to,
-        subject: payload.subject,
-        body: safeBody,
-        attachment: firstAttachment,
-        attachments: payload.attachments
-      })
-    });
+    const attachmentJobs = payload.attachments.length ? payload.attachments : [null];
+    setMailSendProgress(0, attachmentJobs.length, payload.attachments.length ? `准备逐一发送 ${attachmentJobs.length} 个附件...` : '准备发送正文...');
+    for(let i = 0; i < attachmentJobs.length; i++){
+      const attachment = attachmentJobs[i];
+      const subject = payload.attachments.length > 1
+        ? `${payload.subject}（附件 ${i + 1}/${attachmentJobs.length}）`
+        : payload.subject;
+      const bodyText = i === 0
+        ? safeBody
+        : `<p>这是上一封邮件的续传附件 ${i + 1}/${attachmentJobs.length}。</p>`;
+      setMailSendProgress(i, attachmentJobs.length, attachment ? `正在发送：${attachment.name || `附件 ${i + 1}`}` : '正在发送正文...');
+      const result = await authRequest('/api/mail', {
+        method:'POST',
+        headers:authorizedHeaders(),
+        body:JSON.stringify({
+          to: payload.to,
+          subject,
+          body: bodyText,
+          attachment,
+          attachments: attachment ? [attachment] : []
+        })
+      });
+      if(!result || !result.ok){
+        throw new Error('邮件未确认发送成功，请稍后再试。');
+      }
+      setMailSendProgress(i + 1, attachmentJobs.length, attachment ? `已发送：${attachment.name || `附件 ${i + 1}`}` : '正文已发送');
+    }
     // 发送成功：若是从草稿编辑发送的，删除该草稿
     if(editingDraftId){
       loadDrafts();
@@ -9430,13 +9507,14 @@ async function sendMail(){
       editingDraftId = null;
     }
     discardCompose();
-    showLoginToast('站内邮件已发送。', 'success', '发送成功');
+    showLoginToast(payload.attachments.length > 1 ? '多张图片已逐一发送完成。' : '站内邮件已发送。', 'success', '发送成功');
     await loadMail('sent');
   }catch(error){
     showLoginToast(error.message || '发送邮件失败。', 'error', '发送失败');
   }finally{
     mailSendBtn.disabled = false;
     mailSendBtn.textContent = '✿ 发送邮件';
+    hideMailSendProgress();
   }
 }
 
@@ -9446,17 +9524,23 @@ if(homeSearchBtn) homeSearchBtn.addEventListener('click', ()=>{
 });
 if(homeSearchInput){
   let homeSearchUserTyped = false;
+  function closeHomeSearchResults(){
+    clearTimeout(homeSearchTimer);
+    homeSearchSeq++;
+    searchResultsPanel.innerHTML = '';
+    searchResultsPanel.classList.remove('open');
+  }
   function resetHomeSearchInput(force = false){
     if(!homeSearchInput) return;
     if(force || !homeSearchUserTyped){
       homeSearchInput.value = '';
       homeSearchInput.defaultValue = '';
       homeSearchInput.removeAttribute('value');
-      searchResultsPanel?.classList.remove('open');
+      closeHomeSearchResults();
     }
   }
   resetHomeSearchInput(true);
-  homeSearchInput.setAttribute('autocomplete', 'new-password');
+  homeSearchInput.setAttribute('autocomplete', 'off');
   homeSearchInput.setAttribute('aria-autocomplete', 'none');
   homeSearchInput.setAttribute('readonly', 'readonly');
   setTimeout(()=>{
@@ -9468,8 +9552,7 @@ if(homeSearchInput){
   window.addEventListener('pageshow', ()=>resetHomeSearchInput(true));
   homeSearchInput.addEventListener('input', ()=>{
     homeSearchUserTyped = true;
-    searchResultsPanel.innerHTML = '';
-    searchResultsPanel.classList.remove('open');
+    closeHomeSearchResults();
   });
   homeSearchInput.addEventListener('focus', ()=>{
     homeSearchInput.removeAttribute('readonly');
@@ -9481,6 +9564,22 @@ if(homeSearchInput){
       homeSearchUserTyped = false;
       resetHomeSearchInput(true);
     }
+  });
+  homeSearchInput.addEventListener('search', ()=>{
+    if(!String(homeSearchInput.value || '').trim()){
+      homeSearchUserTyped = false;
+      resetHomeSearchInput(true);
+    }
+  });
+  document.addEventListener('click', event=>{
+    if(homeSearchPopover && !homeSearchPopover.contains(event.target)){
+      closeHomeSearchResults();
+    }
+  });
+  homeSearchInput.addEventListener('blur', ()=>{
+    setTimeout(()=>{
+      if(!homeSearchPopover?.contains(document.activeElement)) closeHomeSearchResults();
+    }, 120);
   });
 }
 if(publicProfileCloseBtn) publicProfileCloseBtn.addEventListener('click', closePublicProfile);

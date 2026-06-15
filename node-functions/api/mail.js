@@ -21,6 +21,20 @@ const MAIL_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 const MAX_TOTAL_DATA_LENGTH = 14 * 1024 * 1024;
 
+function parseStoredJson(value, fallback){
+  if(!value) return fallback;
+  if(typeof value === 'object') return value;
+  if(typeof value === 'string'){
+    try{
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === 'object' ? parsed : fallback;
+    }catch(_){
+      return fallback;
+    }
+  }
+  return fallback;
+}
+
 function isExpired(mail){
   const created = Date.parse(mail.createdAt || '');
   return Number.isFinite(created) && Date.now() - created > MAIL_TTL_MS;
@@ -78,7 +92,7 @@ function sanitizeMail(mail){
 
 // 一次性读取用户邮箱：优先读集中表 db:mails，失败再回退到老键并自动迁移
 async function readUserMailbox(username){
-  const box = await redis.hget(DB_MAILS_HASH, username);
+  const box = parseStoredJson(await redis.hget(DB_MAILS_HASH, username), null);
   if(box){
     const inbox = Array.isArray(box.inbox) ? box.inbox.map(sanitizeMail).filter(item=>!isExpired(item)) : [];
     const sent = Array.isArray(box.sent) ? box.sent.map(sanitizeMail).filter(item=>!isExpired(item)) : [];
@@ -90,7 +104,7 @@ async function readUserMailbox(username){
   }
 
   // 旧版兜底：先读 mail:box:<u>，再读 inbox/sent 分离键
-  const legacyBox = await redis.get(legacyMailboxKey(username));
+  const legacyBox = parseStoredJson(await redis.get(legacyMailboxKey(username)), null);
   if(legacyBox){
     const inbox = Array.isArray(legacyBox.inbox) ? legacyBox.inbox.map(sanitizeMail).filter(item=>!isExpired(item)) : [];
     const sent = Array.isArray(legacyBox.sent) ? legacyBox.sent.map(sanitizeMail).filter(item=>!isExpired(item)) : [];
@@ -110,7 +124,7 @@ async function writeUserMailbox(username, box, { skipBump = false } = {}){
     sent:(box.sent || []).map(sanitizeMail).filter(item=>!isExpired(item)).slice(0, 100),
     updatedAt:nowIso()
   };
-  await redis.hset(DB_MAILS_HASH, { [username]: payload });
+  await redis.hset(DB_MAILS_HASH, { [username]: JSON.stringify(payload) });
   if(!skipBump) await bumpMailVersion(username);
 }
 
