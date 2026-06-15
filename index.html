@@ -3911,9 +3911,10 @@
     display:grid; grid-template-columns:38px 1fr auto; gap:10px; align-items:center;
     padding:8px 10px; border-radius:16px; cursor:pointer;
     background:transparent; border:1px solid transparent;
-    transition:background .18s, border .18s;
+    transition:background .18s, border .18s, transform .18s;
+    animation:chatSoftIn .24s ease both;
   }
-  .chat-conv-item:hover{background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.1);}
+  .chat-conv-item:hover{background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.1); transform:translateY(-1px);}
   .chat-conv-item.active{
     background:linear-gradient(135deg, rgba(255,190,221,.22), rgba(143,247,255,.16));
     border-color:rgba(255,255,255,.18);
@@ -3968,22 +3969,25 @@
       radial-gradient(circle at 100% 28%, rgba(143,247,255,.10), transparent 38%),
       linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015));
   }
+  @keyframes chatSoftIn{from{opacity:0;transform:translateY(6px) scale(.985);}to{opacity:1;transform:none;}}
+  @keyframes chatBubblePop{0%{opacity:0;transform:translateY(8px) scale(.94);}70%{transform:translateY(-1px) scale(1.01);}100%{opacity:1;transform:none;}}
   .chat-messages::-webkit-scrollbar{width:6px;}
   .chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18); border-radius:3px;}
   .chat-msg{
     width:fit-content;
     min-width:44px;
-    max-width:min(76%, 520px); padding:10px 14px; border-radius:20px; font-size:13.5px; line-height:1.62;
+    max-width:min(72%, 460px); padding:9px 13px; border-radius:19px; font-size:13.2px; line-height:1.58;
     word-wrap:break-word; word-break:break-word; white-space:pre-wrap;
-    box-shadow:0 12px 28px rgba(0,0,0,.20); position:relative;
+    box-shadow:0 10px 22px rgba(0,0,0,.17); position:relative;
     border:1px solid rgba(255,255,255,.13);
+    animation:chatBubblePop .28s cubic-bezier(.22,.08,.28,1) both;
   }
   .chat-msg.mine{
     background:linear-gradient(135deg, #ffd6e6, #ff9ec3 60%, #ffcf86); color:#3d1e2c;
     border-bottom-right-radius:6px;
   }
   .chat-msg.theirs{
-    background:linear-gradient(135deg, rgba(255,255,255,.17), rgba(255,255,255,.08)); color:#f5edff;
+    background:linear-gradient(135deg, rgba(255,255,255,.18), rgba(220,232,255,.08)); color:#f5edff;
     border-bottom-left-radius:6px;
   }
   .chat-msg-row{
@@ -4051,6 +4055,12 @@
     box-shadow:0 8px 18px rgba(255,158,195,.32);
   }
   .chat-input-area .chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
+  #chatRefreshBtn.loading,
+  .chat-input-area .chat-tool-btn.loading{
+    animation:chatSpin .72s linear infinite;
+    background:linear-gradient(135deg, rgba(255,190,221,.28), rgba(143,247,255,.24));
+  }
+  @keyframes chatSpin{to{transform:rotate(360deg);}}
   .chat-attach-preview{
     grid-column:2/3;
     display:flex; gap:6px; flex-wrap:wrap; padding-bottom:6px;
@@ -4112,6 +4122,31 @@
   }
   .chat-search-results .chat-search-item:last-child{border-bottom:none;}
   .chat-search-results .chat-search-item:hover{background:rgba(255,255,255,.08);}
+  .add-friend-preview{
+    display:grid;
+    gap:6px;
+    max-height:180px;
+    overflow:auto;
+    padding:6px;
+    border-radius:16px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
+  }
+  .add-friend-preview[hidden]{display:none;}
+  .add-friend-preview-item{
+    display:grid;
+    grid-template-columns:30px 1fr auto;
+    gap:8px;
+    align-items:center;
+    padding:7px 8px;
+    border-radius:13px;
+    cursor:pointer;
+    color:#fff;
+    background:rgba(255,255,255,.05);
+  }
+  .add-friend-preview-item:hover{background:rgba(255,255,255,.13);}
+  .add-friend-preview-item strong{font-size:12px;}
+  .add-friend-preview-item small{font-size:10px;color:rgba(255,255,255,.55);}
   .chat-close-btn{
     position:absolute; top:14px; right:18px;
     width:32px;height:32px;border-radius:50%; cursor:pointer;
@@ -7342,7 +7377,7 @@
         <button type="button" class="chat-tool-btn" id="chatAttachBtn" title="上传文件">📎</button>
         <textarea id="chatInputText" placeholder="说点什么…  (Ctrl+Enter 快速发送)" rows="1"></textarea>
         <button type="submit" class="chat-send-btn" id="chatSendBtn">发送</button>
-        <input type="file" id="chatFileInput" multiple hidden>
+        <input type="file" id="chatFileInput" hidden>
         <div class="chat-attach-preview" id="chatAttachPreview" hidden></div>
       </form>
     </main>
@@ -7358,6 +7393,7 @@
       <label style="font-size:12px;color:rgba(255,255,255,.7);">用户名
         <input id="addFriendUsernameInput" type="text" autocomplete="off" placeholder="输入对方的用户名" style="margin-top:6px;width:100%;padding:10px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font-size:13px;">
       </label>
+      <div class="add-friend-preview" id="addFriendPreviewResults" hidden></div>
       <label style="font-size:12px;color:rgba(255,255,255,.7);">附言（可选）
         <textarea id="addFriendMessageInput" rows="3" placeholder="想对ta说点什么…" style="margin-top:6px;width:100%;padding:10px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font-size:13px;resize:vertical;"></textarea>
       </label>
@@ -11003,7 +11039,7 @@ if(returnLoginBtn) returnLoginBtn.addEventListener('click', returnToLogin);
  * 每 6 秒拉一次 /api/site-versions，对比版本号，变了就只刷对应模块。
  * 这样公告 / 文章 / 邮件 / 当前用户资料在其他端被修改后，本端可以快速看到更新。
  */
-const SITE_VERSION_POLL_MS = 2500;
+const SITE_VERSION_POLL_MS = 1500;
 let _siteVersions = { announcements:0, articles:0, user:0, mail:0, friends:0, chat:0 };
 let _siteVersionTimer = null;
 let _siteVersionInFlight = false;
@@ -11121,6 +11157,7 @@ function startSiteVersionPoll(){
   const addFriendUsernameInput = document.getElementById('addFriendUsernameInput');
   const addFriendMessageInput = document.getElementById('addFriendMessageInput');
   const addFriendSubmitBtn = document.getElementById('addFriendSubmitBtn');
+  const addFriendPreviewResults = document.getElementById('addFriendPreviewResults');
   const homeChatBadgeEl = document.getElementById('homeChatBadge');
 
   // 状态
@@ -11130,7 +11167,7 @@ function startSiteVersionPoll(){
   let pendingAttachments = [];
   let activeConvCache = {};
   const CHAT_MAX_FILE_BYTES = 6 * 1024 * 1024; // 预留 base64/JSON 开销，避免超过 Upstash 10MB 请求限制
-  const CHAT_MAX_ATTACHMENTS = 6;
+  const CHAT_MAX_ATTACHMENTS = 1;
 
   function isLoggedIn(){
     return typeof getAuthToken === 'function' && !!getAuthToken();
@@ -11192,15 +11229,6 @@ function startSiteVersionPoll(){
 
   function findPeer(username){
     if(!username) return null;
-    if(friendsState.siteOwner && username === friendsState.siteOwner.username){
-      return {
-        username,
-        nickname: '站主 An',
-        avatar: '',
-        isOwner: true,
-        description: friendsState.siteOwner.description || ''
-      };
-    }
     const inPeers = (conversationsState.peers || []).find(p=>p && p.username === username);
     if(inPeers) return inPeers;
     const inFriends = (friendsState.friends || []).find(f=>f && f.username === username);
@@ -11213,7 +11241,25 @@ function startSiteVersionPoll(){
         description: inFriends.description || ''
       };
     }
+    if(friendsState.siteOwner && username === friendsState.siteOwner.username){
+      return {
+        username,
+        nickname: '站主 An',
+        avatar: friendsState.siteOwner.avatar || friendsState.siteOwner.profile?.avatar || '',
+        isOwner: true,
+        description: friendsState.siteOwner.description || ''
+      };
+    }
     return { username, nickname:username, avatar:'', isOwner:false };
+  }
+
+  function ownerFirst(list, keyGetter = item => item?.username){
+    return (Array.isArray(list) ? list.slice() : []).sort((a, b)=>{
+      const ax = keyGetter(a) === SITE_OWNER_USERNAME ? -1 : 0;
+      const bx = keyGetter(b) === SITE_OWNER_USERNAME ? -1 : 0;
+      if(ax !== bx) return ax - bx;
+      return 0;
+    });
   }
 
   /* ---------------- 数据请求 ---------------- */
@@ -11223,7 +11269,7 @@ function startSiteVersionPoll(){
     try{
       const data = await authRequest('/api/friends', { method:'GET', headers:authorizedHeaders() });
       friendsState = {
-        friends: data.friends || [],
+        friends: ownerFirst(data.friends || []),
         incoming: data.incoming || [],
         outgoing: data.outgoing || [],
         siteOwner: data.siteOwner || null
@@ -11243,7 +11289,7 @@ function startSiteVersionPoll(){
     try{
       const data = await authRequest('/api/chat', { method:'GET', headers:authorizedHeaders() });
       conversationsState = {
-        conversations: data.conversations || [],
+        conversations: ownerFirst(data.conversations || [], item => item?.other),
         peers: data.peers || []
       };
       renderConvList();
@@ -11609,33 +11655,37 @@ function startSiteVersionPoll(){
   async function handleAttachFiles(files){
     const arr = Array.from(files || []);
     if(!arr.length) return;
-    for(const file of arr){
-      if(pendingAttachments.length >= CHAT_MAX_ATTACHMENTS){
-        chatToast(`一次最多上传 ${CHAT_MAX_ATTACHMENTS} 个文件。`, 'warn');
-        break;
+    const file = arr[0];
+    if(arr.length > 1){
+      chatToast('一次只能上传一个文件，已仅选择第一个。', 'warn');
+    }
+    if(pendingAttachments.length >= CHAT_MAX_ATTACHMENTS){
+      chatToast('请先发送或移除当前文件后再上传新文件。', 'warn');
+      return;
+    }
+    if(file.size > CHAT_MAX_FILE_BYTES){
+      chatToast(`「${file.name}」超过 6MB。为避免超过 Upstash 10MB 请求限制，已取消上传。`, 'error');
+      return;
+    }
+    try{
+      if(chatAttachBtn) chatAttachBtn.classList.add('loading');
+      const dataUrl = await readFileAsDataURL(file);
+      if(String(dataUrl || '').length > 7.5 * 1024 * 1024){
+        chatToast(`「${file.name}」会让本次上传超过数据库请求限制，已跳过。`, 'error');
+        return;
       }
-      if(file.size > CHAT_MAX_FILE_BYTES){
-        chatToast(`「${file.name}」超过 6MB。为避免超过 Upstash 10MB 请求限制，已取消上传。`, 'error');
-        continue;
-      }
-      try{
-        const dataUrl = await readFileAsDataURL(file);
-        const nextDataTotal = pendingAttachments.reduce((sum, att)=>sum + String(att.data || '').length, 0) + String(dataUrl || '').length;
-        if(nextDataTotal > 7.5 * 1024 * 1024){
-          chatToast(`「${file.name}」会让本次上传超过数据库请求限制，已跳过。`, 'error');
-          continue;
-        }
-        pendingAttachments.push({
-          name:file.name,
-          type:file.type || 'application/octet-stream',
-          size:file.size,
-          data:dataUrl,
-          kind:file.type && file.type.startsWith('image/') ? 'image' : (file.type && file.type.startsWith('video/') ? 'video' : 'file')
-        });
-        chatToast(`「${file.name}」已添加，发送后上传，上传文件将在24小时后过期删除。`, 'success');
-      }catch(error){
-        chatToast(`读取「${file.name}」失败：${error.message || '浏览器无法读取该文件'}`, 'error');
-      }
+      pendingAttachments = [{
+        name:file.name,
+        type:file.type || 'application/octet-stream',
+        size:file.size,
+        data:dataUrl,
+        kind:file.type && file.type.startsWith('image/') ? 'image' : (file.type && file.type.startsWith('video/') ? 'video' : 'file')
+      }];
+      chatToast(`「${file.name}」已添加，发送后上传，上传文件将在24小时后过期删除。`, 'success');
+    }catch(error){
+      chatToast(`读取「${file.name}」失败：${error.message || '浏览器无法读取该文件'}`, 'error');
+    }finally{
+      if(chatAttachBtn) chatAttachBtn.classList.remove('loading');
     }
     renderAttachPreview();
   }
@@ -11652,7 +11702,8 @@ function startSiteVersionPoll(){
       }else{
         chatToast('好友申请已发送 ✉️', 'success');
       }
-      await refreshFriends({ silent:true });
+      await Promise.all([refreshFriends({ silent:true }), refreshChats({ silent:true })]);
+      updateChatBadgeNumbers();
       return true;
     }catch(error){
       chatToast(error.message || '发送好友申请失败。', 'error');
@@ -11699,6 +11750,10 @@ function startSiteVersionPoll(){
     addFriendModal.setAttribute('aria-hidden', 'false');
     if(addFriendUsernameInput) addFriendUsernameInput.value = prefill || '';
     if(addFriendMessageInput) addFriendMessageInput.value = '';
+    if(addFriendPreviewResults){
+      addFriendPreviewResults.hidden = true;
+      addFriendPreviewResults.innerHTML = '';
+    }
     setTimeout(()=>addFriendUsernameInput && addFriendUsernameInput.focus(), 50);
   }
 
@@ -11706,6 +11761,10 @@ function startSiteVersionPoll(){
     if(!addFriendModal) return;
     addFriendModal.classList.remove('open');
     addFriendModal.setAttribute('aria-hidden', 'true');
+    if(addFriendPreviewResults){
+      addFriendPreviewResults.hidden = true;
+      addFriendPreviewResults.innerHTML = '';
+    }
   }
 
   // 在公开资料卡上渲染加好友 / 发信息按钮
@@ -11765,10 +11824,19 @@ function startSiteVersionPoll(){
   if(chatModal){
     chatModal.addEventListener('click', e=>{ if(e.target === chatModal) closeChatPanel(); });
   }
-  if(chatRefreshBtn) chatRefreshBtn.addEventListener('click', ()=>{
-    refreshFriends();
-    refreshChats();
-    if(activePeer) loadConversation(activePeer);
+  if(chatRefreshBtn) chatRefreshBtn.addEventListener('click', async ()=>{
+    chatRefreshBtn.classList.add('loading');
+    chatRefreshBtn.disabled = true;
+    try{
+      await Promise.all([refreshFriends(), refreshChats()]);
+      if(activePeer) await loadConversation(activePeer);
+      chatToast('聊天已刷新。', 'success');
+    }catch(error){
+      chatToast(error.message || '刷新失败。', 'error');
+    }finally{
+      chatRefreshBtn.classList.remove('loading');
+      chatRefreshBtn.disabled = false;
+    }
   });
   if(chatAddFriendBtn) chatAddFriendBtn.addEventListener('click', ()=>openAddFriendDialog(''));
   document.querySelectorAll('.chat-side-tabs button[data-chat-tab]').forEach(b=>{
@@ -11824,6 +11892,52 @@ function startSiteVersionPoll(){
     addFriendSubmitBtn.disabled = false;
     if(ok) closeAddFriendDialog();
   });
+  if(addFriendUsernameInput && addFriendPreviewResults){
+    let addFriendSearchTimer = null;
+    addFriendUsernameInput.addEventListener('input', ()=>{
+      const q = addFriendUsernameInput.value.trim();
+      if(addFriendSearchTimer) clearTimeout(addFriendSearchTimer);
+      if(!q){
+        addFriendPreviewResults.hidden = true;
+        addFriendPreviewResults.innerHTML = '';
+        return;
+      }
+      addFriendSearchTimer = setTimeout(async ()=>{
+        try{
+          const data = await authRequest(`/api/users/search?q=${encodeURIComponent(q)}`, { method:'GET', headers:authorizedHeaders() });
+          const me = safeGetCurrentUser();
+          const users = (data.users || [])
+            .filter(u => u.username !== me?.username)
+            .slice(0, 6);
+          if(!users.length){
+            addFriendPreviewResults.hidden = false;
+            addFriendPreviewResults.innerHTML = '<div style="padding:8px 10px;color:rgba(255,255,255,.58);font-size:12px;">没有找到匹配用户</div>';
+            return;
+          }
+          addFriendPreviewResults.hidden = false;
+          addFriendPreviewResults.innerHTML = users.map(u=>`
+            <div class="add-friend-preview-item" data-add-friend-user="${escapeHtmlSafe(u.username)}">
+              <div class="chat-avatar" style="width:30px;height:30px;border-width:1px;${chatAvatarInline(u.profile && u.profile.avatar || '')}"></div>
+              <div>
+                <strong>${escapeHtmlSafe(u.profile && u.profile.nickname || u.username)}</strong>
+                <small>@${escapeHtmlSafe(u.username)}</small>
+              </div>
+              <small>选择</small>
+            </div>`).join('');
+          addFriendPreviewResults.querySelectorAll('[data-add-friend-user]').forEach(el=>{
+            el.addEventListener('click', ()=>{
+              addFriendUsernameInput.value = el.dataset.addFriendUser || '';
+              addFriendPreviewResults.hidden = true;
+              addFriendPreviewResults.innerHTML = '';
+            });
+          });
+        }catch(error){
+          addFriendPreviewResults.hidden = false;
+          addFriendPreviewResults.innerHTML = '<div style="padding:8px 10px;color:rgba(255,180,200,.82);font-size:12px;">预搜索失败，请稍后再试</div>';
+        }
+      }, 220);
+    });
+  }
 
   // 好友标签里的搜索框：本地搜好友 + 提示去添加陌生用户
   if(chatFriendSearchInput){

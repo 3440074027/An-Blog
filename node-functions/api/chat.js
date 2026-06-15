@@ -36,8 +36,9 @@ const MAX_BODY_LEN = 4000;
 // Upstash REST 单次请求限制约 10MB。文件转 dataURL/base64 后会膨胀约 33%，
 // 因此聊天单次附件总 data 字符串限制在 7.5MB，前端单文件限制 6MB。
 const MAX_ATTACHMENT_DATA_CHARS = 7.5 * 1024 * 1024;
-const MAX_ATTACHMENT_COUNT = 6;
+const MAX_ATTACHMENT_COUNT = 1;
 const ATTACHMENT_TTL_MS = 24 * 60 * 60 * 1000;
+const MESSAGE_TTL_MS = 24 * 60 * 60 * 1000;
 
 function parseStoredJson(value, fallback){
   if(!value) return fallback;
@@ -83,7 +84,7 @@ async function readConversation(a, b){
     reads: value.reads && typeof value.reads === 'object' ? value.reads : {},
     updatedAt: value.updatedAt || ''
   };
-  const changed = cleanupExpiredAttachments(conv);
+  const changed = cleanupExpiredConversation(conv);
   if(changed){
     await writeConversation(conv);
   }
@@ -147,10 +148,17 @@ function sanitizeAttachments(attachments){
   return list;
 }
 
-function cleanupExpiredAttachments(conv){
+function cleanupExpiredConversation(conv){
   const now = Date.now();
   let changed = false;
-  conv.messages = (conv.messages || []).map(message => {
+  conv.messages = (conv.messages || []).filter(message => {
+    const createdAt = message?.createdAt ? Date.parse(message.createdAt) : 0;
+    if(createdAt && now - createdAt > MESSAGE_TTL_MS){
+      changed = true;
+      return false;
+    }
+    return true;
+  }).map(message => {
     if(!Array.isArray(message.attachments) || !message.attachments.length) return message;
     const attachments = message.attachments.map(att => {
       if(!att || typeof att !== 'object') return att;
@@ -226,6 +234,10 @@ async function readAllConversationsForUser(me){
       reads: conv.reads || {},
       updatedAt: conv.updatedAt || ''
     };
+    const changed = cleanupExpiredConversation(fixedConv);
+    if(changed){
+      await writeConversation(fixedConv);
+    }
     const summary = summarizeConversation(fixedConv, me);
     seen.add(summary.other);
     result.push(summary);

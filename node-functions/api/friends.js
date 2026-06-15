@@ -116,7 +116,13 @@ async function buildResponse(currentUser){
   const friendUsernames = new Set(record.friends);
   if(!isSiteOwner(currentUser)) friendUsernames.add(SITE_OWNER_USERNAME);
 
-  const friends = await Promise.all(Array.from(friendUsernames).map(summarizeUser));
+  const friends = (await Promise.all(Array.from(friendUsernames).map(summarizeUser)))
+    .filter(Boolean)
+    .sort((a, b) => {
+      if(a.username === SITE_OWNER_USERNAME && b.username !== SITE_OWNER_USERNAME) return -1;
+      if(b.username === SITE_OWNER_USERNAME && a.username !== SITE_OWNER_USERNAME) return 1;
+      return 0;
+    });
   const incoming = await Promise.all(record.incoming.map(async r => ({
     from: r.from,
     message: r.message || '',
@@ -134,9 +140,11 @@ async function buildResponse(currentUser){
     ok: true,
     siteOwner: {
       username: SITE_OWNER_USERNAME,
-      description: SITE_OWNER_INTRO
+      description: SITE_OWNER_INTRO,
+      profile: friends.find(item => item.username === SITE_OWNER_USERNAME)?.profile || null,
+      avatar: friends.find(item => item.username === SITE_OWNER_USERNAME)?.profile?.avatar || ''
     },
-    friends: friends.filter(Boolean),
+    friends,
     incoming,
     outgoing,
     updatedAt: record.updatedAt
