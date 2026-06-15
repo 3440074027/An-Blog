@@ -33,9 +33,9 @@ import {
 
 const MAX_MESSAGES_PER_CONV = 500;
 const MAX_BODY_LEN = 4000;
-// Upstash 请求体限制约 10MB。文件会以 base64 dataURL 存入消息体，
-// 这里保守限制编码后的附件总量，避免刚好触顶导致整条请求失败。
-const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
+// Upstash REST 单次请求限制约 10MB。文件转 dataURL/base64 后会膨胀约 33%，
+// 因此聊天单次附件总 data 字符串限制在 7.5MB，前端单文件限制 6MB。
+const MAX_ATTACHMENT_DATA_CHARS = 7.5 * 1024 * 1024;
 const MAX_ATTACHMENT_COUNT = 6;
 
 function parseStoredJson(value, fallback){
@@ -99,7 +99,7 @@ async function writeConversation(conv){
 function sanitizeAttachments(attachments){
   if(!Array.isArray(attachments)) return [];
   if(attachments.length > MAX_ATTACHMENT_COUNT){
-    const error = new Error(`一次最多上传 ${MAX_ATTACHMENT_COUNT} 个文件。`);
+    const error = new Error(`一次最多只能上传 ${MAX_ATTACHMENT_COUNT} 个文件。`);
     error.status = 400;
     throw error;
   }
@@ -113,12 +113,12 @@ function sanitizeAttachments(attachments){
     const size = Number(att.size || 0);
     const name = String(att.name || '附件').trim().slice(0, 120);
     if(!data){
-      const error = new Error(`「${name}」没有读取到文件内容。`);
+      const error = new Error(`「${name}」内容为空，上传失败。`);
       error.status = 400;
       throw error;
     }
-    if(data.length > MAX_ATTACHMENT_BYTES){
-      const error = new Error(`「${name}」编码后超过 Upstash 单次上传安全限制，请压缩后再上传。`);
+    if(data.length > MAX_ATTACHMENT_DATA_CHARS){
+      const error = new Error(`「${name}」超过数据库单次上传限制，请压缩后再发送。`);
       error.status = 400;
       throw error;
     }
@@ -132,8 +132,8 @@ function sanitizeAttachments(attachments){
     };
   });
   const total = list.reduce((s, it)=>s + (it.data?.length || 0), 0);
-  if(total > MAX_ATTACHMENT_BYTES){
-    const error = new Error('附件总大小超过 Upstash 单次上传安全限制，请减少文件数量或压缩后再发送。');
+  if(total > MAX_ATTACHMENT_DATA_CHARS){
+    const error = new Error('附件总大小超过数据库单次上传限制，请减少文件数量或压缩文件。');
     error.status = 400;
     throw error;
   }
