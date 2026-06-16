@@ -7485,7 +7485,7 @@
         </div>
         <div class="chat-head-actions">
           <button id="chatViewProfileBtn" type="button">资料</button>
-          <button id="chatForwardBtn" type="button" hidden>转发</button>
+          <button id="chatForwardBtn" type="button">转发</button>
           <button id="chatCancelSelectBtn" type="button" hidden>取消</button>
           <button id="chatClearBtn" type="button">清空</button>
           <button id="chatCloseBtn" type="button" aria-label="关闭" style="font-size:16px;line-height:1;">✕</button>
@@ -11769,7 +11769,6 @@ function startSiteVersionPoll(){
   function enterMsgSelectMode(){
     msgSelectMode = true;
     selectedMsgIds.clear();
-    if(chatForwardBtn) chatForwardBtn.hidden = false;
     if(chatCancelSelectBtn) chatCancelSelectBtn.hidden = false;
     if(chatClearBtn) chatClearBtn.hidden = true;
     updateForwardBtnState();
@@ -11781,7 +11780,6 @@ function startSiteVersionPoll(){
   function exitMsgSelectMode(){
     msgSelectMode = false;
     selectedMsgIds.clear();
-    if(chatForwardBtn) chatForwardBtn.hidden = true;
     if(chatCancelSelectBtn) chatCancelSelectBtn.hidden = true;
     if(chatClearBtn) chatClearBtn.hidden = false;
     // 重新渲染以移除复选框
@@ -12145,6 +12143,8 @@ function startSiteVersionPoll(){
       chatToast('消息不能为空。', 'error');
       return;
     }
+    // 去除开头空行，保留正文换行
+    const body = raw.replace(/^\n+/, '').replace(/\n+$/, '');
     if(chatSendBtn) chatSendBtn.disabled = true;
     const originalSendText = chatSendBtn ? chatSendBtn.textContent : '';
     if(chatSendBtn) chatSendBtn.textContent = '发送中…';
@@ -12152,7 +12152,7 @@ function startSiteVersionPoll(){
     if(chatMessages){
       chatMessages.insertAdjacentHTML('beforeend', `
         <div class="chat-msg-row mine" data-sending-id="${sendingId}">
-          <div class="chat-msg mine">${escapeHtmlSafe(text)}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
+          <div class="chat-msg mine">${escapeHtmlSafe(body)}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
           <time class="chat-msg-time">发送中</time>
         </div>`);
       chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -12161,7 +12161,7 @@ function startSiteVersionPoll(){
       const data = await authRequest('/api/chat', {
         method:'POST',
         headers:authorizedHeaders('application/json'),
-        body:JSON.stringify({ to:activePeer, body:raw })
+        body:JSON.stringify({ to:activePeer, body })
       });
       if(chatInputText){
         chatInputText.value = '';
@@ -12412,7 +12412,13 @@ function startSiteVersionPoll(){
     });
   }
 
-  if(chatForwardBtn) chatForwardBtn.addEventListener('click', openForwardModal);
+  if(chatForwardBtn) chatForwardBtn.addEventListener('click', ()=>{
+    if(msgSelectMode){
+      openForwardModal();
+    }else{
+      enterMsgSelectMode();
+    }
+  });
   if(chatCancelSelectBtn) chatCancelSelectBtn.addEventListener('click', exitMsgSelectMode);
   if(forwardCloseBtn) forwardCloseBtn.addEventListener('click', closeForwardModal);
   if(forwardModal){
