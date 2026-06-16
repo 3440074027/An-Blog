@@ -3980,7 +3980,7 @@
     width:fit-content;
     min-width:32px;
     max-width:min(68%, 340px); padding:8px 14px; font-size:13px; line-height:1.55;
-    word-wrap:break-word; word-break:break-word; white-space:normal;
+    word-wrap:break-word; word-break:break-word; white-space:pre-line;
     box-shadow:0 3px 10px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.2);
     position:relative;
     border:2px solid rgba(255,255,255,.22);
@@ -7504,7 +7504,7 @@
       </div>
       <form class="chat-input-area" id="chatInputArea" hidden>
         <button type="button" class="chat-tool-btn" id="chatEmojiBtn" title="表情">😊</button>
-        <textarea id="chatInputText" placeholder="说点什么…  (Ctrl+Enter 快速发送)" rows="1"></textarea>
+        <textarea id="chatInputText" placeholder="说点什么…  (Enter 发送，Shift+Enter 换行)" rows="1"></textarea>
         <button type="submit" class="chat-send-btn" id="chatSendBtn">发送</button>
       </form>
     </main>
@@ -12139,7 +12139,8 @@ function startSiteVersionPoll(){
 
   async function sendChatMessage(){
     if(!activePeer) return;
-    const text = (chatInputText && chatInputText.value || '').trim();
+    const raw = chatInputText && chatInputText.value || '';
+    const text = raw.trim();
     if(!text){
       chatToast('消息不能为空。', 'error');
       return;
@@ -12160,9 +12161,12 @@ function startSiteVersionPoll(){
       const data = await authRequest('/api/chat', {
         method:'POST',
         headers:authorizedHeaders('application/json'),
-        body:JSON.stringify({ to:activePeer, body:text })
+        body:JSON.stringify({ to:activePeer, body:raw })
       });
-      if(chatInputText) chatInputText.value = '';
+      if(chatInputText){
+        chatInputText.value = '';
+        chatInputText.style.height = 'auto';
+      }
       // 优先用返回结果本地落地
       if(data.message){
         const conv = activeConvCache[activePeer] || { messages:[] };
@@ -12342,7 +12346,7 @@ function startSiteVersionPoll(){
   }
   if(chatInputText){
     chatInputText.addEventListener('keydown', e=>{
-      if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+      if(e.key === 'Enter' && !e.shiftKey){
         e.preventDefault();
         sendChatMessage();
       }
@@ -12381,7 +12385,7 @@ function startSiteVersionPoll(){
       if(!msgEl || msgSelectMode) return;
       msgLongPressTimer = setTimeout(()=>{
         enterMsgSelectMode();
-      }, 600);
+      }, 500);
     });
     chatMessages.addEventListener('mouseup', ()=>{ if(msgLongPressTimer){ clearTimeout(msgLongPressTimer); msgLongPressTimer = null; } });
     chatMessages.addEventListener('mouseleave', ()=>{ if(msgLongPressTimer){ clearTimeout(msgLongPressTimer); msgLongPressTimer = null; } });
@@ -12391,9 +12395,21 @@ function startSiteVersionPoll(){
       if(!msgEl || msgSelectMode) return;
       msgLongPressTimer = setTimeout(()=>{
         enterMsgSelectMode();
-      }, 600);
+      }, 500);
     }, { passive:true });
     chatMessages.addEventListener('touchend', ()=>{ if(msgLongPressTimer){ clearTimeout(msgLongPressTimer); msgLongPressTimer = null; } });
+    // 右键菜单转发
+    chatMessages.addEventListener('contextmenu', e=>{
+      const msgEl = e.target.closest('.chat-msg');
+      if(!msgEl || msgSelectMode) return;
+      e.preventDefault();
+      const msgId = msgEl.dataset.msgId;
+      if(msgId){
+        selectedMsgIds.clear();
+        selectedMsgIds.add(msgId);
+        enterMsgSelectMode();
+      }
+    });
   }
 
   if(chatForwardBtn) chatForwardBtn.addEventListener('click', openForwardModal);
