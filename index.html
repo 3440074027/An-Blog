@@ -3980,7 +3980,7 @@
     width:fit-content;
     min-width:32px;
     max-width:min(68%, 340px); padding:8px 14px; font-size:13px; line-height:1.55;
-    word-wrap:break-word; word-break:break-word; white-space:pre-line;
+    word-wrap:break-word; word-break:break-word; white-space:normal;
     box-shadow:0 3px 10px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.2);
     position:relative;
     border:2px solid rgba(255,255,255,.22);
@@ -4061,60 +4061,6 @@
   }
   .chat-confirm-actions .cancel{background:rgba(255,255,255,.12); color:#fff;}
   .chat-confirm-actions .danger{background:linear-gradient(135deg,#ff8ba9,#ffd07a); color:#3d1e2c;}
-  /* 新消息弹幕提醒 */
-  .chat-danmaku-container{
-    position:fixed; top:20px; right:0; z-index:9999;
-    pointer-events:none; display:flex; flex-direction:column; gap:8px;
-    align-items:flex-end; padding-right:20px;
-  }
-  .chat-danmaku-item{
-    pointer-events:auto;
-    display:flex; align-items:center; gap:8px;
-    padding:8px 14px 8px 10px;
-    border-radius:24px;
-    background:linear-gradient(135deg, rgba(255,210,230,.95), rgba(200,240,255,.92));
-    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-    box-shadow:0 6px 20px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.5);
-    border:1px solid rgba(255,255,255,.4);
-    animation:danmakuSlideIn .5s cubic-bezier(.22,.08,.28,1) both, danmakuFloat 3s ease-in-out 5s infinite;
-    max-width:320px; min-width:180px;
-    cursor:pointer; transition:transform .2s, box-shadow .2s;
-  }
-  .chat-danmaku-item:hover{transform:translateY(-2px) scale(1.02); box-shadow:0 10px 28px rgba(0,0,0,.22);}
-  .chat-danmaku-item .danmaku-avatar{
-    width:32px; height:32px; border-radius:50%; flex-shrink:0;
-    background-size:cover; background-position:center;
-    border:2px solid rgba(255,255,255,.6);
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
-  }
-  .chat-danmaku-item .danmaku-text{
-    display:flex; flex-direction:column; gap:1px; min-width:0;
-  }
-  .chat-danmaku-item .danmaku-name{
-    font-size:12px; font-weight:800; color:#5a2d4a;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
-  .chat-danmaku-item .danmaku-body{
-    font-size:11px; color:#7a4a6a; line-height:1.4;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    max-width:200px;
-  }
-  @keyframes danmakuSlideIn{
-    0%{opacity:0; transform:translateX(120%) scale(.9);}
-    60%{transform:translateX(-4px) scale(1.01);}
-    100%{opacity:1; transform:translateX(0) scale(1);}
-  }
-  @keyframes danmakuFloat{
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(-3px);}
-  }
-  @keyframes danmakuFadeOut{
-    0%{opacity:1; transform:translateX(0) scale(1);}
-    100%{opacity:0; transform:translateX(120%) scale(.9);}
-  }
-  .chat-danmaku-item.removing{
-    animation:danmakuFadeOut .4s cubic-bezier(.22,.08,.28,1) forwards;
-  }
   .chat-input-area{
     padding:12px 16px 16px; border-top:1px solid rgba(255,255,255,.1);
     display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:end;
@@ -4131,6 +4077,58 @@
   }
   .chat-input-area textarea::-webkit-scrollbar{display:none;}
   .chat-input-area textarea:focus{border-color:#ffb3d2; box-shadow:0 0 0 3px rgba(255,179,210,.22);}
+
+  /* ====================== 新消息弹幕提醒 ====================== */
+  .chat-danmaku-container{
+    position:fixed; top:60px; right:0; left:0;
+    pointer-events:none; z-index:500;
+    display:flex; flex-direction:column; gap:8px;
+    align-items:flex-end; padding-right:16px;
+    overflow:hidden;
+  }
+  @keyframes danmakuSlideIn{
+    0%{opacity:0; transform:translateX(120%) scale(0.9);}
+    15%{opacity:1; transform:translateX(0) scale(1);}
+    85%{opacity:1; transform:translateX(0) scale(1);}
+    100%{opacity:0; transform:translateX(-20%) scale(0.95);}
+  }
+  @keyframes danmakuFloat{
+    0%{transform:translateX(100vw);}
+    100%{transform:translateX(-100%);}
+  }
+  .chat-danmaku-item{
+    display:flex; align-items:center; gap:10px;
+    padding:8px 14px; border-radius:20px;
+    background:linear-gradient(135deg, rgba(255,200,220,.95), rgba(180,220,255,.92));
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,.5);
+    box-shadow:0 6px 20px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.6);
+    animation:danmakuSlideIn 4.5s cubic-bezier(.22,.08,.28,1) forwards;
+    max-width:320px; min-width:180px;
+    pointer-events:auto; cursor:pointer;
+    color:#3d1e2c;
+  }
+  .chat-danmaku-item:hover{transform:scale(1.03);}
+  .chat-danmaku-avatar{
+    width:32px; height:32px; border-radius:50%;
+    background-size:cover; background-position:center;
+    border:2px solid rgba(255,255,255,.7);
+    flex-shrink:0;
+  }
+  .chat-danmaku-text{
+    display:flex; flex-direction:column; gap:1px;
+    overflow:hidden; min-width:0;
+  }
+  .chat-danmaku-name{
+    font-size:11px; font-weight:800;
+    color:rgba(61,30,44,.75);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .chat-danmaku-body{
+    font-size:12px; color:#3d1e2c;
+    line-height:1.4;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
   .chat-input-area textarea::placeholder{color:rgba(255,255,255,.44);}
   .chat-input-area .chat-tool-btn{
     width:40px;height:40px;border-radius:16px;
@@ -7475,6 +7473,9 @@
     <div id="publicProfileBody"></div>
   </div>
 </div>
+
+<!-- 新消息弹幕容器 -->
+<div class="chat-danmaku-container" id="chatDanmakuContainer"></div>
 
 <!-- 聊天 / 好友 弹窗 -->
 <div class="chat-modal" id="chatModal" aria-hidden="true">
@@ -11246,13 +11247,7 @@ async function pollSiteVersions(){
       try{ if(typeof refreshFriends === 'function') await refreshFriends({ silent:true }); }catch(_){ }
     }
     if((chatVersionChanged || chatIsOpen) && getAuthToken()){
-      try{
-        if(typeof refreshChats === 'function') await refreshChats({ silent:true });
-        // 通知聊天模块可能有新消息（用于弹幕提醒）
-        if(chatVersionChanged && typeof _onNewChatMessage === 'function'){
-          _onNewChatMessage(chatIsOpen);
-        }
-      }catch(_){ }
+      try{ if(typeof refreshChats === 'function') await refreshChats({ silent:true }); }catch(_){ }
     }
     if(next.user && next.user !== previous.user && getAuthToken()){
       try{
@@ -11308,44 +11303,6 @@ function startSiteVersionPoll(){
 }
 
 /* =====================================================================
- * 新消息弹幕提醒（全局）
- * ===================================================================== */
-const chatDanmakuContainer = document.getElementById('chatDanmakuContainer');
-let _danmakuTimers = new Map();
-
-function showChatDanmaku({ avatar, name, body, onClick }){
-  if(!chatDanmakuContainer) return;
-  const id = 'danmaku_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
-  const el = document.createElement('div');
-  el.className = 'chat-danmaku-item';
-  el.id = id;
-  el.innerHTML = `
-    <div class="danmaku-avatar" style="${avatarStyle(avatar || '')}"></div>
-    <div class="danmaku-text">
-      <span class="danmaku-name">${escapeHtmlSafe(name || '新消息')}</span>
-      <span class="danmaku-body">${escapeHtmlSafe(body || '')}</span>
-    </div>`;
-  if(onClick){
-    el.addEventListener('click', ()=>{
-      onClick();
-      removeDanmaku(id);
-    });
-  }
-  chatDanmakuContainer.appendChild(el);
-  // 6秒后自动移除
-  const timer = setTimeout(()=> removeDanmaku(id), 6000);
-  _danmakuTimers.set(id, timer);
-}
-
-function removeDanmaku(id){
-  const el = document.getElementById(id);
-  if(!el) return;
-  el.classList.add('removing');
-  if(_danmakuTimers.has(id)){ clearTimeout(_danmakuTimers.get(id)); _danmakuTimers.delete(id); }
-  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 450);
-}
-
-/* =====================================================================
  * 聊天 / 好友 模块（替代旧的邮件模块）
  * - 数据：/api/friends 与 /api/chat
  * - UI：#chatModal、#addFriendModal
@@ -11360,6 +11317,7 @@ function removeDanmaku(id){
   const chatIncomingList = document.getElementById('chatIncomingList');
   const chatOutgoingList = document.getElementById('chatOutgoingList');
   const chatOwnerBanner = document.getElementById('chatOwnerBanner');
+  const chatDanmakuContainer = document.getElementById('chatDanmakuContainer');
   const chatReqBadge = document.getElementById('chatReqBadge');
   const chatMessages = document.getElementById('chatMessages');
   const chatMainHead = document.getElementById('chatMainHead');
@@ -11420,6 +11378,31 @@ function removeDanmaku(id){
       showLoginToast(msg, type || 'info', type === 'error' ? '提示' : '提示');
     }else{
       try{ alert(msg); }catch(_){ }
+    }
+  }
+
+  /* ====================== 新消息弹幕提醒 ====================== */
+  let _danmakuTimer = null;
+  const _danmakuQueue = [];
+  function showChatDanmaku(peerUsername, nickname, avatar, body){
+    if(!chatDanmakuContainer) return;
+    const item = document.createElement('div');
+    item.className = 'chat-danmaku-item';
+    item.innerHTML = `
+      <div class="chat-danmaku-avatar" style="${avatarStyle(avatar || '')}"></div>
+      <div class="chat-danmaku-text">
+        <div class="chat-danmaku-name">${escapeHtmlSafe(nickname || peerUsername)}</div>
+        <div class="chat-danmaku-body">${escapeHtmlSafe(body || '')}</div>
+      </div>`;
+    item.addEventListener('click', ()=>{
+      openChatPanel(peerUsername);
+      item.remove();
+    });
+    item.addEventListener('animationend', ()=>{ item.remove(); });
+    chatDanmakuContainer.appendChild(item);
+    // 最多保留 3 个弹幕
+    while(chatDanmakuContainer.children.length > 3){
+      chatDanmakuContainer.firstChild.remove();
     }
   }
 
@@ -11531,14 +11514,30 @@ function removeDanmaku(id){
     }
   }
 
+  // 跟踪上次未读状态，用于检测新消息触发弹幕
+  let _prevUnreadMap = {};
   async function refreshChats(opts){
     if(!isLoggedIn()) return;
     try{
       const data = await authRequest('/api/chat', { method:'GET', headers:authorizedHeaders() });
+      const prevMap = _prevUnreadMap;
+      _prevUnreadMap = {};
       conversationsState = {
         conversations: ownerFirst(data.conversations || [], item => item?.other),
         peers: data.peers || []
       };
+      // 检测新消息并触发弹幕（只在非静默模式下，且聊天面板未打开时）
+      const chatIsOpen = chatModal && chatModal.classList.contains('open');
+      (conversationsState.conversations || []).forEach(c=>{
+        _prevUnreadMap[c.other] = c.unread || 0;
+        const prev = prevMap[c.other] || 0;
+        const now = c.unread || 0;
+        if(now > prev && !chatIsOpen){
+          const peer = (conversationsState.peers || []).find(p=>p.username === c.other);
+          const lastMsg = c.lastMessage || '';
+          showChatDanmaku(c.other, peer?.nickname || c.other, peer?.avatar || '', lastMsg);
+        }
+      });
       renderConvList({ preserve:true });
       updateChatBadgeNumbers();
       // 如果有正在打开的会话，刷新它
@@ -12045,7 +12044,8 @@ function removeDanmaku(id){
 
   async function sendChatMessage(){
     if(!activePeer) return;
-    const text = (chatInputText && chatInputText.value || '').trim();
+    const raw = chatInputText && chatInputText.value || '';
+    const text = raw.trim();
     if(!text){
       chatToast('消息不能为空。', 'error');
       return;
@@ -12057,7 +12057,7 @@ function removeDanmaku(id){
     if(chatMessages){
       chatMessages.insertAdjacentHTML('beforeend', `
         <div class="chat-msg-row mine" data-sending-id="${sendingId}">
-          <div class="chat-msg mine">${escapeHtmlSafe(text)}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
+          <div class="chat-msg mine">${escapeHtmlSafe(raw)}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
           <time class="chat-msg-time">发送中</time>
         </div>`);
       chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -12066,7 +12066,7 @@ function removeDanmaku(id){
       const data = await authRequest('/api/chat', {
         method:'POST',
         headers:authorizedHeaders('application/json'),
-        body:JSON.stringify({ to:activePeer, body:text })
+        body:JSON.stringify({ to:activePeer, body:raw })
       });
       if(chatInputText){
         chatInputText.value = '';
@@ -12420,22 +12420,6 @@ function removeDanmaku(id){
     });
   }
 
-  // 新消息弹幕提醒回调
-  window._onNewChatMessage = function(chatIsOpen){
-    if(chatIsOpen) return; // 聊天面板打开时不显示弹幕
-    const newConvs = (conversationsState.conversations || []).filter(c=>c.unread > 0);
-    if(!newConvs.length) return;
-    const topConv = newConvs.sort((a,b)=>(b.lastAt||0)-(a.lastAt||0))[0];
-    if(topConv){
-      showChatDanmaku({
-        avatar: topConv.peerAvatar || '',
-        name: topConv.peerNickname || topConv.other || '新消息',
-        body: topConv.lastMessage || '发来一条新消息',
-        onClick: ()=>{ openChatPanel(topConv.other); }
-      });
-    }
-  };
-
   // 暴露给版本轮询和其他位置使用
   window.openChatPanel = openChatPanel;
   window.closeChatPanel = closeChatPanel;
@@ -12457,7 +12441,5 @@ function removeDanmaku(id){
 
 startSiteVersionPoll();
 </script>
-<!-- 新消息弹幕提醒容器 -->
-<div class="chat-danmaku-container" id="chatDanmakuContainer"></div>
 </body>
 </html>
