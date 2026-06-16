@@ -3980,7 +3980,7 @@
     width:fit-content;
     min-width:32px;
     max-width:min(68%, 340px); padding:8px 14px; font-size:13px; line-height:1.55;
-    word-wrap:break-word; word-break:break-word; white-space:pre-wrap;
+    word-wrap:break-word; word-break:break-word; white-space:normal;
     box-shadow:0 3px 10px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.2);
     position:relative;
     border:2px solid rgba(255,255,255,.22);
@@ -4023,12 +4023,13 @@
   }
   /* 消息选择模式 */
   .chat-msg-select{
-    position:absolute; top:50%; left:-26px; transform:translateY(-50%);
+    flex-shrink:0;
     width:18px; height:18px; border-radius:50%;
     border:2px solid rgba(255,255,255,.35);
     background:transparent; cursor:pointer;
     display:grid; place-items:center;
     transition:all .15s;
+    margin-top:6px;
   }
   .chat-msg-select.checked{
     background:linear-gradient(135deg,#ff9ec3,#ffd07a);
@@ -4037,9 +4038,18 @@
   .chat-msg-select.checked::after{
     content:'✓'; color:#3d1e2c; font-size:10px; font-weight:900;
   }
-  .chat-msg-row.selectable{padding-left:30px; position:relative;}
+  .chat-msg-row.selectable{flex-direction:row !important; align-items:flex-start !important; gap:8px;}
+  .chat-msg-row.selectable.mine{flex-direction:row-reverse !important;}
   .chat-msg-row.selectable .chat-msg{cursor:pointer;}
   .chat-msg-row.selectable .chat-msg:hover{transform:translateY(-1px) scale(1.01);}
+  .chat-msg-row.selectable .chat-msg-time{display:none;}
+  .chat-msg-content{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    max-width:100%;
+  }
+  .chat-msg-row.mine .chat-msg-content{align-items:flex-end;}
   .chat-msg-row{
     display:flex;
     flex-direction:column;
@@ -11717,13 +11727,17 @@ function startSiteVersionPoll(){
       const mine = m.from === myName;
       const isSelected = selectedMsgIds.has(m.id);
       const selectHtml = msgSelectMode ? `<div class="chat-msg-select ${isSelected ? 'checked' : ''}" data-select-msg="${escapeHtmlSafe(m.id)}"></div>` : '';
-      return `
-        <div class="chat-msg-row ${mine ? 'mine' : 'theirs'} ${msgSelectMode ? 'selectable' : ''}">
-          ${selectHtml}
+      const contentHtml = `
+        <div class="chat-msg-content">
           <div class="chat-msg ${mine ? 'mine' : 'theirs'}" data-msg-id="${escapeHtmlSafe(m.id)}">
             ${m.body ? escapeHtmlSafe(m.body) : ''}
           </div>
           <time class="chat-msg-time">${escapeHtmlSafe(formatMessageTime(m.createdAt))}</time>
+        </div>`;
+      return `
+        <div class="chat-msg-row ${mine ? 'mine' : 'theirs'} ${msgSelectMode ? 'selectable' : ''}">
+          ${selectHtml}
+          ${contentHtml}
         </div>`;
     }).join('');
     // 绑定选择事件
@@ -11757,7 +11771,6 @@ function startSiteVersionPoll(){
     selectedMsgIds.clear();
     if(chatForwardBtn) chatForwardBtn.hidden = false;
     if(chatCancelSelectBtn) chatCancelSelectBtn.hidden = false;
-    if(chatViewProfileBtn) chatViewProfileBtn.hidden = true;
     if(chatClearBtn) chatClearBtn.hidden = true;
     updateForwardBtnState();
     // 重新渲染当前会话以显示复选框
@@ -11770,7 +11783,6 @@ function startSiteVersionPoll(){
     selectedMsgIds.clear();
     if(chatForwardBtn) chatForwardBtn.hidden = true;
     if(chatCancelSelectBtn) chatCancelSelectBtn.hidden = true;
-    if(chatViewProfileBtn) chatViewProfileBtn.hidden = false;
     if(chatClearBtn) chatClearBtn.hidden = false;
     // 重新渲染以移除复选框
     const conv = activeConvCache[activePeer];
