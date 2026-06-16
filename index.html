@@ -4082,56 +4082,65 @@
   .chat-danmaku-container{
     position:fixed; top:72px; right:80px;
     pointer-events:none; z-index:500;
-    display:flex; flex-direction:column; gap:10px;
+    display:flex; flex-direction:column; gap:8px;
     align-items:flex-end;
     overflow:visible;
   }
-  @keyframes danmakuIn{
-    0%{opacity:0; transform:translateX(100px) scale(0.7); filter:blur(4px);}
-    8%{opacity:1; filter:blur(0);}
-    14%{transform:translateX(0) scale(1.06); filter:blur(0);}
-    20%{transform:translateX(0) scale(1);}
-    80%{opacity:1; transform:translateX(0) scale(1);}
-    100%{opacity:0; transform:translateX(-60px) scale(0.88); filter:blur(2px);}
+  @keyframes danmakuPop{
+    0%{opacity:0; transform:translateX(60px) scale(0.6) rotate(2deg); filter:blur(6px);}
+    10%{opacity:1; filter:blur(0);}
+    16%{transform:translateX(0) scale(1.08) rotate(-1deg);}
+    22%{transform:translateX(0) scale(1) rotate(0deg);}
+    82%{opacity:1; transform:translateX(0) scale(1) rotate(0deg);}
+    100%{opacity:0; transform:translateX(-40px) scale(0.9) rotate(-2deg); filter:blur(3px);}
   }
-  @keyframes danmakuGlow{
-    0%,100%{box-shadow:0 8px 24px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.7), 0 0 20px rgba(255,180,220,.15);}
-    50%{box-shadow:0 8px 24px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.7), 0 0 32px rgba(255,180,220,.3);}
+  @keyframes danmakuShine{
+    0%{box-shadow:0 6px 20px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 rgba(255,180,220,0);}
+    30%{box-shadow:0 6px 20px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6), 0 0 28px rgba(255,180,220,.25);}
+    60%{box-shadow:0 6px 20px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6), 0 0 18px rgba(180,220,255,.2);}
+    100%{box-shadow:0 6px 20px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 rgba(255,180,220,0);}
   }
   .chat-danmaku-item{
     display:flex; align-items:center; gap:10px;
-    padding:10px 16px 10px 12px; border-radius:24px;
-    background:linear-gradient(135deg, rgba(255,215,235,.97), rgba(195,230,255,.95));
-    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-    border:1.5px solid rgba(255,255,255,.6);
-    box-shadow:0 8px 24px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.7), 0 0 20px rgba(255,180,220,.15);
-    animation:danmakuIn 4s cubic-bezier(.22,.08,.28,1) forwards, danmakuGlow 2s ease-in-out 0.5s 1;
-    max-width:300px; min-width:170px;
+    padding:9px 15px 9px 11px; border-radius:22px;
+    background:linear-gradient(135deg, rgba(255,220,240,.97), rgba(200,235,255,.96));
+    backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    border:1.5px solid rgba(255,255,255,.65);
+    box-shadow:0 6px 20px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 rgba(255,180,220,0);
+    animation:danmakuPop 4s cubic-bezier(.22,.08,.28,1) forwards, danmakuShine 2.5s ease-in-out .3s 1;
+    max-width:280px; min-width:160px;
     pointer-events:auto; cursor:pointer;
     color:#3d1e2c;
-    transition:transform .18s cubic-bezier(.22,.08,.28,1);
+    transition:transform .2s cubic-bezier(.22,.08,.28,1);
     will-change:transform, opacity;
+    position:relative;
   }
-  .chat-danmaku-item:hover{transform:scale(1.05) !important;}
+  .chat-danmaku-item::before{
+    content:''; position:absolute; inset:0; border-radius:22px;
+    background:linear-gradient(135deg, rgba(255,255,255,.35), rgba(255,255,255,.05));
+    pointer-events:none; z-index:1;
+  }
+  .chat-danmaku-item:hover{transform:scale(1.04) translateY(-2px);}
+  .chat-danmaku-item > *{position:relative; z-index:2;}
   .chat-danmaku-avatar{
-    width:36px; height:36px; border-radius:50%;
+    width:34px; height:34px; border-radius:50%;
     background-size:cover; background-position:center;
-    border:2.5px solid rgba(255,255,255,.8);
-    box-shadow:0 2px 10px rgba(0,0,0,.12);
+    border:2.5px solid rgba(255,255,255,.85);
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
     flex-shrink:0;
   }
   .chat-danmaku-text{
-    display:flex; flex-direction:column; gap:2px;
+    display:flex; flex-direction:column; gap:1px;
     overflow:hidden; min-width:0;
   }
   .chat-danmaku-name{
     font-size:11px; font-weight:800;
-    color:rgba(61,30,44,.7);
+    color:rgba(61,30,44,.65);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .chat-danmaku-body{
     font-size:12px; color:#3d1e2c;
-    line-height:1.4;
+    line-height:1.35;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .chat-input-area textarea::placeholder{color:rgba(255,255,255,.44);}
@@ -6124,7 +6133,14 @@
     border:none;height:1px;margin:24px 0;
     background:linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
   }
-  .article-detail-content img{max-width:min(480px, 100%);max-height:360px;object-fit:contain;border-radius:20px;margin:12px auto;display:block;border:1px solid rgba(255,255,255,.18);box-shadow:0 8px 24px rgba(0,0,0,.2);}
+  .article-detail-content img{max-width:min(520px, 92%);max-height:400px;object-fit:contain;border-radius:18px;margin:16px auto;display:block;border:1px solid rgba(255,255,255,.15);box-shadow:0 10px 30px rgba(0,0,0,.25);transition:transform .3s, box-shadow .3s;}
+  .article-detail-content img:hover{transform:scale(1.02);box-shadow:0 14px 40px rgba(0,0,0,.3);}
+  .article-detail-content figure{margin:16px auto;text-align:center;max-width:min(520px, 92%);}
+  .article-detail-content figcaption{font-size:12px;color:rgba(255,255,255,.45);margin-top:6px;font-style:italic;}
+  .article-detail-content ul,.article-detail-content ol{margin:12px 0;padding-left:24px;}
+  .article-detail-content li{margin:6px 0;color:rgba(255,255,255,.82);}
+  .article-detail-content a{color:#8fceff;text-decoration:none;border-bottom:1px solid rgba(143,206,255,.3);transition:border-color .2s;}
+  .article-detail-content a:hover{border-color:rgba(143,206,255,.7);}
   .public-profile-article-head{
     display:flex;
     align-items:center;
@@ -6524,14 +6540,19 @@
     pointer-events:none;
   }
   .article-rich-editor img{
-    max-width:min(320px, 92%);
-    max-height:220px;
+    max-width:min(480px, 92%);
+    max-height:340px;
     object-fit:contain;
-    border-radius:18px;
-    display:inline-block;
-    margin:8px;
-    border:1px solid rgba(255,255,255,.18);
+    border-radius:16px;
+    display:block;
+    margin:12px auto;
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 8px 24px rgba(0,0,0,.2);
+    transition:transform .25s, box-shadow .25s;
   }
+  .article-rich-editor img:hover{transform:scale(1.015);box-shadow:0 12px 32px rgba(0,0,0,.28);}
+  .article-rich-editor figure{margin:12px auto;text-align:center;max-width:min(480px, 92%);}
+  .article-rich-editor figcaption{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;font-style:italic;}
   .article-editor-actions{
     display:flex;
     justify-content:flex-end;
