@@ -4082,51 +4082,40 @@
   .chat-danmaku-container{
     position:fixed; top:72px; right:80px;
     pointer-events:none; z-index:500;
-    display:flex; flex-direction:column; gap:8px;
-    align-items:flex-end;
+    width:320px; height:280px;
     overflow:visible;
   }
-  @keyframes danmakuPop{
-    0%{opacity:0; transform:translateX(60px) scale(0.6) rotate(2deg); filter:blur(6px);}
-    10%{opacity:1; filter:blur(0);}
-    16%{transform:translateX(0) scale(1.08) rotate(-1deg);}
-    22%{transform:translateX(0) scale(1) rotate(0deg);}
-    82%{opacity:1; transform:translateX(0) scale(1) rotate(0deg);}
-    100%{opacity:0; transform:translateX(-40px) scale(0.9) rotate(-2deg); filter:blur(3px);}
+  @keyframes danmakuSlide{
+    0%{opacity:0; transform:translateX(50px) scale(0.85);}
+    10%{opacity:1; transform:translateX(0) scale(1.03);}
+    15%{transform:translateX(0) scale(1);}
+    85%{opacity:1; transform:translateX(0) scale(1);}
+    100%{opacity:0; transform:translateX(-30px) scale(0.92);}
   }
-  @keyframes danmakuShine{
-    0%{box-shadow:0 6px 20px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 rgba(255,180,220,0);}
-    30%{box-shadow:0 6px 20px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6), 0 0 28px rgba(255,180,220,.25);}
-    60%{box-shadow:0 6px 20px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6), 0 0 18px rgba(180,220,255,.2);}
-    100%{box-shadow:0 6px 20px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 rgba(255,180,220,0);}
+  @keyframes danmakuPulse{
+    0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.5);}
+    50%{box-shadow:0 4px 20px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6), 0 0 20px rgba(255,180,220,.2);}
   }
   .chat-danmaku-item{
+    position:absolute; right:0;
     display:flex; align-items:center; gap:10px;
-    padding:9px 15px 9px 11px; border-radius:22px;
-    background:linear-gradient(135deg, rgba(255,220,240,.97), rgba(200,235,255,.96));
-    backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
-    border:1.5px solid rgba(255,255,255,.65);
-    box-shadow:0 6px 20px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 rgba(255,180,220,0);
-    animation:danmakuPop 4s cubic-bezier(.22,.08,.28,1) forwards, danmakuShine 2.5s ease-in-out .3s 1;
+    padding:9px 15px 9px 11px; border-radius:20px;
+    background:linear-gradient(135deg, rgba(255,225,245,.97), rgba(205,238,255,.96));
+    border:1.5px solid rgba(255,255,255,.6);
+    box-shadow:0 4px 16px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.5);
+    animation:danmakuSlide 4s cubic-bezier(.22,.08,.28,1) forwards, danmakuPulse 2s ease-in-out .3s 1;
     max-width:280px; min-width:160px;
     pointer-events:auto; cursor:pointer;
     color:#3d1e2c;
-    transition:transform .2s cubic-bezier(.22,.08,.28,1);
+    transition:transform .2s;
     will-change:transform, opacity;
-    position:relative;
   }
-  .chat-danmaku-item::before{
-    content:''; position:absolute; inset:0; border-radius:22px;
-    background:linear-gradient(135deg, rgba(255,255,255,.35), rgba(255,255,255,.05));
-    pointer-events:none; z-index:1;
-  }
-  .chat-danmaku-item:hover{transform:scale(1.04) translateY(-2px);}
-  .chat-danmaku-item > *{position:relative; z-index:2;}
+  .chat-danmaku-item:hover{transform:scale(1.03) translateY(-1px);}
   .chat-danmaku-avatar{
     width:34px; height:34px; border-radius:50%;
     background-size:cover; background-position:center;
-    border:2.5px solid rgba(255,255,255,.85);
-    box-shadow:0 2px 8px rgba(0,0,0,.1);
+    border:2px solid rgba(255,255,255,.8);
+    box-shadow:0 2px 6px rgba(0,0,0,.1);
     flex-shrink:0;
   }
   .chat-danmaku-text{
@@ -4135,7 +4124,7 @@
   }
   .chat-danmaku-name{
     font-size:11px; font-weight:800;
-    color:rgba(61,30,44,.65);
+    color:rgba(61,30,44,.6);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .chat-danmaku-body{
@@ -11513,13 +11502,20 @@ function startSiteVersionPoll(){
       item.remove();
     });
     item.addEventListener('animationend', ()=>{ item.remove(); });
+    // 错落定位：每条弹幕在容器内有独立的 top 位置
+    const idx = chatDanmakuContainer.children.length;
+    item.style.top = (idx * 56) + 'px';
     chatDanmakuContainer.appendChild(item);
-    // 最多保留 3 个弹幕
-    while(chatDanmakuContainer.children.length > 3){
+    // 最多保留 4 个弹幕，超出的移除
+    while(chatDanmakuContainer.children.length > 4){
       chatDanmakuContainer.firstChild.remove();
     }
-    // 下一条弹幕延迟 600ms 后显示
-    setTimeout(processDanmakuQueue, 600);
+    // 重新校正所有弹幕的 top 位置
+    Array.from(chatDanmakuContainer.children).forEach((el, i)=>{
+      el.style.top = (i * 56) + 'px';
+    });
+    // 下一条弹幕延迟 500ms 后显示
+    setTimeout(processDanmakuQueue, 500);
   }
 
   function escapeHtmlSafe(s){
