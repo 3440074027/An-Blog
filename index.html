@@ -4082,7 +4082,7 @@
   .chat-danmaku-container{
     position:fixed; top:72px; right:80px;
     pointer-events:none; z-index:500;
-    width:320px; height:280px;
+    width:320px; height:300px;
     overflow:visible;
   }
   @keyframes danmakuSlide{
@@ -11478,17 +11478,8 @@ function startSiteVersionPoll(){
   }
 
   /* ====================== 新消息弹幕提醒 ====================== */
-  let _danmakuQueue = [];
-  let _danmakuProcessing = false;
   function showChatDanmaku(peerUsername, nickname, avatar, body){
     if(!chatDanmakuContainer) return;
-    _danmakuQueue.push({ peerUsername, nickname, avatar, body });
-    if(!_danmakuProcessing) processDanmakuQueue();
-  }
-  function processDanmakuQueue(){
-    if(!_danmakuQueue.length){ _danmakuProcessing = false; return; }
-    _danmakuProcessing = true;
-    const { peerUsername, nickname, avatar, body } = _danmakuQueue.shift();
     const item = document.createElement('div');
     item.className = 'chat-danmaku-item';
     item.innerHTML = `
@@ -11500,22 +11491,21 @@ function startSiteVersionPoll(){
     item.addEventListener('click', ()=>{
       openChatPanel(peerUsername);
       item.remove();
+      // 标记该会话已读
+      try{
+        authRequest('/api/chat', { method:'PUT', headers:authorizedHeaders('application/json'), body:JSON.stringify({ with:peerUsername }) }).catch(()=>{});
+      }catch(_){ }
     });
     item.addEventListener('animationend', ()=>{ item.remove(); });
-    // 错落定位：每条弹幕在容器内有独立的 top 位置
-    const idx = chatDanmakuContainer.children.length;
-    item.style.top = (idx * 56) + 'px';
     chatDanmakuContainer.appendChild(item);
-    // 最多保留 4 个弹幕，超出的移除
-    while(chatDanmakuContainer.children.length > 4){
+    // 最多保留 5 个弹幕
+    while(chatDanmakuContainer.children.length > 5){
       chatDanmakuContainer.firstChild.remove();
     }
-    // 重新校正所有弹幕的 top 位置
+    // 重新排列所有弹幕位置
     Array.from(chatDanmakuContainer.children).forEach((el, i)=>{
-      el.style.top = (i * 56) + 'px';
+      el.style.top = (i * 54) + 'px';
     });
-    // 下一条弹幕延迟 500ms 后显示
-    setTimeout(processDanmakuQueue, 500);
   }
 
   function escapeHtmlSafe(s){
