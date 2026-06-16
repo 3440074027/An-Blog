@@ -3979,54 +3979,74 @@
   .chat-msg{
     width:fit-content;
     min-width:32px;
-    max-width:min(68%, 340px); padding:8px 14px; border-radius:24px; font-size:13px; line-height:1.5;
+    max-width:min(68%, 340px); padding:8px 14px; font-size:13px; line-height:1.55;
     word-wrap:break-word; word-break:break-word; white-space:pre-wrap;
-    box-shadow:0 4px 14px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.25);
+    box-shadow:0 3px 10px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.2);
     position:relative;
-    border:2px solid rgba(255,255,255,.35);
+    border:2px solid rgba(255,255,255,.22);
     animation:chatBubblePop .32s cubic-bezier(.22,.08,.28,1) both;
     backdrop-filter:blur(10px);
     -webkit-backdrop-filter:blur(10px);
     transition:box-shadow .2s, transform .15s;
+    /* 手绘涂鸦不规则圆角 */
+    border-radius:18px 22px 14px 20px / 20px 16px 24px 14px;
   }
-  .chat-msg::before{
-    content:''; position:absolute; width:14px; height:14px; border-radius:50%;
-    border:2px solid rgba(255,255,255,.35); background:inherit;
-    bottom:-6px;
+  .chat-msg:hover{box-shadow:0 5px 16px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.24); transform:translateY(-1px);}
+  /* 手绘尾巴 - 自己的消息在右侧 */
+  .chat-msg.mine::after{
+    content:''; position:absolute; right:-8px; bottom:8px;
+    width:0; height:0;
+    border:8px solid transparent;
+    border-left-color:#ffd6b0;
+    border-top-width:4px; border-bottom-width:4px;
+    filter:drop-shadow(1px 1px 1px rgba(0,0,0,.1));
   }
-  .chat-msg::after{
-    content:''; position:absolute; width:8px; height:8px; border-radius:50%;
-    border:2px solid rgba(255,255,255,.35); background:inherit;
-    bottom:-10px;
-  }
-  .chat-msg:hover{box-shadow:0 6px 20px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.30); transform:translateY(-1px);}
   .chat-msg.mine{
     background:linear-gradient(135deg, #ffe0ec, #ffb8d0 50%, #ffd6b0); color:#3d1e2c;
-    border-bottom-right-radius:6px;
-    background-size:200% 200%;
+    /* 右侧略尖 */
+    border-radius:20px 18px 6px 22px / 18px 20px 24px 16px;
   }
-  .chat-msg.mine::before{right:8px; border-color:rgba(255,255,255,.45);}
-  .chat-msg.mine::after{right:2px; border-color:rgba(255,255,255,.45);}
   .chat-msg.mine:hover{animation:chatBubbleShimmer 2.5s ease-in-out;}
+  /* 手绘尾巴 - 对方的消息在左侧 */
+  .chat-msg.theirs::after{
+    content:''; position:absolute; left:-8px; bottom:8px;
+    width:0; height:0;
+    border:8px solid transparent;
+    border-right-color:rgba(255,255,255,.14);
+    border-top-width:4px; border-bottom-width:4px;
+    filter:drop-shadow(-1px 1px 1px rgba(0,0,0,.1));
+  }
   .chat-msg.theirs{
-    background:linear-gradient(135deg, rgba(255,255,255,.22), rgba(200,218,255,.14)); color:#eee6ff;
-    border-bottom-left-radius:6px;
+    background:linear-gradient(135deg, rgba(255,255,255,.14), rgba(200,218,255,.10)); color:#eee6ff;
+    /* 左侧略尖 */
+    border-radius:18px 20px 22px 6px / 20px 18px 16px 24px;
   }
-  .chat-msg.theirs::before{left:8px;}
-  .chat-msg.theirs::after{left:2px;}
-  /* 气泡内部高光 */
-  .chat-msg .bubble-highlight{
-    position:absolute; top:6px; left:10px; right:20px; height:8px;
-    border-radius:50%;
-    background:linear-gradient(90deg, rgba(255,255,255,.35), rgba(255,255,255,.08));
-    pointer-events:none;
+  /* 消息选择模式 */
+  .chat-msg-select{
+    position:absolute; top:50%; left:-26px; transform:translateY(-50%);
+    width:18px; height:18px; border-radius:50%;
+    border:2px solid rgba(255,255,255,.35);
+    background:transparent; cursor:pointer;
+    display:grid; place-items:center;
+    transition:all .15s;
   }
+  .chat-msg-select.checked{
+    background:linear-gradient(135deg,#ff9ec3,#ffd07a);
+    border-color:transparent;
+  }
+  .chat-msg-select.checked::after{
+    content:'✓'; color:#3d1e2c; font-size:10px; font-weight:900;
+  }
+  .chat-msg-row.selectable{padding-left:30px; position:relative;}
+  .chat-msg-row.selectable .chat-msg{cursor:pointer;}
+  .chat-msg-row.selectable .chat-msg:hover{transform:translateY(-1px) scale(1.01);}
   .chat-msg-row{
     display:flex;
     flex-direction:column;
     align-items:flex-start;
     max-width:100%;
     margin:1px 0 3px;
+    position:relative;
   }
   .chat-msg-row.mine{align-items:flex-end;}
   .chat-msg-time{
@@ -7455,6 +7475,8 @@
         </div>
         <div class="chat-head-actions">
           <button id="chatViewProfileBtn" type="button">资料</button>
+          <button id="chatForwardBtn" type="button" hidden>转发</button>
+          <button id="chatCancelSelectBtn" type="button" hidden>取消</button>
           <button id="chatClearBtn" type="button">清空</button>
           <button id="chatCloseBtn" type="button" aria-label="关闭" style="font-size:16px;line-height:1;">✕</button>
         </div>
@@ -7476,6 +7498,30 @@
         <button type="submit" class="chat-send-btn" id="chatSendBtn">发送</button>
       </form>
     </main>
+  </div>
+</div>
+<!-- 转发弹窗 -->
+<div class="public-profile-modal" id="forwardModal" aria-hidden="true" style="z-index:445;">
+  <div class="public-profile-card" role="dialog" aria-modal="true" style="max-width:420px;">
+    <div class="public-profile-head">
+      <h2>转发消息</h2>
+      <button class="public-profile-close" id="forwardCloseBtn" type="button" aria-label="关闭">×</button>
+    </div>
+    <div style="display:grid;gap:12px;padding:6px 4px;">
+      <p id="forwardSummary" style="margin:0;color:rgba(255,255,255,.6);font-size:12px;">已选择 0 条消息</p>
+      <div style="display:flex;gap:8px;justify-content:center;">
+        <label style="display:flex;align-items:center;gap:4px;color:rgba(255,255,255,.7);font-size:12px;cursor:pointer;">
+          <input type="radio" name="forwardMode" value="single" checked> 逐一转发
+        </label>
+        <label style="display:flex;align-items:center;gap:4px;color:rgba(255,255,255,.7);font-size:12px;cursor:pointer;">
+          <input type="radio" name="forwardMode" value="merge"> 合并转发
+        </label>
+      </div>
+      <div style="max-height:200px;overflow-y:auto;border-radius:14px;border:1px solid rgba(255,255,255,.12);padding:8px;">
+        <p style="margin:0 0 6px;color:rgba(255,255,255,.5);font-size:11px;">选择转发给：</p>
+        <div id="forwardFriendList" style="display:grid;gap:4px;"></div>
+      </div>
+    </div>
   </div>
 </div>
 <div class="public-profile-modal" id="addFriendModal" aria-hidden="true" style="z-index:440;">
@@ -11272,6 +11318,8 @@ function startSiteVersionPoll(){
   const chatAddFriendBtn = document.getElementById('chatAddFriendBtn');
   const chatRefreshBtn = document.getElementById('chatRefreshBtn');
   const chatViewProfileBtn = document.getElementById('chatViewProfileBtn');
+  const chatForwardBtn = document.getElementById('chatForwardBtn');
+  const chatCancelSelectBtn = document.getElementById('chatCancelSelectBtn');
   const chatClearBtn = document.getElementById('chatClearBtn');
   const chatFriendSearchInput = document.getElementById('chatFriendSearchInput');
   const chatFriendSearchResults = document.getElementById('chatFriendSearchResults');
@@ -11287,6 +11335,10 @@ function startSiteVersionPoll(){
   const deleteFriendConfirmBtn = document.getElementById('deleteFriendConfirmBtn');
   const deleteFriendConfirmText = document.getElementById('deleteFriendConfirmText');
   const homeChatBadgeEl = document.getElementById('homeChatBadge');
+  const forwardModal = document.getElementById('forwardModal');
+  const forwardCloseBtn = document.getElementById('forwardCloseBtn');
+  const forwardSummary = document.getElementById('forwardSummary');
+  const forwardFriendList = document.getElementById('forwardFriendList');
 
   // 状态
   let friendsState = { friends:[], incoming:[], outgoing:[], siteOwner:null };
@@ -11295,6 +11347,8 @@ function startSiteVersionPoll(){
   let activeConvCache = {};
   let lastRenderedConversationSignature = '';
   let pendingDeleteFriendName = '';
+  let msgSelectMode = false;
+  let selectedMsgIds = new Set();
 
   function isLoggedIn(){
     return typeof getAuthToken === 'function' && !!getAuthToken();
@@ -11661,21 +11715,156 @@ function startSiteVersionPoll(){
     }
     chatMessages.innerHTML = messages.map(m=>{
       const mine = m.from === myName;
+      const isSelected = selectedMsgIds.has(m.id);
+      const selectHtml = msgSelectMode ? `<div class="chat-msg-select ${isSelected ? 'checked' : ''}" data-select-msg="${escapeHtmlSafe(m.id)}"></div>` : '';
       return `
-        <div class="chat-msg-row ${mine ? 'mine' : 'theirs'}">
+        <div class="chat-msg-row ${mine ? 'mine' : 'theirs'} ${msgSelectMode ? 'selectable' : ''}">
+          ${selectHtml}
           <div class="chat-msg ${mine ? 'mine' : 'theirs'}" data-msg-id="${escapeHtmlSafe(m.id)}">
-            <span class="bubble-highlight"></span>
             ${m.body ? escapeHtmlSafe(m.body) : ''}
           </div>
           <time class="chat-msg-time">${escapeHtmlSafe(formatMessageTime(m.createdAt))}</time>
         </div>`;
     }).join('');
+    // 绑定选择事件
+    if(msgSelectMode){
+      chatMessages.querySelectorAll('.chat-msg-select').forEach(el=>{
+        el.addEventListener('click', e=>{
+          e.stopPropagation();
+          const id = el.dataset.selectMsg;
+          if(selectedMsgIds.has(id)) selectedMsgIds.delete(id);
+          else selectedMsgIds.add(id);
+          el.classList.toggle('checked', selectedMsgIds.has(id));
+          updateForwardBtnState();
+        });
+      });
+      chatMessages.querySelectorAll('.chat-msg-row.selectable .chat-msg').forEach(el=>{
+        el.addEventListener('click', ()=>{
+          const row = el.closest('.chat-msg-row');
+          const sel = row && row.querySelector('.chat-msg-select');
+          if(sel) sel.click();
+        });
+      });
+    }
     lastRenderedConversationSignature = signature;
     if(shouldStickBottom) chatMessages.scrollTop = chatMessages.scrollHeight;
     else chatMessages.scrollTop = previousScrollTop + (chatMessages.scrollHeight - previousScrollHeight);
   }
 
   /* ====================== 表情选择器 ====================== */
+  function enterMsgSelectMode(){
+    msgSelectMode = true;
+    selectedMsgIds.clear();
+    if(chatForwardBtn) chatForwardBtn.hidden = false;
+    if(chatCancelSelectBtn) chatCancelSelectBtn.hidden = false;
+    if(chatViewProfileBtn) chatViewProfileBtn.hidden = true;
+    if(chatClearBtn) chatClearBtn.hidden = true;
+    updateForwardBtnState();
+    // 重新渲染当前会话以显示复选框
+    const conv = activeConvCache[activePeer];
+    if(conv) renderMessages(conv, findPeer(activePeer));
+  }
+
+  function exitMsgSelectMode(){
+    msgSelectMode = false;
+    selectedMsgIds.clear();
+    if(chatForwardBtn) chatForwardBtn.hidden = true;
+    if(chatCancelSelectBtn) chatCancelSelectBtn.hidden = true;
+    if(chatViewProfileBtn) chatViewProfileBtn.hidden = false;
+    if(chatClearBtn) chatClearBtn.hidden = false;
+    // 重新渲染以移除复选框
+    const conv = activeConvCache[activePeer];
+    if(conv) renderMessages(conv, findPeer(activePeer));
+  }
+
+  function updateForwardBtnState(){
+    if(!chatForwardBtn) return;
+    const count = selectedMsgIds.size;
+    chatForwardBtn.textContent = count > 0 ? `转发 (${count})` : '转发';
+    chatForwardBtn.disabled = count === 0;
+  }
+
+  function openForwardModal(){
+    if(!forwardModal || selectedMsgIds.size === 0) return;
+    if(forwardSummary) forwardSummary.textContent = `已选择 ${selectedMsgIds.size} 条消息`;
+    // 渲染好友列表
+    const friends = (friendsState.friends || []).filter(f => f.username !== activePeer);
+    if(forwardFriendList){
+      if(!friends.length){
+        forwardFriendList.innerHTML = '<div style="color:rgba(255,255,255,.4);font-size:12px;text-align:center;padding:12px;">暂无可转发的好友</div>';
+      }else{
+        forwardFriendList.innerHTML = friends.map(f=>`
+          <button type="button" class="forward-friend-item" data-forward-to="${escapeHtmlSafe(f.username)}" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;width:100%;text-align:left;font-size:13px;">
+            <div style="width:32px;height:32px;border-radius:50%;background-size:cover;background-position:center;${avatarStyle(f.avatar || '')}"></div>
+            <div>
+              <div style="font-weight:700;">${escapeHtmlSafe(f.nickname || f.username)}</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.5);">@${escapeHtmlSafe(f.username)}</div>
+            </div>
+          </button>
+        `).join('');
+        forwardFriendList.querySelectorAll('[data-forward-to]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const target = btn.dataset.forwardTo;
+            const mode = document.querySelector('input[name="forwardMode"]:checked')?.value || 'single';
+            await doForwardMessages(target, mode);
+          });
+        });
+      }
+    }
+    forwardModal.classList.add('open');
+    forwardModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeForwardModal(){
+    if(!forwardModal) return;
+    forwardModal.classList.remove('open');
+    forwardModal.setAttribute('aria-hidden', 'true');
+  }
+
+  async function doForwardMessages(target, mode){
+    if(!target || selectedMsgIds.size === 0) return;
+    const conv = activeConvCache[activePeer];
+    if(!conv || !conv.messages) return;
+    const selectedMsgs = conv.messages.filter(m => selectedMsgIds.has(m.id));
+    if(!selectedMsgs.length) return;
+
+    closeForwardModal();
+    chatToast('正在转发…', 'info');
+
+    try{
+      if(mode === 'merge'){
+        // 合并转发：把所有消息合并成一条
+        const mergedBody = selectedMsgs.map(m => {
+          const sender = m.from === safeGetCurrentUser()?.username ? '我' : (findPeer(m.from)?.nickname || m.from);
+          return `[${escapeHtmlSafe(sender)}] ${escapeHtmlSafe(m.body || '')}`;
+        }).join('\n---\n');
+        const prefix = `📎 合并转发 ${selectedMsgs.length} 条消息\n━━━━━━━━━━━━\n`;
+        await authRequest('/api/chat', {
+          method:'POST',
+          headers:authorizedHeaders('application/json'),
+          body:JSON.stringify({ to:target, body:prefix + mergedBody })
+        });
+        chatToast(`已合并转发给 ${target}`, 'success');
+      }else{
+        // 逐一转发：每条消息单独发送
+        for(const m of selectedMsgs){
+          const prefix = m.from === safeGetCurrentUser()?.username ? '我' : (findPeer(m.from)?.nickname || m.from);
+          const body = `📤 转发自 ${escapeHtmlSafe(prefix)}\n${escapeHtmlSafe(m.body || '')}`;
+          await authRequest('/api/chat', {
+            method:'POST',
+            headers:authorizedHeaders('application/json'),
+            body:JSON.stringify({ to:target, body })
+          });
+        }
+        chatToast(`已逐一转发 ${selectedMsgs.length} 条消息给 ${target}`, 'success');
+      }
+      refreshChats({ silent:true });
+      exitMsgSelectMode();
+    }catch(error){
+      chatToast(error.message || '转发失败', 'error');
+    }
+  }
+
   const EMOJI_DATA = [
     { name:'笑脸与表情', icon:'😀', emojis:[
       '😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩',
@@ -11950,7 +12139,7 @@ function startSiteVersionPoll(){
     if(chatMessages){
       chatMessages.insertAdjacentHTML('beforeend', `
         <div class="chat-msg-row mine" data-sending-id="${sendingId}">
-          <div class="chat-msg mine"><span class="bubble-highlight"></span>${escapeHtmlSafe(text)}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
+          <div class="chat-msg mine">${escapeHtmlSafe(text)}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
           <time class="chat-msg-time">发送中</time>
         </div>`);
       chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -12172,6 +12361,36 @@ function startSiteVersionPoll(){
       openPublicUserProfile(activePeer);
     }
   });
+  // 长按消息进入选择模式
+  let msgLongPressTimer = null;
+  if(chatMessages){
+    chatMessages.addEventListener('mousedown', e=>{
+      const msgEl = e.target.closest('.chat-msg');
+      if(!msgEl || msgSelectMode) return;
+      msgLongPressTimer = setTimeout(()=>{
+        enterMsgSelectMode();
+      }, 600);
+    });
+    chatMessages.addEventListener('mouseup', ()=>{ if(msgLongPressTimer){ clearTimeout(msgLongPressTimer); msgLongPressTimer = null; } });
+    chatMessages.addEventListener('mouseleave', ()=>{ if(msgLongPressTimer){ clearTimeout(msgLongPressTimer); msgLongPressTimer = null; } });
+    // 移动端长按
+    chatMessages.addEventListener('touchstart', e=>{
+      const msgEl = e.target.closest('.chat-msg');
+      if(!msgEl || msgSelectMode) return;
+      msgLongPressTimer = setTimeout(()=>{
+        enterMsgSelectMode();
+      }, 600);
+    }, { passive:true });
+    chatMessages.addEventListener('touchend', ()=>{ if(msgLongPressTimer){ clearTimeout(msgLongPressTimer); msgLongPressTimer = null; } });
+  }
+
+  if(chatForwardBtn) chatForwardBtn.addEventListener('click', openForwardModal);
+  if(chatCancelSelectBtn) chatCancelSelectBtn.addEventListener('click', exitMsgSelectMode);
+  if(forwardCloseBtn) forwardCloseBtn.addEventListener('click', closeForwardModal);
+  if(forwardModal){
+    forwardModal.addEventListener('click', e=>{ if(e.target === forwardModal) closeForwardModal(); });
+  }
+
   if(chatClearBtn) chatClearBtn.addEventListener('click', async ()=>{
     if(!activePeer) return;
     if(!confirm('确认清空与该用户的全部聊天记录？')) return;
