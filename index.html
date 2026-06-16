@@ -4080,48 +4080,47 @@
 
   /* ====================== 新消息弹幕提醒 ====================== */
   .chat-danmaku-container{
-    position:fixed; top:60px; right:0; left:0;
+    position:fixed; top:72px; right:80px;
     pointer-events:none; z-index:500;
-    display:flex; flex-direction:column; gap:8px;
-    align-items:flex-end; padding-right:16px;
+    display:flex; flex-direction:column; gap:10px;
+    align-items:flex-end;
     overflow:hidden;
   }
-  @keyframes danmakuSlideIn{
-    0%{opacity:0; transform:translateX(120%) scale(0.9);}
-    15%{opacity:1; transform:translateX(0) scale(1);}
-    85%{opacity:1; transform:translateX(0) scale(1);}
-    100%{opacity:0; transform:translateX(-20%) scale(0.95);}
-  }
-  @keyframes danmakuFloat{
-    0%{transform:translateX(100vw);}
-    100%{transform:translateX(-100%);}
+  @keyframes danmakuIn{
+    0%{opacity:0; transform:translateX(80px) scale(0.85);}
+    12%{opacity:1; transform:translateX(0) scale(1.02);}
+    18%{transform:translateX(0) scale(1);}
+    88%{opacity:1; transform:translateX(0) scale(1);}
+    100%{opacity:0; transform:translateX(-40px) scale(0.92);}
   }
   .chat-danmaku-item{
     display:flex; align-items:center; gap:10px;
-    padding:8px 14px; border-radius:20px;
-    background:linear-gradient(135deg, rgba(255,200,220,.95), rgba(180,220,255,.92));
-    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-    border:1px solid rgba(255,255,255,.5);
-    box-shadow:0 6px 20px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.6);
-    animation:danmakuSlideIn 4.5s cubic-bezier(.22,.08,.28,1) forwards;
-    max-width:320px; min-width:180px;
+    padding:9px 16px; border-radius:22px;
+    background:linear-gradient(135deg, rgba(255,210,230,.96), rgba(190,225,255,.94));
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border:1.5px solid rgba(255,255,255,.55);
+    box-shadow:0 8px 24px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.7);
+    animation:danmakuIn 4s cubic-bezier(.22,.08,.28,1) forwards;
+    max-width:300px; min-width:170px;
     pointer-events:auto; cursor:pointer;
     color:#3d1e2c;
+    transition:transform .15s;
   }
-  .chat-danmaku-item:hover{transform:scale(1.03);}
+  .chat-danmaku-item:hover{transform:scale(1.04);}
   .chat-danmaku-avatar{
-    width:32px; height:32px; border-radius:50%;
+    width:34px; height:34px; border-radius:50%;
     background-size:cover; background-position:center;
-    border:2px solid rgba(255,255,255,.7);
+    border:2.5px solid rgba(255,255,255,.75);
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
     flex-shrink:0;
   }
   .chat-danmaku-text{
-    display:flex; flex-direction:column; gap:1px;
+    display:flex; flex-direction:column; gap:2px;
     overflow:hidden; min-width:0;
   }
   .chat-danmaku-name{
     font-size:11px; font-weight:800;
-    color:rgba(61,30,44,.75);
+    color:rgba(61,30,44,.72);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .chat-danmaku-body{
@@ -11389,7 +11388,7 @@ function startSiteVersionPoll(){
     const item = document.createElement('div');
     item.className = 'chat-danmaku-item';
     item.innerHTML = `
-      <div class="chat-danmaku-avatar" style="${avatarStyle(avatar || '')}"></div>
+      <div class="chat-danmaku-avatar" style="background-image:${avatarStyle(avatar || '')}"></div>
       <div class="chat-danmaku-text">
         <div class="chat-danmaku-name">${escapeHtmlSafe(nickname || peerUsername)}</div>
         <div class="chat-danmaku-body">${escapeHtmlSafe(body || '')}</div>
@@ -11534,7 +11533,7 @@ function startSiteVersionPoll(){
         const now = c.unread || 0;
         if(now > prev && !chatIsOpen){
           const peer = (conversationsState.peers || []).find(p=>p.username === c.other);
-          const lastMsg = c.lastMessage || '';
+          const lastMsg = c.lastMessage && c.lastMessage.body ? c.lastMessage.body : '';
           showChatDanmaku(c.other, peer?.nickname || c.other, peer?.avatar || '', lastMsg);
         }
       });
