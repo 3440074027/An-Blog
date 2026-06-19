@@ -1263,10 +1263,9 @@
   .profile-panel > *{position:relative;z-index:1;}
   .profile-avatar{
     width:clamp(86px, 7.4vw, 122px);
-    height:auto;
+    height:clamp(86px, 7.4vw, 122px);
     min-width:86px;
     min-height:86px;
-    aspect-ratio:1 / 1;
     flex:0 0 auto;
     border-radius:36% 64% 42% 58% / 54% 42% 58% 46%;
     background:
@@ -11208,21 +11207,77 @@ startSiteVersionPoll();
         else if(typeof openAccountSecurity === 'function') openAccountSecurity();
       }, 300);
       return '已为你打开账号安全设置~ 🔐';
+    },
+    '打开好友': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const friendsBtn = document.getElementById('homeFriendsBtn');
+        if(friendsBtn) friendsBtn.click();
+        else{
+          const chatBtn = document.getElementById('homeChatBtn');
+          if(chatBtn){
+            chatBtn.click();
+            setTimeout(()=>{
+              const friendsTab = document.getElementById('chatFriendsTab');
+              if(friendsTab) friendsTab.click();
+            }, 200);
+          }
+        }
+      }, 300);
+      return '已为你打开好友面板~ 👥';
+    },
+    '退出登录': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        if(typeof returnToLogin === 'function') returnToLogin();
+        else{
+          localStorage.removeItem('ans_blog_token');
+          location.reload();
+        }
+      }, 300);
+      return '已为你退出登录~ 👋';
+    },
+    '回到首页': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const dashboard = document.getElementById('dashboard');
+        if(dashboard) dashboard.scrollIntoView({ behavior:'smooth' });
+      }, 300);
+      return '已为你滚动到首页顶部~ 🏠';
+    },
+    '刷新页面': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=> location.reload(), 300);
+      return '正在刷新页面~ 🔄';
+    },
+    '查看我的主页': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const me = typeof safeGetCurrentUser === 'function' ? safeGetCurrentUser() : null;
+        const username = me ? me.username : '';
+        if(username) window.open(`html/user_articles.html?user=${encodeURIComponent(username)}`, '_blank');
+      }, 300);
+      return '已为你打开个人主页~ 🏠';
     }
   };
 
   function detectAction(query){
     const q = query.toLowerCase().trim();
     const actionMap = [
-      { keys: ['联系站主','找站主','给站主发消息','给An发消息','联系An','站长'], action: '联系站主' },
-      { keys: ['发文章','写文章','发布文章','新建文章','写博客'], action: '发文章' },
-      { keys: ['编辑资料','修改资料','改资料','编辑个人资料','修改个人资料'], action: '编辑资料' },
-      { keys: ['打开聊天','聊天','消息','发信息','聊天面板'], action: '打开聊天' },
-      { keys: ['搜索','找用户','搜索用户','查找用户','打开搜索'], action: '打开搜索' },
-      { keys: ['设置','打开设置','系统设置','偏好设置'], action: '打开设置' },
-      { keys: ['公告','查看公告','打开公告','编辑公告'], action: '查看公告' },
-      { keys: ['语言','切换语言','换语言','多语言'], action: '切换语言' },
-      { keys: ['账号安全','修改密码','改密码','注销账号','安全设置'], action: '账号安全' }
+      { keys: ['联系站主','找站主','给站主发消息','给An发消息','联系An','站长','联系管理员'], action: '联系站主' },
+      { keys: ['发文章','写文章','发布文章','新建文章','写博客','我要发文'], action: '发文章' },
+      { keys: ['编辑资料','修改资料','改资料','编辑个人资料','修改个人资料','更新资料'], action: '编辑资料' },
+      { keys: ['打开聊天','聊天','消息','发信息','聊天面板','聊一下','聊聊'], action: '打开聊天' },
+      { keys: ['搜索','找用户','搜索用户','查找用户','打开搜索','搜人'], action: '打开搜索' },
+      { keys: ['设置','打开设置','系统设置','偏好设置','个人设置'], action: '打开设置' },
+      { keys: ['公告','查看公告','打开公告','编辑公告','看公告'], action: '查看公告' },
+      { keys: ['语言','切换语言','换语言','多语言','改语言'], action: '切换语言' },
+      { keys: ['账号安全','修改密码','改密码','注销账号','安全设置','密码'], action: '账号安全' },
+      { keys: ['好友','打开好友','好友列表','我的朋友','加好友'], action: '打开好友' },
+      { keys: ['退出','退出登录','登出','下线','注销登录'], action: '退出登录' },
+      { keys: ['首页','回到首页','回首页','主页','顶部'], action: '回到首页' },
+      { keys: ['刷新','刷新页面','重新加载','reload','更新页面'], action: '刷新页面' },
+      { keys: ['我的主页','个人主页','查看主页','我的页面'], action: '查看我的主页' }
     ];
     for(const item of actionMap){
       for(const kw of item.keys){
@@ -11350,7 +11405,31 @@ startSiteVersionPoll();
   function getFallbackAnswer(query){
     const q = query.toLowerCase().trim();
     if(q.length < 2) return '请多说一点，这样我才能更好地理解你的问题~';
-    return '抱歉，我暂时不太理解你的问题。你可以试试问我关于以下话题：\n\n• 网站功能介绍\n• 如何发文章\n• 如何加好友\n• 如何聊天\n• 账号安全\n• 个人资料编辑\n• 多语言支持\n\n或者点击下方的快捷按钮快速了解~';
+    // 尝试模糊匹配，看看是否接近某个已知话题
+    const topicHints = [
+      { words: ['写','文章','博客','发布','编辑','删除','图文','标签'], hint: '你可能是想了解文章功能？' },
+      { words: ['朋友','好友','申请','添加','删除','关注'], hint: '你可能是想了解好友系统？' },
+      { words: ['消息','聊天','对话','信息','发送','接收'], hint: '你可能是想了解聊天功能？' },
+      { words: ['密码','账号','安全','修改','注销','登录','注册'], hint: '你可能是想了解账号安全？' },
+      { words: ['头像','昵称','签名','简介','资料','编辑'], hint: '你可能是想了解个人资料编辑？' },
+      { words: ['搜索','查找','找人','用户'], hint: '你可能是想了解搜索功能？' },
+      { words: ['公告','通知','站主','管理员'], hint: '你可能是想了解公告系统？' },
+      { words: ['语言','切换','翻译','英文','中文'], hint: '你可能是想了解多语言支持？' }
+    ];
+    let bestHint = '';
+    let bestScore = 0;
+    for(const t of topicHints){
+      let score = 0;
+      for(const w of t.words){ if(q.includes(w)) score++; }
+      if(score > bestScore){ bestScore = score; bestHint = t.hint; }
+    }
+    let response = '抱歉，我暂时不太理解你的问题。';
+    if(bestHint && bestScore >= 1){
+      response = bestHint + '\n\n不过我的理解可能不够准确，如果你需要更详细的帮助，可以：\n\n1️⃣ 尝试用更简单的词语描述你的问题\n2️⃣ 点击下方快捷按钮查看相关功能\n3️⃣ **直接联系站主 An** 获取人工帮助';
+    }else{
+      response += '你可以试试问我关于以下话题：\n\n• 网站功能介绍\n• 如何发文章\n• 如何加好友\n• 如何聊天\n• 账号安全\n• 个人资料编辑\n• 多语言支持\n\n或者点击下方的快捷按钮快速了解~';
+    }
+    return response;
   }
 
   /* ---- 发送消息 ---- */
@@ -11379,7 +11458,7 @@ startSiteVersionPoll();
       if(match){
         addMessage(match.answer, 'bot', match.quickActions);
       }else{
-        addMessage(getFallbackAnswer(text), 'bot', ['帮我联系站主', '我要发文章', '打开聊天', '网站功能介绍', '账号安全']);
+        addMessage(getFallbackAnswer(text), 'bot', ['帮我联系站主', '网站功能介绍', '我要发文章', '打开聊天', '账号安全']);
       }
     }, delay);
   }
