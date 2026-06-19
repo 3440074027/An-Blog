@@ -3979,7 +3979,7 @@
   .chat-msg{
     width:fit-content;
     min-width:32px;
-    max-width:min(80%, 480px); padding:8px 14px; font-size:13px; line-height:1.55;
+    max-width:min(68%, 340px); padding:8px 14px; font-size:13px; line-height:1.55;
     word-wrap:break-word; overflow-wrap:break-word; word-break:normal; white-space:normal;
     box-shadow:0 3px 10px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.2);
     position:relative;
@@ -3990,6 +3990,10 @@
     transition:box-shadow .2s, transform .15s;
     /* 手绘涂鸦不规则圆角 */
     border-radius:18px 22px 14px 20px / 20px 16px 24px 14px;
+  }
+  .chat-msg .msg-line{
+    display:block;
+    word-break:break-all;
   }
   .chat-msg:hover{box-shadow:0 5px 16px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.24); transform:translateY(-1px);}
   /* 手绘尾巴 - 自己的消息在右侧 */
@@ -4080,10 +4084,17 @@
 
   /* ====================== 新消息弹幕提醒 ====================== */
   .chat-danmaku-container{
-    position:fixed; top:140px; right:80px;
-    pointer-events:none; z-index:500;
-    width:320px; height:300px;
+    position:fixed;
+    top:28px;
+    right:84px;
+    pointer-events:none;
+    z-index:500;
+    width:320px;
+    max-height:calc(100vh - 40px);
     overflow:visible;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
   }
   @keyframes danmakuSlide{
     0%{opacity:0; transform:translateX(50px) scale(0.85);}
@@ -4097,18 +4108,25 @@
     50%{box-shadow:0 4px 20px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6), 0 0 20px rgba(255,180,220,.2);}
   }
   .chat-danmaku-item{
-    position:absolute; right:0;
-    display:flex; align-items:center; gap:10px;
-    padding:9px 15px 9px 11px; border-radius:20px;
+    position:relative;
+    right:0;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 15px 9px 11px;
+    border-radius:20px;
     background:linear-gradient(135deg, rgba(255,225,245,.97), rgba(205,238,255,.96));
     border:1.5px solid rgba(255,255,255,.6);
     box-shadow:0 4px 16px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.5);
     animation:danmakuSlide 6s cubic-bezier(.22,.08,.28,1) forwards, danmakuPulse 3s ease-in-out .4s 1;
-    max-width:280px; min-width:160px;
-    pointer-events:auto; cursor:pointer;
+    max-width:280px;
+    min-width:160px;
+    pointer-events:auto;
+    cursor:pointer;
     color:#3d1e2c;
     transition:transform .2s;
     will-change:transform, opacity;
+    flex-shrink:0;
   }
   .chat-danmaku-item:hover{transform:scale(1.03) translateY(-1px);}
   .chat-danmaku-avatar{
@@ -9552,13 +9570,6 @@ function startSiteVersionPoll(){
   /* ====================== 新消息弹幕提醒 ====================== */
   function showChatDanmaku(peerUsername, nickname, avatar, body){
     if(!chatDanmakuContainer) return;
-    // 动态定位弹幕容器到聊天按钮旁边
-    const chatBtn = document.getElementById('homeChatBtn');
-    if(chatBtn){
-      const rect = chatBtn.getBoundingClientRect();
-      chatDanmakuContainer.style.top = rect.top + 'px';
-      chatDanmakuContainer.style.right = (window.innerWidth - rect.right) + 'px';
-    }
     const item = document.createElement('div');
     item.className = 'chat-danmaku-item';
     item.innerHTML = `
@@ -9577,14 +9588,6 @@ function startSiteVersionPoll(){
     });
     item.addEventListener('animationend', ()=>{ item.remove(); });
     chatDanmakuContainer.appendChild(item);
-    // 最多保留 5 个弹幕
-    while(chatDanmakuContainer.children.length > 5){
-      chatDanmakuContainer.firstChild.remove();
-    }
-    // 重新排列所有弹幕位置
-    Array.from(chatDanmakuContainer.children).forEach((el, i)=>{
-      el.style.top = (i * 54) + 'px';
-    });
   }
 
   function escapeHtmlSafe(s){
@@ -9945,13 +9948,22 @@ function startSiteVersionPoll(){
       lastRenderedConversationSignature = signature;
       return;
     }
+    function wrapMessageBody(body){
+      if(!body) return '';
+      const safe = escapeHtmlSafe(body);
+      const lines = [];
+      for(let i = 0; i < safe.length; i += 20){
+        lines.push(safe.slice(i, i + 20));
+      }
+      return lines.map(line => `<span class="msg-line">${line}</span>`).join('');
+    }
     chatMessages.innerHTML = messages.map(m=>{
       const mine = m.from === myName;
       return `
         <div class="chat-msg-row ${mine ? 'mine' : 'theirs'}">
           <div class="chat-msg-content">
             <div class="chat-msg ${mine ? 'mine' : 'theirs'}" data-msg-id="${escapeHtmlSafe(m.id)}">
-              ${m.body ? escapeHtmlSafe(m.body) : ''}
+              ${wrapMessageBody(m.body)}
             </div>
             <time class="chat-msg-time">${escapeHtmlSafe(formatMessageTime(m.createdAt))}</time>
           </div>
@@ -10235,9 +10247,15 @@ function startSiteVersionPoll(){
     if(chatSendBtn) chatSendBtn.textContent = '发送中…';
     const sendingId = 'sending_' + Date.now();
     if(chatMessages){
+      const sendingLines = [];
+      const sendingSafe = escapeHtmlSafe(raw);
+      for(let i = 0; i < sendingSafe.length; i += 20){
+        sendingLines.push(sendingSafe.slice(i, i + 20));
+      }
+      const sendingWrapped = sendingLines.map(line => `<span class="msg-line">${line}</span>`).join('');
       chatMessages.insertAdjacentHTML('beforeend', `
         <div class="chat-msg-row mine" data-sending-id="${sendingId}">
-          <div class="chat-msg mine">${escapeHtmlSafe(raw)}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
+          <div class="chat-msg mine">${sendingWrapped}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
           <time class="chat-msg-time">发送中</time>
         </div>`);
       chatMessages.scrollTop = chatMessages.scrollHeight;
