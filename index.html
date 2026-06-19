@@ -1265,6 +1265,7 @@
     width:clamp(86px, 7.4vw, 122px);
     height:auto;
     min-width:86px;
+    min-height:86px;
     aspect-ratio:1 / 1;
     flex:0 0 auto;
     border-radius:36% 64% 42% 58% / 54% 42% 58% 46%;
@@ -2867,6 +2868,8 @@
     }
     .profile-avatar{
       width:70px;
+      min-width:70px;
+      min-height:70px;
     }
     .profile-name{
       font-size:24px;
@@ -3008,7 +3011,7 @@
     }
     .profile-panel{
       display:grid !important;
-      grid-template-columns:auto 1fr;
+      grid-template-columns:minmax(92px, auto) 1fr;
       align-items:center;
       gap:18px 22px;
       padding:24px;
@@ -3017,7 +3020,7 @@
       height:auto;
       overflow:visible;
     }
-    .profile-avatar{width:92px;height:92px;grid-row:1 / span 2;}
+    .profile-avatar{width:92px;height:92px;min-width:92px;min-height:92px;grid-row:1 / span 2;}
     .welcome-chip{margin:0;}
     .profile-name{text-align:left;margin:0;font-size:26px;}
     .profile-role,.profile-meta,.profile-slogan,.contact-btn,.profile-line,.profile-tags-title,.profile-tags{
@@ -3237,7 +3240,7 @@
       padding:22px 18px;
       text-align:center;
     }
-    .profile-avatar{width:86px;height:86px;}
+    .profile-avatar{width:86px;height:86px;min-width:86px;min-height:86px;}
     .extended-title h2,
     .contact-title h2{
       font-size:30px;
@@ -10678,5 +10681,718 @@ function startSiteVersionPoll(){
 
 startSiteVersionPoll();
 </script>
+
+<!-- ==================== AI 数字机器人悬浮窗 ==================== -->
+<style>
+  /* 机器人悬浮按钮 */
+  .ai-bot-fab{
+    position:fixed;
+    bottom:32px;
+    right:32px;
+    z-index:900;
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    border:none;
+    cursor:grab;
+    background:linear-gradient(135deg, #e8d5f5, #ffd1dc, #b5ead7);
+    background-size:200% 200%;
+    animation:aiBotGradient 5s ease infinite, aiBotFloat 3.5s ease-in-out infinite;
+    box-shadow:0 8px 28px rgba(212,187,255,.4), 0 0 0 4px rgba(255,255,255,.2), inset 0 2px 4px rgba(255,255,255,.3);
+    display:grid;
+    place-items:center;
+    transition:transform .22s, box-shadow .22s;
+    touch-action:none;
+    user-select:none;
+    overflow:hidden;
+  }
+  .ai-bot-fab::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 50%);
+    pointer-events:none;
+  }
+  .ai-bot-fab:active{cursor:grabbing;}
+  .ai-bot-fab:hover{
+    transform:scale(1.1);
+    box-shadow:0 14px 42px rgba(212,187,255,.55), 0 0 0 6px rgba(255,255,255,.25), inset 0 2px 6px rgba(255,255,255,.4);
+  }
+  .ai-bot-fab.dragging{
+    animation:none !important;
+    transform:scale(1.15);
+    box-shadow:0 18px 50px rgba(212,187,255,.6), 0 0 0 8px rgba(255,255,255,.3);
+  }
+  @keyframes aiBotGradient{
+    0%,100%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+  }
+  @keyframes aiBotFloat{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-8px);}
+  }
+  .ai-bot-fab svg{
+    width:42px;
+    height:42px;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.15));
+    position:relative;
+    z-index:1;
+  }
+  /* 机器人对话窗口 */
+  .ai-bot-panel{
+    position:fixed;
+    z-index:901;
+    width:min(380px, calc(100vw - 32px));
+    height:min(520px, calc(100vh - 140px));
+    border-radius:28px;
+    border:1.5px solid rgba(255,255,255,.2);
+    background:rgba(18,22,52,.94);
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    box-shadow:0 24px 70px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.15);
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+    overflow:hidden;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(20px) scale(.92);
+    transition:opacity .3s, visibility .3s, transform .3s;
+    pointer-events:none;
+  }
+  .ai-bot-panel.open{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0) scale(1);
+    pointer-events:auto;
+  }
+  .ai-bot-header{
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    border-bottom:1px solid rgba(255,255,255,.1);
+    background:linear-gradient(135deg, rgba(124,92,255,.15), rgba(255,143,199,.12));
+  }
+  .ai-bot-header-avatar{
+    width:38px;
+    height:38px;
+    min-width:38px;
+    min-height:38px;
+    border-radius:50%;
+    background:linear-gradient(135deg, #7c5cff, #ff8fc7);
+    display:grid;
+    place-items:center;
+  }
+  .ai-bot-header-avatar svg{width:20px;height:20px;}
+  .ai-bot-header-info{flex:1;min-width:0;}
+  .ai-bot-header-info strong{display:block;font-size:14px;color:#fff;}
+  .ai-bot-header-info span{display:block;font-size:11px;color:rgba(255,255,255,.5);}
+  .ai-bot-close{
+    width:32px;
+    height:32px;
+    min-width:32px;
+    min-height:32px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    cursor:pointer;
+    display:grid;
+    place-items:center;
+    font-size:16px;
+    transition:background .2s;
+  }
+  .ai-bot-close:hover{background:rgba(255,255,255,.18);}
+  .ai-bot-messages{
+    padding:14px 16px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(255,255,255,.15) transparent;
+  }
+  .ai-bot-msg{
+    max-width:85%;
+    padding:10px 14px;
+    border-radius:18px;
+    font-size:13px;
+    line-height:1.6;
+    color:#fff;
+    animation:aiMsgIn .3s ease both;
+    word-break:break-word;
+    overflow-wrap:break-word;
+  }
+  @keyframes aiMsgIn{
+    from{opacity:0;transform:translateY(8px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  .ai-bot-msg.bot{
+    align-self:flex-start;
+    background:linear-gradient(135deg, rgba(124,92,255,.28), rgba(58,214,255,.18));
+    border:1px solid rgba(124,92,255,.2);
+    border-bottom-left-radius:6px;
+  }
+  .ai-bot-msg.user{
+    align-self:flex-end;
+    background:linear-gradient(135deg, rgba(255,143,199,.28), rgba(255,200,100,.18));
+    border:1px solid rgba(255,143,199,.2);
+    border-bottom-right-radius:6px;
+  }
+  .ai-bot-msg.bot .quick-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:8px;
+  }
+  .ai-bot-msg.bot .quick-btn{
+    padding:5px 10px;
+    border-radius:999px;
+    border:1px solid rgba(124,92,255,.3);
+    background:rgba(124,92,255,.15);
+    color:#d4bbff;
+    font-size:11px;
+    cursor:pointer;
+    transition:background .2s, transform .15s;
+  }
+  .ai-bot-msg.bot .quick-btn:hover{
+    background:rgba(124,92,255,.3);
+    transform:translateY(-1px);
+  }
+  .ai-bot-input-area{
+    padding:12px 14px;
+    border-top:1px solid rgba(255,255,255,.1);
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .ai-bot-input{
+    flex:1;
+    min-width:0;
+    height:40px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    padding:0 16px;
+    font-size:13px;
+    outline:none;
+    transition:border-color .2s;
+  }
+  .ai-bot-input::placeholder{color:rgba(255,255,255,.35);}
+  .ai-bot-input:focus{border-color:rgba(124,92,255,.5);}
+  .ai-bot-send{
+    width:40px;
+    height:40px;
+    min-width:40px;
+    min-height:40px;
+    border-radius:50%;
+    border:none;
+    background:linear-gradient(135deg, #7c5cff, #ff8fc7);
+    color:#fff;
+    cursor:pointer;
+    display:grid;
+    place-items:center;
+    transition:transform .2s, box-shadow .2s;
+  }
+  .ai-bot-send:hover{
+    transform:scale(1.08);
+    box-shadow:0 4px 16px rgba(124,92,255,.4);
+  }
+  .ai-bot-send svg{width:18px;height:18px;}
+  .ai-bot-typing{
+    align-self:flex-start;
+    padding:10px 16px;
+    border-radius:18px;
+    border-bottom-left-radius:6px;
+    background:linear-gradient(135deg, rgba(124,92,255,.28), rgba(58,214,255,.18));
+    border:1px solid rgba(124,92,255,.2);
+    display:flex;
+    gap:4px;
+    align-items:center;
+  }
+  .ai-bot-typing span{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:rgba(255,255,255,.5);
+    animation:typingDot 1.2s ease-in-out infinite;
+  }
+  .ai-bot-typing span:nth-child(2){animation-delay:.2s;}
+  .ai-bot-typing span:nth-child(3){animation-delay:.4s;}
+  @keyframes typingDot{
+    0%,60%,100%{opacity:.3;transform:translateY(0);}
+    30%{opacity:1;transform:translateY(-4px);}
+  }
+  @media(max-width:480px){
+    .ai-bot-panel{
+      bottom:0;
+      right:0;
+      width:100vw;
+      height:100vh;
+      max-height:100vh;
+      border-radius:0;
+    }
+    .ai-bot-fab{bottom:20px;right:20px;width:52px;height:52px;}
+    .ai-bot-fab svg{width:26px;height:26px;}
+  }
+</style>
+
+<div class="ai-bot-fab" id="aiBotFab" title="An 小助手">
+  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- 身体 -->
+    <ellipse cx="32" cy="48" rx="18" ry="14" fill="url(#botBody)" opacity="0.95"/>
+    <!-- 头部 -->
+    <circle cx="32" cy="26" r="18" fill="url(#botHead)"/>
+    <!-- 腮红 -->
+    <ellipse cx="20" cy="30" rx="4" ry="2.5" fill="#ff8fc7" opacity="0.45"/>
+    <ellipse cx="44" cy="30" rx="4" ry="2.5" fill="#ff8fc7" opacity="0.45"/>
+    <!-- 左眼 -->
+    <ellipse cx="24" cy="24" rx="4.5" ry="5.5" fill="white"/>
+    <circle cx="25" cy="24" r="3" fill="#4a3b8c"/>
+    <circle cx="26" cy="22.5" r="1.2" fill="white"/>
+    <!-- 右眼 -->
+    <ellipse cx="40" cy="24" rx="4.5" ry="5.5" fill="white"/>
+    <circle cx="41" cy="24" r="3" fill="#4a3b8c"/>
+    <circle cx="42" cy="22.5" r="1.2" fill="white"/>
+    <!-- 嘴巴 -->
+    <path d="M28 32 Q32 36 36 32" stroke="#4a3b8c" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <!-- 猫耳左 -->
+    <path d="M18 14 Q12 4 22 8" fill="url(#botEar)" stroke="white" stroke-width="1.2" stroke-linejoin="round"/>
+    <!-- 猫耳右 -->
+    <path d="M46 14 Q52 4 42 8" fill="url(#botEar)" stroke="white" stroke-width="1.2" stroke-linejoin="round"/>
+    <!-- 星星装饰 -->
+    <path d="M10 16 L11 19 L14 19 L12 21 L13 24 L10 22 L7 24 L8 21 L6 19 L9 19 Z" fill="#ffe066" opacity="0.9"/>
+    <path d="M54 12 L55 15 L58 15 L56 17 L57 20 L54 18 L51 20 L52 17 L50 15 L53 15 Z" fill="#ffb7c5" opacity="0.9"/>
+    <!-- 渐变定义 -->
+    <defs>
+      <linearGradient id="botHead" x1="14" y1="8" x2="50" y2="44" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#e8d5f5"/>
+        <stop offset="50%" stop-color="#ffd1dc"/>
+        <stop offset="100%" stop-color="#b5ead7"/>
+      </linearGradient>
+      <linearGradient id="botBody" x1="14" y1="34" x2="50" y2="62" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#d4bbff"/>
+        <stop offset="100%" stop-color="#7c5cff"/>
+      </linearGradient>
+      <linearGradient id="botEar" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#ffd1dc"/>
+        <stop offset="100%" stop-color="#e8d5f5"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+
+<div class="ai-bot-panel" id="aiBotPanel">
+  <div class="ai-bot-header">
+    <div class="ai-bot-header-avatar">
+      <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="26" r="18" fill="url(#botHead2)"/><ellipse cx="20" cy="30" rx="4" ry="2.5" fill="#ff8fc7" opacity="0.45"/><ellipse cx="44" cy="30" rx="4" ry="2.5" fill="#ff8fc7" opacity="0.45"/><ellipse cx="24" cy="24" rx="4.5" ry="5.5" fill="white"/><circle cx="25" cy="24" r="3" fill="#4a3b8c"/><circle cx="26" cy="22.5" r="1.2" fill="white"/><ellipse cx="40" cy="24" rx="4.5" ry="5.5" fill="white"/><circle cx="41" cy="24" r="3" fill="#4a3b8c"/><circle cx="42" cy="22.5" r="1.2" fill="white"/><path d="M28 32 Q32 36 36 32" stroke="#4a3b8c" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M18 14 Q12 4 22 8" fill="url(#botEar2)" stroke="white" stroke-width="1.2" stroke-linejoin="round"/><path d="M46 14 Q52 4 42 8" fill="url(#botEar2)" stroke="white" stroke-width="1.2" stroke-linejoin="round"/><defs><linearGradient id="botHead2" x1="14" y1="8" x2="50" y2="44"><stop offset="0%" stop-color="#e8d5f5"/><stop offset="50%" stop-color="#ffd1dc"/><stop offset="100%" stop-color="#b5ead7"/></linearGradient><linearGradient id="botEar2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffd1dc"/><stop offset="100%" stop-color="#e8d5f5"/></linearGradient></defs></svg>
+    </div>
+    <div class="ai-bot-header-info">
+      <strong>An</strong>
+      <span>你的智能小助手，随时为你解答和操作</span>
+    </div>
+    <button class="ai-bot-close" id="aiBotClose" type="button">&times;</button>
+  </div>
+  <div class="ai-bot-messages" id="aiBotMessages"></div>
+  <div class="ai-bot-input-area">
+    <input class="ai-bot-input" id="aiBotInput" type="text" placeholder="问我任何关于这个网站的问题..." autocomplete="off" />
+    <button class="ai-bot-send" id="aiBotSend" type="button">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const fab = document.getElementById('aiBotFab');
+  const panel = document.getElementById('aiBotPanel');
+  const closeBtn = document.getElementById('aiBotClose');
+  const messagesEl = document.getElementById('aiBotMessages');
+  const input = document.getElementById('aiBotInput');
+  const sendBtn = document.getElementById('aiBotSend');
+
+  /* ---- 拖拽逻辑 ---- */
+  let isDragging = false, hasMoved = false, startX, startY, origX, origY;
+  let fabPos = { x: window.innerWidth - 96, y: window.innerHeight - 96 };
+  function updateFabPosition(){
+    fab.style.left = fabPos.x + 'px';
+    fab.style.top = fabPos.y + 'px';
+    fab.style.right = 'auto';
+    fab.style.bottom = 'auto';
+    updatePanelPosition();
+  }
+  function updatePanelPosition(){
+    if(!panelOpen) return;
+    const fabRect = fab.getBoundingClientRect();
+    const panelW = Math.min(380, window.innerWidth - 32);
+    const panelH = Math.min(520, window.innerHeight - 140);
+    let px = fabRect.left + 32 - panelW;
+    let py = fabRect.top - panelH - 16;
+    if(px < 8) px = 8;
+    if(py < 8){
+      py = fabRect.bottom + 16;
+      if(py + panelH > window.innerHeight - 8){
+        py = 8;
+      }
+    }
+    panel.style.left = px + 'px';
+    panel.style.top = py + 'px';
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+  }
+  fab.addEventListener('pointerdown', e => {
+    if(e.button !== 0) return;
+    isDragging = true; hasMoved = false;
+    const rect = fab.getBoundingClientRect();
+    startX = e.clientX; startY = e.clientY;
+    origX = rect.left; origY = rect.top;
+    fab.classList.add('dragging');
+    fab.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  fab.addEventListener('pointermove', e => {
+    if(!isDragging) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if(Math.abs(dx) > 4 || Math.abs(dy) > 4) hasMoved = true;
+    let nx = origX + dx, ny = origY + dy;
+    nx = Math.max(0, Math.min(window.innerWidth - 64, nx));
+    ny = Math.max(0, Math.min(window.innerHeight - 64, ny));
+    fabPos.x = nx; fabPos.y = ny;
+    updateFabPosition();
+  });
+  fab.addEventListener('pointerup', e => {
+    isDragging = false;
+    fab.classList.remove('dragging');
+    if(!hasMoved){
+      togglePanel();
+    }
+  });
+
+  /* ---- 窗口大小变化时保持相对位置 ---- */
+  let lastWinW = window.innerWidth, lastWinH = window.innerHeight;
+  window.addEventListener('resize', ()=>{
+    const rw = window.innerWidth / lastWinW;
+    const rh = window.innerHeight / lastWinH;
+    fabPos.x = Math.max(0, Math.min(window.innerWidth - 64, fabPos.x * rw));
+    fabPos.y = Math.max(0, Math.min(window.innerHeight - 64, fabPos.y * rh));
+    updateFabPosition();
+    lastWinW = window.innerWidth;
+    lastWinH = window.innerHeight;
+  });
+
+  /* ---- 面板开关 ---- */
+  let panelOpen = false;
+  function togglePanel(){
+    panelOpen = !panelOpen;
+    panel.classList.toggle('open', panelOpen);
+    if(panelOpen){
+      updatePanelPosition();
+      if(!messagesEl.children.length){
+        showWelcome();
+      }
+      input.focus();
+    }
+  }
+  closeBtn.addEventListener('click', ()=>{ panelOpen = false; panel.classList.remove('open'); });
+
+  /* ---- 消息渲染 ---- */
+  function addMessage(text, type, quickActions){
+    const div = document.createElement('div');
+    div.className = 'ai-bot-msg ' + type;
+    let html = escapeHtmlForBot(text);
+    if(quickActions && quickActions.length){
+      html += '<div class="quick-actions">' + quickActions.map(a => `<button class="quick-btn" type="button" data-q="${escapeHtmlForBot(a)}">${escapeHtmlForBot(a)}</button>`).join('') + '</div>';
+    }
+    div.innerHTML = html;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    // 绑定快捷按钮
+    div.querySelectorAll('.quick-btn').forEach(btn => {
+      btn.addEventListener('click', ()=>{ sendMessage(btn.dataset.q); });
+    });
+  }
+  function showTyping(){
+    const div = document.createElement('div');
+    div.className = 'ai-bot-typing';
+    div.id = 'aiBotTyping';
+    div.innerHTML = '<span></span><span></span><span></span>';
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+  function hideTyping(){
+    const el = document.getElementById('aiBotTyping');
+    if(el) el.remove();
+  }
+  function escapeHtmlForBot(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  /* ---- 操作功能 ---- */
+  const botActions = {
+    '联系站主': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const ownerBtn = document.getElementById('contactOwnerBtn');
+        if(ownerBtn) ownerBtn.click();
+        else if(typeof openChatPanel === 'function') openChatPanel('An');
+      }, 300);
+      return '已为你打开联系站主的窗口~ 💬';
+    },
+    '发文章': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const publishBtn = document.getElementById('publishArticleBtn');
+        if(publishBtn) publishBtn.click();
+      }, 300);
+      return '已为你打开发布文章的编辑器~ 📝';
+    },
+    '编辑资料': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const editBtn = document.getElementById('editProfileBtn');
+        if(editBtn) editBtn.click();
+      }, 300);
+      return '已为你打开个人资料编辑页面~ 👤';
+    },
+    '打开聊天': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const chatBtn = document.getElementById('homeChatBtn');
+        if(chatBtn) chatBtn.click();
+      }, 300);
+      return '已为你打开聊天面板~ 💬';
+    },
+    '打开搜索': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const searchBtn = document.getElementById('homeSearchBtn');
+        if(searchBtn) searchBtn.click();
+      }, 300);
+      return '已为你打开搜索面板~ 🔍';
+    },
+    '打开设置': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const settingsBtn = document.getElementById('homeSettingsBtn');
+        if(settingsBtn) settingsBtn.click();
+      }, 300);
+      return '已为你打开设置面板~ ⚙️';
+    },
+    '查看公告': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const annBtn = document.querySelector('.announcement-edit-btn');
+        if(annBtn && !annBtn.hidden) annBtn.click();
+        else{
+          const dashboard = document.getElementById('dashboard');
+          if(dashboard) dashboard.scrollIntoView({ behavior:'smooth' });
+        }
+      }, 300);
+      return '已为你滚动到公告区域~ 📢';
+    },
+    '切换语言': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const langBtn = document.getElementById('homeLangBtn');
+        if(langBtn) langBtn.click();
+      }, 300);
+      return '已为你打开语言切换面板~ 🌍';
+    },
+    '账号安全': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const securityBtn = document.getElementById('accountSecurityBtn');
+        if(securityBtn) securityBtn.click();
+        else if(typeof openAccountSecurity === 'function') openAccountSecurity();
+      }, 300);
+      return '已为你打开账号安全设置~ 🔐';
+    }
+  };
+
+  function detectAction(query){
+    const q = query.toLowerCase().trim();
+    const actionMap = [
+      { keys: ['联系站主','找站主','给站主发消息','给An发消息','联系An','站长'], action: '联系站主' },
+      { keys: ['发文章','写文章','发布文章','新建文章','写博客'], action: '发文章' },
+      { keys: ['编辑资料','修改资料','改资料','编辑个人资料','修改个人资料'], action: '编辑资料' },
+      { keys: ['打开聊天','聊天','消息','发信息','聊天面板'], action: '打开聊天' },
+      { keys: ['搜索','找用户','搜索用户','查找用户','打开搜索'], action: '打开搜索' },
+      { keys: ['设置','打开设置','系统设置','偏好设置'], action: '打开设置' },
+      { keys: ['公告','查看公告','打开公告','编辑公告'], action: '查看公告' },
+      { keys: ['语言','切换语言','换语言','多语言'], action: '切换语言' },
+      { keys: ['账号安全','修改密码','改密码','注销账号','安全设置'], action: '账号安全' }
+    ];
+    for(const item of actionMap){
+      for(const kw of item.keys){
+        if(q.includes(kw)) return item.action;
+      }
+    }
+    return null;
+  }
+
+  /* ---- 欢迎消息 ---- */
+  function showWelcome(){
+    addMessage('你好呀！我是 An，你的智能小助手~ 我不仅能解答问题，还能帮你直接操作哦！比如"帮我联系站主"、"我要发文章"、"打开聊天"等等，尽管吩咐我吧！', 'bot', ['帮我联系站主', '我要发文章', '打开聊天', '编辑资料', '网站功能介绍', '账号安全']);
+  }
+
+  /* ---- 知识库 ---- */
+  const knowledgeBase = [
+    {
+      keywords: ['功能', '介绍', '能做什么', '有什么', '网站功能', '功能介绍'],
+      answer: '这个博客网站有很多功能哦~ 主要包括：\n\n📝 **文章系统** - 发布、编辑、删除文章，支持图文混排、分类标签、自定义字体\n👥 **好友系统** - 搜索用户、发送好友申请、管理好友列表\n💬 **聊天系统** - 与好友实时聊天，消息24小时自动过期\n📢 **公告系统** - 站主可以发布公告，最多12条\n👤 **个人资料** - 编辑头像、昵称、签名、简介、标签等\n🔐 **账号安全** - 修改密码、修改用户名、注销账号\n🌍 **多语言** - 支持中文、英语、日语、韩语、法语、德语、阿拉伯语等9种语言\n🔍 **用户搜索** - 按用户名、昵称、签名等搜索用户\n📊 **访问统计** - 网站访问量计数',
+      quickActions: ['如何发文章', '如何加好友', '如何聊天']
+    },
+    {
+      keywords: ['文章', '发布', '写文章', '发文章', '写博客', '编辑文章', '删除文章'],
+      answer: '关于文章功能：\n\n✏️ **发布文章**：登录后，在文章区域点击"发布文章"按钮，会打开富文本编辑器，支持插入图片、设置字体/字号/颜色，还可以添加分类标签\n📸 **图片**：支持上传图片（base64格式），最多5张轮播图\n🏷️ **标签**：可以添加分类和标签，方便读者筛选\n✏️ **编辑/删除**：自己的文章可以随时修改或删除\n📄 **公开文章页**：每个用户都有独立的公开文章页面\n⏰ **自定义字体**：发布时可以选择文章的显示字体',
+      quickActions: ['如何加好友', '个人资料怎么编辑']
+    },
+    {
+      keywords: ['好友', '加好友', '好友申请', '添加好友', '朋友'],
+      answer: '好友系统使用指南：\n\n🔍 **搜索用户**：点击右上角搜索按钮，输入用户名、昵称等关键词搜索\n📩 **发送申请**：找到用户后，点击"加好友"发送申请\n✅ **同意申请**：在好友面板的"申请"标签中查看并同意/拒绝\n❌ **删除好友**：在好友列表中可以删除好友\n🌟 **站主好友**：站主 An 是所有用户的固定好友，不可删除\n🤝 **自动好友**：如果双方互相发送好友申请，会自动成为好友',
+      quickActions: ['如何聊天', '如何搜索用户']
+    },
+    {
+      keywords: ['聊天', '消息', '发消息', '聊天记录', '清空聊天', '信息'],
+      answer: '聊天功能说明：\n\n💬 **与好友聊天**：打开聊天面板，选择一个好友即可开始对话\n🔔 **新消息提醒**：收到新消息时会有弹幕通知\n⏰ **消息过期**：消息24小时后自动过期消失\n🗑️ **清空记录**：点击"清空"按钮只清空自己的聊天记录，不影响对方\n😊 **表情**：聊天支持发送表情\n📱 **弹幕通知**：未读消息会以弹幕形式在右上角逐条弹出\n⏳ **发送状态**：发送消息后会显示"发送中"状态',
+      quickActions: ['好友系统', '如何发文章']
+    },
+    {
+      keywords: ['公告', '发布公告', '编辑公告'],
+      answer: '公告系统：\n\n📢 只有站主 An 可以编辑公告\n📝 最多支持12条公告\n🖼️ 公告支持插入图片\nCarousel 公告会在首页轮播展示\n\n如果你是站主，可以在公告区域直接编辑；如果你是普通用户，可以查看公告内容。',
+      quickActions: ['网站功能介绍', '如何发文章']
+    },
+    {
+      keywords: ['账号', '密码', '安全', '修改密码', '修改用户名', '注销', '登录', '注册'],
+      answer: '账号安全相关：\n\n🔐 **修改密码**：在设置中点击"账号安全"，验证当前密码后可以修改\n📝 **修改用户名**：同样在账号安全中，验证后可以修改用户名（需检查是否被占用）\🗑️ **注销账号**：验证密码后可以注销，会清理所有个人数据\n🔑 **记住账户**：登录时勾选"记住账户"，下次会自动填充用户名（仅保存在本地浏览器）\n🔒 **密码规则**：6-64位，支持字母数字和 !@#$%^&*_-+=.?\n👤 **用户名规则**：2-20位字母数字\n🔒 **Token认证**：登录后使用JWT Token进行身份验证',
+      quickActions: ['个人资料怎么编辑', '网站功能介绍']
+    },
+    {
+      keywords: ['个人资料', '资料', '头像', '昵称', '签名', '简介', '标签', '编辑资料'],
+      answer: '个人资料编辑：\n\n🖼️ **头像**：点击头像区域可以上传新头像\n📝 **昵称**：设置你的显示名称\n✍️ **签名**：一句话介绍自己\n📄 **简介**：更详细的自我介绍\n🏷️ **标签**：添加你的兴趣标签（如 AI Agent、Python 等）\n🎂 **生日/星座**：填写后会显示星座信息\n📧 **邮箱**：可选填写\n💬 **QQ**：可选填写\n📂 **文件列表**：可以添加自定义文件链接\n\n点击左侧资料区的"编辑资料"按钮即可开始编辑~',
+      quickActions: ['如何发文章', '账号安全']
+    },
+    {
+      keywords: ['搜索', '找用户', '搜索用户', '查找'],
+      answer: '用户搜索功能：\n\n🔍 点击右上角的搜索按钮打开搜索面板\n📝 输入关键词（支持用户名、昵称、签名、简介、标签等模糊搜索）\n📋 最多显示30条搜索结果\n👤 点击搜索结果可以查看用户公开资料\n➕ 可以直接从搜索结果发送好友申请',
+      quickActions: ['如何加好友', '网站功能介绍']
+    },
+    {
+      keywords: ['语言', '多语言', '切换语言', '中文', '英语', '翻译'],
+      answer: '多语言支持：\n\n🌍 网站支持9种语言：\n🇨🇳 简体中文 (zh-CN)\n🇭🇰 繁体中文 (zh-HK)\n🇺🇸 英语 (en-US)\n🇯🇵 日语 (ja-JP)\n🇰🇷 韩语 (ko-KR)\n🇫🇷 法语 (fr-FR)\n🇩🇪 德语 (de-DE)\n🇸🇦 阿拉伯语 (ar-SA)\n\n点击右上角的语言按钮即可切换~',
+      quickActions: ['网站功能介绍']
+    },
+    {
+      keywords: ['游客', '游客登录', '未登录'],
+      answer: '游客模式：\n\n点击登录页的"游客登录"可以浏览部分内容，但以下功能需要登录才能使用：\n\n❌ 发布/编辑文章\n❌ 发送消息\n❌ 添加好友\n❌ 编辑个人资料\n❌ 查看聊天\n\n建议注册一个账号来体验完整功能~',
+      quickActions: ['如何注册', '网站功能介绍']
+    },
+    {
+      keywords: ['注册', '怎么注册', '创建账号'],
+      answer: '注册步骤：\n\n1️⃣ 在登录页点击"注册"按钮\n2️⃣ 上传头像（可选）\n3️⃣ 输入用户名（2-20位字母数字）\n4️⃣ 输入密码（6-64位）\n5️⃣ 实时检查用户名是否可用\n6️⃣ 点击注册即可完成\n\n注册成功后会自动登录~',
+      quickActions: ['账号安全', '网站功能介绍']
+    },
+    {
+      keywords: ['站主', 'An', '管理员', 'owner'],
+      answer: '关于站主：\n\n🌟 站主 An 是本站的创建者和管理员\n📢 站主可以编辑公告内容\n👥 站主是所有用户的固定好友\n💬 任何人都可以给站长发消息\n🔍 站主在好友列表和聊天中会显示星标标识\n\n你可以通过"联系站主"按钮查看站主信息或发送消息~',
+      quickActions: ['如何聊天', '公告系统']
+    },
+    {
+      keywords: ['你好', '嗨', 'hi', 'hello', '你是谁', '在吗'],
+      answer: '你好呀！我是 An，你的智能小助手~ 我不仅能回答关于这个网站的所有问题，还能直接帮你操作哦！比如：\n\n• "帮我联系站主" → 打开站主聊天\n• "我要发文章" → 打开发布编辑器\n• "打开聊天" → 打开聊天面板\n• "编辑资料" → 打开资料编辑\n• "打开搜索" → 打开搜索面板\n• "账号安全" → 打开安全设置\n\n有什么需要尽管吩咐我吧！',
+      quickActions: ['帮我联系站主', '我要发文章', '打开聊天', '编辑资料']
+    },
+    {
+      keywords: ['谢谢', '感谢', 'thanks', 'thank'],
+      answer: '不客气~ 很高兴能帮到你！如果还有其他问题，随时问我哦~ 😊',
+      quickActions: ['网站功能介绍']
+    },
+    {
+      keywords: ['公开文章', '文章页面', 'user_articles'],
+      answer: '公开文章页面：\n\n📄 每个用户都有独立的公开文章页面\n🔍 支持搜索、标签筛选、排序（最新/最早/标题/图文优先）\n📖 点击文章卡片可以查看完整内容\n📱 页面支持响应式布局，手机也能完美浏览\n🎨 可爱唯美的视觉风格~',
+      quickActions: ['如何发文章', '网站功能介绍']
+    },
+    {
+      keywords: ['访问量', '统计', '计数器'],
+      answer: '访问统计：\n\n📊 网站有访问量计数器，每次访问会自动+1\n📈 统计数据会显示在个人资料区域\n\n目前这是简单的计数统计功能~',
+      quickActions: ['网站功能介绍']
+    },
+    {
+      keywords: ['操作', '帮我', '打开', '执行', '操作功能', '能做什么操作', '快捷操作'],
+      answer: '我可以帮你直接操作网站哦！试试这些指令：\n\n🤝 "帮我联系站主" / "找站主" → 打开站主聊天窗口\n📝 "我要发文章" / "写文章" → 打开发布文章编辑器\n👤 "编辑资料" / "修改资料" → 打开个人资料编辑\n💬 "打开聊天" / "消息" → 打开聊天面板\n🔍 "打开搜索" / "找用户" → 打开搜索面板\n⚙️ "打开设置" → 打开设置面板\n📢 "查看公告" → 滚动到公告区域\n🌍 "切换语言" → 打开语言选择\n🔐 "账号安全" / "修改密码" → 打开安全设置\n\n直接说出来，我就能帮你执行！',
+      quickActions: ['帮我联系站主', '我要发文章', '打开聊天', '编辑资料']
+    }
+  ];
+
+  /* ---- 匹配回答 ---- */
+  function findAnswer(query){
+    const q = query.toLowerCase().trim();
+    if(!q) return null;
+    let bestMatch = null, bestScore = 0;
+    for(const item of knowledgeBase){
+      let score = 0;
+      for(const kw of item.keywords){
+        if(q.includes(kw.toLowerCase())){
+          score += kw.length;
+        }
+      }
+      if(score > bestScore){
+        bestScore = score;
+        bestMatch = item;
+      }
+    }
+    if(bestMatch && bestScore > 0) return bestMatch;
+    return null;
+  }
+
+  function getFallbackAnswer(query){
+    const q = query.toLowerCase().trim();
+    if(q.length < 2) return '请多说一点，这样我才能更好地理解你的问题~';
+    return '抱歉，我暂时不太理解你的问题。你可以试试问我关于以下话题：\n\n• 网站功能介绍\n• 如何发文章\n• 如何加好友\n• 如何聊天\n• 账号安全\n• 个人资料编辑\n• 多语言支持\n\n或者点击下方的快捷按钮快速了解~';
+  }
+
+  /* ---- 发送消息 ---- */
+  function sendMessage(text){
+    if(!text || !text.trim()) return;
+    text = text.trim();
+    addMessage(text, 'user');
+    input.value = '';
+    // 检测是否为操作指令
+    const actionName = detectAction(text);
+    if(actionName && botActions[actionName]){
+      showTyping();
+      const delay = 400 + Math.random() * 400;
+      setTimeout(()=>{
+        hideTyping();
+        const result = botActions[actionName]();
+        addMessage(result, 'bot', ['帮我联系站主', '我要发文章', '打开聊天', '编辑资料', '网站功能介绍']);
+      }, delay);
+      return;
+    }
+    showTyping();
+    const delay = 400 + Math.random() * 600;
+    setTimeout(()=>{
+      hideTyping();
+      const match = findAnswer(text);
+      if(match){
+        addMessage(match.answer, 'bot', match.quickActions);
+      }else{
+        addMessage(getFallbackAnswer(text), 'bot', ['帮我联系站主', '我要发文章', '打开聊天', '网站功能介绍', '账号安全']);
+      }
+    }, delay);
+  }
+
+  sendBtn.addEventListener('click', ()=>{ sendMessage(input.value); });
+  input.addEventListener('keydown', e=>{
+    if(e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      sendMessage(input.value);
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
