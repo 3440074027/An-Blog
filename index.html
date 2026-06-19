@@ -3991,10 +3991,6 @@
     /* 手绘涂鸦不规则圆角 */
     border-radius:18px 22px 14px 20px / 20px 16px 24px 14px;
   }
-  .chat-msg .msg-line{
-    display:block;
-    word-break:break-all;
-  }
   .chat-msg:hover{box-shadow:0 5px 16px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.24); transform:translateY(-1px);}
   /* 手绘尾巴 - 自己的消息在右侧 */
   .chat-msg.mine::after{
@@ -9700,6 +9696,7 @@ function startSiteVersionPoll(){
 
   // 跟踪上次未读状态，用于检测新消息触发弹幕
   let _prevUnreadMap = {};
+  let _prevLastMsgIdMap = {};
   async function refreshChats(opts){
     if(!isLoggedIn()) return;
     try{
@@ -9712,16 +9709,54 @@ function startSiteVersionPoll(){
       };
       // 检测新消息并触发弹幕（只在非静默模式下，且聊天面板未打开时）
       const chatIsOpen = chatModal && chatModal.classList.contains('open');
-      (conversationsState.conversations || []).forEach(c=>{
-        _prevUnreadMap[c.other] = c.unread || 0;
-        const prev = prevMap[c.other] || 0;
-        const now = c.unread || 0;
-        if(now > prev && !chatIsOpen){
-          const peer = (conversationsState.peers || []).find(p=>p.username === c.other);
-          const lastMsg = c.lastMessage && c.lastMessage.body ? c.lastMessage.body : '';
-          showChatDanmaku(c.other, peer?.nickname || c.other, peer?.avatar || '', lastMsg);
+      if(!chatIsOpen){
+        for(const c of (conversationsState.conversations || [])){
+          _prevUnreadMap[c.other] = c.unread || 0;
+          const prev = prevMap[c.other] || 0;
+          const now = c.unread || 0;
+          if(now > prev){
+            const peer = (conversationsState.peers || []).find(p=>p.username === c.other);
+            const lastMsgId = c.lastMessage && c.lastMessage.id ? c.lastMessage.id : '';
+            const prevLastId = _prevLastMsgIdMap[c.other] || '';
+            if(lastMsgId && lastMsgId !== prevLastId){
+              // 加载完整会话消息，逐条弹窗未读消息
+              try{
+                const convData = await authRequest(`/api/chat?with=${encodeURIComponent(c.other)}`, { method:'GET', headers:authorizedHeaders() });
+                const msgs = (convData.conversation && convData.conversation.messages) || [];
+                const unreadMsgs = [];
+                let foundPrev = !prevLastId;
+                for(const m of msgs){
+                  if(!foundPrev){
+                    if(m.id === prevLastId) foundPrev = true;
+                    continue;
+                  }
+                  if(m.from !== (safeGetCurrentUser()?.username)){
+                    unreadMsgs.push(m);
+                  }
+                }
+                unreadMsgs.forEach((m, idx)=>{
+                  setTimeout(()=>{
+                    showChatDanmaku(c.other, peer?.nickname || c.other, peer?.avatar || '', m.body || '');
+                  }, idx * 400);
+                });
+                _prevLastMsgIdMap[c.other] = lastMsgId;
+              }catch(_){
+                // 加载失败时回退到只弹最后一条
+                const lastMsg = c.lastMessage && c.lastMessage.body ? c.lastMessage.body : '';
+                showChatDanmaku(c.other, peer?.nickname || c.other, peer?.avatar || '', lastMsg);
+                _prevLastMsgIdMap[c.other] = lastMsgId;
+              }
+            }else if(!lastMsgId){
+              const lastMsg = c.lastMessage && c.lastMessage.body ? c.lastMessage.body : '';
+              showChatDanmaku(c.other, peer?.nickname || c.other, peer?.avatar || '', lastMsg);
+            }
+          }
         }
-      });
+      }else{
+        (conversationsState.conversations || []).forEach(c=>{
+          _prevUnreadMap[c.other] = c.unread || 0;
+        });
+      }
       renderConvList({ preserve:true });
       updateChatBadgeNumbers();
       // 如果有正在打开的会话，刷新它
@@ -9948,22 +9983,13 @@ function startSiteVersionPoll(){
       lastRenderedConversationSignature = signature;
       return;
     }
-    function wrapMessageBody(body){
-      if(!body) return '';
-      const safe = escapeHtmlSafe(body);
-      const lines = [];
-      for(let i = 0; i < safe.length; i += 20){
-        lines.push(safe.slice(i, i + 20));
-      }
-      return lines.map(line => `<span class="msg-line">${line}</span>`).join('');
-    }
     chatMessages.innerHTML = messages.map(m=>{
       const mine = m.from === myName;
       return `
         <div class="chat-msg-row ${mine ? 'mine' : 'theirs'}">
           <div class="chat-msg-content">
             <div class="chat-msg ${mine ? 'mine' : 'theirs'}" data-msg-id="${escapeHtmlSafe(m.id)}">
-              ${wrapMessageBody(m.body)}
+              ${m.body ? escapeHtmlSafe(m.body) : ''}
             </div>
             <time class="chat-msg-time">${escapeHtmlSafe(formatMessageTime(m.createdAt))}</time>
           </div>
@@ -10247,15 +10273,9 @@ function startSiteVersionPoll(){
     if(chatSendBtn) chatSendBtn.textContent = '发送中…';
     const sendingId = 'sending_' + Date.now();
     if(chatMessages){
-      const sendingLines = [];
-      const sendingSafe = escapeHtmlSafe(raw);
-      for(let i = 0; i < sendingSafe.length; i += 20){
-        sendingLines.push(sendingSafe.slice(i, i + 20));
-      }
-      const sendingWrapped = sendingLines.map(line => `<span class="msg-line">${line}</span>`).join('');
       chatMessages.insertAdjacentHTML('beforeend', `
         <div class="chat-msg-row mine" data-sending-id="${sendingId}">
-          <div class="chat-msg mine">${sendingWrapped}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
+          <div class="chat-msg mine">${escapeHtmlSafe(raw)}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
           <time class="chat-msg-time">发送中</time>
         </div>`);
       chatMessages.scrollTop = chatMessages.scrollHeight;
