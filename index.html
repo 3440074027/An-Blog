@@ -3979,7 +3979,7 @@
   .chat-msg{
     width:fit-content;
     min-width:32px;
-    max-width:min(68%, 340px); padding:8px 14px; font-size:13px; line-height:1.55;
+    max-width:min(80%, 480px); padding:8px 14px; font-size:13px; line-height:1.55;
     word-wrap:break-word; overflow-wrap:break-word; word-break:normal; white-space:normal;
     box-shadow:0 3px 10px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.2);
     position:relative;
@@ -4080,7 +4080,7 @@
 
   /* ====================== 新消息弹幕提醒 ====================== */
   .chat-danmaku-container{
-    position:fixed; top:164px; right:80px;
+    position:fixed; top:140px; right:80px;
     pointer-events:none; z-index:500;
     width:320px; height:300px;
     overflow:visible;
@@ -9552,6 +9552,13 @@ function startSiteVersionPoll(){
   /* ====================== 新消息弹幕提醒 ====================== */
   function showChatDanmaku(peerUsername, nickname, avatar, body){
     if(!chatDanmakuContainer) return;
+    // 动态定位弹幕容器到聊天按钮旁边
+    const chatBtn = document.getElementById('homeChatBtn');
+    if(chatBtn){
+      const rect = chatBtn.getBoundingClientRect();
+      chatDanmakuContainer.style.top = rect.top + 'px';
+      chatDanmakuContainer.style.right = (window.innerWidth - rect.right) + 'px';
+    }
     const item = document.createElement('div');
     item.className = 'chat-danmaku-item';
     item.innerHTML = `
