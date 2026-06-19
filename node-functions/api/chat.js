@@ -114,18 +114,23 @@ function cleanupExpiredConversation(conv){
 
 function summarizeConversation(conv, me){
   const other = conv.a === me ? conv.b : conv.a;
-  const last = conv.messages[conv.messages.length - 1] || null;
+  const clearedAt = (conv.reads && conv.reads['clearedAt:' + me]) || '';
+  // 根据清空时间过滤可见消息
+  const visibleMessages = clearedAt
+    ? conv.messages.filter(m => (m.createdAt || '') > clearedAt)
+    : conv.messages;
+  const last = visibleMessages[visibleMessages.length - 1] || null;
   const lastReadId = (conv.reads && conv.reads[me]) || '';
   let unread = 0;
   if(lastReadId){
-    const idx = conv.messages.findIndex(m => m.id === lastReadId);
+    const idx = visibleMessages.findIndex(m => m.id === lastReadId);
     if(idx >= 0){
-      unread = conv.messages.slice(idx + 1).filter(m => m.from !== me).length;
+      unread = visibleMessages.slice(idx + 1).filter(m => m.from !== me).length;
     }else{
-      unread = conv.messages.filter(m => m.from !== me).length;
+      unread = visibleMessages.filter(m => m.from !== me).length;
     }
   }else{
-    unread = conv.messages.filter(m => m.from !== me).length;
+    unread = visibleMessages.filter(m => m.from !== me).length;
   }
   return {
     id: conv.id,
@@ -237,12 +242,21 @@ export async function onRequestGet(context){
     if(withUser){
       const conv = await readConversation(me, withUser);
       const peer = await summarizePeerProfile(withUser);
+      // 根据用户的清空时间过滤消息
+      const clearedAt = (conv.reads && conv.reads['clearedAt:' + me]) || '';
+      let filteredMessages = conv.messages;
+      if(clearedAt){
+        filteredMessages = conv.messages.filter(m => {
+          const msgTime = m.createdAt || '';
+          return msgTime > clearedAt;
+        });
+      }
       return json({
         ok:true,
         conversation:{
           id: conv.id,
           other: withUser,
-          messages: conv.messages,
+          messages: filteredMessages,
           reads: conv.reads,
           updatedAt: conv.updatedAt
         },
@@ -346,9 +360,9 @@ export async function onRequestDelete(context){
       }
       await writeConversation(conv);
     }else{
-      // 清空整个会话（双方都看不到了）
-      conv.messages = [];
-      conv.reads = {};
+      // 只清空自己的聊天记录（不影响对方）
+      conv.reads = conv.reads || {};
+      conv.reads['clearedAt:' + auth.user.username] = nowIso();
       await writeConversation(conv);
     }
     await Promise.all([
