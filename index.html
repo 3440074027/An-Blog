@@ -5775,6 +5775,88 @@
   .article-detail-content p + img,
   .article-detail-content img + p{margin-top:20px;}
   .article-detail-content p:has(img){margin:20px 0;text-align:center;}
+  /* 多图并排布局 */
+  .article-detail-content .article-img-row,
+  .article-rich-editor .article-img-row{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:10px;
+    margin:16px auto;
+    max-width:min(600px, 92%);
+  }
+  .article-detail-content .article-img-row img,
+  .article-rich-editor .article-img-row img{
+    width:100%;
+    height:200px;
+    object-fit:cover;
+    border-radius:14px;
+    margin:0;
+    display:block;
+    border:1.5px solid rgba(255,255,255,.18);
+    box-shadow:0 6px 18px rgba(0,0,0,.2);
+    cursor:pointer;
+    transition:transform .2s, box-shadow .2s;
+  }
+  .article-detail-content .article-img-row img:hover,
+  .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 10px 28px rgba(0,0,0,.28);}
+  /* 分页标记 */
+  .article-page-break{
+    page-break-after:always;
+    break-after:page;
+    border:none;
+    border-top:2px dashed rgba(255,255,255,.2);
+    margin:28px 0;
+    position:relative;
+  }
+  .article-page-break::after{
+    content:'— 第 ' attr(data-page) ' 页 —';
+    position:absolute;
+    top:-10px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(18,24,58,.95);
+    padding:2px 14px;
+    border-radius:8px;
+    font-size:11px;
+    color:rgba(255,255,255,.4);
+    white-space:nowrap;
+  }
+  /* 详情页分页控件 */
+  .article-detail-pager{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding:14px 0 4px;
+    border-top:1px solid rgba(255,255,255,.1);
+    margin-top:8px;
+  }
+  .article-detail-pager button{
+    min-height:34px;
+    padding:0 18px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.2);
+    color:rgba(255,255,255,.8);
+    font-weight:600;
+    font-size:12px;
+    cursor:pointer;
+    background:rgba(255,255,255,.06);
+    transition:all .2s;
+  }
+  .article-detail-pager button:hover:not(:disabled){
+    background:rgba(255,255,255,.12);
+    color:#fff;
+    border-color:rgba(255,255,255,.35);
+  }
+  .article-detail-pager button:disabled{
+    opacity:.3;
+    cursor:not-allowed;
+  }
+  .article-detail-pager span{
+    color:rgba(255,255,255,.5);
+    font-size:12px;
+    font-weight:500;
+  }
   .article-detail-content ul,.article-detail-content ol{margin:12px 0;padding-left:24px;}
   .article-detail-content li{margin:6px 0;color:rgba(255,255,255,.82);}
   .article-detail-content a{color:#8fceff;text-decoration:none;border-bottom:1px solid rgba(143,206,255,.3);transition:border-color .2s;}
@@ -6109,6 +6191,20 @@
     background:rgba(18,24,58,.92);
     appearance:auto;
   }
+  .article-style-panel input[type="color"]{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:32px;
+    border:1.5px solid rgba(255,255,255,.2);
+    border-radius:8px;
+    background:transparent;
+    cursor:pointer;
+    padding:2px;
+  }
+  .article-style-panel input[type="color"]::-webkit-color-swatch-wrapper{padding:0;}
+  .article-style-panel input[type="color"]::-webkit-color-swatch{border:none;border-radius:6px;}
+  .article-style-panel input[type="color"]::-moz-color-swatch{border:none;border-radius:6px;}
   .article-style-panel label:has(input[type="range"]){
     display:grid;
     grid-template-columns:1fr auto auto;
@@ -7070,16 +7166,6 @@
       <label>文章标题<input id="articleTitleInput" type="text" maxlength="120" placeholder="写一个清晰可爱的标题" /></label>
       <label>分类标签<input id="articleCategoryInput" type="text" maxlength="40" placeholder="例如：AI / 生活 / 代码" /></label>
       <label>简略摘要<textarea id="articleSummaryInput" maxlength="260" placeholder="用于文章收纳区简略显示，保持卡片布局不变"></textarea></label>
-      <div class="article-category-chips" aria-label="常用分类">
-        <button type="button" data-category="随笔">随笔</button>
-        <button type="button" data-category="生活">生活</button>
-        <button type="button" data-category="学习">学习</button>
-        <button type="button" data-category="AI">AI</button>
-        <button type="button" data-category="代码">代码</button>
-        <button type="button" data-category="设计">设计</button>
-        <button type="button" data-category="复盘">复盘</button>
-        <button type="button" data-category="灵感">灵感</button>
-      </div>
     </div>
     <div class="article-style-panel">
       <label>字体
@@ -7105,12 +7191,13 @@
         <button id="articleBoldBtn" type="button">粗体开关</button>
         <button id="articleItalicBtn" type="button">斜体开关</button>
         <button id="articleUnderlineBtn" type="button">下划线开关</button>
-        <button id="articleInsertImageBtn" type="button">随处插入图片 ≤3MB</button>
+        <button id="articleInsertImageBtn" type="button">插入图片（可多选）≤3MB</button>
+        <button id="articleInsertPageBtn" type="button">插入新页</button>
         <button id="articleClearFormatBtn" type="button">清除格式</button>
       </div>
     </div>
     <div class="article-rich-editor" id="articleContentEditor" contenteditable="true" spellcheck="false" data-placeholder="在这里写文章内容。图片会插入到光标所在位置，并自动缩小显示。" data-editor-color="#ffffff" data-editor-weight="400"></div>
-    <input id="articleImageInput" type="file" accept="image/*" hidden />
+    <input id="articleImageInput" type="file" accept="image/*" multiple hidden />
     <div class="article-editor-actions">
       <div class="article-progress" id="articlePublishProgress" aria-hidden="true"><span id="articlePublishProgressBar"></span></div>
       <button id="articleSaveBtn" type="button">发布</button>
@@ -7130,6 +7217,11 @@
       </div>
     </div>
     <div class="article-detail-content" id="articleDetailContent"></div>
+    <div class="article-detail-pager" id="articleDetailPager" hidden>
+      <button id="articleDetailPrevPage" type="button">上一页</button>
+      <span id="articleDetailPageInfo">第 1 / 1 页</span>
+      <button id="articleDetailNextPage" type="button">下一页</button>
+    </div>
   </div>
 </div>
 <div class="owner-contact-modal" id="ownerContactModal" aria-hidden="true">
@@ -7746,6 +7838,7 @@ const articleBoldBtn = document.getElementById('articleBoldBtn');
 const articleItalicBtn = document.getElementById('articleItalicBtn');
 const articleUnderlineBtn = document.getElementById('articleUnderlineBtn');
 const articleInsertImageBtn = document.getElementById('articleInsertImageBtn');
+const articleInsertPageBtn = document.getElementById('articleInsertPageBtn');
 const articleClearFormatBtn = document.getElementById('articleClearFormatBtn');
 const articleContentEditor = document.getElementById('articleContentEditor');
 const articleImageInput = document.getElementById('articleImageInput');
@@ -7758,6 +7851,12 @@ const articleDetailEditBtn = document.getElementById('articleDetailEditBtn');
 const articleDetailTitle = document.getElementById('articleDetailTitle');
 const articleDetailMeta = document.getElementById('articleDetailMeta');
 const articleDetailContent = document.getElementById('articleDetailContent');
+const articleDetailPager = document.getElementById('articleDetailPager');
+const articleDetailPrevPage = document.getElementById('articleDetailPrevPage');
+const articleDetailNextPage = document.getElementById('articleDetailNextPage');
+const articleDetailPageInfo = document.getElementById('articleDetailPageInfo');
+let articleDetailPages = [];
+let articleDetailCurrentPage = 0;
 const profileClockTime = document.getElementById('profileClockTime');
 const profileClockDate = document.getElementById('profileClockDate');
 const homeSearchPopover = document.getElementById('homeSearchPopover');
@@ -8558,14 +8657,22 @@ async function insertArticleImage(file){
     showLoginToast('文章图片不能超过 3MB。', 'warn', '图片过大');
     return;
   }
-  showLoginToast('正在压缩并插入图片，请稍候。', 'success', '图片处理中');
-  const src = await compressArticleImageFile(file);
+  return await compressArticleImageFile(file);
+}
+
+async function insertArticleImages(files){
+  const validFiles = Array.from(files || []).filter(f => f && f.type.startsWith('image/') && f.size <= 3 * 1024 * 1024);
+  if(!validFiles.length){
+    showLoginToast('没有可用的图片文件。', 'warn', '格式不对');
+    return;
+  }
+  showLoginToast(`正在压缩并插入 ${validFiles.length} 张图片...`, 'success', '图片处理中');
+  const sources = await Promise.all(validFiles.map(f => compressArticleImageFile(f)));
   restoreArticleSelection();
   const sel = window.getSelection();
   const range = sel && sel.rangeCount ? sel.getRangeAt(0) : null;
   const editor = articleContentEditor;
   if(!range || !editor) return;
-  // 确保光标在编辑器内
   if(!editor.contains(range.commonAncestorContainer)){
     editor.focus();
     const newRange = document.createRange();
@@ -8574,19 +8681,41 @@ async function insertArticleImage(file){
     sel.removeAllRanges();
     sel.addRange(newRange);
   }
-  // 图片独占一行：插入换行 + 图片 + 换行
-  const div = document.createElement('div');
-  div.innerHTML = '<br><img src="' + src + '" alt="文章图片" loading="lazy" /><br>';
-  const frag = document.createDocumentFragment();
-  while(div.firstChild) frag.appendChild(div.firstChild);
-  range.deleteContents();
-  range.insertNode(frag);
-  // 移动光标到图片后面
-  const imgs = editor.querySelectorAll('img[src="' + src + '"]');
-  const insertedImg = imgs[imgs.length - 1];
-  if(insertedImg){
+  if(sources.length === 1){
+    // 单张图片：独占一行
+    const div = document.createElement('div');
+    div.innerHTML = '<br><img src="' + sources[0] + '" alt="文章图片" loading="lazy" /><br>';
+    const frag = document.createDocumentFragment();
+    while(div.firstChild) frag.appendChild(div.firstChild);
+    range.deleteContents();
+    range.insertNode(frag);
+  }else{
+    // 多张图片：一行最多3张
+    const row = document.createElement('div');
+    row.className = 'article-img-row';
+    sources.forEach(src => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = '文章图片';
+      img.loading = 'lazy';
+      row.appendChild(img);
+    });
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = '<br>';
+    wrapper.appendChild(row);
+    wrapper.appendChild(document.createElement('br'));
+    const frag = document.createDocumentFragment();
+    while(wrapper.firstChild) frag.appendChild(wrapper.firstChild);
+    range.deleteContents();
+    range.insertNode(frag);
+  }
+  // 移动光标到最后
+  const lastSrc = sources[sources.length - 1];
+  const allImgs = editor.querySelectorAll('img[src="' + lastSrc + '"]');
+  const lastImg = allImgs[allImgs.length - 1];
+  if(lastImg){
     const nextRange = document.createRange();
-    nextRange.setStartAfter(insertedImg);
+    nextRange.setStartAfter(lastImg);
     nextRange.collapse(true);
     sel.removeAllRanges();
     sel.addRange(nextRange);
@@ -8713,11 +8842,55 @@ async function openArticleDetail(id){
   if(articleDetailMeta) articleDetailMeta.textContent = `${article.category || '随笔'} · @${article.author || '未知用户'} · ${article.createdAt || ''}`;
   if(articleDetailContent) {
     articleDetailContent.style.fontFamily = article.fontFamily || '';
-    articleDetailContent.innerHTML = article.content || '<p>这篇文章暂时没有内容。</p>';
+    const content = article.content || '<p>这篇文章暂时没有内容。</p>';
+    // 检查是否有分页标记
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = content;
+    const breaks = tempDiv.querySelectorAll('.article-page-break');
+    if(breaks.length > 0){
+      // 有分页：按分页标记拆分内容
+      articleDetailPages = [];
+      let currentPage = [];
+      Array.from(tempDiv.childNodes).forEach(node => {
+        if(node.nodeType === 1 && node.classList && node.classList.contains('article-page-break')){
+          articleDetailPages.push(currentPage.join(''));
+          currentPage = [];
+        }else{
+          currentPage.push(node.nodeType === 1 ? node.outerHTML : node.textContent);
+        }
+      });
+      articleDetailPages.push(currentPage.join(''));
+      articleDetailCurrentPage = 0;
+      articleDetailContent.innerHTML = articleDetailPages[0] || '<p>空白页。</p>';
+      if(articleDetailPager) articleDetailPager.hidden = false;
+      updateArticleDetailPager();
+    }else{
+      articleDetailPages = [];
+      articleDetailCurrentPage = 0;
+      articleDetailContent.innerHTML = content;
+      if(articleDetailPager) articleDetailPager.hidden = true;
+    }
   }
   if(articleDetailEditBtn) articleDetailEditBtn.style.display = isCurrentUserAuthor(article) ? 'inline-flex' : 'none';
   articleDetailModal?.classList.add('open');
   articleDetailModal?.setAttribute('aria-hidden', 'false');
+}
+
+function updateArticleDetailPager(){
+  const total = articleDetailPages.length;
+  const current = articleDetailCurrentPage + 1;
+  if(articleDetailPageInfo) articleDetailPageInfo.textContent = `第 ${current} / ${total} 页`;
+  if(articleDetailPrevPage) articleDetailPrevPage.disabled = articleDetailCurrentPage <= 0;
+  if(articleDetailNextPage) articleDetailNextPage.disabled = articleDetailCurrentPage >= total - 1;
+}
+
+function goArticleDetailPage(direction){
+  const newPage = articleDetailCurrentPage + direction;
+  if(newPage < 0 || newPage >= articleDetailPages.length) return;
+  articleDetailCurrentPage = newPage;
+  if(articleDetailContent) articleDetailContent.innerHTML = articleDetailPages[newPage] || '<p>空白页。</p>';
+  updateArticleDetailPager();
+  articleDetailContent.scrollTop = 0;
 }
 
 function closeArticleDetail(){
@@ -8756,7 +8929,8 @@ if(articleAllBtn) articleAllBtn.addEventListener('click', ()=>{
 });
 if(articleDeleteCancelBtn) articleDeleteCancelBtn.addEventListener('click', ()=>toggleArticleDeleteMode(false));
 if(articleDeleteConfirmBtn) articleDeleteConfirmBtn.addEventListener('click', deleteSelectedArticles);
-document.querySelectorAll('[data-category]').forEach(btn=>btn.addEventListener('click', ()=>setArticleCategory(btn.dataset.category || '随笔')));
+if(articleDetailPrevPage) articleDetailPrevPage.addEventListener('click', ()=>goArticleDetailPage(-1));
+if(articleDetailNextPage) articleDetailNextPage.addEventListener('click', ()=>goArticleDetailPage(1));
 if(toolArticleCount) toolArticleCount.closest('.tool-stat')?.addEventListener('click', ()=>goUserArticles(readSavedUser()?.username));
 if(articleDetailCloseBtn) articleDetailCloseBtn.addEventListener('click', closeArticleDetail);
 if(articleDetailEditBtn) articleDetailEditBtn.addEventListener('click', editCurrentDetailArticle);
@@ -8808,9 +8982,40 @@ if(articleColorInput) articleColorInput.addEventListener('input', ()=>{
 });
 if(articleInsertImageBtn) articleInsertImageBtn.addEventListener('click', ()=>articleImageInput?.click());
 if(articleImageInput) articleImageInput.addEventListener('change', async ()=>{
-  const file = articleImageInput.files && articleImageInput.files[0];
-  if(file) await insertArticleImage(file);
+  const files = articleImageInput.files;
+  if(files && files.length) await insertArticleImages(files);
   articleImageInput.value = '';
+});
+if(articleInsertPageBtn) articleInsertPageBtn.addEventListener('click', ()=>{
+  const editor = articleContentEditor;
+  if(!editor) return;
+  editor.focus();
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount){
+    const range = sel.getRangeAt(0);
+    // 计算当前页码
+    const existingBreaks = editor.querySelectorAll('.article-page-break');
+    const pageNum = existingBreaks.length + 2;
+    const hr = document.createElement('hr');
+    hr.className = 'article-page-break';
+    hr.setAttribute('data-page', String(pageNum));
+    hr.contentEditable = 'false';
+    const wrapper = document.createElement('div');
+    wrapper.appendChild(document.createElement('br'));
+    wrapper.appendChild(hr);
+    wrapper.appendChild(document.createElement('br'));
+    const frag = document.createDocumentFragment();
+    while(wrapper.firstChild) frag.appendChild(wrapper.firstChild);
+    range.deleteContents();
+    range.insertNode(frag);
+    const nextRange = document.createRange();
+    nextRange.setStartAfter(hr);
+    nextRange.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(nextRange);
+    saveArticleSelection();
+    showLoginToast(`已插入第 ${pageNum} 页。`, 'success', '分页成功');
+  }
 });
 
 // 监听编辑器输入，确保新输入的文本继承当前样式设置
