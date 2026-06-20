@@ -5746,10 +5746,32 @@
     border:none;height:1px;margin:24px 0;
     background:linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
   }
-  .article-detail-content img{max-width:min(520px, 92%);max-height:400px;object-fit:contain;border-radius:18px;margin:16px auto;display:block;border:1px solid rgba(255,255,255,.15);box-shadow:0 10px 30px rgba(0,0,0,.25);transition:transform .3s, box-shadow .3s;}
-  .article-detail-content img:hover{transform:scale(1.02);box-shadow:0 14px 40px rgba(0,0,0,.3);}
-  .article-detail-content figure{margin:16px auto;text-align:center;max-width:min(520px, 92%);}
-  .article-detail-content figcaption{font-size:12px;color:rgba(255,255,255,.45);margin-top:6px;font-style:italic;}
+  .article-detail-content img{
+    width:min(400px, 92%);
+    height:280px;
+    object-fit:cover;
+    border-radius:20px;
+    margin:20px auto;
+    display:block;
+    border:1.5px solid rgba(255,255,255,.2);
+    box-shadow:0 12px 36px rgba(0,0,0,.3);
+    transition:transform .3s, box-shadow .3s;
+  }
+  .article-detail-content img:hover{transform:scale(1.02);box-shadow:0 16px 48px rgba(0,0,0,.38);}
+  .article-detail-content figure{
+    margin:20px auto;
+    text-align:center;
+    width:min(400px, 92%);
+  }
+  .article-detail-content figure img{
+    width:100%;
+    height:280px;
+    margin:0;
+  }
+  .article-detail-content figcaption{font-size:12px;color:rgba(255,255,255,.45);margin-top:8px;font-style:italic;}
+  .article-detail-content p + img,
+  .article-detail-content img + p{margin-top:20px;}
+  .article-detail-content p:has(img){margin:20px 0;text-align:center;}
   .article-detail-content ul,.article-detail-content ol{margin:12px 0;padding-left:24px;}
   .article-detail-content li{margin:6px 0;color:rgba(255,255,255,.82);}
   .article-detail-content a{color:#8fceff;text-decoration:none;border-bottom:1px solid rgba(143,206,255,.3);transition:border-color .2s;}
@@ -6084,6 +6106,49 @@
     background:rgba(18,24,58,.92);
     appearance:auto;
   }
+  .article-weight-label{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    gap:8px;
+  }
+  .article-weight-label input[type="range"]{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:6px;
+    border-radius:3px;
+    background:rgba(255,255,255,.15);
+    outline:none;
+    cursor:pointer;
+  }
+  .article-weight-label input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    appearance:none;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:linear-gradient(135deg, #7ff7ff, #ff8fc7);
+    box-shadow:0 0 8px rgba(127,247,255,.4);
+    cursor:pointer;
+    border:2px solid #fff;
+  }
+  .article-weight-label input[type="range"]::-moz-range-thumb{
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:linear-gradient(135deg, #7ff7ff, #ff8fc7);
+    box-shadow:0 0 8px rgba(127,247,255,.4);
+    cursor:pointer;
+    border:2px solid #fff;
+  }
+  #articleFontWeightValue{
+    color:#8fceff;
+    font-size:12px;
+    font-weight:700;
+    min-width:28px;
+    text-align:right;
+  }
   .article-style-panel select option{
     color:#161a2e;
     background:#f7f3ff;
@@ -6157,19 +6222,35 @@
     pointer-events:none;
   }
   .article-rich-editor img{
-    max-width:min(480px, 92%);
-    max-height:340px;
-    object-fit:contain;
+    width:min(360px, 92%);
+    height:240px;
+    object-fit:cover;
     border-radius:16px;
     display:block;
-    margin:12px auto;
-    border:1px solid rgba(255,255,255,.12);
+    margin:16px auto;
+    border:1.5px solid rgba(255,255,255,.18);
     box-shadow:0 8px 24px rgba(0,0,0,.2);
     transition:transform .25s, box-shadow .25s;
   }
   .article-rich-editor img:hover{transform:scale(1.015);box-shadow:0 12px 32px rgba(0,0,0,.28);}
-  .article-rich-editor figure{margin:12px auto;text-align:center;max-width:min(480px, 92%);}
-  .article-rich-editor figcaption{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;font-style:italic;}
+  .article-rich-editor figure{
+    margin:16px auto;
+    text-align:center;
+    width:min(360px, 92%);
+  }
+  .article-rich-editor figure img{
+    width:100%;
+    height:240px;
+    margin:0;
+  }
+  .article-rich-editor figcaption{font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;font-style:italic;}
+  .article-rich-editor:empty::before{
+    content:attr(data-placeholder);
+    color:rgba(255,255,255,.3);
+    font-size:14px;
+    pointer-events:none;
+    display:block;
+  }
   .article-editor-actions{
     display:flex;
     justify-content:flex-end;
@@ -6998,43 +7079,29 @@
       </div>
     </div>
     <div class="article-style-panel">
-      <label>热门字体
+      <label>字体
         <select id="articleFontSelect">
           <option value="'Microsoft YaHei','Segoe UI',sans-serif">微软雅黑</option>
           <option value="'PingFang SC','Microsoft YaHei',sans-serif">苹方</option>
           <option value="'Noto Sans SC','Microsoft YaHei',sans-serif">思源黑体</option>
-          <option value="'HarmonyOS Sans SC','Microsoft YaHei',sans-serif">鸿蒙 Sans</option>
-          <option value="'Source Han Sans SC','Noto Sans SC',sans-serif">Source Han Sans</option>
           <option value="'LXGW WenKai','KaiTi',serif">霞鹜文楷</option>
-          <option value="'YouYuan','Microsoft YaHei',sans-serif">幼圆</option>
           <option value="'STXingkai','KaiTi',cursive">华文行楷</option>
           <option value="'STKaiti','KaiTi',serif">华文楷体</option>
-          <option value="'STHeiti','Microsoft YaHei',sans-serif">华文黑体</option>
-          <option value="'ZCOOL QingKe HuangYou','Microsoft YaHei',sans-serif">站酷庆科黄油体</option>
           <option value="'SimSun','Songti SC',serif">宋体</option>
           <option value="'KaiTi','Kaiti SC',serif">楷体</option>
           <option value="'FangSong','STFangsong',serif">仿宋</option>
-          <option value="'Arial','Helvetica',sans-serif">Arial</option>
-          <option value="'Verdana','Arial',sans-serif">Verdana</option>
-          <option value="'Tahoma','Arial',sans-serif">Tahoma</option>
           <option value="'Georgia',serif">Georgia</option>
-          <option value="'Palatino Linotype','Book Antiqua',serif">Palatino</option>
-          <option value="'Times New Roman',serif">Times New Roman</option>
-          <option value="'Trebuchet MS','Comic Sans MS',cursive">可爱手写风</option>
-          <option value="'Comic Sans MS','Trebuchet MS',cursive">Comic Sans</option>
-          <option value="'Courier New',monospace">Courier New</option>
-          <option value="'Consolas','Courier New',monospace">Consolas</option>
-          <option value="'Monaco','Consolas',monospace">Monaco</option>
+          <option value="'Ma Shan Zheng','STXingkai',cursive">马善政毛笔</option>
+          <option value="'ZCOOL KuaiLe','Comic Sans MS',cursive">站酷快乐体</option>
+          <option value="'ZCOOL QingKe HuangYou','Microsoft YaHei',sans-serif">站酷黄油体</option>
+          <option value="'Long Cang','KaiTi',cursive">龙苍行书</option>
+          <option value="'Liu Jian Mao Cao','KaiTi',cursive">刘建毛草</option>
         </select>
       </label>
       <label>字号<input id="articleFontSizeInput" type="number" min="12" max="48" value="16" /></label>
-      <label>字重
-        <select id="articleFontWeightSelect">
-          <option value="400">常规 400</option>
-          <option value="500">中等 500</option>
-          <option value="700">加粗 700</option>
-          <option value="900">超粗 900</option>
-        </select>
+      <label class="article-weight-label">字重
+        <input id="articleFontWeightSlider" type="range" min="100" max="900" step="100" value="400" />
+        <span id="articleFontWeightValue">400</span>
       </label>
       <label>颜色<input id="articleColorInput" type="color" value="#ffffff" /></label>
       <label>标题级别
@@ -7058,7 +7125,7 @@
         <button id="articleClearFormatBtn" type="button">清除格式</button>
       </div>
     </div>
-    <div class="article-rich-editor" id="articleContentEditor" contenteditable="true" spellcheck="false">在这里写文章内容。图片会插入到光标所在位置，并自动缩小显示。</div>
+    <div class="article-rich-editor" id="articleContentEditor" contenteditable="true" spellcheck="false" data-placeholder="在这里写文章内容。图片会插入到光标所在位置，并自动缩小显示。" data-editor-color="#ffffff" data-editor-weight="400"></div>
     <input id="articleImageInput" type="file" accept="image/*" hidden />
     <div class="article-editor-actions">
       <div class="article-progress" id="articlePublishProgress" aria-hidden="true"><span id="articlePublishProgressBar"></span></div>
@@ -7688,7 +7755,8 @@ const articleCategoryInput = document.getElementById('articleCategoryInput');
 const articleSummaryInput = document.getElementById('articleSummaryInput');
 const articleFontSelect = document.getElementById('articleFontSelect');
 const articleFontSizeInput = document.getElementById('articleFontSizeInput');
-const articleFontWeightSelect = document.getElementById('articleFontWeightSelect');
+const articleFontWeightSlider = document.getElementById('articleFontWeightSlider');
+const articleFontWeightValue = document.getElementById('articleFontWeightValue');
 const articleColorInput = document.getElementById('articleColorInput');
 const articleHeadingSelect = document.getElementById('articleHeadingSelect');
 const articleBoldBtn = document.getElementById('articleBoldBtn');
@@ -8347,10 +8415,13 @@ function openArticleEditor(article = null){
   articleCategoryInput.value = article?.category || '随笔';
   articleSummaryInput.value = article?.summary || '';
   articleFontSizeInput.value = 16;
-  articleFontWeightSelect.value = '400';
+  if(articleFontWeightSlider) articleFontWeightSlider.value = '400';
+  if(articleFontWeightValue) articleFontWeightValue.textContent = '400';
   articleColorInput.value = '#ffffff';
   articleHeadingSelect.value = 'P';
-  articleContentEditor.innerHTML = article?.content || '在这里写文章内容。图片会插入到光标所在位置，并自动缩小显示。';
+  articleContentEditor.innerHTML = article?.content || '';
+  articleContentEditor?.setAttribute('data-editor-color', '#ffffff');
+  articleContentEditor?.setAttribute('data-editor-weight', '400');
   if(articleEditorTitle) articleEditorTitle.textContent = article ? '修改文章' : '发布文章';
   if(articleSaveBtn) articleSaveBtn.textContent = article ? '保存修改' : '发布';
   articleEditorModal?.classList.add('open');
@@ -8391,17 +8462,21 @@ function applyArticleInlineStyle(styleMap = {}){
   const selection = window.getSelection();
   if(!selection || !selection.rangeCount) return;
   const range = selection.getRangeAt(0);
-  const span = document.createElement('span');
-  Object.assign(span.style, styleMap);
   if(range.collapsed){
+    // 光标位置：创建零宽空格 span 并移动光标到其后
+    const span = document.createElement('span');
+    Object.assign(span.style, styleMap);
     span.appendChild(document.createTextNode('\u200b'));
     range.insertNode(span);
     const nextRange = document.createRange();
-    nextRange.setStart(span.firstChild, 1);
+    nextRange.setStartAfter(span);
     nextRange.collapse(true);
     selection.removeAllRanges();
     selection.addRange(nextRange);
   }else{
+    // 有选中文字：包裹选区
+    const span = document.createElement('span');
+    Object.assign(span.style, styleMap);
     span.appendChild(range.extractContents());
     range.insertNode(span);
     const nextRange = document.createRange();
@@ -8413,9 +8488,40 @@ function applyArticleInlineStyle(styleMap = {}){
   saveArticleSelection();
 }
 
-function applyArticleBlock(format){
+function applyArticleHeading(format){
   restoreArticleSelection();
-  document.execCommand('formatBlock', false, format);
+  const selection = window.getSelection();
+  if(!selection || !selection.rangeCount) return;
+  const range = selection.getRangeAt(0);
+  if(range.collapsed){
+    // 光标位置：插入对应标签并移动光标
+    let tag;
+    if(format === 'BLOCKQUOTE') tag = document.createElement('blockquote');
+    else if(format === 'PRE') tag = document.createElement('pre');
+    else if(format.startsWith('H')) tag = document.createElement(format.toLowerCase());
+    else tag = document.createElement('p');
+    tag.appendChild(document.createTextNode('\u200b'));
+    range.insertNode(tag);
+    const nextRange = document.createRange();
+    nextRange.setStartAfter(tag);
+    nextRange.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(nextRange);
+  }else{
+    // 有选中文字：包裹选区
+    let tag;
+    if(format === 'BLOCKQUOTE') tag = document.createElement('blockquote');
+    else if(format === 'PRE') tag = document.createElement('pre');
+    else if(format.startsWith('H')) tag = document.createElement(format.toLowerCase());
+    else tag = document.createElement('p');
+    tag.appendChild(range.extractContents());
+    range.insertNode(tag);
+    const nextRange = document.createRange();
+    nextRange.selectNodeContents(tag);
+    nextRange.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(nextRange);
+  }
   saveArticleSelection();
 }
 
@@ -8431,11 +8537,6 @@ function markArticleControlApplied(control){
     }
     label?.classList.remove('applied');
   }, 900);
-}
-
-function applyArticleFontSize(){
-  const size = Math.max(12, Math.min(48, Number(articleFontSizeInput?.value || 16)));
-  applyArticleInlineStyle({ fontSize:`${size}px` });
 }
 
 function getFirstArticleImage(html){
@@ -8477,7 +8578,36 @@ async function insertArticleImage(file){
   showLoginToast('正在压缩并插入图片，请稍候。', 'success', '图片处理中');
   const src = await compressArticleImageFile(file);
   restoreArticleSelection();
-  document.execCommand('insertHTML', false, `<img src="${src}" alt="文章图片" loading="lazy" />`);
+  const sel = window.getSelection();
+  const range = sel && sel.rangeCount ? sel.getRangeAt(0) : null;
+  const editor = articleContentEditor;
+  if(!range || !editor) return;
+  // 确保光标在编辑器内
+  if(!editor.contains(range.commonAncestorContainer)){
+    editor.focus();
+    const newRange = document.createRange();
+    newRange.selectNodeContents(editor);
+    newRange.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+  }
+  // 图片独占一行：插入换行 + 图片 + 换行
+  const div = document.createElement('div');
+  div.innerHTML = '<br><img src="' + src + '" alt="文章图片" loading="lazy" /><br>';
+  const frag = document.createDocumentFragment();
+  while(div.firstChild) frag.appendChild(div.firstChild);
+  range.deleteContents();
+  range.insertNode(frag);
+  // 移动光标到图片后面
+  const imgs = editor.querySelectorAll('img[src="' + src + '"]');
+  const insertedImg = imgs[imgs.length - 1];
+  if(insertedImg){
+    const nextRange = document.createRange();
+    nextRange.setStartAfter(insertedImg);
+    nextRange.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(nextRange);
+  }
   saveArticleSelection();
 }
 
@@ -8660,10 +8790,29 @@ if(articleItalicBtn) articleItalicBtn.addEventListener('click', ()=>{ applyArtic
 if(articleUnderlineBtn) articleUnderlineBtn.addEventListener('click', ()=>{ applyArticleCommand('underline'); articleUnderlineBtn.classList.toggle('active'); });
 if(articleClearFormatBtn) articleClearFormatBtn.addEventListener('click', ()=>{ applyArticleCommand('removeFormat'); [articleBoldBtn, articleItalicBtn, articleUnderlineBtn].forEach(btn=>btn?.classList.remove('active')); markArticleControlApplied(articleClearFormatBtn); });
 if(articleFontSelect) articleFontSelect.addEventListener('change', ()=>{ applyArticleInlineStyle({ fontFamily:articleFontSelect.value }); markArticleControlApplied(articleFontSelect); });
-if(articleFontWeightSelect) articleFontWeightSelect.addEventListener('change', ()=>{ applyArticleInlineStyle({ fontWeight:articleFontWeightSelect.value }); markArticleControlApplied(articleFontWeightSelect); });
-if(articleFontSizeInput) articleFontSizeInput.addEventListener('change', ()=>{ applyArticleFontSize(); markArticleControlApplied(articleFontSizeInput); });
-if(articleColorInput) articleColorInput.addEventListener('input', ()=>{ applyArticleInlineStyle({ color:articleColorInput.value }); markArticleControlApplied(articleColorInput); });
-if(articleHeadingSelect) articleHeadingSelect.addEventListener('change', ()=>{ applyArticleBlock(articleHeadingSelect.value); markArticleControlApplied(articleHeadingSelect); });
+if(articleFontWeightSlider) articleFontWeightSlider.addEventListener('input', ()=>{
+  const w = articleFontWeightSlider.value;
+  if(articleFontWeightValue) articleFontWeightValue.textContent = w;
+  applyArticleInlineStyle({ fontWeight:w });
+  articleContentEditor?.setAttribute('data-editor-weight', w);
+  markArticleControlApplied(articleFontWeightSlider);
+});
+if(articleFontSizeInput) articleFontSizeInput.addEventListener('input', ()=>{
+  const size = Math.max(12, Math.min(48, Number(articleFontSizeInput?.value || 16)));
+  applyArticleInlineStyle({ fontSize:`${size}px` });
+  markArticleControlApplied(articleFontSizeInput);
+});
+if(articleColorInput) articleColorInput.addEventListener('input', ()=>{
+  const c = articleColorInput.value;
+  applyArticleInlineStyle({ color:c });
+  articleContentEditor?.setAttribute('data-editor-color', c);
+  markArticleControlApplied(articleColorInput);
+});
+if(articleHeadingSelect) articleHeadingSelect.addEventListener('change', ()=>{
+  const format = articleHeadingSelect.value;
+  applyArticleHeading(format);
+  markArticleControlApplied(articleHeadingSelect);
+});
 if(articleInsertImageBtn) articleInsertImageBtn.addEventListener('click', ()=>articleImageInput?.click());
 if(articleImageInput) articleImageInput.addEventListener('change', async ()=>{
   const file = articleImageInput.files && articleImageInput.files[0];
