@@ -6671,6 +6671,16 @@
     box-shadow:0 0 0 3px rgba(127,247,255,.1);
     transform:translateY(-1px);
   }
+  .article-editor-switches button#articleSetCoverBtn{
+    border-color:rgba(212,175,55,.3);
+    color:#F0D060;
+    background:rgba(212,175,55,.08);
+  }
+  .article-editor-switches button#articleSetCoverBtn:hover{
+    background:rgba(212,175,55,.18);
+    border-color:rgba(212,175,55,.45);
+    box-shadow:0 4px 12px rgba(212,175,55,.1);
+  }
   .article-style-panel label.applied{
     color:#fff;
   }
@@ -7586,31 +7596,6 @@
   </div>
 </main>
 
-<!-- 文章详情弹窗 -->
-<div class="ua-detail" id="uaDetailModal">
-  <div class="ua-detail-card">
-    <div class="ua-detail-head">
-      <div class="ua-detail-head-left">
-        <div class="ua-avatar-inline" id="uaDetailAvatar"></div>
-        <div class="ua-detail-author-inline">
-          <span class="ua-author-name" id="uaDetailAuthorName"></span>
-          <span class="ua-author-time" id="uaDetailAuthorTime"></span>
-        </div>
-      </div>
-      <div class="ua-detail-head-center">
-        <h2 id="uaDetailTitle">文章标题</h2>
-        <div class="ua-detail-meta" id="uaDetailMeta"></div>
-      </div>
-      <div class="ua-detail-head-right">
-        <button class="ua-detail-close" id="uaDetailClose" type="button">关闭</button>
-      </div>
-    </div>
-    <div class="ua-detail-scroll">
-      <div class="ua-detail-content" id="uaDetailContent"></div>
-    </div>
-  </div>
-</div>
-
 <div class="article-editor-modal" id="articleEditorModal" aria-hidden="true">
   <div class="article-editor-card" role="dialog" aria-modal="true" aria-labelledby="articleEditorTitle">
     <div class="article-editor-head">
@@ -7648,6 +7633,7 @@
         <button id="articleItalicBtn" type="button">斜体开关</button>
         <button id="articleUnderlineBtn" type="button">下划线开关</button>
         <button id="articleInsertImageBtn" type="button">插入图片（可多选）≤3MB</button>
+        <button id="articleSetCoverBtn" type="button" hidden>设为封面</button>
         <button id="articleInsertPageBtn" type="button">插入新页</button>
         <button id="articleClearFormatBtn" type="button">清除格式</button>
       </div>
@@ -8701,13 +8687,8 @@ const uaSortSelect = document.getElementById('uaSortSelect');
 const uaPageInfo = document.getElementById('uaPageInfo');
 const uaPrevPageBtn = document.getElementById('uaPrevPageBtn');
 const uaNextPageBtn = document.getElementById('uaNextPageBtn');
-const uaDetailModal = document.getElementById('uaDetailModal');
-const uaDetailTitle = document.getElementById('uaDetailTitle');
-const uaDetailMeta = document.getElementById('uaDetailMeta');
-const uaDetailContent = document.getElementById('uaDetailContent');
 const uaBackBtn = document.getElementById('uaBackBtn');
 const uaClearFilterBtn = document.getElementById('uaClearFilterBtn');
-const uaDetailClose = document.getElementById('uaDetailClose');
 const uaDeleteModeBtn = document.getElementById('uaDeleteModeBtn');
 const uaDeleteTools = document.getElementById('uaDeleteTools');
 const uaDeleteConfirmBtn = document.getElementById('uaDeleteConfirmBtn');
@@ -8806,33 +8787,8 @@ function uaRenderArticles(){
   uaNextPageBtn.disabled = uaCurrentPage >= totalPages;
 }
 async function uaOpenDetail(article){
-  const full = await uaFetchJson(`/api/articles?id=${encodeURIComponent(article.id)}`).then(data => data.article).catch(() => article);
-  article = full || article;
-  if(uaDetailTitle) uaDetailTitle.textContent = article.title || '未命名文章';
-  if(uaDetailMeta) uaDetailMeta.innerHTML = `<span>${escapeHtml(article.category || '随笔')}</span>`;
-  if(uaDetailAuthorName) uaDetailAuthorName.textContent = `@${article.author || uaCurrentUsername}`;
-  if(uaDetailAuthorTime) uaDetailAuthorTime.textContent = article.createdAt || '';
-  // 加载头像
-  const uaAvatarEl = document.getElementById('uaDetailAvatar');
-  if(uaAvatarEl){
-    const avatarUrl = article.authorAvatar || article.avatar || '';
-    if(avatarUrl && avatarUrl.startsWith('data:image/')){
-      uaAvatarEl.style.backgroundImage = `url(${avatarUrl})`;
-    }else{
-      const authorName = article.author || '';
-      if(authorName){
-        authRequest(`/api/users/profile?username=${encodeURIComponent(authorName)}`, { method:'GET' })
-          .then(data => {
-            const profile = data.user?.profile || data.profile || {};
-            const url = profile.avatar || '';
-            if(url && url.startsWith('data:image/')) uaAvatarEl.style.backgroundImage = `url(${url})`;
-          }).catch(()=>{});
-      }
-    }
-  }
-  uaDetailContent.style.fontFamily = article.fontFamily || '';
-  uaDetailContent.innerHTML = article.content || '<p>这篇文章暂时没有内容。</p>';
-  uaDetailModal.classList.add('open');
+  // 复用首页文章详情页
+  await openArticleDetail(article.id);
 }
 async function uaInit(username){
   uaCurrentUsername = username;
@@ -8862,8 +8818,6 @@ uaSortSelect.addEventListener('change', () => { uaCurrentPage = 1; uaApplyFilter
 uaClearFilterBtn.addEventListener('click', () => { uaSearchInput.value = ''; uaActiveTag = '全部'; uaSortSelect.value = 'new'; uaCurrentPage = 1; uaRenderTags(); uaApplyFilters(); });
 uaPrevPageBtn.addEventListener('click', () => { uaCurrentPage--; uaRenderArticles(); userArticlesPage.scrollTo({ top:0, behavior:'smooth' }); });
 uaNextPageBtn.addEventListener('click', () => { uaCurrentPage++; uaRenderArticles(); userArticlesPage.scrollTo({ top:0, behavior:'smooth' }); });
-uaDetailClose.addEventListener('click', () => uaDetailModal.classList.remove('open'));
-uaDetailModal.addEventListener('click', event => { if(event.target === uaDetailModal) uaDetailModal.classList.remove('open'); });
 // 用户公开文章区删除功能
 if(uaDeleteModeBtn) uaDeleteModeBtn.addEventListener('click', ()=>{
   uaDeleteMode = !uaDeleteMode;
@@ -9400,6 +9354,12 @@ async function saveArticleFromEditor(){
     showLoginToast('请填写文章标题和正文。', 'warn', '内容不完整');
     return;
   }
+  // 检查是否包含图片
+  const hasImage = /<img[^>]+src=["']([^"']+)["']/i.test(allContent);
+  if(!hasImage){
+    showLoginToast('发布文章需要至少上传一张图片作为封面。请点击"插入图片"按钮添加图片。', 'warn', '需要图片');
+    return;
+  }
   if(allContent.length > 1_600_000){
     showLoginToast('文章内容或图片仍然过大，请减少图片数量或压缩后再发布。', 'warn', '内容过大');
     return;
@@ -9752,6 +9712,47 @@ if(articleImageInput) articleImageInput.addEventListener('change', async ()=>{
   const files = articleImageInput.files;
   if(files && files.length) await insertArticleImages(files);
   articleImageInput.value = '';
+  // 插入图片后显示"设为封面"按钮
+  updateSetCoverBtnVisibility();
+});
+// 封面选择功能
+const articleSetCoverBtn = document.getElementById('articleSetCoverBtn');
+let selectedCoverSrc = null;
+function updateSetCoverBtnVisibility(){
+  const imgs = articleContentEditor?.querySelectorAll('img[src^="data:image/"]') || [];
+  if(articleSetCoverBtn) articleSetCoverBtn.hidden = imgs.length < 2;
+}
+if(articleSetCoverBtn) articleSetCoverBtn.addEventListener('click', ()=>{
+  const imgs = Array.from(articleContentEditor?.querySelectorAll('img[src^="data:image/"]') || []);
+  if(imgs.length < 2){
+    showLoginToast('需要至少2张图片才能选择封面。', 'warn', '图片不足');
+    return;
+  }
+  // 进入封面选择模式
+  showLoginToast('请点击要设为封面的图片。第一张图将作为文章封面，不轮播。', 'success', '选择封面');
+  const onCoverClick = (e)=>{
+    const img = e.target.closest?.('img');
+    if(!img || !articleContentEditor.contains(img)) return;
+    const src = img.src;
+    if(!src || !src.startsWith('data:image/')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    selectedCoverSrc = src;
+    // 将选中的图片移到内容最前面
+    const parent = img.closest('.img-resize-wrap') || img.parentNode;
+    const firstRow = articleContentEditor.querySelector('.article-img-row');
+    if(firstRow && parent !== firstRow && !firstRow.contains(img)){
+      firstRow.insertBefore(img, firstRow.firstChild);
+    }
+    articleContentEditor.removeEventListener('click', onCoverClick);
+    showLoginToast('已将该图片设为封面。发布后文章列表将显示此图。', 'success', '封面已设置');
+    updateSetCoverBtnVisibility();
+  };
+  articleContentEditor.addEventListener('click', onCoverClick);
+  // 3秒后自动取消
+  setTimeout(()=>{
+    articleContentEditor.removeEventListener('click', onCoverClick);
+  }, 10000);
 });
 if(articleInsertPageBtn) articleInsertPageBtn.addEventListener('click', ()=>{
   // 保存当前页
@@ -9805,12 +9806,14 @@ if(articleContentEditor){
     }
   });
 }
-// 编辑器图片变换框功能——每张图片独立变换框，可拖动位置和缩放
+// 编辑器图片变换框功能——点击显示定界框，长按拖动位置，手柄缩放
 function initEditorImageResize(){
   if(!articleContentEditor) return;
   let activeWrap = null;
   let resizing = false;
   let dragging = false;
+  let longPressTimer = null;
+  let isLongPress = false;
   let startX, startY, startW, startH, startLeft, startTop;
 
   function ensureWrap(img){
@@ -9822,11 +9825,9 @@ function initEditorImageResize(){
       wrap.style.verticalAlign = 'top';
       img.parentNode.insertBefore(wrap, img);
       wrap.appendChild(img);
-      // 添加虚线边框
       const border = document.createElement('div');
       border.className = 'img-resize-border';
       wrap.appendChild(border);
-      // 添加4个拖拽手柄
       ['tl','tr','bl','br'].forEach(pos=>{
         const handle = document.createElement('div');
         handle.className = 'img-resize-handle ' + pos;
@@ -9837,8 +9838,9 @@ function initEditorImageResize(){
     return wrap;
   }
 
-  // 点击编辑器内图片时添加变换框
+  // 点击图片：显示定界框
   articleContentEditor.addEventListener('click', (e)=>{
+    if(isLongPress){ isLongPress = false; return; }
     const img = e.target.closest?.('img');
     if(!img || !articleContentEditor.contains(img)){
       document.querySelectorAll('.img-resize-wrap.selected').forEach(w=>w.classList.remove('selected'));
@@ -9861,13 +9863,13 @@ function initEditorImageResize(){
     }
   });
 
-  // 拖拽缩放 + 拖动位置
+  // mousedown：长按拖动 / 手柄缩放
   articleContentEditor.addEventListener('mousedown', (e)=>{
     const handle = e.target.closest?.('.img-resize-handle');
     const wrap = e.target.closest?.('.img-resize-wrap');
     if(!wrap || !articleContentEditor.contains(wrap)) return;
 
-    // 点击手柄 = 缩放
+    // 手柄缩放
     if(handle){
       e.preventDefault();
       e.stopPropagation();
@@ -9884,7 +9886,6 @@ function initEditorImageResize(){
         if(!resizing || !activeWrap) return;
         let dx = ev.clientX - startX;
         let dy = ev.clientY - startY;
-        // 根据手柄位置调整方向
         if(pos.includes('l')) dx = -dx;
         if(pos.includes('t')) dy = -dy;
         const newW = Math.max(60, startW + dx);
@@ -9903,35 +9904,65 @@ function initEditorImageResize(){
       return;
     }
 
-    // 点击wrap主体 = 拖动位置
-    if(wrap.classList.contains('selected') && e.target.closest('.img-resize-wrap') && !e.target.closest('.img-resize-handle')){
-      e.preventDefault();
-      e.stopPropagation();
-      dragging = true;
-      activeWrap = wrap;
-      startX = e.clientX;
-      startY = e.clientY;
-      const rect = wrap.getBoundingClientRect();
-      const parentRect = articleContentEditor.getBoundingClientRect();
-      startLeft = rect.left - parentRect.left;
-      startTop = rect.top - parentRect.top;
-      wrap.style.position = 'absolute';
-      wrap.style.left = startLeft + 'px';
-      wrap.style.top = startTop + 'px';
-      const onMove = (ev)=>{
-        if(!dragging || !activeWrap) return;
-        const dx = ev.clientX - startX;
-        const dy = ev.clientY - startY;
-        activeWrap.style.left = (startLeft + dx) + 'px';
-        activeWrap.style.top = (startTop + dy) + 'px';
-      };
-      const onUp = ()=>{
-        dragging = false;
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-      };
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
+    // 长按检测（300ms）
+    const imgEl = wrap.querySelector('img');
+    if(imgEl && wrap.classList.contains('selected')){
+      longPressTimer = setTimeout(()=>{
+        isLongPress = true;
+        dragging = true;
+        activeWrap = wrap;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = wrap.getBoundingClientRect();
+        const parentRect = articleContentEditor.getBoundingClientRect();
+        startLeft = rect.left - parentRect.left;
+        startTop = rect.top - parentRect.top;
+        wrap.style.position = 'relative';
+        wrap.style.left = '0px';
+        wrap.style.top = '0px';
+        wrap.style.cursor = 'grabbing';
+        const onMove = (ev)=>{
+          if(!dragging || !activeWrap) return;
+          const dx = ev.clientX - startX;
+          const dy = ev.clientY - startY;
+          activeWrap.style.transform = `translate(${dx}px, ${dy}px)`;
+        };
+        const onUp = ()=>{
+          dragging = false;
+          isLongPress = false;
+          if(activeWrap){
+            activeWrap.style.cursor = '';
+            // 将 transform 转为 margin 偏移
+            const t = activeWrap.style.transform;
+            if(t && t !== 'none'){
+              const match = t.match(/translate\(([^,]+),\s*([^)]+)\)/);
+              if(match){
+                activeWrap.style.marginLeft = match[1];
+                activeWrap.style.marginTop = match[2];
+              }
+            }
+            activeWrap.style.transform = '';
+          }
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      }, 300);
+    }
+  });
+
+  // 如果鼠标在300ms内抬起，取消长按
+  articleContentEditor.addEventListener('mouseup', ()=>{
+    if(longPressTimer){
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+  });
+  articleContentEditor.addEventListener('mousemove', ()=>{
+    if(longPressTimer && !dragging){
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
     }
   });
 }
