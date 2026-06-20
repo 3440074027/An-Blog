@@ -667,6 +667,18 @@
   }
 
   /* ========== 用户公开文章页样式 - 与首页一致 ========== */
+  /* 隐藏滚动条但保留滚动功能 */
+  #userArticlesPage::-webkit-scrollbar{width:0;height:0;display:none}
+  #userArticlesPage{-ms-overflow-style:none;scrollbar-width:none}
+  .ua-sidebar::-webkit-scrollbar{width:0;display:none}
+  .ua-sidebar{-ms-overflow-style:none;scrollbar-width:none}
+  .ua-tag-panel::-webkit-scrollbar{height:0;display:none}
+  .ua-tag-panel{-ms-overflow-style:none;scrollbar-width:none}
+  .ua-article-grid::-webkit-scrollbar{width:0;height:0;display:none}
+  .ua-article-grid{-ms-overflow-style:none;scrollbar-width:none}
+  .ua-detail-card::-webkit-scrollbar{width:0;display:none}
+  .ua-detail-card{-ms-overflow-style:none;scrollbar-width:none}
+
   #userArticlesPage{
     position:fixed;
     inset:0;
@@ -735,7 +747,7 @@
     grid-template-columns:minmax(260px,300px) minmax(0,1fr);
     gap:20px;align-items:start;
   }
-  .ua-sidebar{position:sticky;top:20px;display:grid;gap:16px}
+  .ua-sidebar{position:sticky;top:20px;display:grid;gap:16px;max-height:calc(100dvh - 100px);overflow-y:auto}
 
   /* -- 毛玻璃卡片基础 -- */
   .ua-glass{
@@ -897,6 +909,7 @@
     background:linear-gradient(145deg, rgba(39,55,84,.5), rgba(255,255,255,.08));
     border:1.5px solid rgba(255,255,255,.22);
     backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    max-height:120px;overflow-y:auto;
   }
 
   .ua-article-grid{
@@ -1085,10 +1098,37 @@
   }
   @media (max-width:860px){
     .ua-layout{grid-template-columns:1fr}
-    .ua-sidebar{position:relative;top:auto}
+    .ua-sidebar{position:relative;top:auto;max-height:none}
     .ua-toolbar{grid-template-columns:1fr}
     .ua-profile-card{text-align:center}
     .ua-page{padding:16px 0 32px}
+  }
+  @media (max-width:480px){
+    .ua-page{padding:10px 0 24px}
+    .ua-topbar{gap:8px;margin-bottom:14px}
+    .ua-back,.ua-topbar .ua-meta{font-size:11px;min-height:32px;padding:0 12px;border-radius:8px}
+    .ua-profile-card{padding:16px 12px;border-radius:20px}
+    .ua-avatar{width:64px;height:64px;margin-bottom:10px}
+    .ua-profile-card h1{font-size:18px}
+    .ua-stats{gap:6px}
+    .ua-stat{padding:10px 4px;border-radius:12px}
+    .ua-stat strong{font-size:18px}
+    .ua-intro{padding:12px;font-size:12px;border-radius:14px}
+    .ua-toolbar{padding:10px;border-radius:14px;gap:8px}
+    .ua-searchbox input,.ua-toolbar select{min-height:34px;font-size:12px;padding:0 10px}
+    .ua-ghost-btn{min-height:34px;padding:0 12px;font-size:12px}
+    .ua-tag-panel{padding:10px;border-radius:14px;gap:6px}
+    .ua-tag,.ua-filter-tag{padding:3px 8px;font-size:10px}
+    .ua-article-grid{grid-template-columns:1fr;gap:12px}
+    .ua-article{min-height:auto;border-radius:16px}
+    .ua-article-body{padding:12px}
+    .ua-article h2{font-size:14px}
+    .ua-article p{font-size:12px}
+    .ua-pager{padding:10px;border-radius:14px}
+    .ua-page-btn{min-height:32px;padding:0 14px;font-size:12px}
+    .ua-detail-card{padding:18px;border-radius:20px}
+    .ua-detail h2{font-size:18px}
+    .ua-detail-content{padding:14px;font-size:13px}
   }
 
   .transition-flare{
