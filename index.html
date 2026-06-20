@@ -5663,8 +5663,9 @@
   .article-detail-card{
     width:min(940px, 96vw);
     max-height:90vh;
-    overflow:auto;
-    display:grid;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
     gap:0;
     padding:0;
     border-radius:34px;
@@ -5677,9 +5678,16 @@
     border:1px solid rgba(212,175,55,.15);
     box-shadow:0 34px 100px rgba(0,0,0,.44), 0 0 60px rgba(212,175,55,.04);
   }
-  .article-detail-card::-webkit-scrollbar{width:6px;}
-  .article-detail-card::-webkit-scrollbar-track{background:transparent;}
-  .article-detail-card::-webkit-scrollbar-thumb{background:rgba(212,175,55,.2);border-radius:3px;}
+  .article-detail-scroll{
+    flex:1 1 auto;
+    overflow-y:auto;
+    overflow-x:hidden;
+    min-height:0;
+  }
+  .article-detail-scroll::-webkit-scrollbar{width:6px;}
+  .article-detail-scroll::-webkit-scrollbar-track{background:transparent;}
+  .article-detail-scroll::-webkit-scrollbar-thumb{background:rgba(212,175,55,.25);border-radius:3px;}
+  .article-detail-scroll::-webkit-scrollbar-thumb:hover{background:rgba(212,175,55,.4);}
   .article-detail-head{
     display:flex;
     align-items:flex-start;
@@ -5787,31 +5795,31 @@
     background:linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
   }
   .article-detail-content img{
-    width:min(400px, 92%);
-    height:280px;
-    object-fit:cover;
-    border-radius:20px;
-    margin:20px auto;
+    max-width:min(360px, 92%);
+    max-height:240px;
+    object-fit:contain;
+    border-radius:16px;
     display:block;
-    border:1.5px solid rgba(255,255,255,.2);
-    box-shadow:0 12px 36px rgba(0,0,0,.3);
-    transition:transform .3s, box-shadow .3s;
+    margin:16px auto;
+    border:1.5px solid rgba(255,255,255,.18);
+    box-shadow:0 8px 24px rgba(0,0,0,.2);
+    transition:transform .25s, box-shadow .25s;
   }
-  .article-detail-content img:hover{transform:scale(1.02);box-shadow:0 16px 48px rgba(0,0,0,.38);}
+  .article-detail-content img:hover{transform:scale(1.015);box-shadow:0 12px 32px rgba(0,0,0,.28);}
   .article-detail-content figure{
-    margin:20px auto;
+    margin:16px auto;
     text-align:center;
-    width:min(400px, 92%);
+    width:min(360px, 92%);
   }
   .article-detail-content figure img{
-    width:100%;
-    height:280px;
+    max-width:100%;
+    max-height:240px;
     margin:0;
   }
-  .article-detail-content figcaption{font-size:12px;color:rgba(255,255,255,.45);margin-top:8px;font-style:italic;}
+  .article-detail-content figcaption{font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;font-style:italic;}
   .article-detail-content p + img,
-  .article-detail-content img + p{margin-top:20px;}
-  .article-detail-content p:has(img){margin:20px 0;text-align:center;}
+  .article-detail-content img + p{margin-top:16px;}
+  .article-detail-content p:has(img){margin:16px 0;text-align:center;}
   /* 多图并排布局 */
   .article-detail-content .article-img-row,
   .article-rich-editor .article-img-row{
@@ -5836,6 +5844,43 @@
   }
   .article-detail-content .article-img-row img:hover,
   .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 10px 28px rgba(0,0,0,.28);}
+  /* 图片变换框 */
+  .article-rich-editor .img-resize-wrap{
+    position:relative;
+    display:inline-block;
+    max-width:100%;
+    margin:8px 0;
+  }
+  .article-rich-editor .img-resize-wrap img{
+    display:block;
+    max-width:100%;
+    height:auto;
+    border-radius:14px;
+    border:1.5px solid rgba(255,255,255,.18);
+    box-shadow:0 6px 18px rgba(0,0,0,.2);
+  }
+  .article-rich-editor .img-resize-wrap.selected img{
+    border-color:rgba(127,247,255,.6);
+    box-shadow:0 0 0 3px rgba(127,247,255,.2), 0 6px 18px rgba(0,0,0,.2);
+  }
+  .article-rich-editor .img-resize-handle{
+    position:absolute;
+    width:10px;height:10px;
+    background:linear-gradient(135deg, #7ff7ff, #ff8fc7);
+    border:2px solid #fff;
+    border-radius:50%;
+    box-shadow:0 0 6px rgba(127,247,255,.5);
+    cursor:nwse-resize;
+    z-index:10;
+    display:none;
+  }
+  .article-rich-editor .img-resize-wrap.selected .img-resize-handle{
+    display:block;
+  }
+  .article-rich-editor .img-resize-handle.br{bottom:-5px;right:-5px;}
+  .article-rich-editor .img-resize-handle.bl{bottom:-5px;left:-5px;cursor:nesw-resize;}
+  .article-rich-editor .img-resize-handle.tr{top:-5px;right:-5px;cursor:nesw-resize;}
+  .article-rich-editor .img-resize-handle.tl{top:-5px;left:-5px;cursor:nwse-resize;}
   /* 分页标记 */
   .article-page-break{
     page-break-after:always;
@@ -5893,6 +5938,81 @@
     color:rgba(180,200,220,.5);
     font-size:12px;
     font-weight:500;
+  }
+  /* 确认弹窗 */
+  .confirm-dialog-overlay{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:grid;
+    place-items:center;
+    padding:18px;
+    background:rgba(8,10,26,.6);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    animation:confirmFadeIn .2s ease;
+  }
+  @keyframes confirmFadeIn{from{opacity:0}to{opacity:1}}
+  .confirm-dialog-card{
+    width:min(380px, 92vw);
+    padding:28px;
+    border-radius:24px;
+    background:
+      radial-gradient(ellipse at 15% 0%, rgba(212,175,55,.1), transparent 40%),
+      linear-gradient(170deg, #0F1D30 0%, #1A3050 50%, #0F2035 100%);
+    border:1px solid rgba(212,175,55,.18);
+    box-shadow:0 24px 72px rgba(0,0,0,.5), 0 0 40px rgba(212,175,55,.06);
+    text-align:center;
+    animation:confirmSlideIn .25s ease;
+  }
+  @keyframes confirmSlideIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .confirm-dialog-icon{
+    width:48px;height:48px;border-radius:50%;
+    display:grid;place-items:center;
+    margin:0 auto 14px;
+    background:rgba(212,175,55,.12);
+    border:2px solid rgba(212,175,55,.3);
+    color:#F0D060;
+    font-size:22px;font-weight:900;
+  }
+  .confirm-dialog-title{
+    color:#F0D060;
+    font-size:17px;font-weight:900;
+    margin-bottom:8px;
+    letter-spacing:-.01em;
+  }
+  .confirm-dialog-message{
+    color:rgba(200,210,225,.75);
+    font-size:13px;
+    line-height:1.7;
+    margin-bottom:22px;
+  }
+  .confirm-dialog-actions{
+    display:flex;gap:10px;justify-content:center;
+  }
+  .confirm-dialog-actions button{
+    min-height:38px;
+    padding:0 22px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.15);
+    font-size:13px;font-weight:700;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .confirm-dialog-cancel{
+    background:rgba(255,255,255,.08);
+    color:rgba(255,255,255,.7);
+  }
+  .confirm-dialog-cancel:hover{background:rgba(255,255,255,.15);color:#fff;}
+  .confirm-dialog-confirm{
+    background:linear-gradient(135deg, rgba(212,175,55,.25), rgba(212,175,55,.15));
+    color:#F0D060;
+    border-color:rgba(212,175,55,.35);
+  }
+  .confirm-dialog-confirm:hover{
+    background:linear-gradient(135deg, rgba(212,175,55,.4), rgba(212,175,55,.25));
+    color:#fff;
+    transform:translateY(-1px);
   }
   .article-detail-content ul,.article-detail-content ol{margin:12px 0;padding-left:24px;}
   .article-detail-content li{margin:6px 0;color:rgba(255,255,255,.82);}
@@ -6242,22 +6362,23 @@
   .article-style-panel input[type="color"]::-webkit-color-swatch-wrapper{padding:0;}
   .article-style-panel input[type="color"]::-webkit-color-swatch{border:none;border-radius:6px;}
   .article-style-panel input[type="color"]::-moz-color-swatch{border:none;border-radius:6px;}
-  .article-style-panel label:has(input[type="range"]),
-  .article-weight-wrap{
+  .article-style-panel label:has(input[type="range"]){
     display:grid;
     grid-template-rows:auto 1fr;
     align-items:center;
     gap:4px;
   }
-  .article-weight-name{
-    color:rgba(255,255,255,.6);
-    font-size:11px;
-    font-weight:600;
-    letter-spacing:.03em;
+  .article-weight-label{
+    display:grid;
+    grid-template-rows:auto 1fr;
+    align-items:center;
+    gap:4px;
   }
-  .article-weight-wrap .article-weight-name + input,
-  .article-weight-wrap .article-weight-name + span{
-    grid-row:2;
+  .article-weight-label span{
+    color:#8fceff;
+    font-size:11px;
+    font-weight:700;
+    margin-left:2px;
   }
   .article-style-panel input[type="range"]{
     -webkit-appearance:none;
@@ -7288,10 +7409,9 @@
         </select>
       </label>
       <label>字号<input id="articleFontSizeInput" type="number" min="12" max="48" value="16" /></label>
-      <div class="article-weight-wrap">
-        <span class="article-weight-name">字重</span>
-        <input id="articleFontWeightSlider" type="range" min="100" max="900" step="100" value="400" /><span id="articleFontWeightValue">400</span>
-      </div>
+      <label class="article-weight-label">字重 <span id="articleFontWeightValue">400</span>
+        <input id="articleFontWeightSlider" type="range" min="100" max="900" step="100" value="400" />
+      </label>
       <label>颜色<input id="articleColorInput" type="color" value="#ffffff" /></label>
       <div class="article-editor-switches">
         <button id="articleItalicBtn" type="button">斜体开关</button>
@@ -7327,14 +7447,16 @@
         <button id="articleDetailCloseBtn" type="button">关闭</button>
       </div>
     </div>
-    <div class="article-detail-author" id="articleDetailAuthor">
-      <div class="article-detail-author-avatar" id="articleDetailAuthorAvatar"></div>
-      <div class="article-detail-author-info">
-        <div class="article-detail-author-name" id="articleDetailAuthorName"></div>
-        <div class="article-detail-author-time" id="articleDetailAuthorTime"></div>
+    <div class="article-detail-scroll">
+      <div class="article-detail-author" id="articleDetailAuthor">
+        <div class="article-detail-author-avatar" id="articleDetailAuthorAvatar"></div>
+        <div class="article-detail-author-info">
+          <div class="article-detail-author-name" id="articleDetailAuthorName"></div>
+          <div class="article-detail-author-time" id="articleDetailAuthorTime"></div>
+        </div>
       </div>
+      <div class="article-detail-content" id="articleDetailContent"></div>
     </div>
-    <div class="article-detail-content" id="articleDetailContent"></div>
     <div class="article-detail-pager" id="articleDetailPager" hidden>
       <button id="articleDetailPrevPage" type="button">上一页</button>
       <span id="articleDetailPageInfo">第 1 / 1 页</span>
@@ -8129,6 +8251,37 @@ function showLoginToast(message, type = 'success', title = ''){
   loginToast.classList.remove('show');
   void loginToast.offsetWidth;
   loginToast.classList.add('show');
+}
+
+function showConfirmDialog(title, message, confirmText = '确认', cancelText = '取消'){
+  return new Promise(resolve => {
+    const existing = document.getElementById('customConfirmDialog');
+    if(existing) existing.remove();
+    const dialog = document.createElement('div');
+    dialog.id = 'customConfirmDialog';
+    dialog.innerHTML = `
+      <div class="confirm-dialog-overlay">
+        <div class="confirm-dialog-card">
+          <div class="confirm-dialog-icon">!</div>
+          <div class="confirm-dialog-title">${escapeHtml(title)}</div>
+          <div class="confirm-dialog-message">${escapeHtml(message).replace(/\n/g, '<br>')}</div>
+          <div class="confirm-dialog-actions">
+            <button class="confirm-dialog-cancel" type="button">${escapeHtml(cancelText)}</button>
+            <button class="confirm-dialog-confirm" type="button">${escapeHtml(confirmText)}</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(dialog);
+    const cancelBtn = dialog.querySelector('.confirm-dialog-cancel');
+    const confirmBtn = dialog.querySelector('.confirm-dialog-confirm');
+    const close = (result) => { dialog.remove(); resolve(result); };
+    cancelBtn.addEventListener('click', () => close(false));
+    confirmBtn.addEventListener('click', () => close(true));
+    dialog.querySelector('.confirm-dialog-overlay').addEventListener('click', (e) => {
+      if(e.target === e.currentTarget) close(false);
+    });
+  });
 }
 
 function updateProfileClock(){
@@ -9006,6 +9159,18 @@ async function deleteSelectedArticles(){
     showLoginToast('请先勾选要删除的文章。', 'warn', '未选择文章');
     return;
   }
+  const isOwner = isSiteOwnerUser(user);
+  if(!isOwner && ownerDeleteArticleMode){
+    showLoginToast('只有站主可以管理删除所有文章。', 'warn', '权限不足');
+    return;
+  }
+  const confirmed = await showConfirmDialog(
+    `确定要删除选中的 ${selectedArticleIds.size} 篇文章吗？`,
+    '此操作不可恢复，删除后文章将无法找回。',
+    '确认删除',
+    '取消'
+  );
+  if(!confirmed) return;
   try{
     await authRequest('/api/articles', {
       method:'DELETE',
@@ -9014,7 +9179,8 @@ async function deleteSelectedArticles(){
     });
     await loadPublicArticles();
     selectedArticleIds.clear();
-    toggleArticleDeleteMode(false);
+    if(ownerDeleteArticleMode) toggleOwnerDeleteMode(false);
+    else toggleArticleDeleteMode(false);
     showLoginToast('已删除选中的文章。', 'success', '删除成功');
   }catch(error){
     showLoginToast(error.message || '删除文章失败。', 'error', '删除失败');
@@ -9082,20 +9248,32 @@ async function openArticleDetail(id){
       if(articleDetailPager) articleDetailPager.hidden = true;
     }
   }
-  if(articleDetailEditBtn) articleDetailEditBtn.style.display = isCurrentUserAuthor(article) ? 'inline-flex' : 'none';
-  if(articleDetailDeleteBtn) articleDetailDeleteBtn.hidden = !isCurrentUserAuthor(article);
+  const user = readSavedUser();
+  const isOwner = isSiteOwnerUser(user);
+  const isAuthor = isCurrentUserAuthor(article);
+  if(articleDetailEditBtn) articleDetailEditBtn.style.display = isAuthor ? 'inline-flex' : 'none';
+  if(articleDetailDeleteBtn) articleDetailDeleteBtn.hidden = !(isAuthor || isOwner);
   articleDetailModal?.classList.add('open');
   articleDetailModal?.setAttribute('aria-hidden', 'false');
 }
 
 async function deleteCurrentDetailArticle(){
+  const user = requireRealUser('删除文章');
+  if(!user) return;
   const article = await fetchArticleDetail(currentDetailArticleId).catch(()=>null);
   if(!article) return;
-  if(!isCurrentUserAuthor(article)){
+  const isOwner = isSiteOwnerUser(user);
+  const isAuthor = isCurrentUserAuthor(article);
+  if(!isAuthor && !isOwner){
     showLoginToast('只能删除自己发布的文章。', 'warn', '权限不足');
     return;
   }
-  const confirmed = confirm(`确定要删除文章《${article.title || '未命名文章'}》吗？\n此操作不可恢复。`);
+  const confirmed = await showConfirmDialog(
+    `确定要删除文章《${article.title || '未命名文章'}》吗？`,
+    isOwner && !isAuthor ? '你正在以站主身份删除其他用户的文章。此操作不可恢复。' : '此操作不可恢复，删除后文章将无法找回。',
+    '确认删除',
+    '取消'
+  );
   if(!confirmed) return;
   try{
     await authRequest('/api/articles', {
@@ -9277,6 +9455,81 @@ if(articleContentEditor){
     }
   });
 }
+// 编辑器图片变换框功能
+function initEditorImageResize(){
+  if(!articleContentEditor) return;
+  let activeWrap = null;
+  let resizing = false;
+  let startX, startY, startW, startH;
+  // 点击编辑器内图片时添加变换框
+  articleContentEditor.addEventListener('click', (e)=>{
+    const img = e.target.closest?.('img');
+    if(!img || !articleContentEditor.contains(img)){
+      document.querySelectorAll('.img-resize-wrap.selected').forEach(w=>w.classList.remove('selected'));
+      activeWrap = null;
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    // 如果图片已经在wrap中，直接选中
+    let wrap = img.closest('.img-resize-wrap');
+    if(!wrap){
+      wrap = document.createElement('div');
+      wrap.className = 'img-resize-wrap';
+      img.parentNode.insertBefore(wrap, img);
+      wrap.appendChild(img);
+      // 添加4个拖拽手柄
+      ['tl','tr','bl','br'].forEach(pos=>{
+        const handle = document.createElement('div');
+        handle.className = 'img-resize-handle ' + pos;
+        handle.dataset.handle = pos;
+        wrap.appendChild(handle);
+      });
+    }
+    document.querySelectorAll('.img-resize-wrap.selected').forEach(w=>w.classList.remove('selected'));
+    wrap.classList.add('selected');
+    activeWrap = wrap;
+  });
+  // 点击编辑器空白处取消选中
+  articleContentEditor.addEventListener('click', (e)=>{
+    if(e.target === articleContentEditor){
+      document.querySelectorAll('.img-resize-wrap.selected').forEach(w=>w.classList.remove('selected'));
+      activeWrap = null;
+    }
+  });
+  // 拖拽缩放
+  articleContentEditor.addEventListener('mousedown', (e)=>{
+    const handle = e.target.closest?.('.img-resize-handle');
+    if(!handle || !activeWrap) return;
+    e.preventDefault();
+    resizing = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    const img = activeWrap.querySelector('img');
+    const rect = img.getBoundingClientRect();
+    startW = rect.width;
+    startH = rect.height;
+    const onMove = (ev)=>{
+      if(!resizing || !activeWrap) return;
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      const newW = Math.max(60, startW + dx);
+      const ratio = startH / startW;
+      const newH = Math.max(40, newW * ratio);
+      img.style.width = newW + 'px';
+      img.style.height = newH + 'px';
+    };
+    const onUp = ()=>{
+      resizing = false;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+initEditorImageResize();
+
 if(articleSaveBtn) articleSaveBtn.addEventListener('click', saveArticleFromEditor);
 renderArticles();
 loadPublicArticles();
