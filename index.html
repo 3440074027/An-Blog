@@ -665,6 +665,432 @@
     0%{opacity:1;transform:scale(1);filter:blur(0);}
     100%{opacity:0;transform:scale(.75);filter:blur(28px) brightness(1.12);}
   }
+
+  /* ========== 用户公开文章页样式 - 与首页一致 ========== */
+  #userArticlesPage{
+    position:fixed;
+    inset:0;
+    z-index:10;
+    width:100%;
+    height:100dvh;
+    max-height:100dvh;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:clamp(18px, 3vw, 42px);
+    display:none;
+    opacity:0;
+    background:transparent;
+  }
+  #userArticlesPage.active{
+    display:block;
+    animation:uaSlideIn .55s cubic-bezier(.22,.08,.28,1) both;
+  }
+  #userArticlesPage.leaving{
+    display:block;
+    animation:uaSlideOut .45s cubic-bezier(.62,.02,.3,1) forwards;
+  }
+  @keyframes uaSlideIn{
+    from{opacity:0;transform:translateX(40px);}
+    to{opacity:1;transform:translateX(0);}
+  }
+  @keyframes uaSlideOut{
+    from{opacity:1;transform:translateX(0);}
+    to{opacity:0;transform:translateX(-40px);}
+  }
+  .ua-page{
+    position:relative;z-index:1;
+    width:min(1200px,calc(100vw - 32px));
+    margin:0 auto;padding:28px 0 48px;
+  }
+  .ua-topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;margin-bottom:20px;
+  }
+  .ua-back{
+    min-height:36px;padding:0 18px;
+    border-radius:12px;
+    border:1.5px solid rgba(255,255,255,.32);
+    color:#fff;font-weight:600;font-size:13px;
+    cursor:pointer;
+    background:linear-gradient(145deg, rgba(39,55,84,.62), rgba(255,255,255,.12));
+    backdrop-filter:blur(22px) saturate(1.12);-webkit-backdrop-filter:blur(22px) saturate(1.12);
+    box-shadow:0 4px 16px rgba(5,10,30,.18), inset 0 1px 0 rgba(255,255,255,.22);
+    transition:all 0.2s ease;
+  }
+  .ua-back:hover{
+    border-color:rgba(255,255,255,.48);
+    box-shadow:0 6px 24px rgba(5,10,30,.25), inset 0 1px 0 rgba(255,255,255,.28);
+    transform:translateY(-1px);
+  }
+  .ua-back:active{transform:translateY(0)}
+  .ua-topbar .ua-meta{
+    color:rgba(255,255,255,.7);font-size:12px;font-weight:500;
+    background:linear-gradient(145deg, rgba(39,55,84,.5), rgba(255,255,255,.08));
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    padding:7px 16px;border-radius:12px;
+    border:1.5px solid rgba(255,255,255,.22);
+  }
+  .ua-layout{
+    display:grid;
+    grid-template-columns:minmax(260px,300px) minmax(0,1fr);
+    gap:20px;align-items:start;
+  }
+  .ua-sidebar{position:sticky;top:20px;display:grid;gap:16px}
+
+  /* -- 毛玻璃卡片基础 -- */
+  .ua-glass{
+    background:linear-gradient(145deg, rgba(39,55,84,.62), rgba(255,255,255,.12));
+    border:1.5px solid rgba(255,255,255,.3);
+    box-shadow:0 24px 80px rgba(5,10,30,.28), inset 0 1px 0 rgba(255,255,255,.22);
+    backdrop-filter:blur(22px) saturate(1.12);
+    -webkit-backdrop-filter:blur(22px) saturate(1.12);
+    color:#fff;
+  }
+
+  /* -- 资料卡 -- */
+  .ua-profile-card{
+    position:relative;overflow:hidden;
+    padding:24px 20px;border-radius:28px;text-align:center;
+    background:linear-gradient(145deg, rgba(39,55,84,.62), rgba(255,255,255,.12));
+    border:1.5px solid rgba(255,255,255,.3);
+    box-shadow:0 24px 80px rgba(5,10,30,.28), inset 0 1px 0 rgba(255,255,255,.22);
+    backdrop-filter:blur(22px) saturate(1.12);
+    -webkit-backdrop-filter:blur(22px) saturate(1.12);
+    color:#fff;
+  }
+  .ua-profile-card::before{
+    content:"";position:absolute;top:-30px;right:-30px;
+    width:100px;height:100px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,185,222,.2),transparent 70%);
+    pointer-events:none;
+  }
+  .ua-profile-card::after{
+    content:"";position:absolute;bottom:-20px;left:-20px;
+    width:80px;height:80px;border-radius:50%;
+    background:radial-gradient(circle,rgba(144,225,255,.15),transparent 70%);
+    pointer-events:none;
+  }
+  .ua-avatar{
+    position:relative;
+    width:88px;height:88px;
+    margin:0 auto 14px;border-radius:50%;
+    background:var(--ua-avatar,linear-gradient(135deg,rgba(255,185,222,.4),rgba(144,225,255,.4)));
+    background-size:cover;background-position:center;
+    border:3px solid rgba(255,255,255,.55);
+    box-shadow:0 0 0 2px rgba(255,255,255,.18),0 4px 14px rgba(5,10,30,.22);
+    overflow:hidden;
+    transition:box-shadow 0.3s ease;
+  }
+  .ua-avatar:hover{box-shadow:0 0 0 2px rgba(255,255,255,.28),0 6px 18px rgba(5,10,30,.32)}
+  .ua-profile-card h1{
+    margin:0;
+    font-size:clamp(20px,3vw,28px);
+    line-height:1.3;
+    color:#fff;
+    font-weight:700;
+    text-shadow:0 1px 4px rgba(0,0,0,.15);
+  }
+  .ua-profile-meta{
+    margin:8px 0 0;
+    color:rgba(255,255,255,.65);font-size:12px;
+    font-weight:500;line-height:1.6;
+  }
+  .ua-profile-card .ua-tags{
+    display:flex;flex-wrap:wrap;justify-content:center;
+    gap:6px;margin-top:14px;
+  }
+  .ua-tag,.ua-filter-tag{
+    padding:4px 12px;border-radius:8px;
+    border:1px solid rgba(255,255,255,.22);
+    color:rgba(255,255,255,.85);
+    font-size:11px;font-weight:500;
+    background:rgba(255,255,255,.08);
+    cursor:pointer;
+    transition:all 0.2s ease;
+  }
+  .ua-tag:hover,.ua-filter-tag:hover,.ua-filter-tag.active{
+    color:#fff;
+    background:rgba(255,255,255,.2);
+    border-color:rgba(255,255,255,.4);
+  }
+
+  /* -- 统计卡 -- */
+  .ua-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .ua-stat{
+    padding:14px 6px;border-radius:16px;text-align:center;
+    background:linear-gradient(145deg, rgba(39,55,84,.55), rgba(255,255,255,.1));
+    border:1.5px solid rgba(255,255,255,.25);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    transition:all 0.2s ease;
+  }
+  .ua-stat:hover{border-color:rgba(255,255,255,.4);box-shadow:0 4px 20px rgba(5,10,30,.22)}
+  .ua-stat strong{
+    display:block;font-size:22px;font-weight:700;
+    color:#fff;
+    text-shadow:0 1px 4px rgba(0,0,0,.12);
+  }
+  .ua-stat span{
+    display:block;margin-top:3px;
+    color:rgba(255,255,255,.55);font-size:10px;font-weight:500;
+  }
+
+  /* -- 简介卡 -- */
+  .ua-intro{
+    padding:16px;border-radius:20px;
+    color:rgba(255,255,255,.75);
+    font-size:13px;line-height:1.8;
+    background:linear-gradient(145deg, rgba(39,55,84,.55), rgba(255,255,255,.1));
+    border:1.5px solid rgba(255,255,255,.25);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  }
+
+  .ua-main{display:grid;gap:16px}
+
+  /* -- 工具栏 -- */
+  .ua-toolbar{
+    display:grid;
+    grid-template-columns:minmax(200px,1fr) auto auto;
+    gap:10px;padding:14px;border-radius:20px;
+    background:linear-gradient(145deg, rgba(39,55,84,.55), rgba(255,255,255,.1));
+    border:1.5px solid rgba(255,255,255,.25);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    box-shadow:0 8px 32px rgba(5,10,30,.18);
+  }
+  .ua-searchbox{position:relative}
+  .ua-searchbox input,.ua-toolbar select{
+    width:100%;min-height:38px;
+    border-radius:10px;
+    border:1.5px solid rgba(255,255,255,.2);
+    outline:none;
+    color:#fff;
+    background:rgba(255,255,255,.06);
+    padding:0 14px;font-weight:500;font-size:13px;
+    transition:all 0.2s ease;
+  }
+  .ua-searchbox input:focus,.ua-toolbar select:focus{
+    border-color:rgba(255,255,255,.45);
+    box-shadow:0 0 0 3px rgba(255,255,255,.1);
+    background:rgba(255,255,255,.1);
+  }
+  .ua-searchbox input::placeholder{color:rgba(255,255,255,.4);font-weight:400}
+  .ua-toolbar select option{color:#2D3748;background:#fff}
+  .ua-ghost-btn{
+    min-height:38px;padding:0 16px;
+    border-radius:10px;border:1.5px solid rgba(255,255,255,.25);
+    color:rgba(255,255,255,.9);font-weight:600;font-size:13px;
+    cursor:pointer;
+    background:rgba(255,255,255,.08);
+    transition:all 0.2s ease;
+  }
+  .ua-ghost-btn:hover{
+    background:rgba(255,255,255,.18);
+    color:#fff;
+    transform:translateY(-1px);
+    box-shadow:0 4px 16px rgba(5,10,30,.22);
+    border-color:rgba(255,255,255,.4);
+  }
+
+  /* -- 标签面板 -- */
+  .ua-tag-panel{
+    display:flex;flex-wrap:wrap;gap:8px;
+    padding:14px;border-radius:20px;
+    background:linear-gradient(145deg, rgba(39,55,84,.5), rgba(255,255,255,.08));
+    border:1.5px solid rgba(255,255,255,.22);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  }
+
+  .ua-article-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:16px;
+  }
+
+  /* -- 文章卡片 -- */
+  .ua-article{
+    min-height:280px;
+    display:grid;grid-template-rows:150px auto;
+    overflow:hidden;border-radius:20px;
+    cursor:pointer;
+    background:linear-gradient(145deg, rgba(39,55,84,.62), rgba(255,255,255,.12));
+    border:1.5px solid rgba(255,255,255,.3);
+    box-shadow:0 24px 80px rgba(5,10,30,.28), inset 0 1px 0 rgba(255,255,255,.22);
+    backdrop-filter:blur(22px) saturate(1.12);
+    -webkit-backdrop-filter:blur(22px) saturate(1.12);
+    color:#fff;
+    animation:uaCardIn 0.4s ease both;
+    transition:all 0.25s ease;
+  }
+  .ua-article:hover{
+    transform:translateY(-4px);
+    box-shadow:0 32px 100px rgba(5,10,30,.35), inset 0 1px 0 rgba(255,255,255,.28);
+    border-color:rgba(255,255,255,.45);
+  }
+  @keyframes uaCardIn{
+    from{opacity:0;transform:translateY(12px)}
+    to{opacity:1;transform:none}
+  }
+  .ua-thumb{
+    position:relative;overflow:hidden;
+    background:var(--ua-thumb,linear-gradient(135deg,rgba(255,185,222,.3),rgba(144,225,255,.3)));
+    background-size:cover;background-position:center;
+  }
+  .ua-thumb-slide{
+    position:absolute;inset:0;opacity:0;
+    background:var(--ua-slide);background-size:cover;background-position:center;
+    animation:uaThumbCarousel var(--ua-duration,8s) infinite;
+    animation-delay:var(--ua-delay,0s);
+  }
+  .ua-thumb-slide:first-child{opacity:1}
+  .ua-thumb-dots{
+    position:absolute;left:12px;bottom:10px;z-index:2;
+    display:flex;gap:5px;
+  }
+  .ua-thumb-dots span{
+    width:6px;height:6px;border-radius:50%;
+    background:rgba(255,255,255,.55);
+  }
+  @keyframes uaThumbCarousel{
+    0%,28%{opacity:1;transform:scale(1)}
+    36%,92%{opacity:0;transform:scale(1.04)}
+    100%{opacity:1;transform:scale(1)}
+  }
+  .ua-article-body{padding:16px}
+  .ua-article small{
+    color:rgba(255,185,222,.95);font-size:11px;font-weight:600;
+    letter-spacing:0.02em;
+  }
+  .ua-article h2{
+    margin:8px 0 6px;font-size:16px;line-height:1.35;
+    color:#fff;font-weight:700;
+    text-shadow:0 1px 4px rgba(0,0,0,.12);
+  }
+  .ua-article p{
+    margin:0;color:rgba(255,255,255,.65);
+    font-size:13px;line-height:1.7;
+  }
+  .ua-article-tags{
+    display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;
+  }
+  .ua-article-tags span{
+    padding:3px 10px;border-radius:6px;
+    font-size:10px;font-weight:500;
+    color:rgba(255,255,255,.8);
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.1);
+  }
+  .ua-article-tags span:nth-child(3n+1){background:rgba(255,185,222,.12);border-color:rgba(255,185,222,.18)}
+  .ua-article-tags span:nth-child(3n+2){background:rgba(144,225,255,.12);border-color:rgba(144,225,255,.18)}
+  .ua-article-tags span:nth-child(3n){background:rgba(172,146,255,.12);border-color:rgba(172,146,255,.18)}
+
+  /* -- 分页 -- */
+  .ua-pager{
+    display:flex;align-items:center;justify-content:center;
+    gap:12px;padding:12px;border-radius:20px;
+    color:rgba(255,255,255,.65);font-weight:500;
+    background:linear-gradient(145deg, rgba(39,55,84,.55), rgba(255,255,255,.1));
+    border:1.5px solid rgba(255,255,255,.25);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  }
+  .ua-page-btn{
+    min-height:36px;padding:0 18px;
+    border-radius:10px;border:1.5px solid rgba(255,255,255,.3);
+    color:#fff;font-weight:600;font-size:13px;
+    cursor:pointer;
+    background:linear-gradient(145deg, rgba(39,55,84,.62), rgba(255,255,255,.12));
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    transition:all 0.2s ease;
+  }
+  .ua-page-btn:hover:not(:disabled){
+    background:linear-gradient(145deg, rgba(39,55,84,.72), rgba(255,255,255,.18));
+    transform:translateY(-1px);
+    box-shadow:0 6px 20px rgba(5,10,30,.25);
+    border-color:rgba(255,255,255,.45);
+  }
+  .ua-page-btn:disabled{
+    opacity:0.35;cursor:not-allowed;transform:none;
+    background:rgba(255,255,255,.04);
+    border-color:rgba(255,255,255,.12);
+    color:rgba(255,255,255,.3);
+    box-shadow:none;
+  }
+  .ua-empty{
+    padding:40px 20px;border-radius:20px;text-align:center;
+    color:rgba(255,255,255,.45);font-size:14px;font-weight:500;
+    background:linear-gradient(145deg, rgba(39,55,84,.5), rgba(255,255,255,.08));
+    border:1.5px solid rgba(255,255,255,.18);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    line-height:1.8;
+  }
+
+  /* -- 详情弹窗 -- */
+  .ua-detail{
+    position:fixed;inset:0;z-index:15;
+    display:grid;place-items:center;padding:20px;
+    background:rgba(5,10,30,.5);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    opacity:0;visibility:hidden;pointer-events:none;
+    transition:all 0.25s ease;
+  }
+  .ua-detail.open{opacity:1;visibility:visible;pointer-events:auto}
+  .ua-detail-card{
+    width:min(880px,96vw);max-height:90vh;
+    overflow:auto;padding:28px;border-radius:28px;
+    border:1.5px solid rgba(255,255,255,.3);
+    background:linear-gradient(145deg, rgba(39,55,84,.72), rgba(255,255,255,.15));
+    box-shadow:0 24px 80px rgba(5,10,30,.35), inset 0 1px 0 rgba(255,255,255,.22);
+    backdrop-filter:blur(22px) saturate(1.12);
+    -webkit-backdrop-filter:blur(22px) saturate(1.12);
+    color:#fff;
+    transform:translateY(12px);
+    transition:all 0.3s ease;
+  }
+  .ua-detail.open .ua-detail-card{transform:translateY(0)}
+  .ua-detail-head{
+    display:flex;justify-content:space-between;
+    gap:12px;align-items:flex-start;
+  }
+  .ua-detail h2{
+    margin:0;font-size:clamp(20px,3vw,30px);
+    color:#fff;font-weight:700;
+    line-height:1.3;
+    text-shadow:0 1px 4px rgba(0,0,0,.12);
+  }
+  .ua-detail-close{
+    min-height:34px;padding:0 14px;
+    border-radius:10px;border:1.5px solid rgba(255,255,255,.25);
+    color:rgba(255,255,255,.85);font-weight:600;font-size:12px;
+    cursor:pointer;
+    background:rgba(255,255,255,.08);
+    transition:all 0.2s ease;
+    flex-shrink:0;
+  }
+  .ua-detail-close:hover{
+    color:#fff;
+    border-color:rgba(255,255,255,.4);
+    box-shadow:0 2px 8px rgba(5,10,30,.22);
+  }
+  .ua-detail-content{
+    margin-top:18px;padding:20px;border-radius:16px;
+    background:rgba(255,255,255,.06);
+    border:1.5px solid rgba(255,255,255,.15);
+    line-height:1.85;color:rgba(255,255,255,.88);
+    font-size:15px;
+  }
+  .ua-detail-content img{
+    max-width:min(400px,92%);max-height:280px;
+    object-fit:contain;border-radius:12px;
+    margin:8px;
+    border:1.5px solid rgba(255,255,255,.18);
+    box-shadow:0 4px 16px rgba(5,10,30,.22);
+  }
+  @media (max-width:860px){
+    .ua-layout{grid-template-columns:1fr}
+    .ua-sidebar{position:relative;top:auto}
+    .ua-toolbar{grid-template-columns:1fr}
+    .ua-profile-card{text-align:center}
+    .ua-page{padding:16px 0 32px}
+  }
+
   .transition-flare{
     position:fixed;
     inset:0;
@@ -1266,6 +1692,7 @@
     height:clamp(86px, 7.4vw, 122px);
     min-width:86px;
     min-height:86px;
+    aspect-ratio:1 / 1;
     flex:0 0 auto;
     border-radius:36% 64% 42% 58% / 54% 42% 58% 46%;
     background:
@@ -2867,6 +3294,7 @@
     }
     .profile-avatar{
       width:70px;
+      height:70px;
       min-width:70px;
       min-height:70px;
     }
@@ -3440,6 +3868,9 @@
   .blog-profile-avatar{
     width:112px;
     height:112px;
+    min-width:112px;
+    min-height:112px;
+    flex-shrink:0;
     border-radius:35% 65% 45% 55% / 55% 42% 58% 45%;
     border:2px solid rgba(255,255,255,.58);
     box-shadow:0 18px 48px rgba(0,0,0,.28), 0 0 38px rgba(124,92,255,.28);
@@ -6455,6 +6886,56 @@
     </aside>
   </div>
 </main>
+
+<!-- ========== 用户公开文章页（内联） ========== -->
+<main class="dashboard" id="userArticlesPage" aria-hidden="true">
+  <div class="ua-page">
+    <div class="ua-topbar">
+      <button class="ua-back" type="button" id="uaBackBtn">返回博客首页</button>
+      <span class="ua-meta" id="uaArticleCountText">正在读取公开文章...</span>
+    </div>
+    <section class="ua-layout">
+      <aside class="ua-sidebar">
+        <div class="ua-profile-card" id="uaUserHero"><div class="ua-avatar"></div><h1>用户公开文章</h1><p class="ua-profile-meta">正在加载用户资料...</p></div>
+        <div class="ua-stats">
+          <div class="ua-stat"><strong id="uaStatArticle">0</strong><span>文章</span></div>
+          <div class="ua-stat"><strong id="uaStatTag">0</strong><span>标签</span></div>
+          <div class="ua-stat"><strong id="uaStatImage">0</strong><span>图文</span></div>
+        </div>
+        <div class="ua-intro" id="uaUserIntro">正在整理这个用户的公开信息。</div>
+      </aside>
+      <section class="ua-main">
+        <div class="ua-toolbar">
+          <div class="ua-searchbox"><input id="uaSearchInput" type="text" placeholder="搜索标题、摘要、分类、标签..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" /></div>
+          <select id="uaSortSelect" aria-label="排序方式">
+            <option value="new">最新发布</option>
+            <option value="old">最早发布</option>
+            <option value="title">标题排序</option>
+            <option value="image">优先图文</option>
+          </select>
+          <button class="ua-ghost-btn" id="uaClearFilterBtn" type="button">清空筛选</button>
+        </div>
+        <div class="ua-tag-panel" id="uaTagPanel"></div>
+        <section class="ua-article-grid" id="uaArticleGrid"></section>
+        <section class="ua-empty" id="uaEmptyState" hidden>没有找到符合条件的文章。</section>
+        <nav class="ua-pager">
+          <button class="ua-page-btn" id="uaPrevPageBtn" type="button">上一页</button>
+          <span id="uaPageInfo">第 1 / 1 页</span>
+          <button class="ua-page-btn" id="uaNextPageBtn" type="button">下一页</button>
+        </nav>
+      </section>
+    </section>
+  </div>
+</main>
+
+<!-- 文章详情弹窗 -->
+<div class="ua-detail" id="uaDetailModal">
+  <div class="ua-detail-card">
+    <div class="ua-detail-head"><div><div class="ua-detail-meta" id="uaDetailMeta"></div><h2 id="uaDetailTitle">文章标题</h2></div><button class="ua-detail-close" id="uaDetailClose" type="button">关闭</button></div>
+    <div class="ua-detail-content" id="uaDetailContent"></div>
+  </div>
+</div>
+
 <div class="article-editor-modal" id="articleEditorModal" aria-hidden="true">
   <div class="article-editor-card" role="dialog" aria-modal="true" aria-labelledby="articleEditorTitle">
     <div class="article-editor-head">
@@ -7500,12 +7981,169 @@ function getUserArticles(user = readSavedUser()){
 
 function goUserArticles(username){
   const target = String(username || readSavedUser()?.username || '').trim();
-  if(!target){
-    showLoginToast('没有找到要浏览的用户。', 'warn', '无法跳转');
-    return;
-  }
-  window.open(`html/user_articles.html?user=${encodeURIComponent(target)}`, '_blank', 'noopener,noreferrer');
+  if(!target){ showLoginToast('没有找到要浏览的用户。', 'warn', '无法跳转'); return; }
+  showUserArticles(target);
 }
+
+/* ========== 用户公开文章页（内联） ========== */
+const userArticlesPage = document.getElementById('userArticlesPage');
+const uaUserHero = document.getElementById('uaUserHero');
+const uaArticleGrid = document.getElementById('uaArticleGrid');
+const uaEmptyState = document.getElementById('uaEmptyState');
+const uaArticleCountText = document.getElementById('uaArticleCountText');
+const uaTagPanel = document.getElementById('uaTagPanel');
+const uaSearchInput = document.getElementById('uaSearchInput');
+const uaSortSelect = document.getElementById('uaSortSelect');
+const uaPageInfo = document.getElementById('uaPageInfo');
+const uaPrevPageBtn = document.getElementById('uaPrevPageBtn');
+const uaNextPageBtn = document.getElementById('uaNextPageBtn');
+const uaDetailModal = document.getElementById('uaDetailModal');
+const uaDetailTitle = document.getElementById('uaDetailTitle');
+const uaDetailMeta = document.getElementById('uaDetailMeta');
+const uaDetailContent = document.getElementById('uaDetailContent');
+const uaBackBtn = document.getElementById('uaBackBtn');
+const uaClearFilterBtn = document.getElementById('uaClearFilterBtn');
+const uaDetailClose = document.getElementById('uaDetailClose');
+
+let uaAllArticles = [];
+let uaFilteredArticles = [];
+let uaCurrentPage = 1;
+let uaActiveTag = '全部';
+let uaCurrentUsername = '';
+const UA_PAGE_SIZE = 6;
+
+function uaAvatarStyle(value){ return value ? `url('${value}')` : 'linear-gradient(135deg,#63B3ED,#68D391)'; }
+function uaGetTags(article){ return Array.from(new Set([article.category, ...(Array.isArray(article.tags) ? article.tags : [])].filter(Boolean))); }
+function uaGalleryImages(article){
+  const gallery = Array.isArray(article?.gallery) ? article.gallery : [];
+  const images = gallery.filter(src => typeof src === 'string' && src.startsWith('data:image/')).slice(0, 5);
+  const thumb = String(article?.thumb || '');
+  if(!images.length && thumb.startsWith('data:image/')) images.push(thumb);
+  return images;
+}
+function uaThumbStyle(article){
+  const thumb = String(article?.thumb || '');
+  return thumb.startsWith('data:image/') ? `url('${thumb}')` : (thumb || 'linear-gradient(135deg,#63B3ED,#68D391)');
+}
+function uaRenderThumb(article){
+  const images = uaGalleryImages(article);
+  if(!images.length) return `<div class="ua-thumb" style="--ua-thumb:${uaThumbStyle(article)}"></div>`;
+  const duration = Math.max(6, images.length * 2.4);
+  return `<div class="ua-thumb" style="--ua-thumb:url('${images[0]}')">${images.map((src, index) => `<span class="ua-thumb-slide" style="--ua-slide:url('${src}');--ua-duration:${duration}s;--ua-delay:${-(duration / images.length) * index}s"></span>`).join('')}${images.length > 1 ? `<div class="ua-thumb-dots">${images.map(() => '<span></span>').join('')}</div>` : ''}</div>`;
+}
+async function uaFetchJson(url){
+  const response = await fetch(url, { cache:'no-store' });
+  const data = await response.json().catch(() => ({}));
+  if(!response.ok) throw new Error(data.error || '读取失败');
+  return data;
+}
+function uaRenderHero(user){
+  const profile = user.profile || {};
+  const tags = Array.isArray(profile.tags) ? profile.tags : [];
+  uaUserHero.innerHTML = `<div class="ua-avatar" style="--ua-avatar:${uaAvatarStyle(profile.avatar || '')}"></div><h1>${escapeHtml(profile.nickname || user.username || uaCurrentUsername)}</h1><p class="ua-profile-meta">@${escapeHtml(user.username || uaCurrentUsername)} · ${escapeHtml(profile.signature || '这个用户暂时没有填写签名。')}</p><div class="ua-tags">${tags.map(tag => `<button class="ua-tag" type="button" data-profile-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`).join('') || '<span class="ua-tag">暂无标签</span>'}</div>`;
+  document.getElementById('uaUserIntro').textContent = profile.intro || '这个用户暂时还没有填写简介，但每一篇公开文章都会在右侧闪闪发光。';
+  document.getElementById('uaStatTag').textContent = tags.length;
+}
+function uaRenderTags(){
+  const tags = ['全部', ...Array.from(new Set(uaAllArticles.flatMap(uaGetTags)))];
+  uaTagPanel.innerHTML = tags.map(tag => `<button class="ua-filter-tag ${tag === uaActiveTag ? 'active' : ''}" type="button" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`).join('');
+  uaTagPanel.querySelectorAll('[data-tag]').forEach(btn => btn.addEventListener('click', () => { uaActiveTag = btn.dataset.tag || '全部'; uaCurrentPage = 1; uaApplyFilters(); }));
+}
+function uaApplyFilters(){
+  const query = uaSearchInput.value.trim().toLowerCase();
+  uaFilteredArticles = uaAllArticles.filter(article => {
+    const tags = uaGetTags(article);
+    const tagOk = uaActiveTag === '全部' || tags.includes(uaActiveTag);
+    const text = [article.title, article.summary, article.category, article.author, ...tags].join(' ').toLowerCase();
+    return tagOk && (!query || text.includes(query));
+  });
+  const sort = uaSortSelect.value;
+  uaFilteredArticles.sort((a, b) => {
+    if(sort === 'old') return String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
+    if(sort === 'title') return String(a.title || '').localeCompare(String(b.title || ''), 'zh-CN');
+    if(sort === 'image') return uaGalleryImages(b).length - uaGalleryImages(a).length || String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+    return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+  });
+  uaRenderArticles();
+}
+function uaRenderArticles(){
+  const totalPages = Math.max(1, Math.ceil(uaFilteredArticles.length / UA_PAGE_SIZE));
+  uaCurrentPage = Math.min(Math.max(1, uaCurrentPage), totalPages);
+  const items = uaFilteredArticles.slice((uaCurrentPage - 1) * UA_PAGE_SIZE, uaCurrentPage * UA_PAGE_SIZE);
+  uaEmptyState.hidden = items.length > 0;
+  uaArticleGrid.innerHTML = items.map((article, index) => `<article class="ua-article" style="animation-delay:${index * 45}ms" data-id="${escapeHtml(article.id)}">${uaRenderThumb(article)}<div class="ua-article-body"><small>${escapeHtml(article.category || '随笔')} · ${escapeHtml(article.createdAt || '')}</small><h2>${escapeHtml(article.title || '未命名文章')}</h2><p>${escapeHtml(article.summary || '点击阅读完整文章。')}</p><div class="ua-article-tags">${uaGetTags(article).slice(0, 4).map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}</div></div></article>`).join('');
+  uaArticleGrid.querySelectorAll('[data-id]').forEach(card => card.addEventListener('click', () => { const article = uaAllArticles.find(item => item.id === card.dataset.id); if(article) uaOpenDetail(article); }));
+  uaPageInfo.textContent = `第 ${uaCurrentPage} / ${totalPages} 页 · ${uaFilteredArticles.length} 篇`;
+  uaPrevPageBtn.disabled = uaCurrentPage <= 1;
+  uaNextPageBtn.disabled = uaCurrentPage >= totalPages;
+}
+async function uaOpenDetail(article){
+  const full = await uaFetchJson(`/api/articles?id=${encodeURIComponent(article.id)}`).then(data => data.article).catch(() => article);
+  article = full || article;
+  uaDetailTitle.textContent = article.title || '未命名文章';
+  uaDetailMeta.textContent = `${article.category || '随笔'} · @${article.author || uaCurrentUsername} · ${article.createdAt || ''}`;
+  uaDetailContent.style.fontFamily = article.fontFamily || '';
+  uaDetailContent.innerHTML = article.content || '<p>这篇文章暂时没有内容。</p>';
+  uaDetailModal.classList.add('open');
+}
+async function uaInit(username){
+  uaCurrentUsername = username;
+  uaSearchInput.value = '';
+  if(!username){ uaArticleCountText.textContent = '缺少用户名'; uaEmptyState.hidden = false; uaEmptyState.textContent = '没有指定要查看的用户。'; return; }
+  try{
+    const [profileData, articlesData] = await Promise.all([uaFetchJson(`/api/users/profile?username=${encodeURIComponent(username)}`), uaFetchJson('/api/articles')]);
+    uaAllArticles = (articlesData.articles || []).filter(article => article.author === username);
+    uaRenderHero(profileData.user || { username });
+    document.getElementById('uaStatArticle').textContent = uaAllArticles.length;
+    document.getElementById('uaStatImage').textContent = uaAllArticles.filter(article => uaGalleryImages(article).length).length;
+    uaArticleCountText.textContent = `共 ${uaAllArticles.length} 篇公开文章`;
+    uaRenderTags();
+    uaApplyFilters();
+  }catch(error){ uaArticleCountText.textContent = error.message || '读取失败'; uaEmptyState.hidden = false; uaEmptyState.textContent = '无法读取该用户的公开文章。'; }
+}
+let uaSearchTimer = 0;
+uaSearchInput.addEventListener('input', () => { clearTimeout(uaSearchTimer); uaSearchTimer = setTimeout(() => { uaCurrentPage = 1; uaApplyFilters(); }, 90); });
+uaSortSelect.addEventListener('change', () => { uaCurrentPage = 1; uaApplyFilters(); });
+uaClearFilterBtn.addEventListener('click', () => { uaSearchInput.value = ''; uaActiveTag = '全部'; uaSortSelect.value = 'new'; uaCurrentPage = 1; uaRenderTags(); uaApplyFilters(); });
+uaPrevPageBtn.addEventListener('click', () => { uaCurrentPage--; uaRenderArticles(); userArticlesPage.scrollTo({ top:0, behavior:'smooth' }); });
+uaNextPageBtn.addEventListener('click', () => { uaCurrentPage++; uaRenderArticles(); userArticlesPage.scrollTo({ top:0, behavior:'smooth' }); });
+uaDetailClose.addEventListener('click', () => uaDetailModal.classList.remove('open'));
+uaDetailModal.addEventListener('click', event => { if(event.target === uaDetailModal) uaDetailModal.classList.remove('open'); });
+
+function showUserArticles(username){
+  const target = String(username || '').trim();
+  if(!target) return;
+  window.scrollTo({top:0, behavior:'instant'});
+  if(blogHome){
+    blogHome.classList.remove('active');
+    blogHome.classList.add('leaving');
+    blogHome.setAttribute('aria-hidden', 'true');
+  }
+  if(userArticlesPage){
+    userArticlesPage.classList.remove('leaving');
+    userArticlesPage.classList.add('active');
+    userArticlesPage.setAttribute('aria-hidden', 'false');
+    userArticlesPage.scrollTop = 0;
+  }
+  uaInit(target);
+}
+function hideUserArticles(){
+  if(userArticlesPage){
+    userArticlesPage.classList.remove('active');
+    userArticlesPage.classList.add('leaving');
+    userArticlesPage.setAttribute('aria-hidden', 'true');
+  }
+  if(blogHome){
+    blogHome.classList.remove('leaving');
+    blogHome.classList.add('active');
+    blogHome.setAttribute('aria-hidden', 'false');
+  }
+  window.scrollTo({top:0, behavior:'instant'});
+  setTimeout(() => {
+    if(userArticlesPage) userArticlesPage.classList.remove('leaving');
+  }, 500);
+}
+if(uaBackBtn) uaBackBtn.addEventListener('click', hideUserArticles);
 
 function getAllArticles(){
   const user = readSavedUser();
@@ -8955,6 +9593,11 @@ function returnToLogin(){
     blogHome.classList.add('leaving');
     blogHome.setAttribute('aria-hidden', 'true');
   }
+  if(userArticlesPage){
+    userArticlesPage.classList.remove('active');
+    userArticlesPage.classList.add('leaving');
+    userArticlesPage.setAttribute('aria-hidden', 'true');
+  }
   if(returnLoginBtn) returnLoginBtn.classList.remove('visible');
   if(topTools) topTools.classList.remove('portal-mode');
   document.body.classList.remove('site-owner');
@@ -8970,6 +9613,7 @@ function returnToLogin(){
   triggerLightFeathers();
   setTimeout(()=>{
     if(blogHome) blogHome.classList.remove('leaving');
+    if(userArticlesPage) userArticlesPage.classList.remove('leaving');
   }, 620);
 }
 
@@ -11255,7 +11899,7 @@ startSiteVersionPoll();
       setTimeout(()=>{
         const me = typeof safeGetCurrentUser === 'function' ? safeGetCurrentUser() : null;
         const username = me ? me.username : '';
-        if(username) window.open(`html/user_articles.html?user=${encodeURIComponent(username)}`, '_blank');
+        if(username && typeof showUserArticles === 'function') showUserArticles(username);
       }, 300);
       return '已为你打开个人主页~ 🏠';
     }
