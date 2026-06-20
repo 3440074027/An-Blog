@@ -745,6 +745,17 @@
     padding:7px 16px;border-radius:12px;
     border:1.5px solid rgba(255,255,255,.22);
   }
+  .ua-delete-btn{
+    min-height:34px;padding:0 14px;
+    border-radius:10px;
+    border:1px solid rgba(255,100,100,.35);
+    color:rgba(255,120,120,.9);font-weight:600;font-size:12px;
+    cursor:pointer;
+    background:rgba(255,80,80,.08);
+    transition:all .15s;
+  }
+  .ua-delete-btn:hover{background:rgba(255,80,80,.18);color:#ff8888;border-color:rgba(255,100,100,.5);}
+  .ua-delete-btn.active{background:rgba(255,80,80,.2);color:#ffaaaa;border-color:rgba(255,100,100,.6);}
   .ua-layout{
     display:grid;
     grid-template-columns:minmax(260px,300px) minmax(0,1fr);
@@ -1042,62 +1053,145 @@
   .ua-detail{
     position:fixed;inset:0;z-index:15;
     display:grid;place-items:center;padding:20px;
-    background:rgba(5,10,30,.5);
-    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    background:rgba(8,10,26,.55);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
     opacity:0;visibility:hidden;pointer-events:none;
     transition:all 0.25s ease;
   }
   .ua-detail.open{opacity:1;visibility:visible;pointer-events:auto}
   .ua-detail-card{
     width:min(880px,96vw);max-height:90vh;
-    overflow:auto;padding:28px;border-radius:28px;
-    border:1.5px solid rgba(255,255,255,.3);
-    background:linear-gradient(145deg, rgba(39,55,84,.72), rgba(255,255,255,.15));
-    box-shadow:0 24px 80px rgba(5,10,30,.35), inset 0 1px 0 rgba(255,255,255,.22);
-    backdrop-filter:blur(22px) saturate(1.12);
-    -webkit-backdrop-filter:blur(22px) saturate(1.12);
+    overflow:hidden;padding:0;border-radius:34px;
+    border:1px solid rgba(212,175,55,.15);
+    background:
+      radial-gradient(ellipse at 15% 0%, rgba(212,175,55,.12), transparent 40%),
+      radial-gradient(ellipse at 85% 8%, rgba(255,200,100,.08), transparent 35%),
+      radial-gradient(ellipse at 50% 100%, rgba(100,180,220,.06), transparent 40%),
+      linear-gradient(170deg, #0B1628 0%, #132240 30%, #1A3050 55%, #0F2035 80%, #0A1525 100%);
+    box-shadow:0 34px 100px rgba(0,0,0,.44), 0 0 60px rgba(212,175,55,.04);
     color:#fff;
     transform:translateY(12px);
     transition:all 0.3s ease;
+    display:flex;flex-direction:column;
   }
   .ua-detail.open .ua-detail-card{transform:translateY(0)}
   .ua-detail-head{
-    display:flex;justify-content:space-between;
-    gap:12px;align-items:flex-start;
+    display:flex;flex-direction:column;
+    align-items:center;gap:12px;
+    padding:28px 28px 16px;
+    border-bottom:1px solid rgba(212,175,55,.1);
+    text-align:center;
+  }
+  .ua-detail-head-row{
+    display:flex;align-items:center;gap:10px;
+    width:100%;justify-content:center;
+  }
+  .ua-detail-head-row .ua-avatar-inline{
+    width:36px;height:36px;border-radius:50%;
+    background:linear-gradient(135deg,rgba(212,175,55,.3),rgba(100,180,220,.3));
+    background-size:cover;background-position:center;
+    border:2px solid rgba(212,175,55,.25);
+    box-shadow:0 2px 8px rgba(0,0,0,.2);
+    flex-shrink:0;
   }
   .ua-detail h2{
-    margin:0;font-size:clamp(20px,3vw,30px);
-    color:#fff;font-weight:700;
-    line-height:1.3;
-    text-shadow:0 1px 4px rgba(0,0,0,.12);
+    margin:0;font-size:clamp(20px,3vw,32px);
+    color:#F0D060;font-weight:900;
+    line-height:1.2;
+    text-shadow:none;
+  }
+  .ua-detail-meta{
+    display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  }
+  .ua-detail-meta span{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:3px 10px;border-radius:999px;
+    background:rgba(212,175,55,.06);
+    border:1px solid rgba(212,175,55,.12);
+    font-size:11px;color:rgba(220,200,160,.8);
+  }
+  .ua-detail-head-actions{
+    display:flex;gap:8px;align-items:center;
   }
   .ua-detail-close{
     min-height:34px;padding:0 14px;
-    border-radius:10px;border:1.5px solid rgba(255,255,255,.25);
-    color:rgba(255,255,255,.85);font-weight:600;font-size:12px;
+    border-radius:999px;border:1px solid rgba(212,175,55,.25);
+    color:#D4AF37;font-weight:600;font-size:12px;
     cursor:pointer;
-    background:rgba(255,255,255,.08);
+    background:rgba(212,175,55,.06);
     transition:all 0.2s ease;
-    flex-shrink:0;
+    display:inline-flex;align-items:center;justify-content:center;
   }
   .ua-detail-close:hover{
-    color:#fff;
-    border-color:rgba(255,255,255,.4);
-    box-shadow:0 2px 8px rgba(5,10,30,.22);
+    color:#F0D060;
+    border-color:rgba(212,175,55,.4);
+    background:rgba(212,175,55,.15);
+  }
+  .ua-detail-scroll{
+    flex:1 1 auto;overflow-y:auto;overflow-x:hidden;min-height:0;
+  }
+  .ua-detail-scroll::-webkit-scrollbar{width:6px;}
+  .ua-detail-scroll::-webkit-scrollbar-track{background:transparent;}
+  .ua-detail-scroll::-webkit-scrollbar-thumb{background:rgba(212,175,55,.25);border-radius:3px;}
+  .ua-detail-scroll::-webkit-scrollbar-thumb:hover{background:rgba(212,175,55,.4);}
+  .ua-detail-author-inline{
+    display:flex;align-items:center;gap:10px;
+    padding:0 28px 8px;
+    color:rgba(180,200,220,.5);font-size:12px;
+  }
+  .ua-detail-author-inline .ua-author-name{
+    font-size:13px;font-weight:700;color:#D4AF37;
+  }
+  .ua-detail-author-inline .ua-author-time{
+    font-size:11px;font-weight:500;color:rgba(180,200,220,.45);
   }
   .ua-detail-content{
-    margin-top:18px;padding:20px;border-radius:16px;
-    background:rgba(255,255,255,.06);
-    border:1.5px solid rgba(255,255,255,.15);
-    line-height:1.85;color:rgba(255,255,255,.88);
+    padding:24px 28px 28px;
+    line-height:1.9;
+    color:rgba(200,210,225,.88);
     font-size:15px;
   }
+  .ua-detail-content p{margin:0 0 16px;}
+  .ua-detail-content h1,.ua-detail-content h2,.ua-detail-content h3,.ua-detail-content h4,.ua-detail-content h5,.ua-detail-content h6{
+    color:#F0D060;margin:24px 0 12px;font-weight:700;
+  }
+  .ua-detail-content h1{font-size:28px}
+  .ua-detail-content h2{font-size:22px}
+  .ua-detail-content h3{font-size:18px}
+  .ua-detail-content h4{font-size:16px}
+  .ua-detail-content blockquote{
+    margin:16px 0;padding:12px 18px;
+    border-left:3px solid rgba(212,175,55,.4);
+    background:rgba(212,175,55,.06);
+    border-radius:0 10px 10px 0;
+    color:rgba(200,210,225,.7);font-style:italic;
+  }
+  .ua-detail-content pre{
+    margin:16px 0;padding:16px;
+    background:rgba(0,0,0,.3);
+    border:1px solid rgba(212,175,55,.12);
+    border-radius:12px;
+    font-family:'Consolas','Courier New',monospace;
+    font-size:13px;color:rgba(200,210,225,.8);overflow-x:auto;
+  }
   .ua-detail-content img{
-    max-width:min(400px,92%);max-height:280px;
-    object-fit:contain;border-radius:12px;
-    margin:8px;
+    max-width:min(360px, 92%);
+    max-height:240px;
+    object-fit:contain;
+    border-radius:16px;
+    display:block;
+    margin:16px auto;
     border:1.5px solid rgba(255,255,255,.18);
-    box-shadow:0 4px 16px rgba(5,10,30,.22);
+    box-shadow:0 8px 24px rgba(0,0,0,.2);
+    transition:transform .25s, box-shadow .25s;
+  }
+  .ua-detail-content img:hover{transform:scale(1.015);box-shadow:0 12px 32px rgba(0,0,0,.28);}
+  .ua-detail-content .article-img-row{
+    display:flex;flex-wrap:wrap;gap:8px;
+    margin:8px auto;max-width:min(640px, 94%);align-items:center;
+  }
+  .ua-detail-content .article-img-row img{
+    max-width:100%;height:auto;border-radius:14px;margin:0;display:inline-block;
   }
   @media (max-width:860px){
     .ua-layout{grid-template-columns:1fr}
@@ -5690,42 +5784,36 @@
   .article-detail-scroll::-webkit-scrollbar-thumb:hover{background:rgba(212,175,55,.4);}
   .article-detail-head{
     display:flex;
+    flex-direction:column;
     align-items:center;
-    justify-content:space-between;
-    gap:14px;
-    padding:20px 28px;
+    gap:12px;
+    padding:28px 28px 16px;
     border-bottom:1px solid rgba(212,175,55,.1);
+    text-align:center;
   }
-  .article-detail-author-inline{
+  .article-detail-head-row{
     display:flex;
     align-items:center;
     gap:10px;
-    flex-shrink:0;
-    min-width:0;
-  }
-  .article-detail-title-wrap{
-    flex:1 1 auto;
-    text-align:center;
-    min-width:0;
+    width:100%;
+    justify-content:center;
   }
   .article-detail-head h2{
     margin:0;
-    font-size:clamp(20px, 3vw, 32px);
+    font-size:clamp(22px, 3.5vw, 38px);
     line-height:1.2;
     font-weight:900;
     letter-spacing:-.02em;
     color:#F0D060;
+    order:2;
   }
   .article-detail-meta{
-    color:rgba(180,200,220,.6);
-    font-size:12px;
-    font-weight:500;
     display:flex;
-    gap:12px;
+    gap:8px;
     align-items:center;
-    justify-content:center;
     flex-wrap:wrap;
-    margin-bottom:6px;
+    margin-bottom:0;
+    order:1;
   }
   .article-detail-meta span{
     display:inline-flex;
@@ -5738,35 +5826,36 @@
     font-size:11px;
     color:rgba(220,200,160,.8);
   }
+  .article-detail-actions{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    order:3;
+  }
   .article-detail-author-avatar{
-    width:40px;
-    height:40px;
-    border-radius:50%;
+    width:36px;height:36px;border-radius:50%;
     background:linear-gradient(135deg,rgba(212,175,55,.3),rgba(100,180,220,.3));
-    background-size:cover;
-    background-position:center;
+    background-size:cover;background-position:center;
     border:2px solid rgba(212,175,55,.25);
     box-shadow:0 2px 8px rgba(0,0,0,.2);
     flex-shrink:0;
+    order:0;
   }
-  .article-detail-author-info{
-    display:grid;
-    gap:2px;
-    min-width:0;
+  .article-detail-author-info-inline{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 28px 8px;
+    color:rgba(180,200,220,.5);
+    font-size:12px;
   }
   .article-detail-author-name{
-    font-size:13px;
-    font-weight:700;
+    font-size:13px;font-weight:700;
     color:#D4AF37;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
   }
   .article-detail-author-time{
-    font-size:11px;
-    font-weight:500;
+    font-size:11px;font-weight:500;
     color:rgba(180,200,220,.45);
-    white-space:nowrap;
   }
   .article-detail-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;}
   .article-detail-actions button{
@@ -5856,30 +5945,26 @@
   .article-detail-content .article-img-row,
   .article-rich-editor .article-img-row{
     display:flex;
-    flex-direction:row;
     flex-wrap:wrap;
     gap:8px;
-    margin:12px 0;
-    align-items:flex-start;
-    justify-content:flex-start;
+    margin:8px auto;
+    max-width:min(640px, 94%);
+    align-items:center;
   }
   .article-detail-content .article-img-row img,
   .article-rich-editor .article-img-row img{
-    max-width:min(200px, 30%);
+    max-width:100%;
     height:auto;
-    border-radius:12px;
+    border-radius:14px;
     margin:0;
-    display:block;
+    display:inline-block;
     border:1.5px solid rgba(255,255,255,.18);
-    box-shadow:0 4px 14px rgba(0,0,0,.2);
-    cursor:move;
-    transition:transform .15s, box-shadow .15s;
-    user-select:none;
+    box-shadow:0 6px 18px rgba(0,0,0,.2);
+    cursor:pointer;
+    transition:transform .2s, box-shadow .2s;
   }
   .article-detail-content .article-img-row img:hover,
-  .article-rich-editor .article-img-row img:hover{transform:scale(1.03);box-shadow:0 8px 24px rgba(0,0,0,.28);}
-  .article-detail-content .article-img-row img.dragging,
-  .article-rich-editor .article-img-row img.dragging{opacity:.5;transform:scale(.95);}
+  .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 10px 28px rgba(0,0,0,.28);}
   /* 图片变换框 */
   .article-rich-editor .img-resize-wrap{
     position:relative;
@@ -6551,9 +6636,9 @@
   /* 编辑器内多图行 */
   .article-rich-editor .article-img-row{
     display:flex;
-    flex-direction:column;
-    gap:12px;
-    margin:16px auto;
+    flex-wrap:wrap;
+    gap:8px;
+    margin:8px auto;
     max-width:min(640px, 94%);
     align-items:center;
   }
@@ -6562,7 +6647,7 @@
     height:auto;
     border-radius:14px;
     margin:0;
-    display:block;
+    display:inline-block;
     border:1.5px solid rgba(255,255,255,.18);
     box-shadow:0 6px 18px rgba(0,0,0,.2);
     cursor:pointer;
@@ -7320,7 +7405,6 @@
             <small id="articlePageInfo">第 1 / 1 页</small>
             <button id="articleAllBtn" type="button">全部文章</button>
             <button id="articlePublishBtn" type="button">发布文章</button>
-            <button id="articleDeleteModeBtn" class="danger" type="button">删除文章</button>
             <button id="articleOwnerDeleteModeBtn" class="danger" type="button" hidden>管理删除</button>
             <div class="article-delete-tools" id="articleDeleteTools">
               <button id="articleDeleteConfirmBtn" class="danger" type="button">确认删除</button>
@@ -7373,6 +7457,11 @@
     <div class="ua-topbar">
       <button class="ua-back" type="button" id="uaBackBtn">返回博客首页</button>
       <span class="ua-meta" id="uaArticleCountText">正在读取公开文章...</span>
+      <button class="ua-delete-btn" id="uaDeleteModeBtn" type="button" hidden>删除文章</button>
+      <div class="article-delete-tools" id="uaDeleteTools">
+        <button id="uaDeleteConfirmBtn" class="danger" type="button">确认删除</button>
+        <button id="uaDeleteCancelBtn" type="button">取消</button>
+      </div>
     </div>
     <section class="ua-layout">
       <aside class="ua-sidebar">
@@ -7411,8 +7500,23 @@
 <!-- 文章详情弹窗 -->
 <div class="ua-detail" id="uaDetailModal">
   <div class="ua-detail-card">
-    <div class="ua-detail-head"><div><div class="ua-detail-meta" id="uaDetailMeta"></div><h2 id="uaDetailTitle">文章标题</h2></div><button class="ua-detail-close" id="uaDetailClose" type="button">关闭</button></div>
-    <div class="ua-detail-content" id="uaDetailContent"></div>
+    <div class="ua-detail-head">
+      <div class="ua-detail-head-row">
+        <div class="ua-avatar-inline" id="uaDetailAvatar"></div>
+        <div class="ua-detail-meta" id="uaDetailMeta"></div>
+        <h2 id="uaDetailTitle">文章标题</h2>
+      </div>
+      <div class="ua-detail-head-actions">
+        <button class="ua-detail-close" id="uaDetailClose" type="button">关闭</button>
+      </div>
+    </div>
+    <div class="ua-detail-scroll">
+      <div class="ua-detail-author-inline" id="uaDetailAuthorInfo">
+        <span class="ua-author-name" id="uaDetailAuthorName"></span>
+        <span class="ua-author-time" id="uaDetailAuthorTime"></span>
+      </div>
+      <div class="ua-detail-content" id="uaDetailContent"></div>
+    </div>
   </div>
 </div>
 
@@ -7473,14 +7577,8 @@
 <div class="article-detail-modal" id="articleDetailModal" aria-hidden="true">
   <div class="article-detail-card" role="dialog" aria-modal="true" aria-labelledby="articleDetailTitle">
     <div class="article-detail-head">
-      <div class="article-detail-author-inline" id="articleDetailAuthorInline">
+      <div class="article-detail-head-row">
         <div class="article-detail-author-avatar" id="articleDetailAuthorAvatar"></div>
-        <div class="article-detail-author-info">
-          <div class="article-detail-author-name" id="articleDetailAuthorName"></div>
-          <div class="article-detail-author-time" id="articleDetailAuthorTime"></div>
-        </div>
-      </div>
-      <div class="article-detail-title-wrap">
         <div class="article-detail-meta" id="articleDetailMeta"></div>
         <h2 id="articleDetailTitle">文章标题</h2>
       </div>
@@ -7491,6 +7589,10 @@
       </div>
     </div>
     <div class="article-detail-scroll">
+      <div class="article-detail-author-info-inline" id="articleDetailAuthorInfo">
+        <span class="article-detail-author-name" id="articleDetailAuthorName"></span>
+        <span class="article-detail-author-time" id="articleDetailAuthorTime"></span>
+      </div>
       <div class="article-detail-content" id="articleDetailContent"></div>
     </div>
     <div class="article-detail-pager" id="articleDetailPager" hidden>
@@ -8095,7 +8197,6 @@ const articlePageInput = document.getElementById('articlePageInput');
 const articleJumpBtn = document.getElementById('articleJumpBtn');
 const articleAllBtn = document.getElementById('articleAllBtn');
 const articlePublishBtn = document.getElementById('articlePublishBtn');
-const articleDeleteModeBtn = document.getElementById('articleDeleteModeBtn');
 const articleOwnerDeleteModeBtn = document.getElementById('articleOwnerDeleteModeBtn');
 const articleDeleteTools = document.getElementById('articleDeleteTools');
 const articleDeleteConfirmBtn = document.getElementById('articleDeleteConfirmBtn');
@@ -8348,7 +8449,9 @@ function readSavedUser(){
 }
 
 function isSiteOwnerUser(user){
-  return !!user && user.username === SITE_OWNER_USERNAME;
+  if(!user) return false;
+  const name = String(user.username || '').trim();
+  return name === SITE_OWNER_USERNAME || name.toLowerCase() === SITE_OWNER_USERNAME.toLowerCase();
 }
 
 function daysSince(dateValue){
@@ -8512,12 +8615,18 @@ const uaDetailContent = document.getElementById('uaDetailContent');
 const uaBackBtn = document.getElementById('uaBackBtn');
 const uaClearFilterBtn = document.getElementById('uaClearFilterBtn');
 const uaDetailClose = document.getElementById('uaDetailClose');
+const uaDeleteModeBtn = document.getElementById('uaDeleteModeBtn');
+const uaDeleteTools = document.getElementById('uaDeleteTools');
+const uaDeleteConfirmBtn = document.getElementById('uaDeleteConfirmBtn');
+const uaDeleteCancelBtn = document.getElementById('uaDeleteCancelBtn');
 
 let uaAllArticles = [];
 let uaFilteredArticles = [];
 let uaCurrentPage = 1;
 let uaActiveTag = '全部';
 let uaCurrentUsername = '';
+let uaDeleteMode = false;
+let uaSelectedIds = new Set();
 const UA_PAGE_SIZE = 6;
 
 function uaAvatarStyle(value){ return value ? `url('${value}')` : 'linear-gradient(135deg,#63B3ED,#68D391)'; }
@@ -8579,8 +8688,26 @@ function uaRenderArticles(){
   uaCurrentPage = Math.min(Math.max(1, uaCurrentPage), totalPages);
   const items = uaFilteredArticles.slice((uaCurrentPage - 1) * UA_PAGE_SIZE, uaCurrentPage * UA_PAGE_SIZE);
   uaEmptyState.hidden = items.length > 0;
-  uaArticleGrid.innerHTML = items.map((article, index) => `<article class="ua-article" style="animation-delay:${index * 45}ms" data-id="${escapeHtml(article.id)}">${uaRenderThumb(article)}<div class="ua-article-body"><small>${escapeHtml(article.category || '随笔')} · ${escapeHtml(article.createdAt || '')}</small><h2>${escapeHtml(article.title || '未命名文章')}</h2><p>${escapeHtml(article.summary || '点击阅读完整文章。')}</p><div class="ua-article-tags">${uaGetTags(article).slice(0, 4).map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}</div></div></article>`).join('');
-  uaArticleGrid.querySelectorAll('[data-id]').forEach(card => card.addEventListener('click', () => { const article = uaAllArticles.find(item => item.id === card.dataset.id); if(article) uaOpenDetail(article); }));
+  const currentUser = readSavedUser()?.username || '';
+  uaArticleGrid.innerHTML = items.map((article, index) => `<article class="ua-article ${uaDeleteMode ? 'selectable' : ''} ${uaSelectedIds.has(article.id) ? 'selected' : ''}" style="animation-delay:${index * 45}ms" data-id="${escapeHtml(article.id)}">${uaDeleteMode ? `<input class="article-select-check" type="checkbox" ${uaSelectedIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}${uaRenderThumb(article)}<div class="ua-article-body"><small>${escapeHtml(article.category || '随笔')} · ${escapeHtml(article.createdAt || '')}</small><h2>${escapeHtml(article.title || '未命名文章')}</h2><p>${escapeHtml(article.summary || '点击阅读完整文章。')}</p><div class="ua-article-tags">${uaGetTags(article).slice(0, 4).map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}</div></div></article>`).join('');
+  uaArticleGrid.querySelectorAll('[data-id]').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if(uaDeleteMode){
+        const check = card.querySelector('.article-select-check');
+        if(check && (e.target === check || e.target.closest('.article-select-check'))){
+          const id = card.dataset.id;
+          if(uaSelectedIds.has(id)) uaSelectedIds.delete(id);
+          else uaSelectedIds.add(id);
+          card.classList.toggle('selected', uaSelectedIds.has(id));
+          check.checked = uaSelectedIds.has(id);
+          return;
+        }
+        if(uaDeleteMode) return;
+      }
+      const article = uaAllArticles.find(item => item.id === card.dataset.id);
+      if(article) uaOpenDetail(article);
+    });
+  });
   uaPageInfo.textContent = `第 ${uaCurrentPage} / ${totalPages} 页 · ${uaFilteredArticles.length} 篇`;
   uaPrevPageBtn.disabled = uaCurrentPage <= 1;
   uaNextPageBtn.disabled = uaCurrentPage >= totalPages;
@@ -8588,8 +8715,28 @@ function uaRenderArticles(){
 async function uaOpenDetail(article){
   const full = await uaFetchJson(`/api/articles?id=${encodeURIComponent(article.id)}`).then(data => data.article).catch(() => article);
   article = full || article;
-  uaDetailTitle.textContent = article.title || '未命名文章';
-  uaDetailMeta.textContent = `${article.category || '随笔'} · @${article.author || uaCurrentUsername} · ${article.createdAt || ''}`;
+  if(uaDetailTitle) uaDetailTitle.textContent = article.title || '未命名文章';
+  if(uaDetailMeta) uaDetailMeta.innerHTML = `<span>${escapeHtml(article.category || '随笔')}</span>`;
+  if(uaDetailAuthorName) uaDetailAuthorName.textContent = `@${article.author || uaCurrentUsername}`;
+  if(uaDetailAuthorTime) uaDetailAuthorTime.textContent = article.createdAt || '';
+  // 加载头像
+  const uaAvatarEl = document.getElementById('uaDetailAvatar');
+  if(uaAvatarEl){
+    const avatarUrl = article.authorAvatar || article.avatar || '';
+    if(avatarUrl && avatarUrl.startsWith('data:image/')){
+      uaAvatarEl.style.backgroundImage = `url(${avatarUrl})`;
+    }else{
+      const authorName = article.author || '';
+      if(authorName){
+        authRequest(`/api/users/profile?username=${encodeURIComponent(authorName)}`, { method:'GET' })
+          .then(data => {
+            const profile = data.user?.profile || data.profile || {};
+            const url = profile.avatar || '';
+            if(url && url.startsWith('data:image/')) uaAvatarEl.style.backgroundImage = `url(${url})`;
+          }).catch(()=>{});
+      }
+    }
+  }
   uaDetailContent.style.fontFamily = article.fontFamily || '';
   uaDetailContent.innerHTML = article.content || '<p>这篇文章暂时没有内容。</p>';
   uaDetailModal.classList.add('open');
@@ -8605,6 +8752,13 @@ async function uaInit(username){
     document.getElementById('uaStatArticle').textContent = uaAllArticles.length;
     document.getElementById('uaStatImage').textContent = uaAllArticles.filter(article => uaGalleryImages(article).length).length;
     uaArticleCountText.textContent = `共 ${uaAllArticles.length} 篇公开文章`;
+    // 仅作者本人显示删除按钮
+    const currentUser = readSavedUser();
+    if(uaDeleteModeBtn) uaDeleteModeBtn.hidden = !(currentUser && currentUser.username === username);
+    uaDeleteMode = false;
+    uaSelectedIds.clear();
+    if(uaDeleteTools) uaDeleteTools.classList.remove('active');
+    if(uaDeleteModeBtn) uaDeleteModeBtn.classList.remove('active');
     uaRenderTags();
     uaApplyFilters();
   }catch(error){ uaArticleCountText.textContent = error.message || '读取失败'; uaEmptyState.hidden = false; uaEmptyState.textContent = '无法读取该用户的公开文章。'; }
@@ -8617,6 +8771,54 @@ uaPrevPageBtn.addEventListener('click', () => { uaCurrentPage--; uaRenderArticle
 uaNextPageBtn.addEventListener('click', () => { uaCurrentPage++; uaRenderArticles(); userArticlesPage.scrollTo({ top:0, behavior:'smooth' }); });
 uaDetailClose.addEventListener('click', () => uaDetailModal.classList.remove('open'));
 uaDetailModal.addEventListener('click', event => { if(event.target === uaDetailModal) uaDetailModal.classList.remove('open'); });
+// 用户公开文章区删除功能
+if(uaDeleteModeBtn) uaDeleteModeBtn.addEventListener('click', ()=>{
+  uaDeleteMode = !uaDeleteMode;
+  if(!uaDeleteMode) uaSelectedIds.clear();
+  uaDeleteTools?.classList.toggle('active', uaDeleteMode);
+  uaDeleteModeBtn.classList.toggle('active', uaDeleteMode);
+  uaDeleteModeBtn.textContent = uaDeleteMode ? '选择要删除的文章' : '删除文章';
+  uaRenderArticles();
+});
+if(uaDeleteCancelBtn) uaDeleteCancelBtn.addEventListener('click', ()=>{
+  uaDeleteMode = false;
+  uaSelectedIds.clear();
+  uaDeleteTools?.classList.remove('active');
+  uaDeleteModeBtn?.classList.remove('active');
+  uaDeleteModeBtn.textContent = '删除文章';
+  uaRenderArticles();
+});
+if(uaDeleteConfirmBtn) uaDeleteConfirmBtn.addEventListener('click', async ()=>{
+  if(!uaSelectedIds.size){
+    showLoginToast('请先勾选要删除的文章。', 'warn', '未选择文章');
+    return;
+  }
+  const confirmed = await showConfirmDialog(
+    `确定要删除选中的 ${uaSelectedIds.size} 篇文章吗？`,
+    '此操作不可恢复，删除后文章将无法找回。',
+    '确认删除',
+    '取消'
+  );
+  if(!confirmed) return;
+  try{
+    await authRequest('/api/articles', {
+      method:'DELETE',
+      headers:authorizedHeaders(),
+      body:JSON.stringify({ ids:Array.from(uaSelectedIds) })
+    });
+    await loadPublicArticles();
+    uaSelectedIds.clear();
+    uaDeleteMode = false;
+    uaDeleteTools?.classList.remove('active');
+    uaDeleteModeBtn?.classList.remove('active');
+    uaDeleteModeBtn.textContent = '删除文章';
+    // 重新加载用户文章
+    await uaInit(uaCurrentUsername);
+    showLoginToast('已删除选中的文章。', 'success', '删除成功');
+  }catch(error){
+    showLoginToast(error.message || '删除文章失败。', 'error', '删除失败');
+  }
+});
 
 function showUserArticles(username){
   const target = String(username || '').trim();
@@ -8730,9 +8932,14 @@ function renderArticles(){
       </article>
     `;
   }else{
+  const canSelect = (article) => {
+    if(ownerDeleteArticleMode) return true;
+    if(deleteArticleMode) return isCurrentUserAuthor(article);
+    return false;
+  };
   articleGrid.innerHTML = items.map(article=>`
-    <article class="article-card ${canDeleteSelectArticle(article) ? 'selectable' : ''} ${selectedArticleIds.has(article.id) ? 'selected' : ''}" data-article-id="${escapeHtml(article.id || '')}" data-demo="${article.demo ? '1' : '0'}">
-      ${canDeleteSelectArticle(article) ? `<input class="article-select-check" type="checkbox" ${selectedArticleIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}
+    <article class="article-card ${canSelect(article) ? 'selectable' : ''} ${selectedArticleIds.has(article.id) ? 'selected' : ''}" data-article-id="${escapeHtml(article.id || '')}" data-demo="${article.demo ? '1' : '0'}">
+      ${canSelect(article) ? `<input class="article-select-check" type="checkbox" ${selectedArticleIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}
       ${renderArticleThumb(article)}
       <div>
         <small>${escapeHtml(article.category)} · ${escapeHtml(article.createdAt || '')} · @${escapeHtml(article.author || '')}</small>
@@ -9049,46 +9256,19 @@ async function insertArticleImages(files){
   // 所有图片放在一行，按原始比例分配宽度，统一高度
   const wrapper = document.createElement('div');
   wrapper.appendChild(document.createElement('br'));
-  // 行内插入图片：多图可一行，支持拖拽排序
+  // 原图原比例插入：不裁剪、不挤压，按原始比例显示
   const row = document.createElement('div');
   row.className = 'article-img-row';
-  row.draggable = false;
-  sources.forEach((src, index) => {
+  sources.forEach(src => {
     const img = document.createElement('img');
     img.src = src;
     img.alt = '文章图片';
     img.loading = 'lazy';
-    img.draggable = true;
-    img.dataset.imgIndex = String(index);
-    // 拖拽排序
-    img.addEventListener('dragstart', (e) => {
-      img.classList.add('dragging');
-      e.dataTransfer.setData('text/plain', String(index));
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    img.addEventListener('dragend', () => {
-      img.classList.remove('dragging');
-      row.querySelectorAll('img').forEach((im, i) => im.dataset.imgIndex = String(i));
-    });
-    img.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-    });
-    img.addEventListener('drop', (e) => {
-      e.preventDefault();
-      const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
-      const toIndex = parseInt(img.dataset.imgIndex, 10);
-      if(fromIndex === toIndex || isNaN(fromIndex) || isNaN(toIndex)) return;
-      const allImgs = Array.from(row.querySelectorAll('img'));
-      const fromImg = allImgs[fromIndex];
-      if(!fromImg) return;
-      if(fromIndex < toIndex){
-        img.parentNode.insertBefore(fromImg, img.nextSibling);
-      }else{
-        img.parentNode.insertBefore(fromImg, img);
-      }
-      row.querySelectorAll('img').forEach((im, i) => im.dataset.imgIndex = String(i));
-    });
+    img.style.maxWidth = '100%';
+    img.style.height = 'auto';
+    img.style.display = 'block';
+    img.style.borderRadius = '14px';
+    img.style.margin = '0';
     row.appendChild(img);
   });
   wrapper.appendChild(row);
@@ -9190,8 +9370,6 @@ function toggleArticleDeleteMode(on = !deleteArticleMode){
   ownerDeleteArticleMode = false;
   if(!deleteArticleMode) selectedArticleIds.clear();
   articleDeleteTools?.classList.toggle('active', deleteArticleMode);
-  articleDeleteModeBtn?.classList.toggle('active', deleteArticleMode);
-  articleDeleteModeBtn.textContent = deleteArticleMode ? '选择要删除的文章' : '删除文章';
   renderArticles();
 }
 
@@ -9210,17 +9388,16 @@ function toggleOwnerDeleteMode(on = !ownerDeleteArticleMode){
   renderArticles();
 }
 
-function canDeleteSelectArticle(article){
-  if(ownerDeleteArticleMode) return true;
-  if(deleteArticleMode) return isCurrentUserAuthor(article);
-  return false;
-}
-
 async function deleteSelectedArticles(){
   const user = requireRealUser('删除文章');
   if(!user) return;
   if(!selectedArticleIds.size){
     showLoginToast('请先勾选要删除的文章。', 'warn', '未选择文章');
+    return;
+  }
+  const isOwner = isSiteOwnerUser(user);
+  if(!isOwner && ownerDeleteArticleMode){
+    showLoginToast('只有站主可以管理删除所有文章。', 'warn', '权限不足');
     return;
   }
   const confirmed = await showConfirmDialog(
@@ -9234,7 +9411,7 @@ async function deleteSelectedArticles(){
     await authRequest('/api/articles', {
       method:'DELETE',
       headers:authorizedHeaders(),
-      body:JSON.stringify({ ids:Array.from(selectedArticleIds) })
+      body:JSON.stringify({ ids:Array.from(selectedArticleIds), forceOwner: ownerDeleteArticleMode })
     });
     await loadPublicArticles();
     selectedArticleIds.clear();
@@ -9266,18 +9443,26 @@ async function openArticleDetail(id){
   if(articleDetailTitle) articleDetailTitle.textContent = article.title || '未命名文章';
   if(articleDetailMeta) articleDetailMeta.innerHTML = `<span>${article.category || '随笔'}</span>`;
   // 作者信息
-  if(articleDetailAuthorName) articleDetailAuthorName.textContent = article.author || '未知用户';
+  if(articleDetailAuthorName) articleDetailAuthorName.textContent = `@${article.author || '未知用户'}`;
   if(articleDetailAuthorTime) articleDetailAuthorTime.textContent = article.createdAt || '';
-  // 头像：优先从文章数据的 authorAvatar，其次尝试从用户资料获取
+  // 加载作者头像
   if(articleDetailAuthorAvatar){
-    let avatarUrl = article.authorAvatar || '';
-    if(!avatarUrl && article.author){
-      avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(article.author)}&backgroundColor=e8f5e9`;
-    }
-    if(avatarUrl){
+    const avatarUrl = article.authorAvatar || article.avatar || '';
+    if(avatarUrl && avatarUrl.startsWith('data:image/')){
       articleDetailAuthorAvatar.style.backgroundImage = `url(${avatarUrl})`;
     }else{
-      articleDetailAuthorAvatar.style.backgroundImage = '';
+      // 从用户资料获取头像
+      const authorName = article.author || '';
+      if(authorName){
+        authRequest(`/api/users/profile?username=${encodeURIComponent(authorName)}`, { method:'GET' })
+          .then(data => {
+            const profile = data.user?.profile || data.profile || {};
+            const url = profile.avatar || '';
+            if(url && url.startsWith('data:image/')){
+              articleDetailAuthorAvatar.style.backgroundImage = `url(${url})`;
+            }
+          }).catch(()=>{});
+      }
     }
   }
   if(articleDetailContent) {
@@ -9328,7 +9513,7 @@ async function deleteCurrentDetailArticle(){
   const isOwner = isSiteOwnerUser(user);
   const isAuthor = isCurrentUserAuthor(article);
   if(!isAuthor && !isOwner){
-    showLoginToast('只能删除自己发布的文章。', 'warn', '权限不足');
+    showLoginToast('只能删除自己发布的文章，或使用站主管理删除功能。', 'warn', '权限不足');
     return;
   }
   const confirmed = await showConfirmDialog(
@@ -9342,7 +9527,7 @@ async function deleteCurrentDetailArticle(){
     await authRequest('/api/articles', {
       method:'DELETE',
       headers:authorizedHeaders(),
-      body:JSON.stringify({ ids:[currentDetailArticleId] })
+      body:JSON.stringify({ ids:[currentDetailArticleId], forceOwner: isOwner && !isAuthor })
     });
     await loadPublicArticles();
     closeArticleDetail();
@@ -9397,7 +9582,6 @@ if(articlePageInput){
   });
 }
 if(articlePublishBtn) articlePublishBtn.addEventListener('click', ()=>openArticleEditor());
-if(articleDeleteModeBtn) articleDeleteModeBtn.addEventListener('click', ()=>toggleArticleDeleteMode());
 if(articleOwnerDeleteModeBtn) articleOwnerDeleteModeBtn.addEventListener('click', ()=>toggleOwnerDeleteMode());
 if(articleAllBtn) articleAllBtn.addEventListener('click', ()=>{
   articleFilterMode = 'all';
