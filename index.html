@@ -5815,17 +5815,16 @@
   /* 多图并排布局 */
   .article-detail-content .article-img-row,
   .article-rich-editor .article-img-row{
-    display:grid;
-    gap:10px;
+    display:flex;
+    gap:8px;
     margin:16px auto;
-    max-width:min(600px, 92%);
+    max-width:min(640px, 94%);
     align-items:center;
+    flex-wrap:wrap;
+    justify-content:center;
   }
   .article-detail-content .article-img-row img,
   .article-rich-editor .article-img-row img{
-    width:100%;
-    height:200px;
-    object-fit:contain;
     border-radius:14px;
     margin:0;
     display:block;
@@ -6393,18 +6392,15 @@
   .article-rich-editor figcaption{font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;font-style:italic;}
   /* 编辑器内多图行 */
   .article-rich-editor .article-img-row{
-    display:grid;
-    gap:10px;
+    display:flex;
+    gap:8px;
     margin:16px auto;
-    max-width:min(600px, 92%);
+    max-width:min(640px, 94%);
     align-items:center;
+    flex-wrap:wrap;
+    justify-content:center;
   }
   .article-rich-editor .article-img-row img{
-    width:100%;
-    height:200px;
-    max-width:none;
-    max-height:none;
-    object-fit:contain;
     border-radius:14px;
     margin:0;
     display:block;
@@ -8853,24 +8849,41 @@ async function insertArticleImages(files){
     sel.removeAllRanges();
     sel.addRange(newRange);
   }
-  // 每3张图片一行，不足3张也独占一行
+  // 所有图片放在一行，按原始比例分配宽度，统一高度
   const wrapper = document.createElement('div');
   wrapper.appendChild(document.createElement('br'));
-  for(let i = 0; i < sources.length; i += 3){
-    const chunk = sources.slice(i, i + 3);
-    const row = document.createElement('div');
-    row.className = 'article-img-row';
-    // 根据图片数量设置列数：1张=1列，2张=2列，3张=3列
-    row.style.gridTemplateColumns = `repeat(${chunk.length}, 1fr)`;
-    chunk.forEach(src => {
-      const img = document.createElement('img');
-      img.src = src;
-      img.alt = '文章图片';
-      img.loading = 'lazy';
-      row.appendChild(img);
+  // 先加载所有图片尺寸
+  const imgDataList = await Promise.all(sources.map(src => {
+    return new Promise(resolve => {
+      const tempImg = new Image();
+      tempImg.onload = () => resolve({ src, w: tempImg.naturalWidth, h: tempImg.naturalHeight });
+      tempImg.onerror = () => resolve({ src, w: 200, h: 200 });
+      tempImg.src = src;
     });
-    wrapper.appendChild(row);
-  }
+  }));
+  // 计算统一高度：取所有图片高度的中间值，限制在 120~260px
+  const heights = imgDataList.map(d => d.h);
+  heights.sort((a, b) => a - b);
+  const medianH = heights[Math.floor(heights.length / 2)] || 200;
+  const rowHeight = Math.max(120, Math.min(260, medianH));
+  // 计算总宽度占比
+  const totalRatio = imgDataList.reduce((sum, d) => sum + (d.w / d.h), 0);
+  const row = document.createElement('div');
+  row.className = 'article-img-row';
+  imgDataList.forEach(d => {
+    const ratio = d.w / d.h;
+    const imgWidth = (ratio / totalRatio * 100).toFixed(2);
+    const img = document.createElement('img');
+    img.src = d.src;
+    img.alt = '文章图片';
+    img.loading = 'lazy';
+    img.style.height = rowHeight + 'px';
+    img.style.width = imgWidth + '%';
+    img.style.flex = '0 0 ' + imgWidth + '%';
+    img.style.objectFit = 'cover';
+    row.appendChild(img);
+  });
+  wrapper.appendChild(row);
   wrapper.appendChild(document.createElement('br'));
   const frag = document.createDocumentFragment();
   while(wrapper.firstChild) frag.appendChild(wrapper.firstChild);
