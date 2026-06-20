@@ -5779,16 +5779,24 @@
   .article-detail-content .article-img-row,
   .article-rich-editor .article-img-row{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns:repeat(3, 1fr);
     gap:10px;
     margin:16px auto;
     max-width:min(600px, 92%);
+  }
+  .article-detail-content .article-img-row[data-count="1"],
+  .article-rich-editor .article-img-row[data-count="1"]{
+    grid-template-columns:1fr;
+  }
+  .article-detail-content .article-img-row[data-count="2"],
+  .article-rich-editor .article-img-row[data-count="2"]{
+    grid-template-columns:repeat(2, 1fr);
   }
   .article-detail-content .article-img-row img,
   .article-rich-editor .article-img-row img{
     width:100%;
     height:200px;
-    object-fit:cover;
+    object-fit:contain;
     border-radius:14px;
     margin:0;
     display:block;
@@ -5796,6 +5804,7 @@
     box-shadow:0 6px 18px rgba(0,0,0,.2);
     cursor:pointer;
     transition:transform .2s, box-shadow .2s;
+    background:rgba(0,0,0,.2);
   }
   .article-detail-content .article-img-row img:hover,
   .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 10px 28px rgba(0,0,0,.28);}
@@ -6358,6 +6367,41 @@
     align-items:center;
     padding:16px 24px 20px;
     border-top:1px solid rgba(255,255,255,.08);
+  }
+  .article-editor-pager{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding:10px 24px;
+    border-top:1px solid rgba(255,255,255,.06);
+    background:rgba(255,255,255,.02);
+  }
+  .article-editor-pager button{
+    min-height:32px;
+    padding:0 16px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.2);
+    color:rgba(255,255,255,.8);
+    font-weight:600;
+    font-size:12px;
+    cursor:pointer;
+    background:rgba(255,255,255,.06);
+    transition:all .2s;
+  }
+  .article-editor-pager button:hover:not(:disabled){
+    background:rgba(255,255,255,.12);
+    color:#fff;
+    border-color:rgba(255,255,255,.35);
+  }
+  .article-editor-pager button:disabled{
+    opacity:.3;
+    cursor:not-allowed;
+  }
+  .article-editor-pager span{
+    color:rgba(255,255,255,.5);
+    font-size:12px;
+    font-weight:500;
   }
   .article-progress{
     display:none;
@@ -7188,7 +7232,6 @@
       <label>字重<input id="articleFontWeightSlider" type="range" min="100" max="900" step="100" value="400" /><span id="articleFontWeightValue">400</span></label>
       <label>颜色<input id="articleColorInput" type="color" value="#ffffff" /></label>
       <div class="article-editor-switches">
-        <button id="articleBoldBtn" type="button">粗体开关</button>
         <button id="articleItalicBtn" type="button">斜体开关</button>
         <button id="articleUnderlineBtn" type="button">下划线开关</button>
         <button id="articleInsertImageBtn" type="button">插入图片（可多选）≤3MB</button>
@@ -7201,6 +7244,11 @@
     <div class="article-editor-actions">
       <div class="article-progress" id="articlePublishProgress" aria-hidden="true"><span id="articlePublishProgressBar"></span></div>
       <button id="articleSaveBtn" type="button">发布</button>
+    </div>
+    <div class="article-editor-pager" id="articleEditorPager">
+      <button id="articleEditorPrevPage" type="button" disabled>上一页</button>
+      <span id="articleEditorPageInfo">第 1 / 1 页</span>
+      <button id="articleEditorNextPage" type="button" disabled>下一页</button>
     </div>
   </div>
 </div>
@@ -7834,7 +7882,6 @@ const articleFontSizeInput = document.getElementById('articleFontSizeInput');
 const articleFontWeightSlider = document.getElementById('articleFontWeightSlider');
 const articleFontWeightValue = document.getElementById('articleFontWeightValue');
 const articleColorInput = document.getElementById('articleColorInput');
-const articleBoldBtn = document.getElementById('articleBoldBtn');
 const articleItalicBtn = document.getElementById('articleItalicBtn');
 const articleUnderlineBtn = document.getElementById('articleUnderlineBtn');
 const articleInsertImageBtn = document.getElementById('articleInsertImageBtn');
@@ -7855,8 +7902,14 @@ const articleDetailPager = document.getElementById('articleDetailPager');
 const articleDetailPrevPage = document.getElementById('articleDetailPrevPage');
 const articleDetailNextPage = document.getElementById('articleDetailNextPage');
 const articleDetailPageInfo = document.getElementById('articleDetailPageInfo');
+const articleEditorPager = document.getElementById('articleEditorPager');
+const articleEditorPrevPage = document.getElementById('articleEditorPrevPage');
+const articleEditorNextPage = document.getElementById('articleEditorNextPage');
+const articleEditorPageInfo = document.getElementById('articleEditorPageInfo');
 let articleDetailPages = [];
 let articleDetailCurrentPage = 0;
+let articleEditorPages = [];
+let articleEditorCurrentPage = 0;
 const profileClockTime = document.getElementById('profileClockTime');
 const profileClockDate = document.getElementById('profileClockDate');
 const homeSearchPopover = document.getElementById('homeSearchPopover');
@@ -8508,7 +8561,54 @@ function openArticleEditor(article = null){
   if(articleSaveBtn) articleSaveBtn.textContent = article ? '保存修改' : '发布';
   articleEditorModal?.classList.add('open');
   articleEditorModal?.setAttribute('aria-hidden', 'false');
+  // 初始化编辑器分页
+  initArticleEditorPages();
   setTimeout(()=>articleContentEditor?.focus(), 80);
+}
+
+function initArticleEditorPages(){
+  const editor = articleContentEditor;
+  if(!editor) return;
+  const content = editor.innerHTML;
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = content;
+  const breaks = tempDiv.querySelectorAll('.article-page-break');
+  if(breaks.length > 0){
+    articleEditorPages = [];
+    let currentPage = [];
+    Array.from(tempDiv.childNodes).forEach(node => {
+      if(node.nodeType === 1 && node.classList && node.classList.contains('article-page-break')){
+        articleEditorPages.push(currentPage.join(''));
+        currentPage = [];
+      }else{
+        currentPage.push(node.nodeType === 1 ? node.outerHTML : node.textContent);
+      }
+    });
+    articleEditorPages.push(currentPage.join(''));
+  }else{
+    articleEditorPages = [content];
+  }
+  articleEditorCurrentPage = 0;
+  updateArticleEditorPager();
+}
+
+function updateArticleEditorPager(){
+  const total = articleEditorPages.length;
+  const current = articleEditorCurrentPage + 1;
+  if(articleEditorPageInfo) articleEditorPageInfo.textContent = `第 ${current} / ${total} 页`;
+  if(articleEditorPrevPage) articleEditorPrevPage.disabled = articleEditorCurrentPage <= 0;
+  if(articleEditorNextPage) articleEditorNextPage.disabled = articleEditorCurrentPage >= total - 1;
+}
+
+function goArticleEditorPage(direction){
+  const newPage = articleEditorCurrentPage + direction;
+  if(newPage < 0 || newPage >= articleEditorPages.length) return;
+  // 保存当前页内容
+  articleEditorPages[articleEditorCurrentPage] = articleContentEditor?.innerHTML || '';
+  articleEditorCurrentPage = newPage;
+  if(articleContentEditor) articleContentEditor.innerHTML = articleEditorPages[newPage] || '';
+  updateArticleEditorPager();
+  articleContentEditor?.focus();
 }
 
 function closeArticleEditor(){
@@ -8681,34 +8781,31 @@ async function insertArticleImages(files){
     sel.removeAllRanges();
     sel.addRange(newRange);
   }
-  if(sources.length === 1){
-    // 单张图片：独占一行
-    const div = document.createElement('div');
-    div.innerHTML = '<br><img src="' + sources[0] + '" alt="文章图片" loading="lazy" /><br>';
-    const frag = document.createDocumentFragment();
-    while(div.firstChild) frag.appendChild(div.firstChild);
-    range.deleteContents();
-    range.insertNode(frag);
-  }else{
-    // 多张图片：一行最多3张
+  // 按3张一组分组，每组一行
+  const groups = [];
+  for(let i = 0; i < sources.length; i += 3){
+    groups.push(sources.slice(i, i + 3));
+  }
+  const wrapper = document.createElement('div');
+  groups.forEach((group, idx) => {
+    if(idx > 0) wrapper.appendChild(document.createElement('br'));
     const row = document.createElement('div');
     row.className = 'article-img-row';
-    sources.forEach(src => {
+    row.setAttribute('data-count', String(group.length));
+    group.forEach(src => {
       const img = document.createElement('img');
       img.src = src;
       img.alt = '文章图片';
       img.loading = 'lazy';
       row.appendChild(img);
     });
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = '<br>';
     wrapper.appendChild(row);
-    wrapper.appendChild(document.createElement('br'));
-    const frag = document.createDocumentFragment();
-    while(wrapper.firstChild) frag.appendChild(wrapper.firstChild);
-    range.deleteContents();
-    range.insertNode(frag);
-  }
+  });
+  wrapper.appendChild(document.createElement('br'));
+  const frag = document.createDocumentFragment();
+  while(wrapper.firstChild) frag.appendChild(wrapper.firstChild);
+  range.deleteContents();
+  range.insertNode(frag);
   // 移动光标到最后
   const lastSrc = sources[sources.length - 1];
   const allImgs = editor.querySelectorAll('img[src="' + lastSrc + '"]');
@@ -8726,8 +8823,16 @@ async function insertArticleImages(files){
 async function saveArticleFromEditor(){
   const user = requireRealUser(editingArticleId ? '修改文章' : '发布文章');
   if(!user) return;
+  // 保存当前页内容到 pages 数组
+  if(articleContentEditor && articleEditorPages.length > 0){
+    articleEditorPages[articleEditorCurrentPage] = articleContentEditor.innerHTML;
+  }
+  // 合并所有分页内容
+  const fullContent = articleEditorPages.length > 1
+    ? articleEditorPages.join('')
+    : String(articleContentEditor?.innerHTML || '');
   const title = String(articleTitleInput?.value || '').trim();
-  const content = String(articleContentEditor?.innerHTML || '').trim();
+  const content = fullContent.trim();
   if(!title || !content){
     showLoginToast('请填写文章标题和正文。', 'warn', '内容不完整');
     return;
@@ -8931,6 +9036,8 @@ if(articleDeleteCancelBtn) articleDeleteCancelBtn.addEventListener('click', ()=>
 if(articleDeleteConfirmBtn) articleDeleteConfirmBtn.addEventListener('click', deleteSelectedArticles);
 if(articleDetailPrevPage) articleDetailPrevPage.addEventListener('click', ()=>goArticleDetailPage(-1));
 if(articleDetailNextPage) articleDetailNextPage.addEventListener('click', ()=>goArticleDetailPage(1));
+if(articleEditorPrevPage) articleEditorPrevPage.addEventListener('click', ()=>goArticleEditorPage(-1));
+if(articleEditorNextPage) articleEditorNextPage.addEventListener('click', ()=>goArticleEditorPage(1));
 if(toolArticleCount) toolArticleCount.closest('.tool-stat')?.addEventListener('click', ()=>goUserArticles(readSavedUser()?.username));
 if(articleDetailCloseBtn) articleDetailCloseBtn.addEventListener('click', closeArticleDetail);
 if(articleDetailEditBtn) articleDetailEditBtn.addEventListener('click', editCurrentDetailArticle);
@@ -8942,12 +9049,11 @@ if(articleContentEditor){
   articleContentEditor.addEventListener('mouseup', saveArticleSelection);
   articleContentEditor.addEventListener('blur', saveArticleSelection);
 }
-if(articleBoldBtn) articleBoldBtn.addEventListener('click', ()=>{ applyArticleCommand('bold'); articleBoldBtn.classList.toggle('active'); });
 if(articleItalicBtn) articleItalicBtn.addEventListener('click', ()=>{ applyArticleCommand('italic'); articleItalicBtn.classList.toggle('active'); });
 if(articleUnderlineBtn) articleUnderlineBtn.addEventListener('click', ()=>{ applyArticleCommand('underline'); articleUnderlineBtn.classList.toggle('active'); });
 if(articleClearFormatBtn) articleClearFormatBtn.addEventListener('click', ()=>{
   applyArticleCommand('removeFormat');
-  [articleBoldBtn, articleItalicBtn, articleUnderlineBtn].forEach(btn=>btn?.classList.remove('active'));
+  [articleItalicBtn, articleUnderlineBtn].forEach(btn=>btn?.classList.remove('active'));
   articleContentEditor?.setAttribute('data-editor-color', '#ffffff');
   articleContentEditor?.setAttribute('data-editor-size', '16px');
   articleContentEditor?.setAttribute('data-editor-weight', '400');
@@ -9004,6 +9110,9 @@ if(articleInsertPageBtn) articleInsertPageBtn.addEventListener('click', ()=>{
     wrapper.appendChild(document.createElement('br'));
     wrapper.appendChild(hr);
     wrapper.appendChild(document.createElement('br'));
+    wrapper.appendChild(document.createElement('br'));
+    wrapper.appendChild(document.createElement('br'));
+    wrapper.appendChild(document.createElement('br'));
     const frag = document.createDocumentFragment();
     while(wrapper.firstChild) frag.appendChild(wrapper.firstChild);
     range.deleteContents();
@@ -9014,6 +9123,7 @@ if(articleInsertPageBtn) articleInsertPageBtn.addEventListener('click', ()=>{
     sel.removeAllRanges();
     sel.addRange(nextRange);
     saveArticleSelection();
+    updateArticleEditorPager();
     showLoginToast(`已插入第 ${pageNum} 页。`, 'success', '分页成功');
   }
 });
