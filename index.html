@@ -5903,48 +5903,71 @@
   }
   .article-detail-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;}
   .article-detail-actions button{
-    min-height:36px;
-    padding:0 18px;
-    border-radius:999px;
-    border:1px solid rgba(212,175,55,.2);
-    color:rgba(220,200,160,.9);
-    font-weight:700;
-    font-size:12px;
+    min-height:38px;
+    padding:0 20px;
+    border-radius:12px;
+    border:none;
+    color:#fff;
+    font-weight:800;
+    font-size:13px;
     cursor:pointer;
-    background:rgba(212,175,55,.06);
-    transition:all .18s;
+    transition:all .2s cubic-bezier(.4,0,.2,1);
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    letter-spacing:.02em;
+    gap:6px;
+    letter-spacing:.03em;
+    position:relative;
+    overflow:hidden;
   }
-  .article-detail-actions button:hover{
-    background:rgba(212,175,55,.15);
-    color:#F0D060;
-    border-color:rgba(212,175,55,.35);
-    transform:translateY(-1px);
-    box-shadow:0 4px 12px rgba(212,175,55,.1);
+  .article-detail-actions button::before{
+    content:'';
+    position:absolute;inset:0;
+    opacity:0;
+    transition:opacity .2s;
+    border-radius:inherit;
   }
+  .article-detail-actions button:hover::before{opacity:1;}
+  .article-detail-actions button:hover{transform:translateY(-2px);}
+  .article-detail-actions button:active{transform:translateY(0) scale(.97);}
+  /* 修改文章按钮 */
+  .article-detail-actions button#articleDetailEditBtn{
+    background:linear-gradient(135deg, #D4AF37 0%, #F0D060 50%, #D4AF37 100%);
+    color:#1a1a2e;
+    box-shadow:0 2px 8px rgba(212,175,55,.2), inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .article-detail-actions button#articleDetailEditBtn::before{
+    background:linear-gradient(135deg, #F0D060 0%, #FFE88A 50%, #F0D060 100%);
+  }
+  .article-detail-actions button#articleDetailEditBtn:hover{
+    box-shadow:0 6px 20px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.4);
+  }
+  /* 删除文章按钮 */
   .article-detail-actions button.danger{
-    border-color:rgba(255,100,100,.3);
-    color:rgba(255,140,140,.9);
-    background:rgba(255,80,80,.06);
+    background:linear-gradient(135deg, #c0392b 0%, #e74c3c 50%, #c0392b 100%);
+    color:#fff;
+    box-shadow:0 2px 8px rgba(231,76,60,.2), inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .article-detail-actions button.danger::before{
+    background:linear-gradient(135deg, #e74c3c 0%, #ff6b6b 50%, #e74c3c 100%);
   }
   .article-detail-actions button.danger:hover{
-    background:rgba(255,80,80,.18);
-    color:#ffaaaa;
-    border-color:rgba(255,100,100,.5);
-    box-shadow:0 4px 12px rgba(255,60,60,.15);
+    box-shadow:0 6px 20px rgba(231,76,60,.35), inset 0 1px 0 rgba(255,255,255,.3);
   }
+  /* 关闭按钮 */
   .article-detail-actions button#articleDetailCloseBtn{
-    border-color:rgba(255,255,255,.15);
-    color:rgba(255,255,255,.6);
-    background:rgba(255,255,255,.05);
+    background:rgba(255,255,255,.08);
+    color:rgba(255,255,255,.7);
+    border:1px solid rgba(255,255,255,.15);
+    box-shadow:none;
+  }
+  .article-detail-actions button#articleDetailCloseBtn::before{
+    background:rgba(255,255,255,.15);
   }
   .article-detail-actions button#articleDetailCloseBtn:hover{
-    background:rgba(255,255,255,.12);
     color:#fff;
     border-color:rgba(255,255,255,.3);
+    box-shadow:0 4px 12px rgba(0,0,0,.2);
   }
   .article-detail-content{
     padding:24px 28px 28px;
@@ -6045,8 +6068,9 @@
     display:inline-block;
     max-width:100%;
     margin:4px;
-    cursor:move;
+    cursor:default;
     user-select:none;
+    -webkit-user-select:none;
   }
   .article-rich-editor .img-resize-wrap img{
     display:block;
@@ -6055,7 +6079,9 @@
     border-radius:14px;
     border:1.5px solid rgba(255,255,255,.18);
     box-shadow:0 6px 18px rgba(0,0,0,.2);
-    pointer-events:none;
+    pointer-events:auto;
+    user-select:none;
+    -webkit-user-select:none;
   }
   .article-rich-editor .img-resize-wrap.selected img{
     border-color:rgba(127,247,255,.6);
@@ -6073,7 +6099,7 @@
   }
   .article-rich-editor .img-resize-handle{
     position:absolute;
-    width:12px;height:12px;
+    width:14px;height:14px;
     background:linear-gradient(135deg, #7ff7ff, #ff8fc7);
     border:2px solid #fff;
     border-radius:50%;
@@ -6081,14 +6107,15 @@
     cursor:nwse-resize;
     z-index:10;
     display:none;
+    pointer-events:auto;
   }
   .article-rich-editor .img-resize-wrap.selected .img-resize-handle{
     display:block;
   }
-  .article-rich-editor .img-resize-handle.br{bottom:-6px;right:-6px;}
-  .article-rich-editor .img-resize-handle.bl{bottom:-6px;left:-6px;cursor:nesw-resize;}
-  .article-rich-editor .img-resize-handle.tr{top:-6px;right:-6px;cursor:nesw-resize;}
-  .article-rich-editor .img-resize-handle.tl{top:-6px;left:-6px;cursor:nwse-resize;}
+  .article-rich-editor .img-resize-handle.br{bottom:-7px;right:-7px;}
+  .article-rich-editor .img-resize-handle.bl{bottom:-7px;left:-7px;cursor:nesw-resize;}
+  .article-rich-editor .img-resize-handle.tr{top:-7px;right:-7px;cursor:nesw-resize;}
+  .article-rich-editor .img-resize-handle.tl{top:-7px;left:-7px;cursor:nwse-resize;}
   /* 分页标记 */
   .article-page-break{
     page-break-after:always;
@@ -7608,7 +7635,7 @@
       <label>简略摘要<textarea id="articleSummaryInput" maxlength="260" placeholder="用于文章收纳区简略显示，保持卡片布局不变"></textarea></label>
     </div>
     <div class="article-style-panel">
-      <label>字体
+      <label title="设置文章正文字体">字体
         <select id="articleFontSelect">
           <option value="'Noto Sans SC','Microsoft YaHei',sans-serif">思源黑体</option>
           <option value="'Microsoft YaHei','Segoe UI',sans-serif">微软雅黑</option>
@@ -7624,22 +7651,23 @@
           <option value="'Liu Jian Mao Cao','KaiTi',cursive">刘建毛草</option>
         </select>
       </label>
-      <label>字号<input id="articleFontSizeInput" type="number" min="12" max="48" value="16" /></label>
-      <label class="article-weight-label">字重 <span id="articleFontWeightValue">400</span>
+      <label title="设置正文字号大小（12-48px）">字号<input id="articleFontSizeInput" type="number" min="12" max="48" value="16" /></label>
+      <label class="article-weight-label" title="设置文字粗细（100-900）">字重 <span id="articleFontWeightValue">400</span>
         <input id="articleFontWeightSlider" type="range" min="100" max="900" step="100" value="400" />
       </label>
-      <label>颜色<input id="articleColorInput" type="color" value="#ffffff" /></label>
+      <label title="设置文字颜色">颜色<input id="articleColorInput" type="color" value="#ffffff" /></label>
       <div class="article-editor-switches">
-        <button id="articleItalicBtn" type="button">斜体开关</button>
-        <button id="articleUnderlineBtn" type="button">下划线开关</button>
-        <button id="articleInsertImageBtn" type="button">插入图片（可多选）≤3MB</button>
-        <button id="articleSetCoverBtn" type="button" hidden>设为封面</button>
-        <button id="articleInsertPageBtn" type="button">插入新页</button>
-        <button id="articleClearFormatBtn" type="button">清除格式</button>
+        <button id="articleItalicBtn" type="button" title="切换斜体样式">斜体开关</button>
+        <button id="articleUnderlineBtn" type="button" title="切换下划线样式">下划线开关</button>
+        <button id="articleInsertImageBtn" type="button" title="从本地选择图片插入到文章中，支持多选，单张不超过3MB">插入图片（可多选）≤3MB</button>
+        <button id="articleSetCoverBtn" type="button" hidden title="从本地选择一张图片作为文章封面，显示在文章列表中">选择封面图</button>
+        <button id="articleInsertPageBtn" type="button" title="在当前页后插入新的空白页，实现文章分页显示">插入新页</button>
+        <button id="articleClearFormatBtn" type="button" title="清除编辑器中所有文字格式，恢复为默认样式">清除格式</button>
       </div>
     </div>
     <div class="article-rich-editor" id="articleContentEditor" contenteditable="true" spellcheck="false" data-placeholder="在这里写文章内容。图片会插入到光标所在位置，并自动缩小显示。" data-editor-color="#ffffff" data-editor-weight="400"></div>
     <input id="articleImageInput" type="file" accept="image/*" multiple hidden />
+    <input id="articleCoverInput" type="file" accept="image/*" hidden />
     <div class="article-editor-actions">
       <div class="article-editor-pager">
         <button id="articleEditorPrevPage" type="button">上一页</button>
@@ -9300,9 +9328,8 @@ async function insertArticleImages(files){
     sel.removeAllRanges();
     sel.addRange(newRange);
   }
-  // 所有图片放在一行，按原始比例分配宽度，统一高度
+  // 所有图片放在一行，按原始比例分配宽度
   const wrapper = document.createElement('div');
-  wrapper.appendChild(document.createElement('br'));
   // 原图原比例插入：不裁剪、不挤压，按原始比例显示
   const row = document.createElement('div');
   row.className = 'article-img-row';
@@ -9319,7 +9346,6 @@ async function insertArticleImages(files){
     row.appendChild(img);
   });
   wrapper.appendChild(row);
-  wrapper.appendChild(document.createElement('br'));
   const frag = document.createDocumentFragment();
   while(wrapper.firstChild) frag.appendChild(wrapper.firstChild);
   range.deleteContents();
@@ -9715,44 +9741,51 @@ if(articleImageInput) articleImageInput.addEventListener('change', async ()=>{
   // 插入图片后显示"设为封面"按钮
   updateSetCoverBtnVisibility();
 });
-// 封面选择功能
+// 封面选择功能——本地文件选择
 const articleSetCoverBtn = document.getElementById('articleSetCoverBtn');
+const articleCoverInput = document.getElementById('articleCoverInput');
 let selectedCoverSrc = null;
 function updateSetCoverBtnVisibility(){
   const imgs = articleContentEditor?.querySelectorAll('img[src^="data:image/"]') || [];
-  if(articleSetCoverBtn) articleSetCoverBtn.hidden = imgs.length < 2;
+  if(articleSetCoverBtn) articleSetCoverBtn.hidden = imgs.length < 1;
 }
 if(articleSetCoverBtn) articleSetCoverBtn.addEventListener('click', ()=>{
-  const imgs = Array.from(articleContentEditor?.querySelectorAll('img[src^="data:image/"]') || []);
-  if(imgs.length < 2){
-    showLoginToast('需要至少2张图片才能选择封面。', 'warn', '图片不足');
+  articleCoverInput?.click();
+});
+if(articleCoverInput) articleCoverInput.addEventListener('change', async ()=>{
+  const file = articleCoverInput.files?.[0];
+  if(!file || !file.type.startsWith('image/')){
+    showLoginToast('请选择一张图片作为封面。', 'warn', '格式不对');
     return;
   }
-  // 进入封面选择模式
-  showLoginToast('请点击要设为封面的图片。第一张图将作为文章封面，不轮播。', 'success', '选择封面');
-  const onCoverClick = (e)=>{
-    const img = e.target.closest?.('img');
-    if(!img || !articleContentEditor.contains(img)) return;
-    const src = img.src;
-    if(!src || !src.startsWith('data:image/')) return;
-    e.preventDefault();
-    e.stopPropagation();
+  if(file.size > 3 * 1024 * 1024){
+    showLoginToast('封面图片不能超过 3MB。', 'warn', '图片过大');
+    return;
+  }
+  try{
+    const src = await compressArticleImageFile(file);
     selectedCoverSrc = src;
-    // 将选中的图片移到内容最前面
-    const parent = img.closest('.img-resize-wrap') || img.parentNode;
-    const firstRow = articleContentEditor.querySelector('.article-img-row');
-    if(firstRow && parent !== firstRow && !firstRow.contains(img)){
-      firstRow.insertBefore(img, firstRow.firstChild);
+    // 将封面图插入到内容最前面
+    if(articleContentEditor){
+      const firstRow = articleContentEditor.querySelector('.article-img-row');
+      if(firstRow){
+        const coverImg = document.createElement('img');
+        coverImg.src = src;
+        coverImg.alt = '文章封面';
+        coverImg.loading = 'lazy';
+        coverImg.style.maxWidth = '100%';
+        coverImg.style.height = 'auto';
+        coverImg.style.display = 'block';
+        coverImg.style.borderRadius = '14px';
+        coverImg.style.margin = '0';
+        firstRow.insertBefore(coverImg, firstRow.firstChild);
+      }
     }
-    articleContentEditor.removeEventListener('click', onCoverClick);
-    showLoginToast('已将该图片设为封面。发布后文章列表将显示此图。', 'success', '封面已设置');
-    updateSetCoverBtnVisibility();
-  };
-  articleContentEditor.addEventListener('click', onCoverClick);
-  // 3秒后自动取消
-  setTimeout(()=>{
-    articleContentEditor.removeEventListener('click', onCoverClick);
-  }, 10000);
+    showLoginToast('封面图已设置，发布后文章列表将显示此图。', 'success', '封面已设置');
+  }catch(err){
+    showLoginToast('封面图片处理失败。', 'error', '处理失败');
+  }
+  articleCoverInput.value = '';
 });
 if(articleInsertPageBtn) articleInsertPageBtn.addEventListener('click', ()=>{
   // 保存当前页
@@ -9911,6 +9944,9 @@ function initEditorImageResize(){
         isLongPress = true;
         dragging = true;
         activeWrap = wrap;
+        // 禁用编辑器文本选择
+        articleContentEditor.style.userSelect = 'none';
+        articleContentEditor.style.webkitUserSelect = 'none';
         startX = e.clientX;
         startY = e.clientY;
         const rect = wrap.getBoundingClientRect();
@@ -9930,6 +9966,9 @@ function initEditorImageResize(){
         const onUp = ()=>{
           dragging = false;
           isLongPress = false;
+          // 恢复编辑器文本选择
+          articleContentEditor.style.userSelect = '';
+          articleContentEditor.style.webkitUserSelect = '';
           if(activeWrap){
             activeWrap.style.cursor = '';
             // 将 transform 转为 margin 偏移
