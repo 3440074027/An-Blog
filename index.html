@@ -1076,18 +1076,31 @@
   }
   .ua-detail.open .ua-detail-card{transform:translateY(0)}
   .ua-detail-head{
-    display:flex;flex-direction:column;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    grid-template-areas:"left center right";
     align-items:center;gap:12px;
-    padding:28px 28px 16px;
+    padding:24px 28px 16px;
     border-bottom:1px solid rgba(212,175,55,.1);
+  }
+  .ua-detail-head-left{
+    grid-area:left;
+    display:flex;align-items:center;gap:10px;
+    justify-self:start;
+  }
+  .ua-detail-head-center{
+    grid-area:center;
+    display:flex;flex-direction:column;
+    align-items:center;gap:6px;
     text-align:center;
   }
-  .ua-detail-head-row{
-    display:flex;align-items:center;gap:10px;
-    width:100%;justify-content:center;
+  .ua-detail-head-right{
+    grid-area:right;
+    display:flex;gap:8px;align-items:center;
+    justify-self:end;
   }
-  .ua-detail-head-row .ua-avatar-inline{
-    width:36px;height:36px;border-radius:50%;
+  .ua-detail-head-left .ua-avatar-inline{
+    width:40px;height:40px;border-radius:50%;
     background:linear-gradient(135deg,rgba(212,175,55,.3),rgba(100,180,220,.3));
     background-size:cover;background-position:center;
     border:2px solid rgba(212,175,55,.25);
@@ -1101,7 +1114,8 @@
     text-shadow:none;
   }
   .ua-detail-meta{
-    display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+    display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+    justify-content:center;
   }
   .ua-detail-meta span{
     display:inline-flex;align-items:center;gap:4px;
@@ -1109,9 +1123,6 @@
     background:rgba(212,175,55,.06);
     border:1px solid rgba(212,175,55,.12);
     font-size:11px;color:rgba(220,200,160,.8);
-  }
-  .ua-detail-head-actions{
-    display:flex;gap:8px;align-items:center;
   }
   .ua-detail-close{
     min-height:34px;padding:0 14px;
@@ -1188,10 +1199,11 @@
   .ua-detail-content img:hover{transform:scale(1.015);box-shadow:0 12px 32px rgba(0,0,0,.28);}
   .ua-detail-content .article-img-row{
     display:flex;flex-wrap:wrap;gap:8px;
-    margin:8px auto;max-width:min(640px, 94%);align-items:center;
+    margin:8px auto;max-width:min(640px, 94%);align-items:flex-start;
   }
   .ua-detail-content .article-img-row img{
-    max-width:100%;height:auto;border-radius:14px;margin:0;display:inline-block;
+    flex:1 1 auto;min-width:80px;
+    max-width:100%;height:auto;border-radius:14px;margin:0;display:block;
   }
   @media (max-width:860px){
     .ua-layout{grid-template-columns:1fr}
@@ -5719,6 +5731,34 @@
     gap:8px;
   }
   .article-delete-tools.active{display:flex;}
+  .article-delete-tools button{
+    min-height:34px;padding:0 16px;
+    border-radius:999px;
+    font-weight:700;font-size:12px;
+    cursor:pointer;
+    transition:all .15s;
+    display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid rgba(255,255,255,.15);
+  }
+  .article-delete-tools button.danger{
+    background:linear-gradient(135deg, rgba(255,80,80,.2), rgba(255,60,60,.1));
+    color:#ff8888;
+    border-color:rgba(255,100,100,.35);
+  }
+  .article-delete-tools button.danger:hover{
+    background:linear-gradient(135deg, rgba(255,80,80,.35), rgba(255,60,60,.2));
+    color:#ffaaaa;
+    transform:translateY(-1px);
+    box-shadow:0 4px 12px rgba(255,60,60,.2);
+  }
+  .article-delete-tools button:not(.danger){
+    background:rgba(255,255,255,.08);
+    color:rgba(255,255,255,.7);
+  }
+  .article-delete-tools button:not(.danger):hover{
+    background:rgba(255,255,255,.15);
+    color:#fff;
+  }
   .article-editor-modal{
     position:fixed;
     inset:0;
@@ -5783,37 +5823,50 @@
   .article-detail-scroll::-webkit-scrollbar-thumb{background:rgba(212,175,55,.25);border-radius:3px;}
   .article-detail-scroll::-webkit-scrollbar-thumb:hover{background:rgba(212,175,55,.4);}
   .article-detail-head{
-    display:flex;
-    flex-direction:column;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    grid-template-areas:"left center right";
     align-items:center;
     gap:12px;
-    padding:28px 28px 16px;
+    padding:24px 28px 16px;
     border-bottom:1px solid rgba(212,175,55,.1);
-    text-align:center;
   }
-  .article-detail-head-row{
+  .article-detail-head-left{
+    grid-area:left;
     display:flex;
     align-items:center;
     gap:10px;
-    width:100%;
-    justify-content:center;
+    justify-self:start;
+  }
+  .article-detail-head-center{
+    grid-area:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    text-align:center;
+  }
+  .article-detail-head-right{
+    grid-area:right;
+    display:flex;
+    gap:8px;
+    align-items:center;
+    justify-self:end;
   }
   .article-detail-head h2{
     margin:0;
-    font-size:clamp(22px, 3.5vw, 38px);
+    font-size:clamp(20px, 3vw, 32px);
     line-height:1.2;
     font-weight:900;
     letter-spacing:-.02em;
     color:#F0D060;
-    order:2;
   }
   .article-detail-meta{
     display:flex;
-    gap:8px;
+    gap:6px;
     align-items:center;
     flex-wrap:wrap;
-    margin-bottom:0;
-    order:1;
+    justify-content:center;
   }
   .article-detail-meta span{
     display:inline-flex;
@@ -5826,27 +5879,18 @@
     font-size:11px;
     color:rgba(220,200,160,.8);
   }
-  .article-detail-actions{
-    display:flex;
-    gap:8px;
-    align-items:center;
-    order:3;
-  }
   .article-detail-author-avatar{
-    width:36px;height:36px;border-radius:50%;
+    width:40px;height:40px;border-radius:50%;
     background:linear-gradient(135deg,rgba(212,175,55,.3),rgba(100,180,220,.3));
     background-size:cover;background-position:center;
     border:2px solid rgba(212,175,55,.25);
     box-shadow:0 2px 8px rgba(0,0,0,.2);
     flex-shrink:0;
-    order:0;
   }
   .article-detail-author-info-inline{
     display:flex;
-    align-items:center;
-    gap:10px;
-    padding:0 28px 8px;
-    color:rgba(180,200,220,.5);
+    flex-direction:column;
+    gap:2px;
     font-size:12px;
   }
   .article-detail-author-name{
@@ -5949,15 +5993,17 @@
     gap:8px;
     margin:8px auto;
     max-width:min(640px, 94%);
-    align-items:center;
+    align-items:flex-start;
   }
   .article-detail-content .article-img-row img,
   .article-rich-editor .article-img-row img{
+    flex:1 1 auto;
+    min-width:80px;
     max-width:100%;
     height:auto;
     border-radius:14px;
     margin:0;
-    display:inline-block;
+    display:block;
     border:1.5px solid rgba(255,255,255,.18);
     box-shadow:0 6px 18px rgba(0,0,0,.2);
     cursor:pointer;
@@ -5970,7 +6016,9 @@
     position:relative;
     display:inline-block;
     max-width:100%;
-    margin:8px 0;
+    margin:4px;
+    cursor:move;
+    user-select:none;
   }
   .article-rich-editor .img-resize-wrap img{
     display:block;
@@ -5979,18 +6027,29 @@
     border-radius:14px;
     border:1.5px solid rgba(255,255,255,.18);
     box-shadow:0 6px 18px rgba(0,0,0,.2);
+    pointer-events:none;
   }
   .article-rich-editor .img-resize-wrap.selected img{
     border-color:rgba(127,247,255,.6);
     box-shadow:0 0 0 3px rgba(127,247,255,.2), 0 6px 18px rgba(0,0,0,.2);
   }
+  .article-rich-editor .img-resize-border{
+    position:absolute;inset:0;
+    border:2px dashed rgba(127,247,255,.5);
+    border-radius:14px;
+    pointer-events:none;
+    display:none;
+  }
+  .article-rich-editor .img-resize-wrap.selected .img-resize-border{
+    display:block;
+  }
   .article-rich-editor .img-resize-handle{
     position:absolute;
-    width:10px;height:10px;
+    width:12px;height:12px;
     background:linear-gradient(135deg, #7ff7ff, #ff8fc7);
     border:2px solid #fff;
     border-radius:50%;
-    box-shadow:0 0 6px rgba(127,247,255,.5);
+    box-shadow:0 0 8px rgba(127,247,255,.6);
     cursor:nwse-resize;
     z-index:10;
     display:none;
@@ -5998,10 +6057,10 @@
   .article-rich-editor .img-resize-wrap.selected .img-resize-handle{
     display:block;
   }
-  .article-rich-editor .img-resize-handle.br{bottom:-5px;right:-5px;}
-  .article-rich-editor .img-resize-handle.bl{bottom:-5px;left:-5px;cursor:nesw-resize;}
-  .article-rich-editor .img-resize-handle.tr{top:-5px;right:-5px;cursor:nesw-resize;}
-  .article-rich-editor .img-resize-handle.tl{top:-5px;left:-5px;cursor:nwse-resize;}
+  .article-rich-editor .img-resize-handle.br{bottom:-6px;right:-6px;}
+  .article-rich-editor .img-resize-handle.bl{bottom:-6px;left:-6px;cursor:nesw-resize;}
+  .article-rich-editor .img-resize-handle.tr{top:-6px;right:-6px;cursor:nesw-resize;}
+  .article-rich-editor .img-resize-handle.tl{top:-6px;left:-6px;cursor:nwse-resize;}
   /* 分页标记 */
   .article-page-break{
     page-break-after:always;
@@ -6640,14 +6699,16 @@
     gap:8px;
     margin:8px auto;
     max-width:min(640px, 94%);
-    align-items:center;
+    align-items:flex-start;
   }
   .article-rich-editor .article-img-row img{
+    flex:1 1 auto;
+    min-width:80px;
     max-width:100%;
     height:auto;
     border-radius:14px;
     margin:0;
-    display:inline-block;
+    display:block;
     border:1.5px solid rgba(255,255,255,.18);
     box-shadow:0 6px 18px rgba(0,0,0,.2);
     cursor:pointer;
@@ -7501,20 +7562,22 @@
 <div class="ua-detail" id="uaDetailModal">
   <div class="ua-detail-card">
     <div class="ua-detail-head">
-      <div class="ua-detail-head-row">
+      <div class="ua-detail-head-left">
         <div class="ua-avatar-inline" id="uaDetailAvatar"></div>
-        <div class="ua-detail-meta" id="uaDetailMeta"></div>
-        <h2 id="uaDetailTitle">文章标题</h2>
+        <div class="ua-detail-author-inline">
+          <span class="ua-author-name" id="uaDetailAuthorName"></span>
+          <span class="ua-author-time" id="uaDetailAuthorTime"></span>
+        </div>
       </div>
-      <div class="ua-detail-head-actions">
+      <div class="ua-detail-head-center">
+        <h2 id="uaDetailTitle">文章标题</h2>
+        <div class="ua-detail-meta" id="uaDetailMeta"></div>
+      </div>
+      <div class="ua-detail-head-right">
         <button class="ua-detail-close" id="uaDetailClose" type="button">关闭</button>
       </div>
     </div>
     <div class="ua-detail-scroll">
-      <div class="ua-detail-author-inline" id="uaDetailAuthorInfo">
-        <span class="ua-author-name" id="uaDetailAuthorName"></span>
-        <span class="ua-author-time" id="uaDetailAuthorTime"></span>
-      </div>
       <div class="ua-detail-content" id="uaDetailContent"></div>
     </div>
   </div>
@@ -7577,22 +7640,24 @@
 <div class="article-detail-modal" id="articleDetailModal" aria-hidden="true">
   <div class="article-detail-card" role="dialog" aria-modal="true" aria-labelledby="articleDetailTitle">
     <div class="article-detail-head">
-      <div class="article-detail-head-row">
+      <div class="article-detail-head-left">
         <div class="article-detail-author-avatar" id="articleDetailAuthorAvatar"></div>
-        <div class="article-detail-meta" id="articleDetailMeta"></div>
-        <h2 id="articleDetailTitle">文章标题</h2>
+        <div class="article-detail-author-info-inline">
+          <span class="article-detail-author-name" id="articleDetailAuthorName"></span>
+          <span class="article-detail-author-time" id="articleDetailAuthorTime"></span>
+        </div>
       </div>
-      <div class="article-detail-actions">
+      <div class="article-detail-head-center">
+        <h2 id="articleDetailTitle">文章标题</h2>
+        <div class="article-detail-meta" id="articleDetailMeta"></div>
+      </div>
+      <div class="article-detail-head-right">
         <button id="articleDetailEditBtn" type="button">修改文章</button>
         <button id="articleDetailDeleteBtn" class="danger" type="button" hidden>删除文章</button>
         <button id="articleDetailCloseBtn" type="button">关闭</button>
       </div>
     </div>
     <div class="article-detail-scroll">
-      <div class="article-detail-author-info-inline" id="articleDetailAuthorInfo">
-        <span class="article-detail-author-name" id="articleDetailAuthorName"></span>
-        <span class="article-detail-author-time" id="articleDetailAuthorTime"></span>
-      </div>
       <div class="article-detail-content" id="articleDetailContent"></div>
     </div>
     <div class="article-detail-pager" id="articleDetailPager" hidden>
@@ -9419,7 +9484,12 @@ async function deleteSelectedArticles(){
     else toggleArticleDeleteMode(false);
     showLoginToast('已删除选中的文章。', 'success', '删除成功');
   }catch(error){
-    showLoginToast(error.message || '删除文章失败。', 'error', '删除失败');
+    const msg = error.message || '';
+    if(msg.includes('只能删除自己发布的文章') && ownerDeleteArticleMode){
+      showLoginToast('站主强制删除需要后端支持。请检查后端权限配置，或联系管理员开启站主删除权限。', 'error', '后端限制');
+    }else{
+      showLoginToast(msg || '删除文章失败。', 'error', '删除失败');
+    }
   }
 }
 
@@ -9533,7 +9603,12 @@ async function deleteCurrentDetailArticle(){
     closeArticleDetail();
     showLoginToast('文章已删除。', 'success', '删除成功');
   }catch(error){
-    showLoginToast(error.message || '删除文章失败。', 'error', '删除失败');
+    const msg = error.message || '';
+    if(msg.includes('只能删除自己发布的文章') && isOwner){
+      showLoginToast('站主强制删除需要后端支持。请检查后端权限配置。', 'error', '后端限制');
+    }else{
+      showLoginToast(msg || '删除文章失败。', 'error', '删除失败');
+    }
   }
 }
 
@@ -9702,12 +9777,38 @@ if(articleContentEditor){
     }
   });
 }
-// 编辑器图片变换框功能
+// 编辑器图片变换框功能——每张图片独立变换框，可拖动位置和缩放
 function initEditorImageResize(){
   if(!articleContentEditor) return;
   let activeWrap = null;
   let resizing = false;
-  let startX, startY, startW, startH;
+  let dragging = false;
+  let startX, startY, startW, startH, startLeft, startTop;
+
+  function ensureWrap(img){
+    let wrap = img.closest('.img-resize-wrap');
+    if(!wrap){
+      wrap = document.createElement('div');
+      wrap.className = 'img-resize-wrap';
+      wrap.style.display = 'inline-block';
+      wrap.style.verticalAlign = 'top';
+      img.parentNode.insertBefore(wrap, img);
+      wrap.appendChild(img);
+      // 添加虚线边框
+      const border = document.createElement('div');
+      border.className = 'img-resize-border';
+      wrap.appendChild(border);
+      // 添加4个拖拽手柄
+      ['tl','tr','bl','br'].forEach(pos=>{
+        const handle = document.createElement('div');
+        handle.className = 'img-resize-handle ' + pos;
+        handle.dataset.handle = pos;
+        wrap.appendChild(handle);
+      });
+    }
+    return wrap;
+  }
+
   // 点击编辑器内图片时添加变换框
   articleContentEditor.addEventListener('click', (e)=>{
     const img = e.target.closest?.('img');
@@ -9718,25 +9819,12 @@ function initEditorImageResize(){
     }
     e.preventDefault();
     e.stopPropagation();
-    // 如果图片已经在wrap中，直接选中
-    let wrap = img.closest('.img-resize-wrap');
-    if(!wrap){
-      wrap = document.createElement('div');
-      wrap.className = 'img-resize-wrap';
-      img.parentNode.insertBefore(wrap, img);
-      wrap.appendChild(img);
-      // 添加4个拖拽手柄
-      ['tl','tr','bl','br'].forEach(pos=>{
-        const handle = document.createElement('div');
-        handle.className = 'img-resize-handle ' + pos;
-        handle.dataset.handle = pos;
-        wrap.appendChild(handle);
-      });
-    }
+    const wrap = ensureWrap(img);
     document.querySelectorAll('.img-resize-wrap.selected').forEach(w=>w.classList.remove('selected'));
     wrap.classList.add('selected');
     activeWrap = wrap;
   });
+
   // 点击编辑器空白处取消选中
   articleContentEditor.addEventListener('click', (e)=>{
     if(e.target === articleContentEditor){
@@ -9744,35 +9832,79 @@ function initEditorImageResize(){
       activeWrap = null;
     }
   });
-  // 拖拽缩放
+
+  // 拖拽缩放 + 拖动位置
   articleContentEditor.addEventListener('mousedown', (e)=>{
     const handle = e.target.closest?.('.img-resize-handle');
-    if(!handle || !activeWrap) return;
-    e.preventDefault();
-    resizing = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    const img = activeWrap.querySelector('img');
-    const rect = img.getBoundingClientRect();
-    startW = rect.width;
-    startH = rect.height;
-    const onMove = (ev)=>{
-      if(!resizing || !activeWrap) return;
-      const dx = ev.clientX - startX;
-      const dy = ev.clientY - startY;
-      const newW = Math.max(60, startW + dx);
-      const ratio = startH / startW;
-      const newH = Math.max(40, newW * ratio);
-      img.style.width = newW + 'px';
-      img.style.height = newH + 'px';
-    };
-    const onUp = ()=>{
-      resizing = false;
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-    };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    const wrap = e.target.closest?.('.img-resize-wrap');
+    if(!wrap || !articleContentEditor.contains(wrap)) return;
+
+    // 点击手柄 = 缩放
+    if(handle){
+      e.preventDefault();
+      e.stopPropagation();
+      resizing = true;
+      activeWrap = wrap;
+      startX = e.clientX;
+      startY = e.clientY;
+      const img = wrap.querySelector('img');
+      const rect = img.getBoundingClientRect();
+      startW = rect.width;
+      startH = rect.height;
+      const pos = handle.dataset.handle || 'br';
+      const onMove = (ev)=>{
+        if(!resizing || !activeWrap) return;
+        let dx = ev.clientX - startX;
+        let dy = ev.clientY - startY;
+        // 根据手柄位置调整方向
+        if(pos.includes('l')) dx = -dx;
+        if(pos.includes('t')) dy = -dy;
+        const newW = Math.max(60, startW + dx);
+        const ratio = startH / startW;
+        const newH = Math.max(40, newW * ratio);
+        img.style.width = newW + 'px';
+        img.style.height = newH + 'px';
+      };
+      const onUp = ()=>{
+        resizing = false;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      return;
+    }
+
+    // 点击wrap主体 = 拖动位置
+    if(wrap.classList.contains('selected') && e.target.closest('.img-resize-wrap') && !e.target.closest('.img-resize-handle')){
+      e.preventDefault();
+      e.stopPropagation();
+      dragging = true;
+      activeWrap = wrap;
+      startX = e.clientX;
+      startY = e.clientY;
+      const rect = wrap.getBoundingClientRect();
+      const parentRect = articleContentEditor.getBoundingClientRect();
+      startLeft = rect.left - parentRect.left;
+      startTop = rect.top - parentRect.top;
+      wrap.style.position = 'absolute';
+      wrap.style.left = startLeft + 'px';
+      wrap.style.top = startTop + 'px';
+      const onMove = (ev)=>{
+        if(!dragging || !activeWrap) return;
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        activeWrap.style.left = (startLeft + dx) + 'px';
+        activeWrap.style.top = (startTop + dy) + 'px';
+      };
+      const onUp = ()=>{
+        dragging = false;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    }
   });
 }
 initEditorImageResize();
