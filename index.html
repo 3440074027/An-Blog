@@ -5779,24 +5779,16 @@
   .article-detail-content .article-img-row,
   .article-rich-editor .article-img-row{
     display:grid;
-    grid-template-columns:repeat(3, 1fr);
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
     gap:10px;
     margin:16px auto;
     max-width:min(600px, 92%);
-  }
-  .article-detail-content .article-img-row[data-count="1"],
-  .article-rich-editor .article-img-row[data-count="1"]{
-    grid-template-columns:1fr;
-  }
-  .article-detail-content .article-img-row[data-count="2"],
-  .article-rich-editor .article-img-row[data-count="2"]{
-    grid-template-columns:repeat(2, 1fr);
   }
   .article-detail-content .article-img-row img,
   .article-rich-editor .article-img-row img{
     width:100%;
     height:200px;
-    object-fit:contain;
+    object-fit:cover;
     border-radius:14px;
     margin:0;
     display:block;
@@ -5804,7 +5796,6 @@
     box-shadow:0 6px 18px rgba(0,0,0,.2);
     cursor:pointer;
     transition:transform .2s, box-shadow .2s;
-    background:rgba(0,0,0,.2);
   }
   .article-detail-content .article-img-row img:hover,
   .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 10px 28px rgba(0,0,0,.28);}
@@ -6330,9 +6321,9 @@
     pointer-events:none;
   }
   .article-rich-editor img{
-    width:min(360px, 92%);
-    height:240px;
-    object-fit:cover;
+    max-width:min(360px, 92%);
+    max-height:240px;
+    object-fit:contain;
     border-radius:16px;
     display:block;
     margin:16px auto;
@@ -6347,11 +6338,35 @@
     width:min(360px, 92%);
   }
   .article-rich-editor figure img{
-    width:100%;
-    height:240px;
+    max-width:100%;
+    max-height:240px;
     margin:0;
   }
   .article-rich-editor figcaption{font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;font-style:italic;}
+  /* 编辑器内多图行 */
+  .article-rich-editor .article-img-row{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(0, 1fr));
+    gap:10px;
+    margin:16px auto;
+    max-width:min(600px, 92%);
+    align-items:center;
+  }
+  .article-rich-editor .article-img-row img{
+    width:100%;
+    height:200px;
+    max-width:none;
+    max-height:none;
+    object-fit:contain;
+    border-radius:14px;
+    margin:0;
+    display:block;
+    border:1.5px solid rgba(255,255,255,.18);
+    box-shadow:0 6px 18px rgba(0,0,0,.2);
+    cursor:pointer;
+    transition:transform .2s, box-shadow .2s;
+  }
+  .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 10px 28px rgba(0,0,0,.28);}
   .article-rich-editor:empty::before{
     content:attr(data-placeholder);
     color:rgba(255,255,255,.3);
@@ -6361,7 +6376,7 @@
   }
   .article-editor-actions{
     display:flex;
-    justify-content:flex-end;
+    justify-content:space-between;
     gap:10px;
     flex-wrap:wrap;
     align-items:center;
@@ -6371,37 +6386,35 @@
   .article-editor-pager{
     display:flex;
     align-items:center;
-    justify-content:center;
-    gap:14px;
-    padding:10px 24px;
-    border-top:1px solid rgba(255,255,255,.06);
-    background:rgba(255,255,255,.02);
+    gap:8px;
   }
   .article-editor-pager button{
-    min-height:32px;
-    padding:0 16px;
-    border-radius:10px;
-    border:1px solid rgba(255,255,255,.2);
-    color:rgba(255,255,255,.8);
+    min-height:34px;
+    padding:0 14px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;
     font-weight:600;
     font-size:12px;
     cursor:pointer;
-    background:rgba(255,255,255,.06);
-    transition:all .2s;
+    background:rgba(255,255,255,.1);
+    transition:all .15s;
   }
   .article-editor-pager button:hover:not(:disabled){
-    background:rgba(255,255,255,.12);
-    color:#fff;
-    border-color:rgba(255,255,255,.35);
+    background:rgba(255,255,255,.18);
+    transform:translateY(-1px);
   }
   .article-editor-pager button:disabled{
     opacity:.3;
     cursor:not-allowed;
+    transform:none;
   }
   .article-editor-pager span{
-    color:rgba(255,255,255,.5);
+    color:rgba(255,255,255,.55);
     font-size:12px;
     font-weight:500;
+    min-width:64px;
+    text-align:center;
   }
   .article-progress{
     display:none;
@@ -7242,13 +7255,13 @@
     <div class="article-rich-editor" id="articleContentEditor" contenteditable="true" spellcheck="false" data-placeholder="在这里写文章内容。图片会插入到光标所在位置，并自动缩小显示。" data-editor-color="#ffffff" data-editor-weight="400"></div>
     <input id="articleImageInput" type="file" accept="image/*" multiple hidden />
     <div class="article-editor-actions">
+      <div class="article-editor-pager">
+        <button id="articleEditorPrevPage" type="button">上一页</button>
+        <span id="articleEditorPageInfo">第 1 / 1 页</span>
+        <button id="articleEditorNextPage" type="button">下一页</button>
+      </div>
       <div class="article-progress" id="articlePublishProgress" aria-hidden="true"><span id="articlePublishProgressBar"></span></div>
       <button id="articleSaveBtn" type="button">发布</button>
-    </div>
-    <div class="article-editor-pager" id="articleEditorPager">
-      <button id="articleEditorPrevPage" type="button" disabled>上一页</button>
-      <span id="articleEditorPageInfo">第 1 / 1 页</span>
-      <button id="articleEditorNextPage" type="button" disabled>下一页</button>
     </div>
   </div>
 </div>
@@ -7892,6 +7905,11 @@ const articleImageInput = document.getElementById('articleImageInput');
 const articleSaveBtn = document.getElementById('articleSaveBtn');
 const articlePublishProgress = document.getElementById('articlePublishProgress');
 const articlePublishProgressBar = document.getElementById('articlePublishProgressBar');
+const articleEditorPrevPage = document.getElementById('articleEditorPrevPage');
+const articleEditorNextPage = document.getElementById('articleEditorNextPage');
+const articleEditorPageInfo = document.getElementById('articleEditorPageInfo');
+let articleEditorPages = [''];
+let articleEditorCurrentPage = 0;
 const articleDetailModal = document.getElementById('articleDetailModal');
 const articleDetailCloseBtn = document.getElementById('articleDetailCloseBtn');
 const articleDetailEditBtn = document.getElementById('articleDetailEditBtn');
@@ -7902,14 +7920,8 @@ const articleDetailPager = document.getElementById('articleDetailPager');
 const articleDetailPrevPage = document.getElementById('articleDetailPrevPage');
 const articleDetailNextPage = document.getElementById('articleDetailNextPage');
 const articleDetailPageInfo = document.getElementById('articleDetailPageInfo');
-const articleEditorPager = document.getElementById('articleEditorPager');
-const articleEditorPrevPage = document.getElementById('articleEditorPrevPage');
-const articleEditorNextPage = document.getElementById('articleEditorNextPage');
-const articleEditorPageInfo = document.getElementById('articleEditorPageInfo');
 let articleDetailPages = [];
 let articleDetailCurrentPage = 0;
-let articleEditorPages = [];
-let articleEditorCurrentPage = 0;
 const profileClockTime = document.getElementById('profileClockTime');
 const profileClockDate = document.getElementById('profileClockDate');
 const homeSearchPopover = document.getElementById('homeSearchPopover');
@@ -8553,62 +8565,42 @@ function openArticleEditor(article = null){
   if(articleFontWeightSlider) articleFontWeightSlider.value = '400';
   if(articleFontWeightValue) articleFontWeightValue.textContent = '400';
   articleColorInput.value = '#ffffff';
-  articleContentEditor.innerHTML = article?.content || '';
+  // 初始化多页
+  const content = article?.content || '';
+  if(content){
+    // 按分页标记拆分内容
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = content;
+    const breaks = tempDiv.querySelectorAll('.article-page-break');
+    if(breaks.length > 0){
+      articleEditorPages = [];
+      let currentPage = [];
+      Array.from(tempDiv.childNodes).forEach(node => {
+        if(node.nodeType === 1 && node.classList && node.classList.contains('article-page-break')){
+          articleEditorPages.push(currentPage.join(''));
+          currentPage = [];
+        }else{
+          currentPage.push(node.nodeType === 1 ? node.outerHTML : node.textContent);
+        }
+      });
+      articleEditorPages.push(currentPage.join(''));
+    }else{
+      articleEditorPages = [content];
+    }
+  }else{
+    articleEditorPages = [''];
+  }
+  articleEditorCurrentPage = 0;
+  if(articleContentEditor) articleContentEditor.innerHTML = articleEditorPages[0] || '';
   articleContentEditor?.setAttribute('data-editor-color', '#ffffff');
   articleContentEditor?.setAttribute('data-editor-size', '16px');
   articleContentEditor?.setAttribute('data-editor-weight', '400');
+  updateArticleEditorPager();
   if(articleEditorTitle) articleEditorTitle.textContent = article ? '修改文章' : '发布文章';
   if(articleSaveBtn) articleSaveBtn.textContent = article ? '保存修改' : '发布';
   articleEditorModal?.classList.add('open');
   articleEditorModal?.setAttribute('aria-hidden', 'false');
-  // 初始化编辑器分页
-  initArticleEditorPages();
   setTimeout(()=>articleContentEditor?.focus(), 80);
-}
-
-function initArticleEditorPages(){
-  const editor = articleContentEditor;
-  if(!editor) return;
-  const content = editor.innerHTML;
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = content;
-  const breaks = tempDiv.querySelectorAll('.article-page-break');
-  if(breaks.length > 0){
-    articleEditorPages = [];
-    let currentPage = [];
-    Array.from(tempDiv.childNodes).forEach(node => {
-      if(node.nodeType === 1 && node.classList && node.classList.contains('article-page-break')){
-        articleEditorPages.push(currentPage.join(''));
-        currentPage = [];
-      }else{
-        currentPage.push(node.nodeType === 1 ? node.outerHTML : node.textContent);
-      }
-    });
-    articleEditorPages.push(currentPage.join(''));
-  }else{
-    articleEditorPages = [content];
-  }
-  articleEditorCurrentPage = 0;
-  updateArticleEditorPager();
-}
-
-function updateArticleEditorPager(){
-  const total = articleEditorPages.length;
-  const current = articleEditorCurrentPage + 1;
-  if(articleEditorPageInfo) articleEditorPageInfo.textContent = `第 ${current} / ${total} 页`;
-  if(articleEditorPrevPage) articleEditorPrevPage.disabled = articleEditorCurrentPage <= 0;
-  if(articleEditorNextPage) articleEditorNextPage.disabled = articleEditorCurrentPage >= total - 1;
-}
-
-function goArticleEditorPage(direction){
-  const newPage = articleEditorCurrentPage + direction;
-  if(newPage < 0 || newPage >= articleEditorPages.length) return;
-  // 保存当前页内容
-  articleEditorPages[articleEditorCurrentPage] = articleContentEditor?.innerHTML || '';
-  articleEditorCurrentPage = newPage;
-  if(articleContentEditor) articleContentEditor.innerHTML = articleEditorPages[newPage] || '';
-  updateArticleEditorPager();
-  articleContentEditor?.focus();
 }
 
 function closeArticleEditor(){
@@ -8714,11 +8706,31 @@ function markArticleControlApplied(control){
   label?.classList.add('applied');
   clearTimeout(control._appliedTimer);
   control._appliedTimer = setTimeout(()=>{
-    if(!['articleBoldBtn','articleItalicBtn','articleUnderlineBtn'].includes(control.id)){
+    if(!['articleItalicBtn','articleUnderlineBtn'].includes(control.id)){
       control.classList.remove('active');
     }
     label?.classList.remove('applied');
   }, 900);
+}
+
+function updateArticleEditorPager(){
+  const total = articleEditorPages.length;
+  const current = articleEditorCurrentPage + 1;
+  if(articleEditorPageInfo) articleEditorPageInfo.textContent = `第 ${current} / ${total} 页`;
+  if(articleEditorPrevPage) articleEditorPrevPage.disabled = articleEditorCurrentPage <= 0;
+  if(articleEditorNextPage) articleEditorNextPage.disabled = articleEditorCurrentPage >= total - 1;
+}
+
+function goArticleEditorPage(direction){
+  const newPage = articleEditorCurrentPage + direction;
+  if(newPage < 0 || newPage >= articleEditorPages.length) return;
+  // 保存当前页
+  if(articleContentEditor) articleEditorPages[articleEditorCurrentPage] = articleContentEditor.innerHTML;
+  articleEditorCurrentPage = newPage;
+  // 显示新页
+  if(articleContentEditor) articleContentEditor.innerHTML = articleEditorPages[newPage] || '';
+  updateArticleEditorPager();
+  articleContentEditor?.focus();
 }
 
 function getFirstArticleImage(html){
@@ -8781,18 +8793,16 @@ async function insertArticleImages(files){
     sel.removeAllRanges();
     sel.addRange(newRange);
   }
-  // 按3张一组分组，每组一行
-  const groups = [];
-  for(let i = 0; i < sources.length; i += 3){
-    groups.push(sources.slice(i, i + 3));
-  }
+  // 每3张图片一行，不足3张也独占一行
   const wrapper = document.createElement('div');
-  groups.forEach((group, idx) => {
-    if(idx > 0) wrapper.appendChild(document.createElement('br'));
+  wrapper.appendChild(document.createElement('br'));
+  for(let i = 0; i < sources.length; i += 3){
+    const chunk = sources.slice(i, i + 3);
     const row = document.createElement('div');
     row.className = 'article-img-row';
-    row.setAttribute('data-count', String(group.length));
-    group.forEach(src => {
+    // 根据图片数量设置列数：1张=1列，2张=2列，3张=3列
+    row.style.gridTemplateColumns = `repeat(${chunk.length}, 1fr)`;
+    chunk.forEach(src => {
       const img = document.createElement('img');
       img.src = src;
       img.alt = '文章图片';
@@ -8800,7 +8810,7 @@ async function insertArticleImages(files){
       row.appendChild(img);
     });
     wrapper.appendChild(row);
-  });
+  }
   wrapper.appendChild(document.createElement('br'));
   const frag = document.createDocumentFragment();
   while(wrapper.firstChild) frag.appendChild(wrapper.firstChild);
@@ -8823,21 +8833,20 @@ async function insertArticleImages(files){
 async function saveArticleFromEditor(){
   const user = requireRealUser(editingArticleId ? '修改文章' : '发布文章');
   if(!user) return;
-  // 保存当前页内容到 pages 数组
-  if(articleContentEditor && articleEditorPages.length > 0){
-    articleEditorPages[articleEditorCurrentPage] = articleContentEditor.innerHTML;
-  }
-  // 合并所有分页内容
-  const fullContent = articleEditorPages.length > 1
-    ? articleEditorPages.join('')
-    : String(articleContentEditor?.innerHTML || '');
   const title = String(articleTitleInput?.value || '').trim();
-  const content = fullContent.trim();
-  if(!title || !content){
+  // 保存当前页到数组
+  if(articleContentEditor) articleEditorPages[articleEditorCurrentPage] = articleContentEditor.innerHTML;
+  // 合并所有页，用分页标记连接
+  const allContent = articleEditorPages.map((page, i) => {
+    const trimmed = String(page || '').trim();
+    if(i === 0) return trimmed;
+    return `<hr class="article-page-break" data-page="${i + 1}">` + trimmed;
+  }).join('');
+  if(!title || !allContent){
     showLoginToast('请填写文章标题和正文。', 'warn', '内容不完整');
     return;
   }
-  if(content.length > 1_600_000){
+  if(allContent.length > 1_600_000){
     showLoginToast('文章内容或图片仍然过大，请减少图片数量或压缩后再发布。', 'warn', '内容过大');
     return;
   }
@@ -8854,8 +8863,8 @@ async function saveArticleFromEditor(){
       category:String(articleCategoryInput?.value || '随笔').trim().slice(0, 40) || '随笔',
       tags:String(articleCategoryInput?.value || '随笔').split(/[,，/、\s]+/).map(tag=>tag.trim()).filter(Boolean).slice(0, 8),
       summary:String(articleSummaryInput?.value || articleContentEditor.textContent || '').trim().slice(0, 160),
-      content:content.slice(0, 8_000_000),
-      thumb:getFirstArticleImage(content),
+      content:allContent.slice(0, 8_000_000),
+      thumb:getFirstArticleImage(allContent),
       fontFamily:articleFontSelect?.value || '',
       createdAt:new Date().toISOString().slice(0, 16).replace('T', ' '),
       updatedAt:new Date().toISOString()
@@ -9036,8 +9045,6 @@ if(articleDeleteCancelBtn) articleDeleteCancelBtn.addEventListener('click', ()=>
 if(articleDeleteConfirmBtn) articleDeleteConfirmBtn.addEventListener('click', deleteSelectedArticles);
 if(articleDetailPrevPage) articleDetailPrevPage.addEventListener('click', ()=>goArticleDetailPage(-1));
 if(articleDetailNextPage) articleDetailNextPage.addEventListener('click', ()=>goArticleDetailPage(1));
-if(articleEditorPrevPage) articleEditorPrevPage.addEventListener('click', ()=>goArticleEditorPage(-1));
-if(articleEditorNextPage) articleEditorNextPage.addEventListener('click', ()=>goArticleEditorPage(1));
 if(toolArticleCount) toolArticleCount.closest('.tool-stat')?.addEventListener('click', ()=>goUserArticles(readSavedUser()?.username));
 if(articleDetailCloseBtn) articleDetailCloseBtn.addEventListener('click', closeArticleDetail);
 if(articleDetailEditBtn) articleDetailEditBtn.addEventListener('click', editCurrentDetailArticle);
@@ -9093,40 +9100,18 @@ if(articleImageInput) articleImageInput.addEventListener('change', async ()=>{
   articleImageInput.value = '';
 });
 if(articleInsertPageBtn) articleInsertPageBtn.addEventListener('click', ()=>{
-  const editor = articleContentEditor;
-  if(!editor) return;
-  editor.focus();
-  const sel = window.getSelection();
-  if(sel && sel.rangeCount){
-    const range = sel.getRangeAt(0);
-    // 计算当前页码
-    const existingBreaks = editor.querySelectorAll('.article-page-break');
-    const pageNum = existingBreaks.length + 2;
-    const hr = document.createElement('hr');
-    hr.className = 'article-page-break';
-    hr.setAttribute('data-page', String(pageNum));
-    hr.contentEditable = 'false';
-    const wrapper = document.createElement('div');
-    wrapper.appendChild(document.createElement('br'));
-    wrapper.appendChild(hr);
-    wrapper.appendChild(document.createElement('br'));
-    wrapper.appendChild(document.createElement('br'));
-    wrapper.appendChild(document.createElement('br'));
-    wrapper.appendChild(document.createElement('br'));
-    const frag = document.createDocumentFragment();
-    while(wrapper.firstChild) frag.appendChild(wrapper.firstChild);
-    range.deleteContents();
-    range.insertNode(frag);
-    const nextRange = document.createRange();
-    nextRange.setStartAfter(hr);
-    nextRange.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(nextRange);
-    saveArticleSelection();
-    updateArticleEditorPager();
-    showLoginToast(`已插入第 ${pageNum} 页。`, 'success', '分页成功');
-  }
+  // 保存当前页
+  if(articleContentEditor) articleEditorPages[articleEditorCurrentPage] = articleContentEditor.innerHTML;
+  // 在当前页后插入空白页
+  articleEditorPages.splice(articleEditorCurrentPage + 1, 0, '');
+  articleEditorCurrentPage++;
+  if(articleContentEditor) articleContentEditor.innerHTML = '';
+  updateArticleEditorPager();
+  articleContentEditor?.focus();
+  showLoginToast(`已插入第 ${articleEditorCurrentPage + 1} 页。`, 'success', '分页成功');
 });
+if(articleEditorPrevPage) articleEditorPrevPage.addEventListener('click', ()=>goArticleEditorPage(-1));
+if(articleEditorNextPage) articleEditorNextPage.addEventListener('click', ()=>goArticleEditorPage(1));
 
 // 监听编辑器输入，确保新输入的文本继承当前样式设置
 if(articleContentEditor){
