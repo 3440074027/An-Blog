@@ -5816,15 +5816,16 @@
   .article-detail-content .article-img-row,
   .article-rich-editor .article-img-row{
     display:flex;
-    gap:8px;
+    flex-direction:column;
+    gap:12px;
     margin:16px auto;
     max-width:min(640px, 94%);
     align-items:center;
-    flex-wrap:wrap;
-    justify-content:center;
   }
   .article-detail-content .article-img-row img,
   .article-rich-editor .article-img-row img{
+    max-width:100%;
+    height:auto;
     border-radius:14px;
     margin:0;
     display:block;
@@ -6393,14 +6394,15 @@
   /* 编辑器内多图行 */
   .article-rich-editor .article-img-row{
     display:flex;
-    gap:8px;
+    flex-direction:column;
+    gap:12px;
     margin:16px auto;
     max-width:min(640px, 94%);
     align-items:center;
-    flex-wrap:wrap;
-    justify-content:center;
   }
   .article-rich-editor .article-img-row img{
+    max-width:100%;
+    height:auto;
     border-radius:14px;
     margin:0;
     display:block;
@@ -7162,7 +7164,7 @@
             <button id="articleAllBtn" type="button">全部文章</button>
             <button id="articlePublishBtn" type="button">发布文章</button>
             <button id="articleDeleteModeBtn" class="danger" type="button">删除文章</button>
-            <button id="articleDeleteAllModeBtn" class="danger owner-only" type="button">删除所有文章</button>
+            <button id="articleOwnerDeleteModeBtn" class="danger" type="button" hidden>管理删除</button>
             <div class="article-delete-tools" id="articleDeleteTools">
               <button id="articleDeleteConfirmBtn" class="danger" type="button">确认删除</button>
               <button id="articleDeleteCancelBtn" type="button">取消</button>
@@ -7321,7 +7323,7 @@
       </div>
       <div class="article-detail-actions">
         <button id="articleDetailEditBtn" type="button">修改文章</button>
-        <button id="articleDetailDeleteBtn" class="danger" type="button">删除文章</button>
+        <button id="articleDetailDeleteBtn" class="danger" type="button" hidden>删除文章</button>
         <button id="articleDetailCloseBtn" type="button">关闭</button>
       </div>
     </div>
@@ -7936,7 +7938,7 @@ const articleJumpBtn = document.getElementById('articleJumpBtn');
 const articleAllBtn = document.getElementById('articleAllBtn');
 const articlePublishBtn = document.getElementById('articlePublishBtn');
 const articleDeleteModeBtn = document.getElementById('articleDeleteModeBtn');
-const articleDeleteAllModeBtn = document.getElementById('articleDeleteAllModeBtn');
+const articleOwnerDeleteModeBtn = document.getElementById('articleOwnerDeleteModeBtn');
 const articleDeleteTools = document.getElementById('articleDeleteTools');
 const articleDeleteConfirmBtn = document.getElementById('articleDeleteConfirmBtn');
 const articleDeleteCancelBtn = document.getElementById('articleDeleteCancelBtn');
@@ -8244,6 +8246,7 @@ function renderBlogHomeUser(userLike){
   if(profileTagsInput) profileTagsInput.value = tags.join(', ');
   document.body.classList.toggle('site-owner', isSiteOwnerUser(user));
   if(contactOwnerBtn) contactOwnerBtn.style.display = isSiteOwnerUser(user) ? 'none' : '';
+  if(articleOwnerDeleteModeBtn) articleOwnerDeleteModeBtn.hidden = !isSiteOwnerUser(user);
   applyProfileEditorAvatarPreview(avatar);
 
   applyBlogAvatarPreview(avatar);
@@ -8269,7 +8272,7 @@ const BLOG_ARTICLES = [
 let articlePage = 1;
 let articlesPerPage = 4;
 let deleteArticleMode = false;
-let deleteAllArticleMode = false;
+let ownerDeleteArticleMode = false;
 let selectedArticleIds = new Set();
 let savedArticleRange = null;
 let publicArticles = [];
@@ -8538,20 +8541,22 @@ function renderArticles(){
       </article>
     `;
   }else{
-  articleGrid.innerHTML = items.map(article=>{
-    const canSelect = deleteArticleMode && isCurrentUserAuthor(article);
-    const canSelectAll = deleteAllArticleMode && isSiteOwnerUser(readSavedUser());
-    const isSelectable = canSelect || canSelectAll;
-    return `<article class="article-card ${isSelectable ? 'selectable' : ''} ${selectedArticleIds.has(article.id) ? 'selected' : ''}" data-article-id="${escapeHtml(article.id || '')}" data-demo="${article.demo ? '1' : '0'}">
-      ${isSelectable ? `<input class="article-select-check" type="checkbox" ${selectedArticleIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}
+  const canSelect = (article) => {
+    if(ownerDeleteArticleMode) return true;
+    if(deleteArticleMode) return isCurrentUserAuthor(article);
+    return false;
+  };
+  articleGrid.innerHTML = items.map(article=>`
+    <article class="article-card ${canSelect(article) ? 'selectable' : ''} ${selectedArticleIds.has(article.id) ? 'selected' : ''}" data-article-id="${escapeHtml(article.id || '')}" data-demo="${article.demo ? '1' : '0'}">
+      ${canSelect(article) ? `<input class="article-select-check" type="checkbox" ${selectedArticleIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}
       ${renderArticleThumb(article)}
       <div>
         <small>${escapeHtml(article.category)} · ${escapeHtml(article.createdAt || '')} · @${escapeHtml(article.author || '')}</small>
         <h3>${escapeHtml(article.title)}</h3>
         <p>${escapeHtml(article.summary)}</p>
       </div>
-    </article>`;
-  }).join('');
+    </article>
+  `).join('');
   }
   if(articlePageInfo) articlePageInfo.textContent = `第 ${articlePage} / ${totalPages} 页`;
   articleAllBtn?.classList.toggle('active', articleFilterMode === 'all');
@@ -8857,40 +8862,22 @@ async function insertArticleImages(files){
     sel.removeAllRanges();
     sel.addRange(newRange);
   }
-  // 所有图片放在一行，按原始比例分配宽度，统一高度，不裁剪
+  // 所有图片放在一行，按原始比例分配宽度，统一高度
   const wrapper = document.createElement('div');
   wrapper.appendChild(document.createElement('br'));
-  // 先加载所有图片尺寸
-  const imgDataList = await Promise.all(sources.map(src => {
-    return new Promise(resolve => {
-      const tempImg = new Image();
-      tempImg.onload = () => resolve({ src, w: tempImg.naturalWidth, h: tempImg.naturalHeight });
-      tempImg.onerror = () => resolve({ src, w: 200, h: 200 });
-      tempImg.src = src;
-    });
-  }));
-  // 计算统一高度：取所有图片高度的中间值，限制在 120~260px
-  const heights = imgDataList.map(d => d.h);
-  heights.sort((a, b) => a - b);
-  const medianH = heights[Math.floor(heights.length / 2)] || 200;
-  const rowHeight = Math.max(120, Math.min(260, medianH));
-  // 计算总宽度占比
-  const totalRatio = imgDataList.reduce((sum, d) => sum + (d.w / d.h), 0);
+  // 原图原比例插入：不裁剪、不挤压，按原始比例显示
   const row = document.createElement('div');
   row.className = 'article-img-row';
-  imgDataList.forEach(d => {
-    const ratio = d.w / d.h;
-    const imgWidth = (ratio / totalRatio * 100).toFixed(2);
+  sources.forEach(src => {
     const img = document.createElement('img');
-    img.src = d.src;
+    img.src = src;
     img.alt = '文章图片';
     img.loading = 'lazy';
-    // 按统一高度和原始比例计算显示尺寸，不裁剪
-    img.style.height = rowHeight + 'px';
-    img.style.width = 'auto';
-    img.style.maxWidth = imgWidth + '%';
-    img.style.flex = '0 0 auto';
-    img.style.objectFit = 'none'; // 不裁剪，原图原比例
+    img.style.maxWidth = '100%';
+    img.style.height = 'auto';
+    img.style.display = 'block';
+    img.style.borderRadius = '14px';
+    img.style.margin = '0';
     row.appendChild(img);
   });
   wrapper.appendChild(row);
@@ -8989,26 +8976,26 @@ async function saveArticleFromEditor(){
 function toggleArticleDeleteMode(on = !deleteArticleMode){
   if(!requireRealUser('删除文章')) return;
   deleteArticleMode = on;
-  if(deleteArticleMode) deleteAllArticleMode = false;
+  ownerDeleteArticleMode = false;
   if(!deleteArticleMode) selectedArticleIds.clear();
-  articleDeleteTools?.classList.toggle('active', deleteArticleMode || deleteAllArticleMode);
+  articleDeleteTools?.classList.toggle('active', deleteArticleMode);
   articleDeleteModeBtn?.classList.toggle('active', deleteArticleMode);
   articleDeleteModeBtn.textContent = deleteArticleMode ? '选择要删除的文章' : '删除文章';
   renderArticles();
 }
 
-function toggleDeleteAllArticleMode(on = !deleteAllArticleMode){
-  const user = requireRealUser('删除文章');
+function toggleOwnerDeleteMode(on = !ownerDeleteArticleMode){
+  const user = requireRealUser('管理删除');
   if(!user || !isSiteOwnerUser(user)){
-    showLoginToast('只有站主可以删除所有用户文章。', 'warn', '权限不足');
+    showLoginToast('只有站主可以使用此功能。', 'warn', '权限不足');
     return;
   }
-  deleteAllArticleMode = on;
-  if(deleteAllArticleMode) deleteArticleMode = false;
-  if(!deleteAllArticleMode) selectedArticleIds.clear();
-  articleDeleteTools?.classList.toggle('active', deleteArticleMode || deleteAllArticleMode);
-  articleDeleteAllModeBtn?.classList.toggle('active', deleteAllArticleMode);
-  articleDeleteAllModeBtn.textContent = deleteAllArticleMode ? '选择要删除的文章' : '删除所有文章';
+  ownerDeleteArticleMode = on;
+  deleteArticleMode = false;
+  if(!ownerDeleteArticleMode) selectedArticleIds.clear();
+  articleDeleteTools?.classList.toggle('active', ownerDeleteArticleMode);
+  articleOwnerDeleteModeBtn?.classList.toggle('active', ownerDeleteArticleMode);
+  articleOwnerDeleteModeBtn.textContent = ownerDeleteArticleMode ? '选择要删除的文章' : '管理删除';
   renderArticles();
 }
 
@@ -9028,7 +9015,6 @@ async function deleteSelectedArticles(){
     await loadPublicArticles();
     selectedArticleIds.clear();
     toggleArticleDeleteMode(false);
-    toggleDeleteAllArticleMode(false);
     showLoginToast('已删除选中的文章。', 'success', '删除成功');
   }catch(error){
     showLoginToast(error.message || '删除文章失败。', 'error', '删除失败');
@@ -9097,9 +9083,32 @@ async function openArticleDetail(id){
     }
   }
   if(articleDetailEditBtn) articleDetailEditBtn.style.display = isCurrentUserAuthor(article) ? 'inline-flex' : 'none';
-  if(articleDetailDeleteBtn) articleDetailDeleteBtn.style.display = isCurrentUserAuthor(article) ? 'inline-flex' : 'none';
+  if(articleDetailDeleteBtn) articleDetailDeleteBtn.hidden = !isCurrentUserAuthor(article);
   articleDetailModal?.classList.add('open');
   articleDetailModal?.setAttribute('aria-hidden', 'false');
+}
+
+async function deleteCurrentDetailArticle(){
+  const article = await fetchArticleDetail(currentDetailArticleId).catch(()=>null);
+  if(!article) return;
+  if(!isCurrentUserAuthor(article)){
+    showLoginToast('只能删除自己发布的文章。', 'warn', '权限不足');
+    return;
+  }
+  const confirmed = confirm(`确定要删除文章《${article.title || '未命名文章'}》吗？\n此操作不可恢复。`);
+  if(!confirmed) return;
+  try{
+    await authRequest('/api/articles', {
+      method:'DELETE',
+      headers:authorizedHeaders(),
+      body:JSON.stringify({ ids:[currentDetailArticleId] })
+    });
+    await loadPublicArticles();
+    closeArticleDetail();
+    showLoginToast('文章已删除。', 'success', '删除成功');
+  }catch(error){
+    showLoginToast(error.message || '删除文章失败。', 'error', '删除失败');
+  }
 }
 
 function updateArticleDetailPager(){
@@ -9148,15 +9157,15 @@ if(articlePageInput){
 }
 if(articlePublishBtn) articlePublishBtn.addEventListener('click', ()=>openArticleEditor());
 if(articleDeleteModeBtn) articleDeleteModeBtn.addEventListener('click', ()=>toggleArticleDeleteMode());
-if(articleDeleteAllModeBtn) articleDeleteAllModeBtn.addEventListener('click', ()=>toggleDeleteAllArticleMode());
+if(articleOwnerDeleteModeBtn) articleOwnerDeleteModeBtn.addEventListener('click', ()=>toggleOwnerDeleteMode());
 if(articleAllBtn) articleAllBtn.addEventListener('click', ()=>{
   articleFilterMode = 'all';
   articlePage = 1;
   renderArticles();
 });
 if(articleDeleteCancelBtn) articleDeleteCancelBtn.addEventListener('click', ()=>{
-  toggleArticleDeleteMode(false);
-  toggleDeleteAllArticleMode(false);
+  if(ownerDeleteArticleMode) toggleOwnerDeleteMode(false);
+  else toggleArticleDeleteMode(false);
 });
 if(articleDeleteConfirmBtn) articleDeleteConfirmBtn.addEventListener('click', deleteSelectedArticles);
 if(articleDetailPrevPage) articleDetailPrevPage.addEventListener('click', ()=>goArticleDetailPage(-1));
@@ -9164,18 +9173,7 @@ if(articleDetailNextPage) articleDetailNextPage.addEventListener('click', ()=>go
 if(toolArticleCount) toolArticleCount.closest('.tool-stat')?.addEventListener('click', ()=>goUserArticles(readSavedUser()?.username));
 if(articleDetailCloseBtn) articleDetailCloseBtn.addEventListener('click', closeArticleDetail);
 if(articleDetailEditBtn) articleDetailEditBtn.addEventListener('click', editCurrentDetailArticle);
-if(articleDetailDeleteBtn) articleDetailDeleteBtn.addEventListener('click', async ()=>{
-  if(!currentDetailArticleId) return;
-  const article = await fetchArticleDetail(currentDetailArticleId).catch(()=>null);
-  if(!article || !isCurrentUserAuthor(article)){
-    showLoginToast('只能删除自己的文章。', 'warn', '权限不足');
-    return;
-  }
-  selectedArticleIds.clear();
-  selectedArticleIds.add(currentDetailArticleId);
-  await deleteSelectedArticles();
-  closeArticleDetail();
-});
+if(articleDetailDeleteBtn) articleDetailDeleteBtn.addEventListener('click', deleteCurrentDetailArticle);
 if(articleDetailModal) articleDetailModal.addEventListener('click', event=>{ if(event.target === articleDetailModal) closeArticleDetail(); });
 if(articleEditorCloseBtn) articleEditorCloseBtn.addEventListener('click', closeArticleEditor);
 if(articleEditorModal) articleEditorModal.addEventListener('click', event=>{ if(event.target === articleEditorModal) closeArticleEditor(); });
