@@ -5744,6 +5744,15 @@
     align-items:center;
     justify-content:center;
   }
+  .article-detail-actions button.danger-style{
+    border-color:rgba(255,80,80,.4);
+    color:#ff6b6b;
+    background:rgba(255,80,80,.1);
+  }
+  .article-detail-actions button.danger-style:hover{
+    background:rgba(255,80,80,.2);
+    border-color:rgba(255,80,80,.6);
+  }
   .article-detail-actions button:hover{background:rgba(255,255,255,.2);transform:translateY(-1px);}
   .article-detail-content{
     padding:24px 28px 28px;
@@ -7319,6 +7328,7 @@
         <h2 id="articleDetailTitle">文章标题</h2>
       </div>
       <div class="article-detail-actions">
+        <button id="articleDetailDeleteBtn" type="button" style="display:none">删除文章</button>
         <button id="articleDetailEditBtn" type="button">修改文章</button>
         <button id="articleDetailCloseBtn" type="button">关闭</button>
       </div>
@@ -7966,6 +7976,8 @@ let articleEditorCurrentPage = 0;
 const articleDetailModal = document.getElementById('articleDetailModal');
 const articleDetailCloseBtn = document.getElementById('articleDetailCloseBtn');
 const articleDetailEditBtn = document.getElementById('articleDetailEditBtn');
+const articleDetailDeleteBtn = document.getElementById('articleDetailDeleteBtn');
+const articleDetailCloseBtn = document.getElementById('articleDetailCloseBtn');
 const articleDetailTitle = document.getElementById('articleDetailTitle');
 const articleDetailMeta = document.getElementById('articleDetailMeta');
 const articleDetailContent = document.getElementById('articleDetailContent');
@@ -8534,8 +8546,8 @@ function renderArticles(){
     `;
   }else{
   articleGrid.innerHTML = items.map(article=>`
-    <article class="article-card ${deleteArticleMode && isCurrentUserAuthor(article) ? 'selectable' : ''} ${selectedArticleIds.has(article.id) ? 'selected' : ''}" data-article-id="${escapeHtml(article.id || '')}" data-demo="${article.demo ? '1' : '0'}">
-      ${deleteArticleMode && isCurrentUserAuthor(article) ? `<input class="article-select-check" type="checkbox" ${selectedArticleIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}
+    <article class="article-card ${deleteArticleMode && canUserDeleteArticle(article) ? 'selectable' : ''} ${selectedArticleIds.has(article.id) ? 'selected' : ''}" data-article-id="${escapeHtml(article.id || '')}" data-demo="${article.demo ? '1' : '0'}">
+      ${deleteArticleMode && canUserDeleteArticle(article) ? `<input class="article-select-check" type="checkbox" ${selectedArticleIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}
       ${renderArticleThumb(article)}
       <div>
         <small>${escapeHtml(article.category)} · ${escapeHtml(article.createdAt || '')} · @${escapeHtml(article.author || '')}</small>
@@ -8849,7 +8861,7 @@ async function insertArticleImages(files){
     sel.removeAllRanges();
     sel.addRange(newRange);
   }
-  // 所有图片放在一行，按原始比例分配宽度，统一高度
+  // 所有图片放在一行，按原始比例分配宽度，统一高度，不裁剪
   const wrapper = document.createElement('div');
   wrapper.appendChild(document.createElement('br'));
   // 先加载所有图片尺寸
@@ -8880,7 +8892,7 @@ async function insertArticleImages(files){
     img.style.height = rowHeight + 'px';
     img.style.width = imgWidth + '%';
     img.style.flex = '0 0 ' + imgWidth + '%';
-    img.style.objectFit = 'cover';
+    img.style.objectFit = 'contain';
     row.appendChild(img);
   });
   wrapper.appendChild(row);
@@ -9013,6 +9025,13 @@ function isCurrentUserAuthor(article){
   return !!user && !!article && article.author === user.username;
 }
 
+function canUserDeleteArticle(article){
+  const user = readSavedUser();
+  if(!user || !article) return false;
+  if(isSiteOwnerUser(user)) return true;
+  return article.author === user.username;
+}
+
 async function fetchArticleDetail(id){
   const data = await authRequest(`/api/articles?id=${encodeURIComponent(id)}`, { method:'GET' });
   return data.article;
@@ -9070,6 +9089,14 @@ async function openArticleDetail(id){
     }
   }
   if(articleDetailEditBtn) articleDetailEditBtn.style.display = isCurrentUserAuthor(article) ? 'inline-flex' : 'none';
+  if(articleDetailDeleteBtn){
+    if(canUserDeleteArticle(article)){
+      articleDetailDeleteBtn.style.display = 'inline-flex';
+      articleDetailDeleteBtn.className = isSiteOwnerUser(readSavedUser()) ? '' : 'danger-style';
+    }else{
+      articleDetailDeleteBtn.style.display = 'none';
+    }
+  }
   articleDetailModal?.classList.add('open');
   articleDetailModal?.setAttribute('aria-hidden', 'false');
 }
@@ -9110,6 +9137,27 @@ async function editCurrentDetailArticle(){
   openArticleEditor(article);
 }
 
+async function deleteCurrentDetailArticle(){
+  const user = requireRealUser('删除文章');
+  if(!user) return;
+  if(!currentDetailArticleId){
+    showLoginToast('无法确定要删除的文章。', 'warn', '删除失败');
+    return;
+  }
+  try{
+    await authRequest('/api/articles', {
+      method:'DELETE',
+      headers:authorizedHeaders(),
+      body:JSON.stringify({ ids:[currentDetailArticleId] })
+    });
+    closeArticleDetail();
+    await loadPublicArticles();
+    showLoginToast('文章已删除。', 'success', '删除成功');
+  }catch(error){
+    showLoginToast(error.message || '删除文章失败。', 'error', '删除失败');
+  }
+}
+
 if(articlePrevBtn) articlePrevBtn.addEventListener('click', ()=>goArticlePage(articlePage - 1));
 if(articleNextBtn) articleNextBtn.addEventListener('click', ()=>goArticlePage(articlePage + 1));
 if(articleJumpBtn) articleJumpBtn.addEventListener('click', ()=>goArticlePage(articlePageInput?.value || 1));
@@ -9132,6 +9180,7 @@ if(articleDetailNextPage) articleDetailNextPage.addEventListener('click', ()=>go
 if(toolArticleCount) toolArticleCount.closest('.tool-stat')?.addEventListener('click', ()=>goUserArticles(readSavedUser()?.username));
 if(articleDetailCloseBtn) articleDetailCloseBtn.addEventListener('click', closeArticleDetail);
 if(articleDetailEditBtn) articleDetailEditBtn.addEventListener('click', editCurrentDetailArticle);
+if(articleDetailDeleteBtn) articleDetailDeleteBtn.addEventListener('click', deleteCurrentDetailArticle);
 if(articleDetailModal) articleDetailModal.addEventListener('click', event=>{ if(event.target === articleDetailModal) closeArticleDetail(); });
 if(articleEditorCloseBtn) articleEditorCloseBtn.addEventListener('click', closeArticleEditor);
 if(articleEditorModal) articleEditorModal.addEventListener('click', event=>{ if(event.target === articleEditorModal) closeArticleEditor(); });
