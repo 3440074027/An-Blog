@@ -5670,35 +5670,63 @@
     border-radius:34px;
     color:#fff;
     background:
-      radial-gradient(circle at 10% 0%, rgba(255,143,199,.22), transparent 34%),
-      radial-gradient(circle at 92% 12%, rgba(127,247,255,.16), transparent 34%),
-      rgba(16,20,48,.94);
-    border:1px solid rgba(255,255,255,.22);
-    box-shadow:0 34px 100px rgba(0,0,0,.44);
+      radial-gradient(ellipse at 15% 0%, rgba(212,175,55,.12), transparent 40%),
+      radial-gradient(ellipse at 85% 8%, rgba(255,200,100,.08), transparent 35%),
+      radial-gradient(ellipse at 50% 100%, rgba(100,180,220,.06), transparent 40%),
+      linear-gradient(170deg, #0B1628 0%, #132240 30%, #1A3050 55%, #0F2035 80%, #0A1525 100%);
+    border:1px solid rgba(212,175,55,.15);
+    box-shadow:0 34px 100px rgba(0,0,0,.44), 0 0 60px rgba(212,175,55,.04);
   }
   .article-detail-card::-webkit-scrollbar{width:6px;}
   .article-detail-card::-webkit-scrollbar-track{background:transparent;}
-  .article-detail-card::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
+  .article-detail-card::-webkit-scrollbar-thumb{background:rgba(212,175,55,.2);border-radius:3px;}
   .article-detail-head{
     display:flex;
     align-items:flex-start;
     justify-content:space-between;
     gap:14px;
     padding:28px 28px 20px;
-    border-bottom:1px solid rgba(255,255,255,.1);
+    border-bottom:1px solid rgba(212,175,55,.1);
   }
-  .article-detail-head h2{margin:0;font-size:clamp(22px, 3.5vw, 38px);line-height:1.2;font-weight:900;letter-spacing:-.02em;}
+  .article-detail-head h2{margin:0;font-size:clamp(22px, 3.5vw, 38px);line-height:1.2;font-weight:900;letter-spacing:-.02em;color:#F0D060;}
   .article-detail-meta{
-    color:#8fceff;font-size:12px;font-weight:900;
+    color:rgba(180,200,220,.6);font-size:12px;font-weight:500;
     display:flex;gap:12px;align-items:center;flex-wrap:wrap;
     margin-bottom:6px;
   }
   .article-detail-meta span{
     display:inline-flex;align-items:center;gap:4px;
     padding:3px 10px;border-radius:999px;
-    background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.12);
+    background:rgba(212,175,55,.06);
+    border:1px solid rgba(212,175,55,.12);
     font-size:11px;
+    color:rgba(220,200,160,.8);
+  }
+  .article-detail-author{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:16px 28px;
+    border-bottom:1px solid rgba(212,175,55,.08);
+  }
+  .article-detail-author-avatar{
+    width:36px;height:36px;border-radius:50%;
+    background:linear-gradient(135deg,rgba(212,175,55,.3),rgba(100,180,220,.3));
+    background-size:cover;background-position:center;
+    border:2px solid rgba(212,175,55,.25);
+    box-shadow:0 2px 8px rgba(0,0,0,.2);
+    flex-shrink:0;
+  }
+  .article-detail-author-info{
+    display:grid;gap:2px;
+  }
+  .article-detail-author-name{
+    font-size:13px;font-weight:700;
+    color:#D4AF37;
+  }
+  .article-detail-author-time{
+    font-size:11px;font-weight:500;
+    color:rgba(180,200,220,.45);
   }
   .article-detail-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;}
   .article-detail-actions button{
@@ -5712,38 +5740,47 @@
     cursor:pointer;
     background:rgba(255,255,255,.12);
     transition:all .15s;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
   }
   .article-detail-actions button:hover{background:rgba(255,255,255,.2);transform:translateY(-1px);}
   .article-detail-content{
     padding:24px 28px 28px;
     border-radius:0 0 34px 34px;
     background:transparent;
-    color:rgba(255,255,255,.88);
+    color:rgba(200,210,225,.88);
     line-height:1.9;
     font-size:15px;
     overflow:hidden;
   }
   .article-detail-content p{margin:0 0 16px;}
-  .article-detail-content h1,.article-detail-content h2,.article-detail-content h3,
-  .article-detail-content h4,.article-detail-content h5,.article-detail-content h6{
-    margin:24px 0 12px;font-weight:900;
-    color:#fff;
-    padding-bottom:8px;
-    border-bottom:1px solid rgba(255,255,255,.1);
+  .article-detail-content h1,.article-detail-content h2,.article-detail-content h3,.article-detail-content h4,.article-detail-content h5,.article-detail-content h6{
+    color:#F0D060;
+    margin:24px 0 12px;
+    font-weight:700;
   }
-  .article-detail-content h1{font-size:clamp(22px,3vw,32px);}
-  .article-detail-content h2{font-size:clamp(20px,2.5vw,28px);}
-  .article-detail-content h3{font-size:clamp(18px,2vw,24px);}
+  .article-detail-content h1{font-size:28px}
+  .article-detail-content h2{font-size:22px}
+  .article-detail-content h3{font-size:18px}
+  .article-detail-content h4{font-size:16px}
   .article-detail-content blockquote{
-    margin:16px 0;padding:12px 18px;border-radius:16px;
-    border-left:4px solid rgba(127,247,255,.5);
-    background:rgba(127,247,255,.08);
-    color:rgba(255,255,255,.75);font-style:italic;
+    margin:16px 0;padding:12px 18px;
+    border-left:3px solid rgba(212,175,55,.4);
+    background:rgba(212,175,55,.06);
+    border-radius:0 10px 10px 0;
+    color:rgba(200,210,225,.7);
+    font-style:italic;
   }
   .article-detail-content pre{
-    margin:16px 0;padding:14px 18px;border-radius:16px;
-    background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);
-    overflow-x:auto;font-size:13px;line-height:1.6;
+    margin:16px 0;padding:16px;
+    background:rgba(0,0,0,.3);
+    border:1px solid rgba(212,175,55,.12);
+    border-radius:12px;
+    font-family:'Consolas','Courier New',monospace;
+    font-size:13px;
+    color:rgba(200,210,225,.8);
+    overflow-x:auto;
   }
   .article-detail-content hr{
     border:none;height:1px;margin:24px 0;
@@ -5779,7 +5816,6 @@
   .article-detail-content .article-img-row,
   .article-rich-editor .article-img-row{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
     gap:10px;
     margin:16px auto;
     max-width:min(600px, 92%);
@@ -5834,26 +5870,26 @@
   .article-detail-pager button{
     min-height:34px;
     padding:0 18px;
-    border-radius:10px;
-    border:1px solid rgba(255,255,255,.2);
-    color:rgba(255,255,255,.8);
+    border-radius:999px;
+    border:1px solid rgba(212,175,55,.25);
+    color:#D4AF37;
     font-weight:600;
     font-size:12px;
     cursor:pointer;
-    background:rgba(255,255,255,.06);
+    background:rgba(212,175,55,.06);
     transition:all .2s;
   }
   .article-detail-pager button:hover:not(:disabled){
-    background:rgba(255,255,255,.12);
-    color:#fff;
-    border-color:rgba(255,255,255,.35);
+    background:rgba(212,175,55,.15);
+    color:#F0D060;
+    border-color:rgba(212,175,55,.4);
   }
   .article-detail-pager button:disabled{
     opacity:.3;
     cursor:not-allowed;
   }
   .article-detail-pager span{
-    color:rgba(255,255,255,.5);
+    color:rgba(180,200,220,.5);
     font-size:12px;
     font-weight:500;
   }
@@ -6205,11 +6241,22 @@
   .article-style-panel input[type="color"]::-webkit-color-swatch-wrapper{padding:0;}
   .article-style-panel input[type="color"]::-webkit-color-swatch{border:none;border-radius:6px;}
   .article-style-panel input[type="color"]::-moz-color-swatch{border:none;border-radius:6px;}
-  .article-style-panel label:has(input[type="range"]){
+  .article-style-panel label:has(input[type="range"]),
+  .article-weight-wrap{
     display:grid;
-    grid-template-columns:1fr auto auto;
+    grid-template-rows:auto 1fr;
     align-items:center;
-    gap:6px;
+    gap:4px;
+  }
+  .article-weight-name{
+    color:rgba(255,255,255,.6);
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.03em;
+  }
+  .article-weight-wrap .article-weight-name + input,
+  .article-weight-wrap .article-weight-name + span{
+    grid-row:2;
   }
   .article-style-panel input[type="range"]{
     -webkit-appearance:none;
@@ -6346,18 +6393,17 @@
   /* 编辑器内多图行 */
   .article-rich-editor .article-img-row{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(0, 1fr));
     gap:10px;
     margin:16px auto;
     max-width:min(600px, 92%);
-    align-items:center;
+    align-items:stretch;
   }
   .article-rich-editor .article-img-row img{
     width:100%;
     height:200px;
     max-width:none;
     max-height:none;
-    object-fit:contain;
+    object-fit:cover;
     border-radius:14px;
     margin:0;
     display:block;
@@ -7242,7 +7288,10 @@
         </select>
       </label>
       <label>字号<input id="articleFontSizeInput" type="number" min="12" max="48" value="16" /></label>
-      <label>字重<input id="articleFontWeightSlider" type="range" min="100" max="900" step="100" value="400" /><span id="articleFontWeightValue">400</span></label>
+      <div class="article-weight-wrap">
+        <span class="article-weight-name">字重</span>
+        <input id="articleFontWeightSlider" type="range" min="100" max="900" step="100" value="400" /><span id="articleFontWeightValue">400</span>
+      </div>
       <label>颜色<input id="articleColorInput" type="color" value="#ffffff" /></label>
       <div class="article-editor-switches">
         <button id="articleItalicBtn" type="button">斜体开关</button>
@@ -7275,6 +7324,13 @@
       <div class="article-detail-actions">
         <button id="articleDetailEditBtn" type="button">修改文章</button>
         <button id="articleDetailCloseBtn" type="button">关闭</button>
+      </div>
+    </div>
+    <div class="article-detail-author" id="articleDetailAuthor">
+      <div class="article-detail-author-avatar" id="articleDetailAuthorAvatar"></div>
+      <div class="article-detail-author-info">
+        <div class="article-detail-author-name" id="articleDetailAuthorName"></div>
+        <div class="article-detail-author-time" id="articleDetailAuthorTime"></div>
       </div>
     </div>
     <div class="article-detail-content" id="articleDetailContent"></div>
@@ -7920,6 +7976,9 @@ const articleDetailPager = document.getElementById('articleDetailPager');
 const articleDetailPrevPage = document.getElementById('articleDetailPrevPage');
 const articleDetailNextPage = document.getElementById('articleDetailNextPage');
 const articleDetailPageInfo = document.getElementById('articleDetailPageInfo');
+const articleDetailAuthorAvatar = document.getElementById('articleDetailAuthorAvatar');
+const articleDetailAuthorName = document.getElementById('articleDetailAuthorName');
+const articleDetailAuthorTime = document.getElementById('articleDetailAuthorTime');
 let articleDetailPages = [];
 let articleDetailCurrentPage = 0;
 const profileClockTime = document.getElementById('profileClockTime');
@@ -8953,7 +9012,18 @@ async function openArticleDetail(id){
   if(!article) return;
   currentDetailArticleId = id;
   if(articleDetailTitle) articleDetailTitle.textContent = article.title || '未命名文章';
-  if(articleDetailMeta) articleDetailMeta.textContent = `${article.category || '随笔'} · @${article.author || '未知用户'} · ${article.createdAt || ''}`;
+  if(articleDetailMeta) articleDetailMeta.innerHTML = `<span>${article.category || '随笔'}</span>`;
+  // 作者信息
+  if(articleDetailAuthorName) articleDetailAuthorName.textContent = `@${article.author || '未知用户'}`;
+  if(articleDetailAuthorTime) articleDetailAuthorTime.textContent = article.createdAt || '';
+  if(articleDetailAuthorAvatar){
+    const avatarUrl = article.authorAvatar || article.avatar || '';
+    if(avatarUrl){
+      articleDetailAuthorAvatar.style.backgroundImage = `url(${avatarUrl})`;
+    }else{
+      articleDetailAuthorAvatar.style.backgroundImage = '';
+    }
+  }
   if(articleDetailContent) {
     articleDetailContent.style.fontFamily = article.fontFamily || '';
     const content = article.content || '<p>这篇文章暂时没有内容。</p>';
