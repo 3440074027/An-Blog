@@ -3,6 +3,7 @@ import {
   json,
   readJsonBody,
   requireUser,
+  isSiteOwner,
   redis,
   nowIso,
   bumpArticlesVersion
@@ -208,7 +209,8 @@ export async function onRequestDelete(context){
       if(article) targetArticles.push(article);
     }
     const forbidden = targetArticles.some(article=>article.author !== auth.user.username);
-    if(forbidden) return json({ error:'只能删除自己发布的文章。' }, 403);
+    const ownerForce = body.forceOwner === true && isSiteOwner(auth.user);
+    if(forbidden && !ownerForce) return json({ error:'只能删除自己发布的文章。' }, 403);
     for(const article of targetArticles){
       await redis.hdel(DB_ARTICLES_HASH, article.id);
     }
