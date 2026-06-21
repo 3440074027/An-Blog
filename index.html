@@ -434,7 +434,7 @@
   #homeSettingsBtn:focus + .home-settings-menu,
   .home-settings-menu:hover,
   .home-settings-menu:focus-within{
-    max-height:64px;
+    max-height:200px;
     padding-top:12px;
     opacity:1;
     transform:translateY(0) scale(1);
@@ -5901,73 +5901,88 @@
     font-size:11px;font-weight:500;
     color:rgba(180,200,220,.45);
   }
-  .article-detail-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;}
+  .article-detail-clickable-author{
+    cursor:pointer;
+    transition:opacity .15s, transform .15s;
+  }
+  .article-detail-clickable-author:hover{
+    opacity:.8;
+    transform:scale(1.05);
+  }
+  .article-detail-author-name.article-detail-clickable-author:hover{
+    text-decoration:underline;
+    text-underline-offset:2px;
+  }
+  .article-detail-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;}
   .article-detail-actions button{
-    min-height:38px;
-    padding:0 20px;
+    min-height:42px;
+    padding:0 24px;
     border-radius:12px;
     border:none;
     color:#fff;
     font-weight:800;
-    font-size:13px;
+    font-size:14px;
     cursor:pointer;
-    transition:all .2s cubic-bezier(.4,0,.2,1);
+    transition:all .25s cubic-bezier(.4,0,.2,1);
     display:inline-flex;
     align-items:center;
     justify-content:center;
     gap:6px;
-    letter-spacing:.03em;
+    letter-spacing:.04em;
     position:relative;
     overflow:hidden;
+    text-shadow:0 1px 2px rgba(0,0,0,.15);
   }
   .article-detail-actions button::before{
     content:'';
     position:absolute;inset:0;
     opacity:0;
-    transition:opacity .2s;
+    transition:opacity .25s;
     border-radius:inherit;
   }
   .article-detail-actions button:hover::before{opacity:1;}
-  .article-detail-actions button:hover{transform:translateY(-2px);}
-  .article-detail-actions button:active{transform:translateY(0) scale(.97);}
-  /* 修改文章按钮 */
+  .article-detail-actions button:hover{transform:translateY(-3px) scale(1.02);}
+  .article-detail-actions button:active{transform:translateY(0) scale(.96);}
+  /* 修改文章按钮 - 金色渐变 */
   .article-detail-actions button#articleDetailEditBtn{
-    background:linear-gradient(135deg, #D4AF37 0%, #F0D060 50%, #D4AF37 100%);
+    background:linear-gradient(135deg, #b8860b 0%, #D4AF37 30%, #F0D060 60%, #D4AF37 100%);
     color:#1a1a2e;
-    box-shadow:0 2px 8px rgba(212,175,55,.2), inset 0 1px 0 rgba(255,255,255,.3);
+    box-shadow:0 4px 16px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.1);
+    text-shadow:none;
   }
   .article-detail-actions button#articleDetailEditBtn::before{
-    background:linear-gradient(135deg, #F0D060 0%, #FFE88A 50%, #F0D060 100%);
+    background:linear-gradient(135deg, #D4AF37 0%, #FFE88A 40%, #F0D060 100%);
   }
   .article-detail-actions button#articleDetailEditBtn:hover{
-    box-shadow:0 6px 20px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.4);
+    box-shadow:0 8px 28px rgba(212,175,55,.5), inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(0,0,0,.1);
   }
-  /* 删除文章按钮 */
+  /* 删除文章按钮 - 红色渐变 */
   .article-detail-actions button.danger{
-    background:linear-gradient(135deg, #c0392b 0%, #e74c3c 50%, #c0392b 100%);
+    background:linear-gradient(135deg, #8b1a1a 0%, #c0392b 30%, #e74c3c 60%, #c0392b 100%);
     color:#fff;
-    box-shadow:0 2px 8px rgba(231,76,60,.2), inset 0 1px 0 rgba(255,255,255,.2);
+    box-shadow:0 4px 16px rgba(231,76,60,.35), inset 0 1px 0 rgba(255,255,255,.25), inset 0 -1px 0 rgba(0,0,0,.15);
   }
   .article-detail-actions button.danger::before{
-    background:linear-gradient(135deg, #e74c3c 0%, #ff6b6b 50%, #e74c3c 100%);
+    background:linear-gradient(135deg, #c0392b 0%, #ff6b6b 40%, #e74c3c 100%);
   }
   .article-detail-actions button.danger:hover{
-    box-shadow:0 6px 20px rgba(231,76,60,.35), inset 0 1px 0 rgba(255,255,255,.3);
+    box-shadow:0 8px 28px rgba(231,76,60,.5), inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.15);
   }
-  /* 关闭按钮 */
+  /* 关闭按钮 - 玻璃态 */
   .article-detail-actions button#articleDetailCloseBtn{
-    background:rgba(255,255,255,.08);
-    color:rgba(255,255,255,.7);
-    border:1px solid rgba(255,255,255,.15);
-    box-shadow:none;
+    background:rgba(255,255,255,.1);
+    color:rgba(255,255,255,.85);
+    border:1.5px solid rgba(255,255,255,.2);
+    box-shadow:0 2px 8px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.1);
+    text-shadow:none;
   }
   .article-detail-actions button#articleDetailCloseBtn::before{
-    background:rgba(255,255,255,.15);
+    background:rgba(255,255,255,.18);
   }
   .article-detail-actions button#articleDetailCloseBtn:hover{
     color:#fff;
-    border-color:rgba(255,255,255,.3);
-    box-shadow:0 4px 12px rgba(0,0,0,.2);
+    border-color:rgba(255,255,255,.4);
+    box-shadow:0 6px 20px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.15);
   }
   .article-detail-content{
     padding:24px 28px 28px;
@@ -6698,16 +6713,6 @@
     box-shadow:0 0 0 3px rgba(127,247,255,.1);
     transform:translateY(-1px);
   }
-  .article-editor-switches button#articleSetCoverBtn{
-    border-color:rgba(212,175,55,.3);
-    color:#F0D060;
-    background:rgba(212,175,55,.08);
-  }
-  .article-editor-switches button#articleSetCoverBtn:hover{
-    background:rgba(212,175,55,.18);
-    border-color:rgba(212,175,55,.45);
-    box-shadow:0 4px 12px rgba(212,175,55,.1);
-  }
   .article-style-panel label.applied{
     color:#fff;
   }
@@ -7187,11 +7192,31 @@
       </svg>
     </button>
     <div class="home-settings-menu" aria-label="首页设置功能">
-      <button class="home-tool-btn" id="homeLangBtn" type="button" data-label="语言切换" aria-label="语言切换">
+      <button class="home-tool-btn" id="homeLangBtn" type="button" data-label="语言切换" aria-label="语言切换" title="切换网站显示语言">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/>
           <line x1="2" y1="12" x2="22" y2="12"/>
           <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </button>
+      <button class="home-tool-btn" id="homeThemeBtn" type="button" data-label="主题切换" aria-label="主题切换" title="切换深色/浅色主题">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+      <button class="home-tool-btn" id="homeFontSizeBtn" type="button" data-label="字体大小" aria-label="字体大小" title="调整全站字体大小">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="4 7 4 4 20 4 20 7"/>
+          <line x1="9" y1="20" x2="15" y2="20"/>
+          <line x1="12" y1="4" x2="12" y2="20"/>
+        </svg>
+      </button>
+      <button class="home-tool-btn" id="homeFullscreenBtn" type="button" data-label="全屏模式" aria-label="全屏模式" title="切换全屏显示">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 3 21 3 21 9"/>
+          <polyline points="9 21 3 21 3 15"/>
+          <line x1="21" y1="3" x2="14" y2="10"/>
+          <line x1="3" y1="21" x2="10" y2="14"/>
         </svg>
       </button>
     </div>
@@ -7660,14 +7685,12 @@
         <button id="articleItalicBtn" type="button" title="切换斜体样式">斜体开关</button>
         <button id="articleUnderlineBtn" type="button" title="切换下划线样式">下划线开关</button>
         <button id="articleInsertImageBtn" type="button" title="从本地选择图片插入到文章中，支持多选，单张不超过3MB">插入图片（可多选）≤3MB</button>
-        <button id="articleSetCoverBtn" type="button" hidden title="从本地选择一张图片作为文章封面，显示在文章列表中">选择封面图</button>
         <button id="articleInsertPageBtn" type="button" title="在当前页后插入新的空白页，实现文章分页显示">插入新页</button>
         <button id="articleClearFormatBtn" type="button" title="清除编辑器中所有文字格式，恢复为默认样式">清除格式</button>
       </div>
     </div>
     <div class="article-rich-editor" id="articleContentEditor" contenteditable="true" spellcheck="false" data-placeholder="在这里写文章内容。图片会插入到光标所在位置，并自动缩小显示。" data-editor-color="#ffffff" data-editor-weight="400"></div>
     <input id="articleImageInput" type="file" accept="image/*" multiple hidden />
-    <input id="articleCoverInput" type="file" accept="image/*" hidden />
     <div class="article-editor-actions">
       <div class="article-editor-pager">
         <button id="articleEditorPrevPage" type="button">上一页</button>
@@ -7683,9 +7706,9 @@
   <div class="article-detail-card" role="dialog" aria-modal="true" aria-labelledby="articleDetailTitle">
     <div class="article-detail-head">
       <div class="article-detail-head-left">
-        <div class="article-detail-author-avatar" id="articleDetailAuthorAvatar"></div>
+        <div class="article-detail-author-avatar article-detail-clickable-author" id="articleDetailAuthorAvatar" title="点击查看作者主页"></div>
         <div class="article-detail-author-info-inline">
-          <span class="article-detail-author-name" id="articleDetailAuthorName"></span>
+          <span class="article-detail-author-name article-detail-clickable-author" id="articleDetailAuthorName"></span>
           <span class="article-detail-author-time" id="articleDetailAuthorTime"></span>
         </div>
       </div>
@@ -7863,6 +7886,44 @@ if(homeLangBtn){
   homeLangBtn.addEventListener('click', (e)=>{
     e.stopPropagation();
     langPanel.classList.toggle('open');
+  });
+  // 主题切换
+  const homeThemeBtn = document.getElementById('homeThemeBtn');
+  if(homeThemeBtn) homeThemeBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    document.body.classList.toggle('light-theme');
+    const isLight = document.body.classList.contains('light-theme');
+    localStorage.setItem('ans_blog_theme', isLight ? 'light' : 'dark');
+    showLoginToast(isLight ? '已切换到浅色主题。' : '已切换到深色主题。', 'success', '主题切换');
+  });
+  // 加载保存的主题
+  const savedTheme = localStorage.getItem('ans_blog_theme');
+  if(savedTheme === 'light') document.body.classList.add('light-theme');
+  // 字体大小
+  const homeFontSizeBtn = document.getElementById('homeFontSizeBtn');
+  if(homeFontSizeBtn) homeFontSizeBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const current = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const sizes = [14, 15, 16, 17, 18];
+    const idx = sizes.indexOf(Math.round(current));
+    const next = sizes[(idx + 1) % sizes.length];
+    document.documentElement.style.fontSize = next + 'px';
+    localStorage.setItem('ans_blog_fontsize', next);
+    showLoginToast(`字体大小已调整为 ${next}px。`, 'success', '字体大小');
+  });
+  const savedFontSize = localStorage.getItem('ans_blog_fontsize');
+  if(savedFontSize) document.documentElement.style.fontSize = savedFontSize + 'px';
+  // 全屏模式
+  const homeFullscreenBtn = document.getElementById('homeFullscreenBtn');
+  if(homeFullscreenBtn) homeFullscreenBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    if(!document.fullscreenElement){
+      document.documentElement.requestFullscreen?.() || document.documentElement.webkitRequestFullscreen?.();
+      showLoginToast('已进入全屏模式，按 Esc 退出。', 'success', '全屏模式');
+    }else{
+      document.exitFullscreen?.() || document.webkitExitFullscreen?.();
+      showLoginToast('已退出全屏模式。', 'success', '全屏模式');
+    }
   });
 }
 document.addEventListener('click', (e)=>{
@@ -9524,11 +9585,22 @@ async function openArticleDetail(id){
   });
   if(!article) return;
   currentDetailArticleId = id;
+  const authorUsername = article.author || '';
   if(articleDetailTitle) articleDetailTitle.textContent = article.title || '未命名文章';
   if(articleDetailMeta) articleDetailMeta.innerHTML = `<span>${article.category || '随笔'}</span>`;
   // 作者信息
-  if(articleDetailAuthorName) articleDetailAuthorName.textContent = `@${article.author || '未知用户'}`;
+  if(articleDetailAuthorName) articleDetailAuthorName.textContent = `@${authorUsername || '未知用户'}`;
   if(articleDetailAuthorTime) articleDetailAuthorTime.textContent = article.createdAt || '';
+  // 头像和昵称点击跳转到作者公开资料页
+  document.querySelectorAll('.article-detail-clickable-author').forEach(el=>{
+    el.onclick = (e)=>{
+      e.stopPropagation();
+      if(authorUsername && typeof showUserArticles === 'function'){
+        closeArticleDetail();
+        setTimeout(()=> showUserArticles(authorUsername), 300);
+      }
+    };
+  });
   // 加载作者头像
   if(articleDetailAuthorAvatar){
     const avatarUrl = article.authorAvatar || article.avatar || '';
@@ -9738,54 +9810,6 @@ if(articleImageInput) articleImageInput.addEventListener('change', async ()=>{
   const files = articleImageInput.files;
   if(files && files.length) await insertArticleImages(files);
   articleImageInput.value = '';
-  // 插入图片后显示"设为封面"按钮
-  updateSetCoverBtnVisibility();
-});
-// 封面选择功能——本地文件选择
-const articleSetCoverBtn = document.getElementById('articleSetCoverBtn');
-const articleCoverInput = document.getElementById('articleCoverInput');
-let selectedCoverSrc = null;
-function updateSetCoverBtnVisibility(){
-  const imgs = articleContentEditor?.querySelectorAll('img[src^="data:image/"]') || [];
-  if(articleSetCoverBtn) articleSetCoverBtn.hidden = imgs.length < 1;
-}
-if(articleSetCoverBtn) articleSetCoverBtn.addEventListener('click', ()=>{
-  articleCoverInput?.click();
-});
-if(articleCoverInput) articleCoverInput.addEventListener('change', async ()=>{
-  const file = articleCoverInput.files?.[0];
-  if(!file || !file.type.startsWith('image/')){
-    showLoginToast('请选择一张图片作为封面。', 'warn', '格式不对');
-    return;
-  }
-  if(file.size > 3 * 1024 * 1024){
-    showLoginToast('封面图片不能超过 3MB。', 'warn', '图片过大');
-    return;
-  }
-  try{
-    const src = await compressArticleImageFile(file);
-    selectedCoverSrc = src;
-    // 将封面图插入到内容最前面
-    if(articleContentEditor){
-      const firstRow = articleContentEditor.querySelector('.article-img-row');
-      if(firstRow){
-        const coverImg = document.createElement('img');
-        coverImg.src = src;
-        coverImg.alt = '文章封面';
-        coverImg.loading = 'lazy';
-        coverImg.style.maxWidth = '100%';
-        coverImg.style.height = 'auto';
-        coverImg.style.display = 'block';
-        coverImg.style.borderRadius = '14px';
-        coverImg.style.margin = '0';
-        firstRow.insertBefore(coverImg, firstRow.firstChild);
-      }
-    }
-    showLoginToast('封面图已设置，发布后文章列表将显示此图。', 'success', '封面已设置');
-  }catch(err){
-    showLoginToast('封面图片处理失败。', 'error', '处理失败');
-  }
-  articleCoverInput.value = '';
 });
 if(articleInsertPageBtn) articleInsertPageBtn.addEventListener('click', ()=>{
   // 保存当前页
@@ -13258,6 +13282,30 @@ startSiteVersionPoll();
       }, 300);
       return '已为你退出登录~ 👋';
     },
+    '切换主题': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const themeBtn = document.getElementById('homeThemeBtn');
+        if(themeBtn) themeBtn.click();
+      }, 300);
+      return '已为你切换主题~ 🎨';
+    },
+    '全屏模式': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const fsBtn = document.getElementById('homeFullscreenBtn');
+        if(fsBtn) fsBtn.click();
+      }, 300);
+      return '已为你切换全屏模式~ 🖥️';
+    },
+    '字体大小': ()=>{
+      panelOpen = false; panel.classList.remove('open');
+      setTimeout(()=>{
+        const fsBtn = document.getElementById('homeFontSizeBtn');
+        if(fsBtn) fsBtn.click();
+      }, 300);
+      return '已为你调整字体大小~ 📐';
+    },
     '回到首页': ()=>{
       panelOpen = false; panel.classList.remove('open');
       setTimeout(()=>{
@@ -13296,6 +13344,9 @@ startSiteVersionPoll();
       { keys: ['账号安全','修改密码','改密码','注销账号','安全设置','密码'], action: '账号安全' },
       { keys: ['好友','打开好友','好友列表','我的朋友','加好友'], action: '打开好友' },
       { keys: ['退出','退出登录','登出','下线','注销登录'], action: '退出登录' },
+      { keys: ['主题','切换主题','深色','浅色','暗色','亮色','夜间模式','日间模式','dark','light'], action: '切换主题' },
+      { keys: ['全屏','全屏模式','fullscreen','退出全屏'], action: '全屏模式' },
+      { keys: ['字体大小','字号','调整字体','放大字体','缩小字体','font size'], action: '字体大小' },
       { keys: ['首页','回到首页','回首页','主页','顶部'], action: '回到首页' },
       { keys: ['刷新','刷新页面','重新加载','reload','更新页面'], action: '刷新页面' },
       { keys: ['我的主页','个人主页','查看主页','我的页面'], action: '查看我的主页' }
@@ -13310,19 +13361,19 @@ startSiteVersionPoll();
 
   /* ---- 欢迎消息 ---- */
   function showWelcome(){
-    addMessage('你好呀！我是 An，你的智能小助手~ 我不仅能解答问题，还能帮你直接操作哦！比如"帮我联系站主"、"我要发文章"、"打开聊天"等等，尽管吩咐我吧！', 'bot', ['帮我联系站主', '我要发文章', '打开聊天', '编辑资料', '网站功能介绍', '账号安全']);
+    addMessage('你好呀！我是 An，你的智能小助手~ 我不仅能回答问题，还能帮你直接操作网站！\n\n试试对我说：\n• "帮我联系站主" → 打开站主聊天\n• "我要发文章" → 打开发布编辑器\n• "打开聊天" → 打开聊天面板\n• "编辑资料" → 修改个人资料\n• "打开搜索" → 搜索用户\n• "切换主题" → 深色/浅色切换\n• "全屏模式" → 全屏浏览\n\n有什么需要尽管吩咐我吧！', 'bot', ['帮我联系站主', '我要发文章', '打开聊天', '编辑资料', '切换主题', '全屏模式']);
   }
 
   /* ---- 知识库 ---- */
   const knowledgeBase = [
     {
       keywords: ['功能', '介绍', '能做什么', '有什么', '网站功能', '功能介绍'],
-      answer: '这个博客网站有很多功能哦~ 主要包括：\n\n📝 **文章系统** - 发布、编辑、删除文章，支持图文混排、分类标签、自定义字体\n👥 **好友系统** - 搜索用户、发送好友申请、管理好友列表\n💬 **聊天系统** - 与好友实时聊天，消息24小时自动过期\n📢 **公告系统** - 站主可以发布公告，最多12条\n👤 **个人资料** - 编辑头像、昵称、签名、简介、标签等\n🔐 **账号安全** - 修改密码、修改用户名、注销账号\n🌍 **多语言** - 支持中文、英语、日语、韩语、法语、德语、阿拉伯语等9种语言\n🔍 **用户搜索** - 按用户名、昵称、签名等搜索用户\n📊 **访问统计** - 网站访问量计数',
+      answer: '这个博客网站有很多功能哦~ 主要包括：\n\n📝 **文章系统** - 发布、编辑、删除文章，支持图文混排、图片拖动缩放、分类标签、自定义字体、文章分页\n👥 **好友系统** - 搜索用户、发送好友申请、管理好友列表\n💬 **聊天系统** - 与好友实时聊天，消息24小时自动过期\n📢 **公告系统** - 站主可以发布公告，最多12条\n👤 **个人资料** - 编辑头像、昵称、签名、简介、标签等\n🔐 **账号安全** - 修改密码、修改用户名、注销账号\n🌍 **多语言** - 支持中文、英语、日语、韩语、法语、德语、阿拉伯语等9种语言\n🔍 **用户搜索** - 按用户名、昵称、签名等搜索用户\n📊 **访问统计** - 网站访问量计数\n🎨 **主题切换** - 深色/浅色主题自由切换\n📐 **字体大小** - 可调整全站字体大小\n🖥️ **全屏模式** - 支持全屏浏览\n👤 **作者主页** - 点击文章作者头像/昵称查看其公开文章\n🌟 **站主管理** - 站主可管理删除所有文章',
       quickActions: ['如何发文章', '如何加好友', '如何聊天']
     },
     {
       keywords: ['文章', '发布', '写文章', '发文章', '写博客', '编辑文章', '删除文章'],
-      answer: '关于文章功能：\n\n✏️ **发布文章**：登录后，在文章区域点击"发布文章"按钮，会打开富文本编辑器，支持插入图片、设置字体/字号/颜色，还可以添加分类标签\n📸 **图片**：支持上传图片（base64格式），最多5张轮播图\n🏷️ **标签**：可以添加分类和标签，方便读者筛选\n✏️ **编辑/删除**：自己的文章可以随时修改或删除\n📄 **公开文章页**：每个用户都有独立的公开文章页面\n⏰ **自定义字体**：发布时可以选择文章的显示字体',
+      answer: '关于文章功能：\n\n✏️ **发布文章**：登录后，在文章区域点击"发布文章"按钮，会打开富文本编辑器，支持插入图片、设置字体/字号/颜色，还可以添加分类标签\n📸 **图片插入**：支持上传多张图片（base64格式），图片可自由拖动位置和缩放大小，点击图片显示定界框，长按可拖动\n🖼️ **封面图**：发布文章需要至少上传一张图片，第一张图将作为文章封面显示在文章列表中\n🏷️ **标签**：可以添加分类和标签，方便读者筛选\n✏️ **编辑/删除**：自己的文章可以随时修改或删除，站主可以管理删除所有文章\n📄 **公开文章页**：每个用户都有独立的公开文章页面，可查看所有公开文章\n👤 **作者主页**：在文章详情页点击头像或昵称可跳转到作者主页\n⏰ **自定义字体**：发布时可以选择文章的显示字体和字重\n📄 **文章分页**：支持插入分页符，实现长文章分页显示',
       quickActions: ['如何加好友', '个人资料怎么编辑']
     },
     {
@@ -13372,7 +13423,7 @@ startSiteVersionPoll();
     },
     {
       keywords: ['站主', 'An', '管理员', 'owner'],
-      answer: '关于站主：\n\n🌟 站主 An 是本站的创建者和管理员\n📢 站主可以编辑公告内容\n👥 站主是所有用户的固定好友\n💬 任何人都可以给站长发消息\n🔍 站主在好友列表和聊天中会显示星标标识\n\n你可以通过"联系站主"按钮查看站主信息或发送消息~',
+      answer: '关于站主：\n\n🌟 站主 An 是本站的创建者和管理员\n📢 站主可以编辑公告内容\n👥 站主是所有用户的固定好友\n💬 任何人都可以给站长发消息\n🔍 站主在好友列表和聊天中会显示星标标识\n🗑️ 站主可以通过"管理删除"功能管理所有文章\n\n你可以通过"联系站主"按钮查看站主信息或发送消息~',
       quickActions: ['如何聊天', '公告系统']
     },
     {
@@ -13397,7 +13448,7 @@ startSiteVersionPoll();
     },
     {
       keywords: ['操作', '帮我', '打开', '执行', '操作功能', '能做什么操作', '快捷操作'],
-      answer: '我可以帮你直接操作网站哦！试试这些指令：\n\n🤝 "帮我联系站主" / "找站主" → 打开站主聊天窗口\n📝 "我要发文章" / "写文章" → 打开发布文章编辑器\n👤 "编辑资料" / "修改资料" → 打开个人资料编辑\n💬 "打开聊天" / "消息" → 打开聊天面板\n🔍 "打开搜索" / "找用户" → 打开搜索面板\n⚙️ "打开设置" → 打开设置面板\n📢 "查看公告" → 滚动到公告区域\n🌍 "切换语言" → 打开语言选择\n🔐 "账号安全" / "修改密码" → 打开安全设置\n\n直接说出来，我就能帮你执行！',
+      answer: '我可以帮你直接操作网站哦！试试这些指令：\n\n🤝 "帮我联系站主" / "找站主" → 打开站主聊天窗口\n📝 "我要发文章" / "写文章" → 打开发布文章编辑器\n👤 "编辑资料" / "修改资料" → 打开个人资料编辑\n💬 "打开聊天" / "消息" → 打开聊天面板\n🔍 "打开搜索" / "找用户" → 打开搜索面板\n⚙️ "打开设置" → 打开设置面板\n📢 "查看公告" → 滚动到公告区域\n🌍 "切换语言" → 打开语言选择\n🎨 "切换主题" → 深色/浅色主题切换\n📐 "字体大小" → 调整全站字体大小\n🖥️ "全屏模式" → 全屏浏览\n🔐 "账号安全" / "修改密码" → 打开安全设置\n👥 "打开好友" → 打开好友面板\n👋 "退出登录" → 退出当前账号\n\n直接说出来，我就能帮你执行！',
       quickActions: ['帮我联系站主', '我要发文章', '打开聊天', '编辑资料']
     }
   ];
