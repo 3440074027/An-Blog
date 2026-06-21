@@ -416,70 +416,70 @@
   }
   .home-settings-wrap{
     position:relative;
-    display:flex;
+    display:inline-flex;
     flex-direction:column;
     align-items:center;
     z-index:100;
+    width:44px;
+    height:44px;
+    flex-shrink:0;
   }
   .home-settings-menu{
     position:absolute;
-    top:100%;
     left:50%;
+    top:100%;
     transform:translateX(-50%) translateY(-10px) scale(.92);
+    transform-origin:top center;
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:10px;
+    gap:8px;
     max-height:0;
-    padding-top:0;
-    padding-bottom:0;
+    padding:0;
     overflow:hidden;
     opacity:0;
     pointer-events:none;
-    transition:opacity .28s, transform .28s, max-height .28s, padding-top .28s, padding-bottom .28s;
+    transition:opacity .2s, transform .2s, max-height .2s, padding .2s;
   }
-  .home-settings-wrap:hover .home-settings-menu,
-  .home-settings-wrap:focus-within .home-settings-menu{
-    max-height:320px;
-    padding-top:8px;
-    padding-bottom:8px;
+  .home-settings-wrap:hover .home-settings-menu{
+    max-height:260px;
+    padding:10px 0 0;
+    overflow:visible;
     opacity:1;
     transform:translateX(-50%) translateY(0) scale(1);
     pointer-events:auto;
   }
   .home-tool-btn{
     position:relative;
-    width:44px;
-    height:44px;
+    width:42px;
+    height:42px;
     border-radius:50%;
-    border:1px solid rgba(255,255,255,.48);
+    border:1px solid rgba(255,255,255,.35);
     color:#fff;
     cursor:pointer;
     display:flex;
     align-items:center;
     justify-content:center;
-    background:linear-gradient(135deg, rgba(255,255,255,.22), rgba(124,92,255,.18));
-    backdrop-filter:blur(12px);
-    -webkit-backdrop-filter:blur(12px);
-    box-shadow:0 12px 30px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.28);
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    box-shadow:0 4px 12px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.2);
     opacity:0;
-    transform:translateY(-8px) scale(.82);
-    transition:opacity .25s, transform .25s, background .25s, box-shadow .25s;
+    transform:translateY(8px) scale(.85);
+    transition:opacity .2s, transform .2s, background .2s, box-shadow .2s;
   }
-  .home-settings-wrap:hover .home-settings-menu .home-tool-btn,
-  .home-settings-wrap:focus-within .home-settings-menu .home-tool-btn{
+  .home-settings-wrap:hover .home-settings-menu .home-tool-btn{
     opacity:1;
     transform:translateY(0) scale(1);
   }
-  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(1){transition-delay:.04s;}
-  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(2){transition-delay:.08s;}
-  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(3){transition-delay:.12s;}
-  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(4){transition-delay:.16s;}
-  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(5){transition-delay:.20s;}
+  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(1){transition-delay:.02s;}
+  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(2){transition-delay:.04s;}
+  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(3){transition-delay:.06s;}
+  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(4){transition-delay:.08s;}
   .home-tool-btn:hover{
-    background:linear-gradient(135deg, rgba(255,255,255,.36), rgba(255,143,199,.26));
-    box-shadow:0 16px 34px rgba(0,0,0,.25), 0 0 24px rgba(124,92,255,.28), inset 0 1px 0 rgba(255,255,255,.42);
-    transform:translateY(-1px) scale(1.05);
+    background:rgba(255,255,255,.25);
+    box-shadow:0 6px 18px rgba(0,0,0,.2), 0 0 16px rgba(124,92,255,.2), inset 0 1px 0 rgba(255,255,255,.35);
+    transform:translateY(-1px) scale(1.08);
   }
   .home-tool-btn svg{width:20px;height:20px;stroke:currentColor;}
   .home-tool-btn::after{
@@ -5919,76 +5919,60 @@
     text-decoration:underline;
     text-underline-offset:2px;
   }
-  .article-detail-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;}
+  .article-detail-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;}
   .article-detail-actions button{
-    min-height:42px;
-    padding:0 24px;
-    border-radius:12px;
+    min-height:34px;
+    padding:0 18px;
+    border-radius:999px;
     border:none;
-    color:#fff;
-    font-weight:800;
-    font-size:14px;
+    font-weight:700;
+    font-size:12px;
     cursor:pointer;
-    transition:all .25s cubic-bezier(.4,0,.2,1);
+    transition:all .3s cubic-bezier(.34,1.56,.64,1);
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    gap:6px;
-    letter-spacing:.04em;
+    gap:5px;
+    letter-spacing:.02em;
     position:relative;
     overflow:hidden;
-    text-shadow:0 1px 2px rgba(0,0,0,.15);
+    transform:translateY(0);
   }
-  .article-detail-actions button::before{
-    content:'';
-    position:absolute;inset:0;
-    opacity:0;
-    transition:opacity .25s;
-    border-radius:inherit;
+  .article-detail-actions button:hover{
+    transform:translateY(-2px) scale(1.04);
   }
-  .article-detail-actions button:hover::before{opacity:1;}
-  .article-detail-actions button:hover{transform:translateY(-3px) scale(1.02);}
-  .article-detail-actions button:active{transform:translateY(0) scale(.96);}
-  /* 修改文章按钮 - 金色渐变 */
+  .article-detail-actions button:active{
+    transform:translateY(0) scale(.96);
+  }
+  /* 修改文章 - 粉紫渐变 */
   .article-detail-actions button#articleDetailEditBtn{
-    background:linear-gradient(135deg, #b8860b 0%, #D4AF37 30%, #F0D060 60%, #D4AF37 100%);
-    color:#1a1a2e;
-    box-shadow:0 4px 16px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.1);
-    text-shadow:none;
-  }
-  .article-detail-actions button#articleDetailEditBtn::before{
-    background:linear-gradient(135deg, #D4AF37 0%, #FFE88A 40%, #F0D060 100%);
+    background:linear-gradient(135deg, #e8b4f8, #f8c8dc);
+    color:#6b3a7a;
+    box-shadow:0 3px 12px rgba(232,180,248,.35), inset 0 1px 0 rgba(255,255,255,.5);
   }
   .article-detail-actions button#articleDetailEditBtn:hover{
-    box-shadow:0 8px 28px rgba(212,175,55,.5), inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(0,0,0,.1);
+    box-shadow:0 6px 20px rgba(232,180,248,.5), inset 0 1px 0 rgba(255,255,255,.6);
+    background:linear-gradient(135deg, #edc4f8, #fad4e4);
   }
-  /* 删除文章按钮 - 红色渐变 */
+  /* 删除文章 - 软珊瑚粉 */
   .article-detail-actions button.danger{
-    background:linear-gradient(135deg, #8b1a1a 0%, #c0392b 30%, #e74c3c 60%, #c0392b 100%);
-    color:#fff;
-    box-shadow:0 4px 16px rgba(231,76,60,.35), inset 0 1px 0 rgba(255,255,255,.25), inset 0 -1px 0 rgba(0,0,0,.15);
-  }
-  .article-detail-actions button.danger::before{
-    background:linear-gradient(135deg, #c0392b 0%, #ff6b6b 40%, #e74c3c 100%);
+    background:linear-gradient(135deg, #f8b4b4, #f8d0c8);
+    color:#8a3a3a;
+    box-shadow:0 3px 12px rgba(248,180,180,.35), inset 0 1px 0 rgba(255,255,255,.5);
   }
   .article-detail-actions button.danger:hover{
-    box-shadow:0 8px 28px rgba(231,76,60,.5), inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.15);
+    box-shadow:0 6px 20px rgba(248,180,180,.5), inset 0 1px 0 rgba(255,255,255,.6);
+    background:linear-gradient(135deg, #f8c4c4, #fadcd4);
   }
-  /* 关闭按钮 - 玻璃态 */
+  /* 关闭 - 燕麦奶灰 */
   .article-detail-actions button#articleDetailCloseBtn{
-    background:rgba(255,255,255,.1);
-    color:rgba(255,255,255,.85);
-    border:1.5px solid rgba(255,255,255,.2);
-    box-shadow:0 2px 8px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.1);
-    text-shadow:none;
-  }
-  .article-detail-actions button#articleDetailCloseBtn::before{
-    background:rgba(255,255,255,.18);
+    background:linear-gradient(135deg, #d8dce4, #c8d0dc);
+    color:#5a6070;
+    box-shadow:0 3px 12px rgba(200,208,220,.3), inset 0 1px 0 rgba(255,255,255,.6);
   }
   .article-detail-actions button#articleDetailCloseBtn:hover{
-    color:#fff;
-    border-color:rgba(255,255,255,.4);
-    box-shadow:0 6px 20px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.15);
+    box-shadow:0 6px 20px rgba(200,208,220,.45), inset 0 1px 0 rgba(255,255,255,.7);
+    background:linear-gradient(135deg, #e2e6ec, #d4dce8);
   }
   .article-detail-content{
     padding:24px 28px 28px;
@@ -7199,22 +7183,12 @@
         </svg>
       </button>
       <div class="home-settings-menu" aria-label="首页设置功能">
-        <button class="home-tool-btn" id="homeLangBtn" type="button" data-label="语言切换" aria-label="语言切换" title="切换网站显示语言">
+        <button class="home-tool-btn" id="homeFullscreenBtn" type="button" data-label="全屏模式" aria-label="全屏模式" title="切换全屏显示">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="2" y1="12" x2="22" y2="12"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-          </svg>
-        </button>
-        <button class="home-tool-btn" id="homeThemeBtn" type="button" data-label="主题切换" aria-label="主题切换" title="切换深色/浅色主题">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-        </button>
-        <button class="home-tool-btn" id="homeSoundBtn" type="button" data-label="音效开关" aria-label="音效开关" title="开启/关闭网站音效">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <polyline points="9 21 3 21 3 15"/>
+            <line x1="21" y1="3" x2="14" y2="10"/>
+            <line x1="3" y1="21" x2="10" y2="14"/>
           </svg>
         </button>
         <button class="home-tool-btn" id="homeScrollTopBtn" type="button" data-label="回到顶部" aria-label="回到顶部" title="快速回到页面顶部">
@@ -7223,12 +7197,16 @@
             <polyline points="5 12 12 5 19 12"/>
           </svg>
         </button>
-        <button class="home-tool-btn" id="homeFullscreenBtn" type="button" data-label="全屏模式" aria-label="全屏模式" title="切换全屏显示">
+        <button class="home-tool-btn" id="homeThemeBtn" type="button" data-label="主题切换" aria-label="主题切换" title="切换深色/浅色主题">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 3 21 3 21 9"/>
-            <polyline points="9 21 3 21 3 15"/>
-            <line x1="21" y1="3" x2="14" y2="10"/>
-            <line x1="3" y1="21" x2="10" y2="14"/>
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <button class="home-tool-btn" id="homeLangBtn" type="button" data-label="语言切换" aria-label="语言切换" title="切换网站显示语言">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
           </svg>
         </button>
       </div>
@@ -7912,15 +7890,6 @@ if(homeLangBtn){
   // 加载保存的主题
   const savedTheme = localStorage.getItem('ans_blog_theme');
   if(savedTheme === 'light') document.body.classList.add('light-theme');
-  // 音效开关
-  const homeSoundBtn = document.getElementById('homeSoundBtn');
-  let soundEnabled = localStorage.getItem('ans_blog_sound') !== 'off';
-  if(homeSoundBtn) homeSoundBtn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    soundEnabled = !soundEnabled;
-    localStorage.setItem('ans_blog_sound', soundEnabled ? 'on' : 'off');
-    showLoginToast(soundEnabled ? '音效已开启。' : '音效已关闭。', 'success', '音效设置');
-  });
   // 回到顶部
   const homeScrollTopBtn = document.getElementById('homeScrollTopBtn');
   if(homeScrollTopBtn) homeScrollTopBtn.addEventListener('click', (e)=>{
@@ -7940,6 +7909,13 @@ if(homeLangBtn){
       showLoginToast('已退出全屏模式。', 'success', '全屏模式');
     }
   });
+  // 点击设置工具按钮后自动收回菜单
+  const settingsWrap = document.getElementById('homeSettingsWrap');
+  if(settingsWrap){
+    settingsWrap.addEventListener('mouseleave', ()=>{
+      document.activeElement?.blur();
+    });
+  }
 }
 document.addEventListener('click', (e)=>{
   if(!langPanel.contains(e.target) && e.target!==langBtn && e.target!==homeLangBtn && !homeLangBtn?.contains(e.target)){
@@ -13383,7 +13359,7 @@ startSiteVersionPoll();
   const knowledgeBase = [
     {
       keywords: ['功能', '介绍', '能做什么', '有什么', '网站功能', '功能介绍'],
-      answer: '这个博客网站有很多功能哦~ 主要包括：\n\n📝 **文章系统** - 发布、编辑、删除文章，支持图文混排、图片拖动缩放、分类标签、自定义字体、文章分页\n👥 **好友系统** - 搜索用户、发送好友申请、管理好友列表\n💬 **聊天系统** - 与好友实时聊天，消息24小时自动过期\n📢 **公告系统** - 站主可以发布公告，最多12条\n👤 **个人资料** - 编辑头像、昵称、签名、简介、标签等\n🔐 **账号安全** - 修改密码、修改用户名、注销账号\n🌍 **多语言** - 支持中文、英语、日语、韩语、法语、德语、阿拉伯语等9种语言\n🔍 **用户搜索** - 按用户名、昵称、签名等搜索用户\n📊 **访问统计** - 网站访问量计数\n🎨 **主题切换** - 深色/浅色主题自由切换\n🔊 **音效开关** - 开启/关闭网站交互音效\n⬆️ **回到顶部** - 一键快速回到页面顶部\n🖥️ **全屏模式** - 支持全屏浏览\n👤 **作者主页** - 点击文章作者头像/昵称查看其公开文章\n🌟 **站主管理** - 站主可管理删除所有文章',
+      answer: '这个博客网站有很多功能哦~ 主要包括：\n\n📝 **文章系统** - 发布、编辑、删除文章，支持图文混排、图片拖动缩放、分类标签、自定义字体、文章分页\n👥 **好友系统** - 搜索用户、发送好友申请、管理好友列表\n💬 **聊天系统** - 与好友实时聊天，消息24小时自动过期\n📢 **公告系统** - 站主可以发布公告，最多12条\n👤 **个人资料** - 编辑头像、昵称、签名、简介、标签等\n🔐 **账号安全** - 修改密码、修改用户名、注销账号\n🌍 **多语言** - 支持中文、英语、日语、韩语、法语、德语、阿拉伯语等9种语言\n🔍 **用户搜索** - 按用户名、昵称、签名等搜索用户\n📊 **访问统计** - 网站访问量计数\n🎨 **主题切换** - 深色/浅色主题自由切换\n⬆️ **回到顶部** - 一键快速回到页面顶部\n🖥️ **全屏模式** - 支持全屏浏览\n👤 **作者主页** - 点击文章作者头像/昵称查看其公开文章\n🌟 **站主管理** - 站主可管理删除所有文章',
       quickActions: ['如何发文章', '如何加好友', '如何聊天']
     },
     {
@@ -13463,7 +13439,7 @@ startSiteVersionPoll();
     },
     {
       keywords: ['操作', '帮我', '打开', '执行', '操作功能', '能做什么操作', '快捷操作'],
-      answer: '我可以帮你直接操作网站哦！试试这些指令：\n\n🤝 "帮我联系站主" / "找站主" → 打开站主聊天窗口\n📝 "我要发文章" / "写文章" → 打开发布文章编辑器\n👤 "编辑资料" / "修改资料" → 打开个人资料编辑\n💬 "打开聊天" / "消息" → 打开聊天面板\n🔍 "打开搜索" / "找用户" → 打开搜索面板\n⚙️ "打开设置" → 打开设置面板\n📢 "查看公告" → 滚动到公告区域\n🌍 "切换语言" → 打开语言选择\n🎨 "切换主题" → 深色/浅色主题切换\n🔊 "音效开关" → 开启/关闭网站音效\n⬆️ "回到顶部" → 快速回到页面顶部\n🖥️ "全屏模式" → 全屏浏览\n🔐 "账号安全" / "修改密码" → 打开安全设置\n👥 "打开好友" → 打开好友面板\n👋 "退出登录" → 退出当前账号\n\n直接说出来，我就能帮你执行！',
+      answer: '我可以帮你直接操作网站哦！试试这些指令：\n\n🤝 "帮我联系站主" / "找站主" → 打开站主聊天窗口\n📝 "我要发文章" / "写文章" → 打开发布文章编辑器\n👤 "编辑资料" / "修改资料" → 打开个人资料编辑\n💬 "打开聊天" / "消息" → 打开聊天面板\n🔍 "打开搜索" / "找用户" → 打开搜索面板\n⚙️ "打开设置" → 打开设置面板\n📢 "查看公告" → 滚动到公告区域\n🌍 "切换语言" → 打开语言选择\n🎨 "切换主题" → 深色/浅色主题切换\n⬆️ "回到顶部" → 快速回到页面顶部\n🖥️ "全屏模式" → 全屏浏览\n🔐 "账号安全" / "修改密码" → 打开安全设置\n👥 "打开好友" → 打开好友面板\n👋 "退出登录" → 退出当前账号\n\n直接说出来，我就能帮你执行！',
       quickActions: ['帮我联系站主', '我要发文章', '打开聊天', '编辑资料']
     }
   ];
