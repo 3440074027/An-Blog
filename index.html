@@ -414,30 +414,37 @@
     top:116px;
     right:0;
   }
-  .home-settings-menu{
+  .home-settings-wrap{
     position:relative;
-    top:auto;
-    right:auto;
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:12px;
+    z-index:100;
+  }
+  .home-settings-menu{
+    position:absolute;
+    top:100%;
+    left:50%;
+    transform:translateX(-50%) translateY(-10px) scale(.92);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
     max-height:0;
     padding-top:0;
+    padding-bottom:0;
     overflow:hidden;
     opacity:0;
-    transform:translateY(-10px) scale(.92);
     pointer-events:none;
-    transition:opacity .28s, transform .28s, max-height .28s, padding-top .28s;
+    transition:opacity .28s, transform .28s, max-height .28s, padding-top .28s, padding-bottom .28s;
   }
-  #homeSettingsBtn:hover + .home-settings-menu,
-  #homeSettingsBtn:focus + .home-settings-menu,
-  .home-settings-menu:hover,
-  .home-settings-menu:focus-within{
-    max-height:200px;
-    padding-top:12px;
+  .home-settings-wrap:hover .home-settings-menu,
+  .home-settings-wrap:focus-within .home-settings-menu{
+    max-height:320px;
+    padding-top:8px;
+    padding-bottom:8px;
     opacity:1;
-    transform:translateY(0) scale(1);
+    transform:translateX(-50%) translateY(0) scale(1);
     pointer-events:auto;
   }
   .home-tool-btn{
@@ -459,17 +466,16 @@
     transform:translateY(-8px) scale(.82);
     transition:opacity .25s, transform .25s, background .25s, box-shadow .25s;
   }
-  #homeSettingsBtn:hover + .home-settings-menu .home-tool-btn,
-  #homeSettingsBtn:focus + .home-settings-menu .home-tool-btn,
-  .home-settings-menu:hover .home-tool-btn,
-  .home-settings-menu:focus-within .home-tool-btn{
+  .home-settings-wrap:hover .home-settings-menu .home-tool-btn,
+  .home-settings-wrap:focus-within .home-settings-menu .home-tool-btn{
     opacity:1;
     transform:translateY(0) scale(1);
   }
-  #homeSettingsBtn:hover + .home-settings-menu .home-tool-btn,
-  #homeSettingsBtn:focus + .home-settings-menu .home-tool-btn,
-  .home-settings-menu:hover .home-tool-btn,
-  .home-settings-menu:focus-within .home-tool-btn{transition-delay:.04s;}
+  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(1){transition-delay:.04s;}
+  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(2){transition-delay:.08s;}
+  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(3){transition-delay:.12s;}
+  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(4){transition-delay:.16s;}
+  .home-settings-wrap:hover .home-settings-menu .home-tool-btn:nth-child(5){transition-delay:.20s;}
   .home-tool-btn:hover{
     background:linear-gradient(135deg, rgba(255,255,255,.36), rgba(255,143,199,.26));
     box-shadow:0 16px 34px rgba(0,0,0,.25), 0 0 24px rgba(124,92,255,.28), inset 0 1px 0 rgba(255,255,255,.42);
@@ -7185,40 +7191,47 @@
       </svg>
       <span class="home-mail-badge" id="homeChatBadge">0</span>
     </button>
-    <button class="icon-btn" id="homeSettingsBtn" type="button" title="设置" aria-label="设置">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.04.04a2 2 0 1 1-2.83 2.83l-.04-.04A1.8 1.8 0 0 0 15 19.4a1.8 1.8 0 0 0-1 .6 1.8 1.8 0 0 0-.4 1.1V21a2 2 0 1 1-4 0v-.1A1.8 1.8 0 0 0 8.6 19.4a1.8 1.8 0 0 0-1.98.36l-.04.04a2 2 0 1 1-2.83-2.83l.04-.04A1.8 1.8 0 0 0 4.6 15a1.8 1.8 0 0 0-.6-1 1.8 1.8 0 0 0-1.1-.4H2.8a2 2 0 1 1 0-4h.1A1.8 1.8 0 0 0 4.6 8.6a1.8 1.8 0 0 0-.36-1.98l-.04-.04a2 2 0 1 1 2.83-2.83l.04.04A1.8 1.8 0 0 0 9 4.6a1.8 1.8 0 0 0 1-.6 1.8 1.8 0 0 0 .4-1.1V2.8a2 2 0 1 1 4 0v.1A1.8 1.8 0 0 0 15.4 4.6a1.8 1.8 0 0 0 1.98-.36l.04-.04a2 2 0 1 1 2.83 2.83l-.04.04A1.8 1.8 0 0 0 19.4 9c.2.38.44.72.6 1 .2.34.6.6 1.1.6h.1a2 2 0 1 1 0 4h-.1a1.8 1.8 0 0 0-1.7.4Z"/>
-      </svg>
-    </button>
-    <div class="home-settings-menu" aria-label="首页设置功能">
-      <button class="home-tool-btn" id="homeLangBtn" type="button" data-label="语言切换" aria-label="语言切换" title="切换网站显示语言">
+    <div class="home-settings-wrap" id="homeSettingsWrap">
+      <button class="icon-btn" id="homeSettingsBtn" type="button" title="设置" aria-label="设置">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="2" y1="12" x2="22" y2="12"/>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.04.04a2 2 0 1 1-2.83 2.83l-.04-.04A1.8 1.8 0 0 0 15 19.4a1.8 1.8 0 0 0-1 .6 1.8 1.8 0 0 0-.4 1.1V21a2 2 0 1 1-4 0v-.1A1.8 1.8 0 0 0 8.6 19.4a1.8 1.8 0 0 0-1.98.36l-.04.04a2 2 0 1 1-2.83-2.83l.04-.04A1.8 1.8 0 0 0 4.6 15a1.8 1.8 0 0 0-.6-1 1.8 1.8 0 0 0-1.1-.4H2.8a2 2 0 1 1 0-4h.1A1.8 1.8 0 0 0 4.6 8.6a1.8 1.8 0 0 0-.36-1.98l-.04-.04a2 2 0 1 1 2.83-2.83l.04.04A1.8 1.8 0 0 0 9 4.6a1.8 1.8 0 0 0 1-.6 1.8 1.8 0 0 0 .4-1.1V2.8a2 2 0 1 1 4 0v.1A1.8 1.8 0 0 0 15.4 4.6a1.8 1.8 0 0 0 1.98-.36l.04-.04a2 2 0 1 1 2.83 2.83l-.04.04A1.8 1.8 0 0 0 19.4 9c.2.38.44.72.6 1 .2.34.6.6 1.1.6h.1a2 2 0 1 1 0 4h-.1a1.8 1.8 0 0 0-1.7.4Z"/>
         </svg>
       </button>
-      <button class="home-tool-btn" id="homeThemeBtn" type="button" data-label="主题切换" aria-label="主题切换" title="切换深色/浅色主题">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        </svg>
-      </button>
-      <button class="home-tool-btn" id="homeFontSizeBtn" type="button" data-label="字体大小" aria-label="字体大小" title="调整全站字体大小">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="4 7 4 4 20 4 20 7"/>
-          <line x1="9" y1="20" x2="15" y2="20"/>
-          <line x1="12" y1="4" x2="12" y2="20"/>
-        </svg>
-      </button>
-      <button class="home-tool-btn" id="homeFullscreenBtn" type="button" data-label="全屏模式" aria-label="全屏模式" title="切换全屏显示">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 3 21 3 21 9"/>
-          <polyline points="9 21 3 21 3 15"/>
-          <line x1="21" y1="3" x2="14" y2="10"/>
-          <line x1="3" y1="21" x2="10" y2="14"/>
-        </svg>
-      </button>
+      <div class="home-settings-menu" aria-label="首页设置功能">
+        <button class="home-tool-btn" id="homeLangBtn" type="button" data-label="语言切换" aria-label="语言切换" title="切换网站显示语言">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </button>
+        <button class="home-tool-btn" id="homeThemeBtn" type="button" data-label="主题切换" aria-label="主题切换" title="切换深色/浅色主题">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <button class="home-tool-btn" id="homeSoundBtn" type="button" data-label="音效开关" aria-label="音效开关" title="开启/关闭网站音效">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+        </button>
+        <button class="home-tool-btn" id="homeScrollTopBtn" type="button" data-label="回到顶部" aria-label="回到顶部" title="快速回到页面顶部">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"/>
+            <polyline points="5 12 12 5 19 12"/>
+          </svg>
+        </button>
+        <button class="home-tool-btn" id="homeFullscreenBtn" type="button" data-label="全屏模式" aria-label="全屏模式" title="切换全屏显示">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 3 21 3 21 9"/>
+            <polyline points="9 21 3 21 3 15"/>
+            <line x1="21" y1="3" x2="14" y2="10"/>
+            <line x1="3" y1="21" x2="10" y2="14"/>
+          </svg>
+        </button>
+      </div>
     </div>
     <button class="return-btn" id="returnLoginBtn" type="button" title="返回登录" aria-label="返回登录">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -7716,7 +7729,7 @@
         <h2 id="articleDetailTitle">文章标题</h2>
         <div class="article-detail-meta" id="articleDetailMeta"></div>
       </div>
-      <div class="article-detail-head-right">
+      <div class="article-detail-head-right article-detail-actions">
         <button id="articleDetailEditBtn" type="button">修改文章</button>
         <button id="articleDetailDeleteBtn" class="danger" type="button" hidden>删除文章</button>
         <button id="articleDetailCloseBtn" type="button">关闭</button>
@@ -7899,20 +7912,22 @@ if(homeLangBtn){
   // 加载保存的主题
   const savedTheme = localStorage.getItem('ans_blog_theme');
   if(savedTheme === 'light') document.body.classList.add('light-theme');
-  // 字体大小
-  const homeFontSizeBtn = document.getElementById('homeFontSizeBtn');
-  if(homeFontSizeBtn) homeFontSizeBtn.addEventListener('click', (e)=>{
+  // 音效开关
+  const homeSoundBtn = document.getElementById('homeSoundBtn');
+  let soundEnabled = localStorage.getItem('ans_blog_sound') !== 'off';
+  if(homeSoundBtn) homeSoundBtn.addEventListener('click', (e)=>{
     e.stopPropagation();
-    const current = parseFloat(getComputedStyle(document.documentElement).fontSize);
-    const sizes = [14, 15, 16, 17, 18];
-    const idx = sizes.indexOf(Math.round(current));
-    const next = sizes[(idx + 1) % sizes.length];
-    document.documentElement.style.fontSize = next + 'px';
-    localStorage.setItem('ans_blog_fontsize', next);
-    showLoginToast(`字体大小已调整为 ${next}px。`, 'success', '字体大小');
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('ans_blog_sound', soundEnabled ? 'on' : 'off');
+    showLoginToast(soundEnabled ? '音效已开启。' : '音效已关闭。', 'success', '音效设置');
   });
-  const savedFontSize = localStorage.getItem('ans_blog_fontsize');
-  if(savedFontSize) document.documentElement.style.fontSize = savedFontSize + 'px';
+  // 回到顶部
+  const homeScrollTopBtn = document.getElementById('homeScrollTopBtn');
+  if(homeScrollTopBtn) homeScrollTopBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    window.scrollTo({ top:0, behavior:'smooth' });
+    showLoginToast('已回到页面顶部。', 'success', '回到顶部');
+  });
   // 全屏模式
   const homeFullscreenBtn = document.getElementById('homeFullscreenBtn');
   if(homeFullscreenBtn) homeFullscreenBtn.addEventListener('click', (e)=>{
@@ -13298,13 +13313,13 @@ startSiteVersionPoll();
       }, 300);
       return '已为你切换全屏模式~ 🖥️';
     },
-    '字体大小': ()=>{
+    '回到顶部': ()=>{
       panelOpen = false; panel.classList.remove('open');
       setTimeout(()=>{
-        const fsBtn = document.getElementById('homeFontSizeBtn');
-        if(fsBtn) fsBtn.click();
+        const stBtn = document.getElementById('homeScrollTopBtn');
+        if(stBtn) stBtn.click();
       }, 300);
-      return '已为你调整字体大小~ 📐';
+      return '已为你回到页面顶部~ ⬆️';
     },
     '回到首页': ()=>{
       panelOpen = false; panel.classList.remove('open');
@@ -13346,7 +13361,7 @@ startSiteVersionPoll();
       { keys: ['退出','退出登录','登出','下线','注销登录'], action: '退出登录' },
       { keys: ['主题','切换主题','深色','浅色','暗色','亮色','夜间模式','日间模式','dark','light'], action: '切换主题' },
       { keys: ['全屏','全屏模式','fullscreen','退出全屏'], action: '全屏模式' },
-      { keys: ['字体大小','字号','调整字体','放大字体','缩小字体','font size'], action: '字体大小' },
+      { keys: ['回到顶部','回顶部','顶部','scroll top','回到上面'], action: '回到顶部' },
       { keys: ['首页','回到首页','回首页','主页','顶部'], action: '回到首页' },
       { keys: ['刷新','刷新页面','重新加载','reload','更新页面'], action: '刷新页面' },
       { keys: ['我的主页','个人主页','查看主页','我的页面'], action: '查看我的主页' }
@@ -13368,7 +13383,7 @@ startSiteVersionPoll();
   const knowledgeBase = [
     {
       keywords: ['功能', '介绍', '能做什么', '有什么', '网站功能', '功能介绍'],
-      answer: '这个博客网站有很多功能哦~ 主要包括：\n\n📝 **文章系统** - 发布、编辑、删除文章，支持图文混排、图片拖动缩放、分类标签、自定义字体、文章分页\n👥 **好友系统** - 搜索用户、发送好友申请、管理好友列表\n💬 **聊天系统** - 与好友实时聊天，消息24小时自动过期\n📢 **公告系统** - 站主可以发布公告，最多12条\n👤 **个人资料** - 编辑头像、昵称、签名、简介、标签等\n🔐 **账号安全** - 修改密码、修改用户名、注销账号\n🌍 **多语言** - 支持中文、英语、日语、韩语、法语、德语、阿拉伯语等9种语言\n🔍 **用户搜索** - 按用户名、昵称、签名等搜索用户\n📊 **访问统计** - 网站访问量计数\n🎨 **主题切换** - 深色/浅色主题自由切换\n📐 **字体大小** - 可调整全站字体大小\n🖥️ **全屏模式** - 支持全屏浏览\n👤 **作者主页** - 点击文章作者头像/昵称查看其公开文章\n🌟 **站主管理** - 站主可管理删除所有文章',
+      answer: '这个博客网站有很多功能哦~ 主要包括：\n\n📝 **文章系统** - 发布、编辑、删除文章，支持图文混排、图片拖动缩放、分类标签、自定义字体、文章分页\n👥 **好友系统** - 搜索用户、发送好友申请、管理好友列表\n💬 **聊天系统** - 与好友实时聊天，消息24小时自动过期\n📢 **公告系统** - 站主可以发布公告，最多12条\n👤 **个人资料** - 编辑头像、昵称、签名、简介、标签等\n🔐 **账号安全** - 修改密码、修改用户名、注销账号\n🌍 **多语言** - 支持中文、英语、日语、韩语、法语、德语、阿拉伯语等9种语言\n🔍 **用户搜索** - 按用户名、昵称、签名等搜索用户\n📊 **访问统计** - 网站访问量计数\n🎨 **主题切换** - 深色/浅色主题自由切换\n🔊 **音效开关** - 开启/关闭网站交互音效\n⬆️ **回到顶部** - 一键快速回到页面顶部\n🖥️ **全屏模式** - 支持全屏浏览\n👤 **作者主页** - 点击文章作者头像/昵称查看其公开文章\n🌟 **站主管理** - 站主可管理删除所有文章',
       quickActions: ['如何发文章', '如何加好友', '如何聊天']
     },
     {
@@ -13448,7 +13463,7 @@ startSiteVersionPoll();
     },
     {
       keywords: ['操作', '帮我', '打开', '执行', '操作功能', '能做什么操作', '快捷操作'],
-      answer: '我可以帮你直接操作网站哦！试试这些指令：\n\n🤝 "帮我联系站主" / "找站主" → 打开站主聊天窗口\n📝 "我要发文章" / "写文章" → 打开发布文章编辑器\n👤 "编辑资料" / "修改资料" → 打开个人资料编辑\n💬 "打开聊天" / "消息" → 打开聊天面板\n🔍 "打开搜索" / "找用户" → 打开搜索面板\n⚙️ "打开设置" → 打开设置面板\n📢 "查看公告" → 滚动到公告区域\n🌍 "切换语言" → 打开语言选择\n🎨 "切换主题" → 深色/浅色主题切换\n📐 "字体大小" → 调整全站字体大小\n🖥️ "全屏模式" → 全屏浏览\n🔐 "账号安全" / "修改密码" → 打开安全设置\n👥 "打开好友" → 打开好友面板\n👋 "退出登录" → 退出当前账号\n\n直接说出来，我就能帮你执行！',
+      answer: '我可以帮你直接操作网站哦！试试这些指令：\n\n🤝 "帮我联系站主" / "找站主" → 打开站主聊天窗口\n📝 "我要发文章" / "写文章" → 打开发布文章编辑器\n👤 "编辑资料" / "修改资料" → 打开个人资料编辑\n💬 "打开聊天" / "消息" → 打开聊天面板\n🔍 "打开搜索" / "找用户" → 打开搜索面板\n⚙️ "打开设置" → 打开设置面板\n📢 "查看公告" → 滚动到公告区域\n🌍 "切换语言" → 打开语言选择\n🎨 "切换主题" → 深色/浅色主题切换\n🔊 "音效开关" → 开启/关闭网站音效\n⬆️ "回到顶部" → 快速回到页面顶部\n🖥️ "全屏模式" → 全屏浏览\n🔐 "账号安全" / "修改密码" → 打开安全设置\n👥 "打开好友" → 打开好友面板\n👋 "退出登录" → 退出当前账号\n\n直接说出来，我就能帮你执行！',
       quickActions: ['帮我联系站主', '我要发文章', '打开聊天', '编辑资料']
     }
   ];
