@@ -296,7 +296,7 @@
   .top-tools-left{
     position:fixed;
     top:28px;left:32px;
-    display:none;
+    display:flex;
     flex-direction:column;
     align-items:flex-start;
     gap:0;
@@ -537,23 +537,13 @@
     box-shadow:0 0 18px rgba(255,49,95,.42);
   }
   .home-mail-badge.active{display:grid;}
-  /* 登录页显示设置按钮，首页隐藏 */
-  body:not(.portal-mode) .top-tools #homeSettingsBtn{
-    display:flex !important;
-  }
-  body.portal-mode .top-tools #homeSettingsBtn{
+  .top-tools.portal-mode #homeSettingsBtn{
     display:none !important;
   }
-  body:not(.portal-mode) .top-tools .home-settings-menu{
-    display:flex !important;
-  }
-  body.portal-mode .top-tools .home-settings-menu{
+  .top-tools.portal-mode .home-settings-menu{
     display:none !important;
   }
-  body:not(.portal-mode) .top-tools #langBtn{
-    display:flex !important;
-  }
-  body.portal-mode .top-tools #langBtn{
+  .top-tools.portal-mode #langBtn{
     display:none !important;
   }
   .home-settings-menu{
@@ -8357,7 +8347,7 @@ if(homeLangBtn){
 const homeThemeBtn = document.getElementById('homeThemeBtn');
 const themeSelector = document.getElementById('themeSelector');
 const themeOptions = document.querySelectorAll('.theme-option');
-const themes = ['default','light','ocean','forest','sunset','rose','cherry','amber','lime','mint','sky','indigo','violet','slate','zinc','cocoa','lavender','peach','aurora','sakura'];
+const themes = ['default','light','ocean','forest','sunset'];
 let currentThemeIndex = 0;
 
 function applyTheme(theme){
@@ -8366,29 +8356,8 @@ function applyTheme(theme){
   themeOptions.forEach(opt=>{
     opt.classList.toggle('active', opt.dataset.theme === theme);
   });
-  const themeNames = {default:'默认',light:'浅色',ocean:'海洋',forest:'森林',sunset:'日落',
-    rose:'玫瑰',cherry:'樱花',amber:'琥珀',lime:'青柠',mint:'薄荷',sky:'天空',
-    indigo:'靛蓝',violet:'紫罗兰',slate:'石板',zinc:'锌灰',cocoa:'可可',
-    lavender:'薰衣草',peach:'蜜桃',aurora:'极光',sakura:'日樱'};
-  showLoginToast(`已切换到${themeNames[theme]||theme}主题。`, 'success', '主题切换');
-  // 应用主题色到文章卡片边框
-  applyThemeToElements();
-}
-
-function applyThemeToElements(){
-  const primary = getComputedStyle(document.body).getPropertyValue('--theme-primary').trim();
-  // 文章卡片边框
-  document.querySelectorAll('.article-card').forEach(card=>{
-    card.style.borderColor = primary || '';
-  });
-  // 公开文章页边框
-  document.querySelectorAll('.public-article-card').forEach(card=>{
-    card.style.borderColor = primary || '';
-  });
-  // 用户资料卡片边框
-  document.querySelectorAll('.profile-card').forEach(card=>{
-    card.style.borderColor = primary || '';
-  });
+  const themeNames = {default:'默认',light:'浅色',ocean:'海洋',forest:'森林',sunset:'日落'};
+  showLoginToast(`已切换到${themeNames[theme]}主题。`, 'success', '主题切换');
 }
 
 if(homeThemeBtn){
@@ -8458,17 +8427,32 @@ function closeUserManagePanel(){
   if(userManagePanel) userManagePanel.classList.remove('open');
 }
 
-// 美化弹窗
-const umModalOverlay = document.getElementById('umModalOverlay');
-const umModal = document.getElementById('umModal');
-const umModalTitle = document.getElementById('umModalTitle');
-const umModalBody = document.getElementById('umModalBody');
-const umModalClose = document.getElementById('umModalClose');
-const umModalCancel = document.getElementById('umModalCancel');
-const umModalConfirm = document.getElementById('umModalConfirm');
+// 美化弹窗（延迟获取DOM元素）
+let umModalOverlay, umModal, umModalTitle, umModalBody, umModalClose, umModalCancel, umModalConfirm;
 let umModalCallback = null;
+let umModalInitialized = false;
+
+function getUmModalElements(){
+  if(!umModalOverlay) umModalOverlay = document.getElementById('umModalOverlay');
+  if(!umModal) umModal = document.getElementById('umModal');
+  if(!umModalTitle) umModalTitle = document.getElementById('umModalTitle');
+  if(!umModalBody) umModalBody = document.getElementById('umModalBody');
+  if(!umModalClose) umModalClose = document.getElementById('umModalClose');
+  if(!umModalCancel) umModalCancel = document.getElementById('umModalCancel');
+  if(!umModalConfirm) umModalConfirm = document.getElementById('umModalConfirm');
+  if(!umModalInitialized && umModalClose){
+    umModalInitialized = true;
+    umModalClose.addEventListener('click', closeUmModal);
+    umModalCancel.addEventListener('click', closeUmModal);
+    umModalOverlay.addEventListener('click', (e)=>{ if(e.target===umModalOverlay) closeUmModal(); });
+    umModalConfirm.addEventListener('click', ()=>{
+      if(typeof umModalCallback === 'function') umModalCallback();
+    });
+  }
+}
 
 function openUmModal(title, bodyHtml, onConfirm, confirmText){
+  getUmModalElements();
   if(umModalTitle) umModalTitle.textContent = title;
   if(umModalBody) umModalBody.innerHTML = bodyHtml;
   if(umModalConfirm) umModalConfirm.textContent = confirmText || '确认';
@@ -8476,15 +8460,10 @@ function openUmModal(title, bodyHtml, onConfirm, confirmText){
   if(umModalOverlay) umModalOverlay.classList.add('open');
 }
 function closeUmModal(){
+  getUmModalElements();
   if(umModalOverlay) umModalOverlay.classList.remove('open');
   umModalCallback = null;
 }
-if(umModalClose) umModalClose.addEventListener('click', closeUmModal);
-if(umModalCancel) umModalCancel.addEventListener('click', closeUmModal);
-if(umModalOverlay) umModalOverlay.addEventListener('click', (e)=>{ if(e.target===umModalOverlay) closeUmModal(); });
-if(umModalConfirm) umModalConfirm.addEventListener('click', ()=>{
-  if(typeof umModalCallback === 'function') umModalCallback();
-});
 
 // 从API加载真实用户数据
 async function loadRealUsers(){
@@ -8562,11 +8541,11 @@ function calcRegDays(regTime){
   if(!Number.isFinite(d)) return '-';
   return Math.max(1, Math.floor((Date.now() - d) / 86400000));
 }
-
 function formatRegDate(regTime){
   if(!regTime) return '-';
+  // 只显示年月日
   const d = new Date(regTime);
-  if(isNaN(d.getTime())) return '-';
+  if(isNaN(d.getTime())) return regTime.slice(0,10);
   const y = d.getFullYear();
   const m = String(d.getMonth()+1).padStart(2,'0');
   const day = String(d.getDate()).padStart(2,'0');
@@ -8742,42 +8721,50 @@ document.addEventListener('DOMContentLoaded', ()=>{
     });
   });
 
-  // 搜索功能
+  // 搜索功能 + 身份筛选
   const umSearchInput = document.getElementById('umSearchInput');
   const umSearchBtn = document.getElementById('umSearchBtn');
-  if(umSearchBtn){
-    umSearchBtn.addEventListener('click', ()=>{
-      const q = umSearchInput?.value?.trim()?.toLowerCase();
-      if(!q){renderUserTable();return;}
-      const filtered = umUsers.filter(u=>
+  const umRoleFilter = document.getElementById('umRoleFilter');
+  function filterAndRenderUsers(){
+    const q = umSearchInput?.value?.trim()?.toLowerCase() || '';
+    const roleFilter = umRoleFilter?.value || 'all';
+    let filtered = umUsers;
+    if(roleFilter !== 'all'){
+      filtered = filtered.filter(u=>u.role === roleFilter);
+    }
+    if(q){
+      filtered = filtered.filter(u=>
         u.username.toLowerCase().includes(q)||
         u.nickname.toLowerCase().includes(q)
       );
-      const tbody = document.getElementById('umUserTableBody');
-      if(tbody){
-        const currentUser = readSavedUser();
-        const isOwner = isSiteOwnerUser(currentUser);
-        tbody.innerHTML = filtered.map(u=>{
-          const days = calcRegDays(u.regTime);
-          const canEdit = isOwner || u.role !== '站主';
-          return `<tr>
-            <td>${escapeHtml(u.username)}</td>
-            <td>${escapeHtml(u.nickname)}</td>
-            <td>${escapeHtml(u.role)}</td>
-            <td><span class="um-status-badge ${u.status}">${u.status==='active'?'正常':u.status==='disabled'?'禁用':'待审核'}</span></td>
-            <td>${u.regTime || '-'}</td>
-            <td>${days}天</td>
-            <td><div class="um-actions">
-              ${canEdit?`<button onclick="umEditUser('${u.username}')">编辑</button>`:''}
-              ${canEdit?`<button onclick="umResetPwd('${u.username}')">重置密码</button>`:''}
-              ${canEdit?`<button onclick="umToggleStatus('${u.username}')">${u.status==='active'?'禁用':'启用'}</button>`:''}
-              ${isOwner && u.role!=='站主'?`<button onclick="umDeleteUser('${u.username}')" style="color:#eb445a;">删除</button>`:''}
-            </div></td>
-          </tr>`;
-        }).join('');
-      }
-    });
+    }
+    const tbody = document.getElementById('umUserTableBody');
+    if(tbody){
+      const currentUser = readSavedUser();
+      const isOwner = isSiteOwnerUser(currentUser);
+      tbody.innerHTML = filtered.map(u=>{
+        const days = calcRegDays(u.regTime);
+        const canEdit = isOwner || u.role !== '站主';
+        return `<tr>
+          <td>${escapeHtml(u.username)}</td>
+          <td>${escapeHtml(u.nickname)}</td>
+          <td>${escapeHtml(u.role)}</td>
+          <td><span class="um-status-badge ${u.status}">${u.status==='active'?'正常':u.status==='disabled'?'禁用':'待审核'}</span></td>
+          <td>${formatRegDate(u.regTime)}</td>
+          <td>${days}天</td>
+          <td><div class="um-actions">
+            ${canEdit?`<button onclick="umEditUser('${u.username}')">编辑</button>`:''}
+            ${canEdit?`<button onclick="umResetPwd('${u.username}')">重置密码</button>`:''}
+            ${canEdit?`<button onclick="umToggleStatus('${u.username}')">${u.status==='active'?'禁用':'启用'}</button>`:''}
+            ${isOwner && u.role!=='站主'?`<button onclick="umDeleteUser('${u.username}')" style="color:#eb445a;">删除</button>`:''}
+          </div></td>
+        </tr>`;
+      }).join('');
+    }
   }
+  if(umSearchBtn) umSearchBtn.addEventListener('click', filterAndRenderUsers);
+  if(umSearchInput) umSearchInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') filterAndRenderUsers(); });
+  if(umRoleFilter) umRoleFilter.addEventListener('change', filterAndRenderUsers);
 
   // 注册管控（持久化到 localStorage）
   const umToggleRegisterBtn = document.getElementById('umToggleRegisterBtn');
@@ -13746,7 +13733,19 @@ startSiteVersionPoll();
     <div class="user-manage-section active" data-section="lifecycle">
       <div class="um-toolbar">
         <button class="um-btn" id="umToggleRegisterBtn">关闭注册</button>
-        <div class="um-search"><input type="text" placeholder="搜索用户..." id="umSearchInput"/><button id="umSearchBtn">搜索</button></div>
+        <div class="um-search">
+          <input type="text" placeholder="搜索用户..." id="umSearchInput"/>
+          <select id="umRoleFilter" style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;">
+            <option value="all">全部身份</option>
+            <option value="站主">站主</option>
+            <option value="管理员">管理员</option>
+            <option value="编辑">编辑</option>
+            <option value="作者">作者</option>
+            <option value="普通用户">普通用户</option>
+            <option value="访客">访客</option>
+          </select>
+          <button id="umSearchBtn">搜索</button>
+        </div>
       </div>
       <div class="um-table-wrap">
         <table class="um-table">
