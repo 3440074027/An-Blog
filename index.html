@@ -8577,7 +8577,6 @@ function renderUserTable(){
       <td>${days}天</td>
       <td><div class="um-actions">
         ${canEdit?`<button onclick="umEditUser('${u.username}')">编辑</button>`:''}
-        ${canEdit?`<button onclick="umResetPwd('${u.username}')">重置密码</button>`:''}
         ${canEdit?`<button onclick="umToggleStatus('${u.username}')">${u.status==='active'?'禁用':'启用'}</button>`:''}
         ${isOwner && u.role!=='站主'?`<button onclick="umDeleteUser('${u.username}')" style="color:#eb445a;">删除</button>`:''}
       </div></td>
@@ -8613,20 +8612,21 @@ function renderUserGrid(){
   }).join('');
 }
 
-// 编辑用户（美化弹窗）
+// 编辑用户（美化弹窗，含重置密码）
 window.umEditUser = function(username){
   const user = umUsers.find(u=>u.username===username);
   if(!user) return;
   const currentUser = readSavedUser();
   const isOwner = isSiteOwnerUser(currentUser);
   const canChangeRole = isOwner && user.role !== '站主';
+  const canResetPwd = isOwner || user.role !== '站主';
   const roleOptions = ['管理员','编辑','作者','普通用户','访客'].map(r=>
     `<option value="${r}" ${user.role===r?'selected':''}>${r}</option>`
   ).join('');
   openUmModal('编辑用户 - ' + escapeHtml(username), `
     <div class="um-form-group">
       <label>用户名</label>
-      <input type="text" id="umEditUsername" value="${escapeHtml(user.username)}" ${!isOwner?'disabled':''} />
+      <input type="text" id="umEditUsername" value="${escapeHtml(user.username)}" disabled />
     </div>
     <div class="um-form-group">
       <label>昵称</label>
@@ -8639,35 +8639,61 @@ window.umEditUser = function(username){
       </select>
       ${!canChangeRole?'<div class="um-form-hint">仅站主可修改角色</div>':''}
     </div>
-  `, ()=>{
+    ${canResetPwd?`
+    <div class="um-form-group" style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);">
+      <label>密码管理</label>
+      <button type="button" id="umEditResetPwdBtn" style="padding:8px 16px;border-radius:8px;background:rgba(235,68,90,.15);border:1px solid rgba(235,68,90,.3);color:#ff6b6b;cursor:pointer;font-size:13px;">重置密码为 1234567890</button>
+    </div>`:''}
+  `, async ()=>{
     const newNickname = document.getElementById('umEditNickname')?.value?.trim();
     const newRole = document.getElementById('umEditRole')?.value;
-    if(newNickname) user.nickname = newNickname;
-    if(canChangeRole && newRole) user.role = newRole;
-    renderUserTable();renderRoleList();renderUserGrid();
-    showLoginToast(`用户 ${username} 信息已更新`, 'success', '用户控制台');
-    closeUmModal();
-  }, '保存修改');
-};
-
-// 重置密码
-window.umResetPwd = function(username){
-  openUmModal('重置密码', `
-    <div class="um-confirm-text">
-      确定要将用户 <strong>${escapeHtml(username)}</strong> 的密码重置为 <strong>1234567890</strong> 吗？
-    </div>
-  `, ()=>{
-    const user = umUsers.find(u=>u.username===username);
-    if(user){
-      // 调用API重置密码
-      authRequest('/api/admin/reset-password', {
+    try{
+      const resp = await authRequest('/api/admin', {
         method:'POST',
-        body:JSON.stringify({username, newPassword:'1234567890'})
-      }).catch(()=>{});
-      showLoginToast(`已将 ${username} 的密码重置为 1234567890`, 'success', '用户控制台');
+        body:JSON.stringify({ action:'edit', username, nickname:newNickname, role:newRole })
+      });
+      if(resp && resp.ok){
+        // 更新本地数据
+        if(newNickname) user.nickname = newNickname;
+        if(canChangeRole && newRole) user.role = newRole;
+        renderUserTable();renderRoleList();renderUserGrid();
+        showLoginToast(`用户 ${username} 信息已更新`, 'success', '用户控制台');
+      }else{
+        showLoginToast((resp?.error || '修改失败'), 'error', '操作失败');
+      }
+    }catch(e){
+      showLoginToast('网络错误，修改失败', 'error', '操作失败');
     }
     closeUmModal();
-  }, '确认重置');
+  }, '保存修改');
+  // 绑定重置密码按钮
+  if(canResetPwd){
+    setTimeout(()=>{
+      const resetBtn = document.getElementById('umEditResetPwdBtn');
+      if(resetBtn) resetBtn.addEventListener('click', async ()=>{
+        openUmModal('重置密码', `
+          <div class="um-confirm-text">
+            确定要将用户 <strong>${escapeHtml(username)}</strong> 的密码重置为 <strong>1234567890</strong> 吗？
+          </div>
+        `, async ()=>{
+          try{
+            const resp = await authRequest('/api/admin', {
+              method:'POST',
+              body:JSON.stringify({ action:'reset-password', username, newPassword:'1234567890' })
+            });
+            if(resp && resp.ok){
+              showLoginToast(`已将 ${username} 的密码重置为 1234567890`, 'success', '用户控制台');
+            }else{
+              showLoginToast((resp?.error || '重置失败'), 'error', '操作失败');
+            }
+          }catch(e){
+            showLoginToast('网络错误，重置失败', 'error', '操作失败');
+          }
+          closeUmModal();
+        }, '确认重置');
+      });
+    }, 100);
+  }
 };
 
 // 禁用/启用账号
@@ -8675,15 +8701,28 @@ window.umToggleStatus = function(username){
   const user = umUsers.find(u=>u.username===username);
   if(!user) return;
   const action = user.status==='active' ? '禁用' : '启用';
+  const actionType = user.status==='active' ? 'disable' : 'enable';
   openUmModal(`${action}账号`, `
     <div class="um-confirm-text">
       确定要<strong>${action}</strong>用户 <strong>${escapeHtml(username)}</strong> 的账号吗？
       ${action==='禁用'?'<br><br>禁用后该用户将无法登录。':''}
     </div>
-  `, ()=>{
-    user.status = user.status==='active' ? 'disabled' : 'active';
-    renderUserTable();renderUserGrid();
-    showLoginToast(`已${action}用户 ${username}`, 'success', '用户控制台');
+  `, async ()=>{
+    try{
+      const resp = await authRequest('/api/admin', {
+        method:'POST',
+        body:JSON.stringify({ action:actionType, username })
+      });
+      if(resp && resp.ok){
+        user.status = user.status==='active' ? 'disabled' : 'active';
+        renderUserTable();renderUserGrid();
+        showLoginToast(`已${action}用户 ${username}`, 'success', '用户控制台');
+      }else{
+        showLoginToast((resp?.error || `${action}失败`), 'error', '操作失败');
+      }
+    }catch(e){
+      showLoginToast('网络错误，操作失败', 'error', '操作失败');
+    }
     closeUmModal();
   }, `确认${action}`);
 };
@@ -8695,10 +8734,22 @@ window.umDeleteUser = function(username){
       确定要<strong style="color:#eb445a;">永久删除</strong>用户 <strong>${escapeHtml(username)}</strong> 的账号吗？<br><br>
       <span style="color:#eb445a;">此操作不可撤销，该用户的所有数据将被清除。</span>
     </div>
-  `, ()=>{
-    umUsers = umUsers.filter(u=>u.username!==username);
-    renderUserTable();renderRoleList();renderUserGrid();
-    showLoginToast(`已删除用户 ${username}`, 'success', '用户控制台');
+  `, async ()=>{
+    try{
+      const resp = await authRequest('/api/admin', {
+        method:'POST',
+        body:JSON.stringify({ action:'delete', username })
+      });
+      if(resp && resp.ok){
+        umUsers = umUsers.filter(u=>u.username!==username);
+        renderUserTable();renderRoleList();renderUserGrid();
+        showLoginToast(`已删除用户 ${username}`, 'success', '用户控制台');
+      }else{
+        showLoginToast((resp?.error || '删除失败'), 'error', '操作失败');
+      }
+    }catch(e){
+      showLoginToast('网络错误，删除失败', 'error', '操作失败');
+    }
     closeUmModal();
   }, '确认删除');
 };
@@ -8754,7 +8805,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <td>${days}天</td>
           <td><div class="um-actions">
             ${canEdit?`<button onclick="umEditUser('${u.username}')">编辑</button>`:''}
-            ${canEdit?`<button onclick="umResetPwd('${u.username}')">重置密码</button>`:''}
             ${canEdit?`<button onclick="umToggleStatus('${u.username}')">${u.status==='active'?'禁用':'启用'}</button>`:''}
             ${isOwner && u.role!=='站主'?`<button onclick="umDeleteUser('${u.username}')" style="color:#eb445a;">删除</button>`:''}
           </div></td>
@@ -12399,8 +12449,12 @@ document.querySelector('.btn-login').addEventListener('click', async ()=>{
     enterDashboard(result.user);
   }catch(error){
     const message = error.message || '登录失败，请稍后再试';
-    const title = message.includes('密码') ? '密码不对哦' : '没有找到你';
-    showLoginToast(message, 'error', title);
+    if(message.includes('禁止登陆') || message.includes('ACCOUNT_DISABLED')){
+      showLoginToast('该用户已禁止登陆！', 'error', '账号已禁用');
+    }else{
+      const title = message.includes('密码') ? '密码不对哦' : '没有找到你';
+      showLoginToast(message, 'error', title);
+    }
   }
 });
 

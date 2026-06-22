@@ -29,6 +29,12 @@ export async function onRequestPost(context){
       return json({ error:'密码错误，请重新输入。' }, 401);
     }
 
+    // 检查账号是否被禁用
+    const tags = user.profile?.tags || [];
+    if(tags.includes('disabled')){
+      return json({ error:'该用户已禁止登陆！', code:'ACCOUNT_DISABLED' }, 403);
+    }
+
     // 注意：登录成功不再回写整个用户记录，避免无谓 bump 版本与 Redis 写失败导致登录失败。
     return json({
       ok:true,
