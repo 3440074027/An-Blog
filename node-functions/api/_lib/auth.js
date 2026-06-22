@@ -280,7 +280,7 @@ export async function listUsers({ ttlMs = 6000 } = {}){
   return _userListCache;
 }
 
-function invalidateListUsersCache(){
+export function invalidateListUsersCache(){
   _userListCache = null;
 }
 
