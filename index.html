@@ -8487,7 +8487,8 @@ async function loadRealUsers(){
           role: role,
           status: isDisabled ? 'disabled' : 'active',
           regTime: u.createdAt || '',
-          avatar: profile.avatar || ''
+          avatar: profile.avatar || '',
+          _profile: profile
         };
       });
     }
@@ -8517,7 +8518,8 @@ async function loadRealUsers(){
               role: role,
               status: isDisabled ? 'disabled' : 'active',
               regTime: u.createdAt || '',
-              avatar: profile.avatar || ''
+              avatar: profile.avatar || '',
+              _profile: profile
             };
           });
         }
@@ -8863,6 +8865,96 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const umBatchDelete = document.getElementById('umBatchDelete');
   if(umBatchDelete) umBatchDelete.addEventListener('click', ()=>showLoginToast('批量删除功能开发中...', 'info', '用户控制台'));
 
+  // 权限设置面板
+  const umPermUserSelect = document.getElementById('umPermUserSelect');
+  const umPermForm = document.getElementById('umPermForm');
+  const umPermNickname = document.getElementById('umPermNickname');
+  const umPermSignature = document.getElementById('umPermSignature');
+  const umPermIntro = document.getElementById('umPermIntro');
+  const umPermCanComment = document.getElementById('umPermCanComment');
+  const umPermCanLike = document.getElementById('umPermCanLike');
+  const umPermCanPost = document.getElementById('umPermCanPost');
+  const umPermSaveBtn = document.getElementById('umPermSaveBtn');
+  const umPermResetBtn = document.getElementById('umPermResetBtn');
+  let currentPermUser = null;
+
+  function refreshPermUserList(){
+    if(!umPermUserSelect) return;
+    umPermUserSelect.innerHTML = '<option value="">-- 请选择用户 --</option>' + umUsers.map(u=>
+      `<option value="${escapeHtml(u.username)}">${escapeHtml(u.nickname)} (@${escapeHtml(u.username)})</option>`
+    ).join('');
+  }
+
+  if(umPermUserSelect){
+    umPermUserSelect.addEventListener('change', ()=>{
+      const username = umPermUserSelect.value;
+      if(!username){ if(umPermForm) umPermForm.style.display='none'; return; }
+      const user = umUsers.find(u=>u.username===username);
+      if(!user){ if(umPermForm) umPermForm.style.display='none'; return; }
+      currentPermUser = user;
+      if(umPermForm) umPermForm.style.display='block';
+      if(umPermNickname) umPermNickname.value = user.nickname || '';
+      // 从 profile 中读取其他设置（如果已加载）
+      const profile = user._profile || {};
+      if(umPermSignature) umPermSignature.value = profile.signature || '';
+      if(umPermIntro) umPermIntro.value = profile.intro || '';
+      const tags = profile.tags || [];
+      if(umPermCanComment) umPermCanComment.checked = !tags.includes('no_comment');
+      if(umPermCanLike) umPermCanLike.checked = !tags.includes('no_like');
+      if(umPermCanPost) umPermCanPost.checked = !tags.includes('no_post');
+    });
+  }
+
+  if(umPermSaveBtn){
+    umPermSaveBtn.addEventListener('click', async ()=>{
+      if(!currentPermUser) return;
+      const username = currentPermUser.username;
+      const newNickname = umPermNickname?.value?.trim();
+      const signature = umPermSignature?.value?.trim();
+      const intro = umPermIntro?.value?.trim();
+      const canComment = umPermCanComment?.checked;
+      const canLike = umPermCanLike?.checked;
+      const canPost = umPermCanPost?.checked;
+      try{
+        const resp = await authRequest('/api/admin', {
+          method:'POST',
+          body:JSON.stringify({
+            action:'edit',
+            username,
+            nickname: newNickname,
+            permissions: {
+              signature,
+              intro,
+              canComment,
+              canLike,
+              canPost
+            }
+          })
+        });
+        if(resp && resp.ok){
+          if(newNickname) currentPermUser.nickname = newNickname;
+          showLoginToast(`已保存 ${username} 的权限设置`, 'success', '权限设置');
+          renderUserTable();renderUserGrid();
+        }else{
+          showLoginToast((resp?.error || '保存失败'), 'error', '操作失败');
+        }
+      }catch(e){
+        showLoginToast('网络错误，保存失败', 'error', '操作失败');
+      }
+    });
+  }
+
+  if(umPermResetBtn){
+    umPermResetBtn.addEventListener('click', ()=>{
+      if(umPermNickname) umPermNickname.value = currentPermUser?.nickname || '';
+      if(umPermSignature) umPermSignature.value = '';
+      if(umPermIntro) umPermIntro.value = '';
+      if(umPermCanComment) umPermCanComment.checked = true;
+      if(umPermCanLike) umPermCanLike.checked = true;
+      if(umPermCanPost) umPermCanPost.checked = true;
+    });
+  }
+
   // 安全审计按钮
   const umLoginLogBtn = document.getElementById('umLoginLogBtn');
   if(umLoginLogBtn) umLoginLogBtn.addEventListener('click', ()=>showLoginToast('登录日志功能开发中...', 'info', '用户控制台'));
@@ -8914,15 +9006,15 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }
 });
 
-// 用户管理按钮
+// 用户管理按钮（仅站主可打开）
 const homeUserManageBtn = document.getElementById('homeUserManageBtn');
 if(homeUserManageBtn) homeUserManageBtn.addEventListener('click', (e)=>{
   e.stopPropagation();
   const user = readSavedUser();
-  if(isAdminUser(user)){
+  if(isSiteOwnerUser(user)){
     openUserManagePanel();
   }else{
-    showLoginToast('只有站主和作者才能使用用户控制台。', 'warn', '权限不足');
+    showLoginToast('只有站主才能使用用户控制台。', 'warn', '权限不足');
   }
 });
 // 全屏模式
@@ -9089,7 +9181,7 @@ function updateUserManageLang(dict){
   const tabs = document.querySelectorAll('.user-manage-tab');
   const tabNames = {
     lifecycle: dict.umTabLifecycle || '账号管理',
-    roles: dict.umTabRoles || '权限管控',
+    roles: dict.umTabRoles || '权限设置',
     users: dict.umTabUsers || '用户信息',
     security: dict.umTabSecurity || '状态风控',
     batch: dict.umTabBatch || '批量操作',
@@ -13826,7 +13918,7 @@ startSiteVersionPoll();
   </div>
   <div class="user-manage-tabs">
     <button class="user-manage-tab active" data-tab="lifecycle">账号管理</button>
-    <button class="user-manage-tab" data-tab="roles">权限管控</button>
+    <button class="user-manage-tab" data-tab="roles">权限设置</button>
     <button class="user-manage-tab" data-tab="users">用户信息</button>
     <button class="user-manage-tab" data-tab="security">状态风控</button>
     <button class="user-manage-tab" data-tab="batch">批量操作</button>
@@ -13856,12 +13948,54 @@ startSiteVersionPoll();
         </table>
       </div>
     </div>
-    <!-- 权限管控 -->
+    <!-- 权限设置 -->
     <div class="user-manage-section" data-section="roles">
       <div class="um-toolbar">
-        <button class="um-btn primary" id="umAddRoleBtn"><span>+</span> 新增角色</button>
+        <span style="color:rgba(255,255,255,.6);font-size:13px;">选择用户后设置其个人权限</span>
       </div>
-      <div class="um-role-list" id="umRoleList"></div>
+      <div class="um-permission-panel" id="umPermissionPanel" style="padding:16px 0;">
+        <div class="um-form-group">
+          <label>选择用户</label>
+          <select id="umPermUserSelect" style="width:100%;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:14px;outline:none;">
+            <option value="">-- 请选择用户 --</option>
+          </select>
+        </div>
+        <div id="umPermForm" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);">
+          <div class="um-form-group">
+            <label>昵称</label>
+            <input type="text" id="umPermNickname" style="width:100%;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:14px;outline:none;" />
+          </div>
+          <div class="um-form-group" style="margin-top:12px;">
+            <label>个人签名</label>
+            <input type="text" id="umPermSignature" placeholder="设置个人签名..." style="width:100%;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:14px;outline:none;" />
+          </div>
+          <div class="um-form-group" style="margin-top:12px;">
+            <label>个人简介</label>
+            <textarea id="umPermIntro" rows="3" placeholder="设置个人简介..." style="width:100%;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:14px;outline:none;resize:vertical;"></textarea>
+          </div>
+          <div class="um-form-group" style="margin-top:12px;">
+            <label>功能权限</label>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:rgba(255,255,255,.8);font-size:14px;">
+                <input type="checkbox" id="umPermCanComment" style="width:16px;height:16px;accent-color:#7c5cff;" />
+                允许评论
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:rgba(255,255,255,.8);font-size:14px;">
+                <input type="checkbox" id="umPermCanLike" style="width:16px;height:16px;accent-color:#7c5cff;" />
+                允许点赞
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:rgba(255,255,255,.8);font-size:14px;">
+                <input type="checkbox" id="umPermCanPost" style="width:16px;height:16px;accent-color:#7c5cff;" />
+                允许发文
+              </label>
+            </div>
+          </div>
+          <div style="margin-top:18px;display:flex;gap:10px;">
+            <button class="um-btn primary" id="umPermSaveBtn">保存设置</button>
+            <button class="um-btn" id="umPermResetBtn">重置</button>
+          </div>
+        </div>
+      </div>
     </div>
     <!-- 用户信息 -->
     <div class="user-manage-section" data-section="users">

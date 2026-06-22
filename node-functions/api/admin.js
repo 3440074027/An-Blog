@@ -16,16 +16,14 @@ import {
 /* 角色等级 */
 const ROLE_LEVEL = { '站主': 100, '作者': 50, '访客': 10 };
 
-/* 管理权限检查：站主和作者可访问 */
+/* 管理权限检查：仅站主可访问 */
 async function requireAdmin(context){
   const auth = await requireUser(context.request);
   if(auth.error) return { response: json({ error: auth.error }, auth.status) };
   const user = auth.user;
   const owner = isSiteOwner(user);
-  const tags = user.profile?.tags || [];
-  const isAdmin = owner || tags.includes('作者');
-  if(!isAdmin) return { response: json({ error: '权限不足，仅站主和作者可执行此操作。' }, 403) };
-  return { user, isOwner: owner };
+  if(!owner) return { response: json({ error: '权限不足，仅站主可执行此操作。' }, 403) };
+  return { user, isOwner: true };
 }
 
 /* 检查目标用户是否存在 */
@@ -76,6 +74,7 @@ export async function onRequestPost(context){
 
         const newNickname = body.nickname !== undefined ? String(body.nickname || '').slice(0, 40) : undefined;
         const newRole = body.role !== undefined ? String(body.role || '') : undefined;
+        const permissions = body.permissions || {};
 
         if(newNickname !== undefined && target.profile){
           target.profile.nickname = newNickname;
@@ -89,6 +88,23 @@ export async function onRequestPost(context){
           if(newRole && newRole !== '访客' && roleTags.includes(newRole)){
             target.profile.tags.push(newRole);
           }
+        }
+        // 更新个人权限设置
+        if(target.profile){
+          if(permissions.signature !== undefined){
+            target.profile.signature = String(permissions.signature || '').slice(0, 120);
+          }
+          if(permissions.intro !== undefined){
+            target.profile.intro = String(permissions.intro || '').slice(0, 500);
+          }
+          // 功能权限标签管理
+          let tags = target.profile.tags || [];
+          const permTags = ['no_comment', 'no_like', 'no_post'];
+          tags = tags.filter(t => !permTags.includes(t));
+          if(permissions.canComment === false) tags.push('no_comment');
+          if(permissions.canLike === false) tags.push('no_like');
+          if(permissions.canPost === false) tags.push('no_post');
+          target.profile.tags = tags;
         }
         target.updatedAt = nowIso();
         await setUser(target);
