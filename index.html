@@ -8567,7 +8567,7 @@ function renderUserTable(){
   const isOwner = isSiteOwnerUser(currentUser);
   tbody.innerHTML = umUsers.map(u=>{
     const days = calcRegDays(u.regTime);
-    const canEdit = isOwner || u.role !== '站主';
+    const canEdit = canManageUser(currentUser, u);
     return `<tr>
       <td>${escapeHtml(u.username)}</td>
       <td>${escapeHtml(u.nickname)}</td>
@@ -8578,7 +8578,7 @@ function renderUserTable(){
       <td><div class="um-actions">
         ${canEdit?`<button onclick="umEditUser('${u.username}')">编辑</button>`:''}
         ${canEdit?`<button onclick="umToggleStatus('${u.username}')">${u.status==='active'?'禁用':'启用'}</button>`:''}
-        ${isOwner && u.role!=='站主'?`<button onclick="umDeleteUser('${u.username}')" style="color:#eb445a;">删除</button>`:''}
+        ${isOwner && !isSiteOwnerUser(u)?`<button onclick="umDeleteUser('${u.username}')" style="color:#eb445a;">删除</button>`:''}
       </div></td>
     </tr>`;
   }).join('');
@@ -8618,8 +8618,13 @@ window.umEditUser = function(username){
   if(!user) return;
   const currentUser = readSavedUser();
   const isOwner = isSiteOwnerUser(currentUser);
-  const canChangeRole = isOwner && user.role !== '站主';
-  const canResetPwd = isOwner || user.role !== '站主';
+  const canManage = canManageUser(currentUser, user);
+  if(!canManage){
+    showLoginToast('权限不足，无法编辑该用户。', 'warn', '权限不足');
+    return;
+  }
+  const canChangeRole = isOwner && !isSiteOwnerUser(user);
+  const canResetPwd = canManage;
   const roleOptions = ['管理员','编辑','作者','普通用户','访客'].map(r=>
     `<option value="${r}" ${user.role===r?'selected':''}>${r}</option>`
   ).join('');
@@ -8700,6 +8705,11 @@ window.umEditUser = function(username){
 window.umToggleStatus = function(username){
   const user = umUsers.find(u=>u.username===username);
   if(!user) return;
+  const currentUser = readSavedUser();
+  if(!canManageUser(currentUser, user)){
+    showLoginToast('权限不足，无法操作该用户。', 'warn', '权限不足');
+    return;
+  }
   const action = user.status==='active' ? '禁用' : '启用';
   const actionType = user.status==='active' ? 'disable' : 'enable';
   openUmModal(`${action}账号`, `
@@ -8729,6 +8739,17 @@ window.umToggleStatus = function(username){
 
 // 删除账号
 window.umDeleteUser = function(username){
+  const user = umUsers.find(u=>u.username===username);
+  if(!user) return;
+  const currentUser = readSavedUser();
+  if(!isSiteOwnerUser(currentUser)){
+    showLoginToast('权限不足，仅站主可删除账号。', 'warn', '权限不足');
+    return;
+  }
+  if(isSiteOwnerUser(user)){
+    showLoginToast('不能删除站主账号。', 'warn', '权限不足');
+    return;
+  }
   openUmModal('删除账号', `
     <div class="um-confirm-text">
       确定要<strong style="color:#eb445a;">永久删除</strong>用户 <strong>${escapeHtml(username)}</strong> 的账号吗？<br><br>
@@ -8795,7 +8816,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       const isOwner = isSiteOwnerUser(currentUser);
       tbody.innerHTML = filtered.map(u=>{
         const days = calcRegDays(u.regTime);
-        const canEdit = isOwner || u.role !== '站主';
+        const canEdit = canManageUser(currentUser, u);
         return `<tr>
           <td>${escapeHtml(u.username)}</td>
           <td>${escapeHtml(u.nickname)}</td>
@@ -8806,7 +8827,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <td><div class="um-actions">
             ${canEdit?`<button onclick="umEditUser('${u.username}')">编辑</button>`:''}
             ${canEdit?`<button onclick="umToggleStatus('${u.username}')">${u.status==='active'?'禁用':'启用'}</button>`:''}
-            ${isOwner && u.role!=='站主'?`<button onclick="umDeleteUser('${u.username}')" style="color:#eb445a;">删除</button>`:''}
+            ${isOwner && !isSiteOwnerUser(u)?`<button onclick="umDeleteUser('${u.username}')" style="color:#eb445a;">删除</button>`:''}
           </div></td>
         </tr>`;
       }).join('');
@@ -8816,21 +8837,27 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(umSearchInput) umSearchInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') filterAndRenderUsers(); });
   if(umRoleFilter) umRoleFilter.addEventListener('change', filterAndRenderUsers);
 
-  // 注册管控（持久化到 localStorage）
+  // 注册管控（持久化到 localStorage，仅站主显示）
   const umToggleRegisterBtn = document.getElementById('umToggleRegisterBtn');
+  const currentUserForReg = readSavedUser();
+  const isOwnerForReg = isSiteOwnerUser(currentUserForReg);
   // 从 localStorage 恢复注册状态
   const savedRegStatus = localStorage.getItem('ans_blog_register_enabled');
   if(savedRegStatus !== null){
     registerEnabled = savedRegStatus === 'true';
   }
   if(umToggleRegisterBtn){
-    umToggleRegisterBtn.textContent = registerEnabled ? '关闭注册' : '开启注册';
-    umToggleRegisterBtn.addEventListener('click', ()=>{
-      registerEnabled = !registerEnabled;
-      localStorage.setItem('ans_blog_register_enabled', String(registerEnabled));
+    if(!isOwnerForReg){
+      umToggleRegisterBtn.style.display = 'none';
+    }else{
       umToggleRegisterBtn.textContent = registerEnabled ? '关闭注册' : '开启注册';
-      showLoginToast(registerEnabled ? '注册入口已开启' : '注册入口已关闭', 'success', '用户控制台');
-    });
+      umToggleRegisterBtn.addEventListener('click', ()=>{
+        registerEnabled = !registerEnabled;
+        localStorage.setItem('ans_blog_register_enabled', String(registerEnabled));
+        umToggleRegisterBtn.textContent = registerEnabled ? '关闭注册' : '开启注册';
+        showLoginToast(registerEnabled ? '注册入口已开启' : '注册入口已关闭', 'success', '用户控制台');
+      });
+    }
   }
 
   // 批量操作按钮
@@ -8899,8 +8926,7 @@ const homeUserManageBtn = document.getElementById('homeUserManageBtn');
 if(homeUserManageBtn) homeUserManageBtn.addEventListener('click', (e)=>{
   e.stopPropagation();
   const user = readSavedUser();
-  const isAdmin = isSiteOwnerUser(user);
-  if(isAdmin){
+  if(isAdminUser(user)){
     openUserManagePanel();
   }else{
     showLoginToast('只有站主和管理员才能使用用户管理功能。', 'warn', '权限不足');
@@ -9645,6 +9671,39 @@ function isSiteOwnerUser(user){
   if(!user) return false;
   const name = String(user.username || '').trim();
   return name === SITE_OWNER_USERNAME || name.toLowerCase() === SITE_OWNER_USERNAME.toLowerCase();
+}
+
+/* 判断用户是否为管理员（站主或拥有管理员标签） */
+function isAdminUser(user){
+  if(!user) return false;
+  if(isSiteOwnerUser(user)) return true;
+  const tags = user.profile?.tags || user.tags || [];
+  return tags.includes('管理员');
+}
+
+/* 角色等级：用于权限比较 */
+const ROLE_LEVEL = {
+  '站主': 100,
+  '管理员': 80,
+  '编辑': 60,
+  '作者': 50,
+  '普通用户': 30,
+  '访客': 10
+};
+
+/* 判断当前用户是否有权限操作目标用户 */
+function canManageUser(currentUser, targetUser){
+  if(!currentUser || !targetUser) return false;
+  // 站主可操作所有人
+  if(isSiteOwnerUser(currentUser)) return true;
+  // 管理员不能操作站主
+  if(isSiteOwnerUser(targetUser)) return false;
+  const currentRole = targetUser.role || '普通用户';
+  const currentLevel = ROLE_LEVEL[currentRole] || 0;
+  const targetRole = targetUser.role || '普通用户';
+  const targetLevel = ROLE_LEVEL[targetRole] || 0;
+  // 管理员只能操作比自己等级低的用户
+  return currentLevel > targetLevel;
 }
 
 function daysSince(dateValue){
@@ -13792,13 +13851,13 @@ startSiteVersionPoll();
         <div class="um-search">
           <input type="text" placeholder="搜索用户..." id="umSearchInput"/>
           <select id="umRoleFilter" style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;">
-            <option value="all">全部身份</option>
-            <option value="站主">站主</option>
-            <option value="管理员">管理员</option>
-            <option value="编辑">编辑</option>
-            <option value="作者">作者</option>
-            <option value="普通用户">普通用户</option>
-            <option value="访客">访客</option>
+            <option value="all" style="background:#1a1f3a;color:#fff;">全部身份</option>
+            <option value="站主" style="background:#1a1f3a;color:#fff;">站主</option>
+            <option value="管理员" style="background:#1a1f3a;color:#fff;">管理员</option>
+            <option value="编辑" style="background:#1a1f3a;color:#fff;">编辑</option>
+            <option value="作者" style="background:#1a1f3a;color:#fff;">作者</option>
+            <option value="普通用户" style="background:#1a1f3a;color:#fff;">普通用户</option>
+            <option value="访客" style="background:#1a1f3a;color:#fff;">访客</option>
           </select>
           <button id="umSearchBtn">搜索</button>
         </div>
