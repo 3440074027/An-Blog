@@ -680,6 +680,52 @@
   .lang-item.active .lang-code{color:#cdb6ff;}
   .lang-name{font-weight:500;}
 
+  /* 登录页隐藏用户控制台按钮 */
+  body:not(.portal-mode) #homeUserManageBtn{display:none !important;}
+
+  /* ============ 用户控制台美化弹窗 ============ */
+  .um-modal-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);
+    backdrop-filter:blur(8px);z-index:600;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .3s;
+  }
+  .um-modal-overlay.open{opacity:1;pointer-events:auto;}
+  .um-modal{
+    width:min(460px,90vw);background:linear-gradient(180deg,rgba(25,32,65,.98),rgba(12,16,40,.99));
+    border:1px solid rgba(255,255,255,.12);border-radius:18px;
+    box-shadow:0 30px 80px rgba(0,0,0,.6);color:#fff;
+    transform:translateY(20px) scale(.96);
+    transition:transform .3s;
+  }
+  .um-modal-overlay.open .um-modal{transform:translateY(0) scale(1);}
+  .um-modal-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 22px 14px;border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .um-modal-header h3{font-size:16px;font-weight:700;background:linear-gradient(90deg,#fff,#cdb6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .um-modal-close{
+    width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.15);color:#fff;font-size:18px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:background .2s;
+  }
+  .um-modal-close:hover{background:rgba(255,255,255,.2);}
+  .um-modal-body{padding:18px 22px;}
+  .um-modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 22px 18px;border-top:1px solid rgba(255,255,255,.08);}
+  .um-form-group{margin-bottom:14px;}
+  .um-form-group label{display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:6px;font-weight:500;}
+  .um-form-group input,.um-form-group select{
+    width:100%;padding:9px 14px;border-radius:10px;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+    color:#fff;font-size:14px;outline:none;transition:border-color .2s;
+  }
+  .um-form-group input:focus,.um-form-group select:focus{border-color:rgba(124,92,255,.5);}
+  .um-form-group select option{background:#1a1f3a;color:#fff;}
+  .um-form-group .um-form-hint{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;}
+  .um-confirm-text{font-size:14px;color:rgba(255,255,255,.8);line-height:1.6;text-align:center;padding:10px 0;}
+  .um-confirm-text strong{color:#ff6b6b;}
+
   /* ============ 用户管理面板 ============ */
   .user-manage-overlay{
     position:fixed;inset:0;
@@ -7487,7 +7533,7 @@
         <span class="theme-name">日落</span>
       </div>
     </div>
-    <button class="home-tool-btn" id="homeUserManageBtn" type="button" data-label="用户管理" aria-label="用户管理" title="用户管理">
+    <button class="home-tool-btn" id="homeUserManageBtn" type="button" data-label="用户控制台" aria-label="用户控制台" title="用户控制台">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
         <circle cx="9" cy="7" r="4"/>
@@ -7686,7 +7732,7 @@
         </svg>
         <span data-i18n="username">用户名</span>
       </div>
-      <input type="text" class="input-box" id="nameInput" autocomplete="username" />
+      <input type="text" class="input-box" id="nameInput" autocomplete="off" />
 
       <div class="field-label">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -7696,7 +7742,7 @@
         <span data-i18n="password">密码</span>
       </div>
       <div class="password-wrap">
-        <input type="password" class="input-box" id="passwordInput" autocomplete="current-password" />
+        <input type="password" class="input-box" id="passwordInput" autocomplete="off" />
         <button class="password-toggle" id="passwordToggle" type="button" aria-label="显示密码">
           <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
@@ -8245,22 +8291,16 @@ if(savedTheme && savedTheme !== 'default'){
 themeOptions.forEach(opt=>{
   opt.classList.toggle('active', opt.dataset.theme === savedTheme);
 });
-/* =============== 用户管理面板 =============== */
+/* =============== 用户控制台 =============== */
 // 用户管理数据（全局变量，提前定义）
-let umUsers = [
-  {username:'An',nickname:'站主An',role:'站主',status:'active',regTime:'2024-01-01',avatar:''},
-  {username:'admin',nickname:'管理员',role:'管理员',status:'active',regTime:'2024-03-15',avatar:''},
-  {username:'user1',nickname:'用户一',role:'普通用户',status:'active',regTime:'2024-06-20',avatar:''},
-  {username:'user2',nickname:'用户二',role:'普通用户',status:'disabled',regTime:'2024-08-10',avatar:''},
-  {username:'guest1',nickname:'访客一',role:'访客',status:'pending',regTime:'2025-01-05',avatar:''}
-];
+let umUsers = [];
 let umRoles = [
-  {name:'站主',permissions:['全部权限'],users:1},
-  {name:'管理员',permissions:['用户管理','内容管理','公告管理'],users:1},
+  {name:'站主',permissions:['全部权限'],users:0},
+  {name:'管理员',permissions:['用户管理','内容管理','公告管理'],users:0},
   {name:'编辑',permissions:['发文','评论管理'],users:0},
   {name:'作者',permissions:['发文'],users:0},
-  {name:'普通用户',permissions:['评论','点赞'],users:2},
-  {name:'访客',permissions:['浏览'],users:1}
+  {name:'普通用户',permissions:['评论','点赞'],users:0},
+  {name:'访客',permissions:['浏览'],users:0}
 ];
 let registerEnabled = true;
 
@@ -8285,6 +8325,222 @@ function closeUserManagePanel(){
   if(userManageOverlay) userManageOverlay.classList.remove('open');
   if(userManagePanel) userManagePanel.classList.remove('open');
 }
+
+// 美化弹窗
+const umModalOverlay = document.getElementById('umModalOverlay');
+const umModal = document.getElementById('umModal');
+const umModalTitle = document.getElementById('umModalTitle');
+const umModalBody = document.getElementById('umModalBody');
+const umModalClose = document.getElementById('umModalClose');
+const umModalCancel = document.getElementById('umModalCancel');
+const umModalConfirm = document.getElementById('umModalConfirm');
+let umModalCallback = null;
+
+function openUmModal(title, bodyHtml, onConfirm, confirmText){
+  if(umModalTitle) umModalTitle.textContent = title;
+  if(umModalBody) umModalBody.innerHTML = bodyHtml;
+  if(umModalConfirm) umModalConfirm.textContent = confirmText || '确认';
+  umModalCallback = onConfirm;
+  if(umModalOverlay) umModalOverlay.classList.add('open');
+}
+function closeUmModal(){
+  if(umModalOverlay) umModalOverlay.classList.remove('open');
+  umModalCallback = null;
+}
+if(umModalClose) umModalClose.addEventListener('click', closeUmModal);
+if(umModalCancel) umModalCancel.addEventListener('click', closeUmModal);
+if(umModalOverlay) umModalOverlay.addEventListener('click', (e)=>{ if(e.target===umModalOverlay) closeUmModal(); });
+if(umModalConfirm) umModalConfirm.addEventListener('click', ()=>{
+  if(typeof umModalCallback === 'function') umModalCallback();
+});
+
+// 从API加载真实用户数据
+async function loadRealUsers(){
+  try{
+    const resp = await fetch('/api/users', {
+      headers: getAuthToken() ? {'Authorization':'Bearer '+getAuthToken()} : {}
+    });
+    if(resp.ok){
+      const data = await resp.json();
+      if(Array.isArray(data)){
+        umUsers = data.map(u=>({
+          username: u.username || u.name || '',
+          nickname: u.nickname || u.displayName || u.username || u.name || '',
+          role: u.role || '普通用户',
+          status: u.disabled ? 'disabled' : 'active',
+          regTime: u.createdAt || u.regTime || u.registerTime || '',
+          avatar: u.avatar || ''
+        }));
+      }
+    }
+  }catch(e){
+    // API不可用时使用模拟数据
+    if(umUsers.length === 0){
+      umUsers = [
+        {username:'An',nickname:'站主An',role:'站主',status:'active',regTime:'2024-01-01',avatar:''},
+        {username:'admin',nickname:'管理员',role:'管理员',status:'active',regTime:'2024-03-15',avatar:''}
+      ];
+    }
+  }
+}
+
+function calcRegDays(regTime){
+  if(!regTime) return '-';
+  const d = Date.parse(regTime);
+  if(!Number.isFinite(d)) return '-';
+  return Math.max(1, Math.floor((Date.now() - d) / 86400000));
+}
+
+function loadUserManageData(){
+  loadRealUsers().then(()=>{
+    renderUserTable();
+    renderRoleList();
+    renderUserGrid();
+  });
+}
+
+function renderUserTable(){
+  const tbody = document.getElementById('umUserTableBody');
+  if(!tbody) return;
+  const currentUser = readSavedUser();
+  const isOwner = isSiteOwnerUser(currentUser);
+  tbody.innerHTML = umUsers.map(u=>{
+    const days = calcRegDays(u.regTime);
+    const canEdit = isOwner || u.role !== '站主';
+    return `<tr>
+      <td>${escapeHtml(u.username)}</td>
+      <td>${escapeHtml(u.nickname)}</td>
+      <td>${escapeHtml(u.role)}</td>
+      <td><span class="um-status-badge ${u.status}">${u.status==='active'?'正常':u.status==='disabled'?'禁用':'待审核'}</span></td>
+      <td>${u.regTime || '-'}</td>
+      <td>${days}天</td>
+      <td><div class="um-actions">
+        ${canEdit?`<button onclick="umEditUser('${u.username}')">编辑</button>`:''}
+        ${canEdit?`<button onclick="umResetPwd('${u.username}')">重置密码</button>`:''}
+        ${canEdit?`<button onclick="umToggleStatus('${u.username}')">${u.status==='active'?'禁用':'启用'}</button>`:''}
+        ${isOwner && u.role!=='站主'?`<button onclick="umDeleteUser('${u.username}')" style="color:#eb445a;">删除</button>`:''}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderRoleList(){
+  const list = document.getElementById('umRoleList');
+  if(!list) return;
+  // 统计真实角色人数
+  const roleCounts = {};
+  umUsers.forEach(u=>{ roleCounts[u.role] = (roleCounts[u.role]||0)+1; });
+  list.innerHTML = umRoles.map(r=>`
+    <div class="um-card">
+      <h4>${escapeHtml(r.name)} <span style="color:rgba(255,255,255,.4);font-size:12px;">(${roleCounts[r.name]||0}人)</span></h4>
+      <p>${r.permissions.map(p=>escapeHtml(p)).join(' · ')}</p>
+    </div>
+  `).join('');
+}
+
+function renderUserGrid(){
+  const grid = document.getElementById('umUserGrid');
+  if(!grid) return;
+  grid.innerHTML = umUsers.map(u=>{
+    const days = calcRegDays(u.regTime);
+    return `<div class="um-card">
+      <h4>${escapeHtml(u.nickname)}</h4>
+      <p>@${escapeHtml(u.username)} · ${escapeHtml(u.role)}</p>
+      <p>注册: ${u.regTime || '-'} (${days}天)</p>
+      <p><span class="um-status-badge ${u.status}">${u.status==='active'?'正常':u.status==='disabled'?'禁用':'待审核'}</span></p>
+    </div>`;
+  }).join('');
+}
+
+// 编辑用户（美化弹窗）
+window.umEditUser = function(username){
+  const user = umUsers.find(u=>u.username===username);
+  if(!user) return;
+  const currentUser = readSavedUser();
+  const isOwner = isSiteOwnerUser(currentUser);
+  const canChangeRole = isOwner && user.role !== '站主';
+  const roleOptions = ['管理员','编辑','作者','普通用户','访客'].map(r=>
+    `<option value="${r}" ${user.role===r?'selected':''}>${r}</option>`
+  ).join('');
+  openUmModal('编辑用户 - ' + escapeHtml(username), `
+    <div class="um-form-group">
+      <label>用户名</label>
+      <input type="text" id="umEditUsername" value="${escapeHtml(user.username)}" ${!isOwner?'disabled':''} />
+    </div>
+    <div class="um-form-group">
+      <label>昵称</label>
+      <input type="text" id="umEditNickname" value="${escapeHtml(user.nickname)}" />
+    </div>
+    <div class="um-form-group">
+      <label>角色</label>
+      <select id="umEditRole" ${!canChangeRole?'disabled':''}>
+        ${canChangeRole ? roleOptions : `<option value="${user.role}" selected>${user.role}</option>`}
+      </select>
+      ${!canChangeRole?'<div class="um-form-hint">仅站主可修改角色</div>':''}
+    </div>
+  `, ()=>{
+    const newNickname = document.getElementById('umEditNickname')?.value?.trim();
+    const newRole = document.getElementById('umEditRole')?.value;
+    if(newNickname) user.nickname = newNickname;
+    if(canChangeRole && newRole) user.role = newRole;
+    renderUserTable();renderRoleList();renderUserGrid();
+    showLoginToast(`用户 ${username} 信息已更新`, 'success', '用户控制台');
+    closeUmModal();
+  }, '保存修改');
+};
+
+// 重置密码
+window.umResetPwd = function(username){
+  openUmModal('重置密码', `
+    <div class="um-confirm-text">
+      确定要将用户 <strong>${escapeHtml(username)}</strong> 的密码重置为 <strong>1234567890</strong> 吗？
+    </div>
+  `, ()=>{
+    const user = umUsers.find(u=>u.username===username);
+    if(user){
+      // 调用API重置密码
+      authRequest('/api/admin/reset-password', {
+        method:'POST',
+        body:JSON.stringify({username, newPassword:'1234567890'})
+      }).catch(()=>{});
+      showLoginToast(`已将 ${username} 的密码重置为 1234567890`, 'success', '用户控制台');
+    }
+    closeUmModal();
+  }, '确认重置');
+};
+
+// 禁用/启用账号
+window.umToggleStatus = function(username){
+  const user = umUsers.find(u=>u.username===username);
+  if(!user) return;
+  const action = user.status==='active' ? '禁用' : '启用';
+  openUmModal(`${action}账号`, `
+    <div class="um-confirm-text">
+      确定要<strong>${action}</strong>用户 <strong>${escapeHtml(username)}</strong> 的账号吗？
+      ${action==='禁用'?'<br><br>禁用后该用户将无法登录。':''}
+    </div>
+  `, ()=>{
+    user.status = user.status==='active' ? 'disabled' : 'active';
+    renderUserTable();renderUserGrid();
+    showLoginToast(`已${action}用户 ${username}`, 'success', '用户控制台');
+    closeUmModal();
+  }, `确认${action}`);
+};
+
+// 删除账号
+window.umDeleteUser = function(username){
+  openUmModal('删除账号', `
+    <div class="um-confirm-text">
+      确定要<strong style="color:#eb445a;">永久删除</strong>用户 <strong>${escapeHtml(username)}</strong> 的账号吗？<br><br>
+      <span style="color:#eb445a;">此操作不可撤销，该用户的所有数据将被清除。</span>
+    </div>
+  `, ()=>{
+    umUsers = umUsers.filter(u=>u.username!==username);
+    renderUserTable();renderRoleList();renderUserGrid();
+    showLoginToast(`已删除用户 ${username}`, 'success', '用户控制台');
+    closeUmModal();
+  }, '确认删除');
+};
 
 // DOM 加载完成后初始化用户管理面板
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -8316,32 +8572,27 @@ document.addEventListener('DOMContentLoaded', ()=>{
         u.nickname.toLowerCase().includes(q)
       );
       const tbody = document.getElementById('umUserTableBody');
-      if(tbody) tbody.innerHTML = filtered.map(u=>`
-        <tr>
-          <td>${escapeHtml(u.username)}</td>
-          <td>${escapeHtml(u.nickname)}</td>
-          <td>${escapeHtml(u.role)}</td>
-          <td><span class="um-status-badge ${u.status}">${u.status==='active'?'正常':u.status==='disabled'?'禁用':'待审核'}</span></td>
-          <td>${u.regTime}</td>
-          <td><div class="um-actions">
-            <button onclick="umEditUser('${u.username}')">编辑</button>
-            <button onclick="umResetPwd('${u.username}')">重置密码</button>
-            <button onclick="umToggleStatus('${u.username}')">${u.status==='active'?'禁用':'启用'}</button>
-          </div></td>
-        </tr>
-      `).join('');
-    });
-  }
-
-  // 新增用户
-  const umAddUserBtn = document.getElementById('umAddUserBtn');
-  if(umAddUserBtn){
-    umAddUserBtn.addEventListener('click', ()=>{
-      const name = prompt('请输入新用户名:');
-      if(name && !umUsers.find(u=>u.username===name)){
-        umUsers.push({username:name,nickname:name,role:'普通用户',status:'active',regTime:new Date().toISOString().slice(0,10),avatar:''});
-        renderUserTable();renderUserGrid();
-        showLoginToast(`已创建用户: ${name}`, 'success', '用户管理');
+      if(tbody){
+        const currentUser = readSavedUser();
+        const isOwner = isSiteOwnerUser(currentUser);
+        tbody.innerHTML = filtered.map(u=>{
+          const days = calcRegDays(u.regTime);
+          const canEdit = isOwner || u.role !== '站主';
+          return `<tr>
+            <td>${escapeHtml(u.username)}</td>
+            <td>${escapeHtml(u.nickname)}</td>
+            <td>${escapeHtml(u.role)}</td>
+            <td><span class="um-status-badge ${u.status}">${u.status==='active'?'正常':u.status==='disabled'?'禁用':'待审核'}</span></td>
+            <td>${u.regTime || '-'}</td>
+            <td>${days}天</td>
+            <td><div class="um-actions">
+              ${canEdit?`<button onclick="umEditUser('${u.username}')">编辑</button>`:''}
+              ${canEdit?`<button onclick="umResetPwd('${u.username}')">重置密码</button>`:''}
+              ${canEdit?`<button onclick="umToggleStatus('${u.username}')">${u.status==='active'?'禁用':'启用'}</button>`:''}
+              ${isOwner && u.role!=='站主'?`<button onclick="umDeleteUser('${u.username}')" style="color:#eb445a;">删除</button>`:''}
+            </div></td>
+          </tr>`;
+        }).join('');
       }
     });
   }
@@ -8349,34 +8600,35 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // 注册管控
   const umToggleRegisterBtn = document.getElementById('umToggleRegisterBtn');
   if(umToggleRegisterBtn){
+    umToggleRegisterBtn.textContent = registerEnabled ? '关闭注册' : '开启注册';
     umToggleRegisterBtn.addEventListener('click', ()=>{
       registerEnabled = !registerEnabled;
       umToggleRegisterBtn.textContent = registerEnabled ? '关闭注册' : '开启注册';
-      showLoginToast(registerEnabled ? '注册入口已开启' : '注册入口已关闭', 'success', '用户管理');
+      showLoginToast(registerEnabled ? '注册入口已开启' : '注册入口已关闭', 'success', '用户控制台');
     });
   }
 
   // 批量操作按钮
   const umBatchEnable = document.getElementById('umBatchEnable');
-  if(umBatchEnable) umBatchEnable.addEventListener('click', ()=>showLoginToast('批量启用功能开发中...', 'info', '用户管理'));
+  if(umBatchEnable) umBatchEnable.addEventListener('click', ()=>showLoginToast('批量启用功能开发中...', 'info', '用户控制台'));
   const umBatchDisable = document.getElementById('umBatchDisable');
-  if(umBatchDisable) umBatchDisable.addEventListener('click', ()=>showLoginToast('批量禁用功能开发中...', 'info', '用户管理'));
+  if(umBatchDisable) umBatchDisable.addEventListener('click', ()=>showLoginToast('批量禁用功能开发中...', 'info', '用户控制台'));
   const umBatchRole = document.getElementById('umBatchRole');
-  if(umBatchRole) umBatchRole.addEventListener('click', ()=>showLoginToast('批量改角色功能开发中...', 'info', '用户管理'));
+  if(umBatchRole) umBatchRole.addEventListener('click', ()=>showLoginToast('批量改角色功能开发中...', 'info', '用户控制台'));
   const umBatchDelete = document.getElementById('umBatchDelete');
-  if(umBatchDelete) umBatchDelete.addEventListener('click', ()=>showLoginToast('批量删除功能开发中...', 'info', '用户管理'));
+  if(umBatchDelete) umBatchDelete.addEventListener('click', ()=>showLoginToast('批量删除功能开发中...', 'info', '用户控制台'));
 
   // 安全审计按钮
   const umLoginLogBtn = document.getElementById('umLoginLogBtn');
-  if(umLoginLogBtn) umLoginLogBtn.addEventListener('click', ()=>showLoginToast('登录日志功能开发中...', 'info', '用户管理'));
+  if(umLoginLogBtn) umLoginLogBtn.addEventListener('click', ()=>showLoginToast('登录日志功能开发中...', 'info', '用户控制台'));
   const umOpLogBtn = document.getElementById('umOpLogBtn');
-  if(umOpLogBtn) umOpLogBtn.addEventListener('click', ()=>showLoginToast('操作日志功能开发中...', 'info', '用户管理'));
+  if(umOpLogBtn) umOpLogBtn.addEventListener('click', ()=>showLoginToast('操作日志功能开发中...', 'info', '用户控制台'));
   const umViolationBtn = document.getElementById('umViolationBtn');
-  if(umViolationBtn) umViolationBtn.addEventListener('click', ()=>showLoginToast('违规档案功能开发中...', 'info', '用户管理'));
+  if(umViolationBtn) umViolationBtn.addEventListener('click', ()=>showLoginToast('违规档案功能开发中...', 'info', '用户控制台'));
 
   // 运营按钮
   const umNotifyBtn = document.getElementById('umNotifyBtn');
-  if(umNotifyBtn) umNotifyBtn.addEventListener('click', ()=>showLoginToast('群发通知功能开发中...', 'info', '用户管理'));
+  if(umNotifyBtn) umNotifyBtn.addEventListener('click', ()=>showLoginToast('群发通知功能开发中...', 'info', '用户控制台'));
   const umStatsBtn = document.getElementById('umStatsBtn');
   if(umStatsBtn) umStatsBtn.addEventListener('click', ()=>{
     const content = document.getElementById('umOpsContent');
@@ -8390,92 +8642,32 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // IP封禁
   const umIpBanBtn = document.getElementById('umIpBanBtn');
   if(umIpBanBtn) umIpBanBtn.addEventListener('click', ()=>{
-    const ip = prompt('请输入要封禁的IP地址:');
-    if(ip) showLoginToast(`已封禁IP: ${ip}`, 'success', '用户管理');
+    openUmModal('IP封禁', `
+      <div class="um-form-group">
+        <label>要封禁的IP地址</label>
+        <input type="text" id="umIpBanInput" placeholder="例如: 192.168.1.100" />
+      </div>
+    `, ()=>{
+      const ip = document.getElementById('umIpBanInput')?.value?.trim();
+      if(ip) showLoginToast(`已封禁IP: ${ip}`, 'success', '用户控制台');
+      closeUmModal();
+    }, '确认封禁');
   });
 
   // 导出数据
   const umExportBtn = document.getElementById('umExportBtn');
   if(umExportBtn){
     umExportBtn.addEventListener('click', ()=>{
-      const csv = '用户名,昵称,角色,状态,注册时间\n' + umUsers.map(u=>`${u.username},${u.nickname},${u.role},${u.status},${u.regTime}`).join('\n');
+      const csv = '用户名,昵称,角色,状态,注册时间,注册天数\n' + umUsers.map(u=>`${u.username},${u.nickname},${u.role},${u.status},${u.regTime},${calcRegDays(u.regTime)}天`).join('\n');
       const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = `users_${new Date().toISOString().slice(0,10)}.csv`;
       link.click();
-      showLoginToast('用户数据已导出', 'success', '用户管理');
+      showLoginToast('用户数据已导出', 'success', '用户控制台');
     });
   }
 });
-
-function loadUserManageData(){
-  renderUserTable();
-  renderRoleList();
-  renderUserGrid();
-}
-
-function renderUserTable(){
-  const tbody = document.getElementById('umUserTableBody');
-  if(!tbody) return;
-  tbody.innerHTML = umUsers.map(u=>`
-    <tr>
-      <td>${escapeHtml(u.username)}</td>
-      <td>${escapeHtml(u.nickname)}</td>
-      <td>${escapeHtml(u.role)}</td>
-      <td><span class="um-status-badge ${u.status}">${u.status==='active'?'正常':u.status==='disabled'?'禁用':'待审核'}</span></td>
-      <td>${u.regTime}</td>
-      <td><div class="um-actions">
-        <button onclick="umEditUser('${u.username}')">编辑</button>
-        <button onclick="umResetPwd('${u.username}')">重置密码</button>
-        <button onclick="umToggleStatus('${u.username}')">${u.status==='active'?'禁用':'启用'}</button>
-      </div></td>
-    </tr>
-  `).join('');
-}
-
-function renderRoleList(){
-  const list = document.getElementById('umRoleList');
-  if(!list) return;
-  list.innerHTML = umRoles.map(r=>`
-    <div class="um-card">
-      <h4>${escapeHtml(r.name)} <span style="color:rgba(255,255,255,.4);font-size:12px;">(${r.users}人)</span></h4>
-      <p>${r.permissions.map(p=>escapeHtml(p)).join(' · ')}</p>
-    </div>
-  `).join('');
-}
-
-function renderUserGrid(){
-  const grid = document.getElementById('umUserGrid');
-  if(!grid) return;
-  grid.innerHTML = umUsers.map(u=>`
-    <div class="um-card">
-      <h4>${escapeHtml(u.nickname)}</h4>
-      <p>@${escapeHtml(u.username)} · ${escapeHtml(u.role)}</p>
-      <p>注册: ${u.regTime}</p>
-      <p><span class="um-status-badge ${u.status}">${u.status==='active'?'正常':u.status==='disabled'?'禁用':'待审核'}</span></p>
-    </div>
-  `).join('');
-}
-
-// 用户管理操作函数
-window.umEditUser = function(username){
-  showLoginToast(`编辑用户: ${username}`, 'info', '用户管理');
-};
-window.umResetPwd = function(username){
-  if(confirm(`确定要重置 ${username} 的密码吗？`)){
-    showLoginToast(`已重置 ${username} 的密码`, 'success', '用户管理');
-  }
-};
-window.umToggleStatus = function(username){
-  const user = umUsers.find(u=>u.username===username);
-  if(user){
-    user.status = user.status==='active'?'disabled':'active';
-    renderUserTable();
-    renderUserGrid();
-    showLoginToast(`已${user.status==='active'?'启用':'禁用'}用户 ${username}`, 'success', '用户管理');
-  }
-};
 
 // 用户管理按钮
 const homeUserManageBtn = document.getElementById('homeUserManageBtn');
@@ -8649,7 +8841,7 @@ function applyLang(lang){
 // 用户管理面板语言更新
 function updateUserManageLang(dict){
   const panelTitle = document.querySelector('.user-manage-header h2');
-  if(panelTitle) panelTitle.textContent = dict.userManageTitle || '用户管理中心';
+  if(panelTitle) panelTitle.textContent = dict.userManageTitle || '用户控制台';
   const tabs = document.querySelectorAll('.user-manage-tab');
   const tabNames = {
     lifecycle: dict.umTabLifecycle || '账号管理',
@@ -11629,6 +11821,19 @@ function returnToLogin(){
 /* 登录按钮：使用网页内部账号表校验用户名和密码 */
 const REMEMBER_ACCOUNT_KEY = 'ans_blog_remember_account';
 const rememberAccountInput = document.getElementById('rememberAccountInput');
+if(rememberAccountInput){
+  rememberAccountInput.addEventListener('change', ()=>{
+    const pwI = document.getElementById('passwordInput');
+    const nmI = document.getElementById('nameInput');
+    if(rememberAccountInput.checked){
+      if(pwI) pwI.setAttribute('autocomplete','current-password');
+      if(nmI) nmI.setAttribute('autocomplete','username');
+    }else{
+      if(pwI) pwI.setAttribute('autocomplete','off');
+      if(nmI) nmI.setAttribute('autocomplete','off');
+    }
+  });
+}
 
 /* 页面加载时：从 localStorage 读取已记住的账户并预填表单 */
 (function loadRememberedAccount(){
@@ -11641,6 +11846,10 @@ const rememberAccountInput = document.getElementById('rememberAccountInput');
       if(nameEl) nameEl.value = data.name;
       if(passwordInput) passwordInput.value = data.password;
       if(rememberAccountInput) rememberAccountInput.checked = true;
+      const pwI = document.getElementById('passwordInput');
+      const nmI = document.getElementById('nameInput');
+      if(pwI) pwI.setAttribute('autocomplete','current-password');
+      if(nmI) nmI.setAttribute('autocomplete','username');
     }
   }catch(_){ /* 忽略损坏的存储值 */ }
 })();
@@ -12030,6 +12239,14 @@ document.querySelector('.btn-login').addEventListener('click', async ()=>{
     (!name ? document.getElementById('nameInput') : passwordInput).focus();
     return;
   }
+  // 检查账号是否被禁用
+  if(typeof umUsers !== 'undefined'){
+    const disabledUser = umUsers.find(u => u.username === name && u.status === 'disabled');
+    if(disabledUser){
+      showLoginToast('该用户已禁止登陆！', 'error', '账号已禁用');
+      return;
+    }
+  }
   try{
     const result = await authRequest('/api/login', {
       method:'POST',
@@ -12038,8 +12255,17 @@ document.querySelector('.btn-login').addEventListener('click', async ()=>{
     saveLoginSession(result.token, result.user);
     if(rememberAccountInput && rememberAccountInput.checked){
       localStorage.setItem(REMEMBER_ACCOUNT_KEY, JSON.stringify({ name, password }));
+      // 开启记住账户：让浏览器弹出保存密码框
+      const pwInput = document.getElementById('passwordInput');
+      const nmInput = document.getElementById('nameInput');
+      if(pwInput) pwInput.setAttribute('autocomplete','current-password');
+      if(nmInput) nmInput.setAttribute('autocomplete','username');
     }else{
       localStorage.removeItem(REMEMBER_ACCOUNT_KEY);
+      const pwInput = document.getElementById('passwordInput');
+      const nmInput = document.getElementById('nameInput');
+      if(pwInput) pwInput.setAttribute('autocomplete','off');
+      if(nmInput) nmInput.setAttribute('autocomplete','off');
     }
     showLoginToast(dict.loginSuccess + name + '!', 'success', '欢迎回来');
     enterDashboard(result.user);
@@ -12050,8 +12276,12 @@ document.querySelector('.btn-login').addEventListener('click', async ()=>{
   }
 });
 
-/* 注册账号：打开注册小窗口 */
+/* 注册账号：打开注册小窗口（检查注册是否开启） */
 document.querySelector('.btn-guest').addEventListener('click', ()=>{
+  if(typeof registerEnabled !== 'undefined' && !registerEnabled){
+    showLoginToast('因特殊原因，暂停注册！', 'warn', '注册暂停');
+    return;
+  }
   openRegisterModal();
 });
 if(returnLoginBtn) returnLoginBtn.addEventListener('click', returnToLogin);
@@ -13334,11 +13564,26 @@ function startSiteVersionPoll(){
 startSiteVersionPoll();
 </script>
 
+<!-- 用户控制台弹窗 -->
+<div class="um-modal-overlay" id="umModalOverlay">
+  <div class="um-modal" id="umModal">
+    <div class="um-modal-header">
+      <h3 id="umModalTitle">编辑用户</h3>
+      <button class="um-modal-close" id="umModalClose" type="button">&times;</button>
+    </div>
+    <div class="um-modal-body" id="umModalBody"></div>
+    <div class="um-modal-footer">
+      <button class="um-btn" id="umModalCancel">取消</button>
+      <button class="um-btn primary" id="umModalConfirm">确认</button>
+    </div>
+  </div>
+</div>
+
 <!-- 用户管理面板 -->
 <div class="user-manage-overlay" id="userManageOverlay"></div>
 <div class="user-manage-panel" id="userManagePanel">
   <div class="user-manage-header">
-    <h2>用户管理中心</h2>
+    <h2>用户控制台</h2>
     <button class="user-manage-close" id="userManageClose" type="button" aria-label="关闭">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
@@ -13356,13 +13601,12 @@ startSiteVersionPoll();
     <!-- 账号生命周期 -->
     <div class="user-manage-section active" data-section="lifecycle">
       <div class="um-toolbar">
-        <button class="um-btn primary" id="umAddUserBtn"><span>+</span> 新增账号</button>
         <button class="um-btn" id="umToggleRegisterBtn">关闭注册</button>
         <div class="um-search"><input type="text" placeholder="搜索用户..." id="umSearchInput"/><button id="umSearchBtn">搜索</button></div>
       </div>
       <div class="um-table-wrap">
         <table class="um-table">
-          <thead><tr><th>用户名</th><th>昵称</th><th>角色</th><th>状态</th><th>注册时间</th><th>操作</th></tr></thead>
+          <thead><tr><th>用户名</th><th>昵称</th><th>角色</th><th>状态</th><th>注册时间</th><th>注册天数</th><th>操作</th></tr></thead>
           <tbody id="umUserTableBody"></tbody>
         </table>
       </div>
