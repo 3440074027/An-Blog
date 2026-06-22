@@ -9478,10 +9478,12 @@ function authApiUrl(path){
 }
 
 async function authRequest(path, options = {}){
+  const token = getAuthToken();
   const response = await fetch(authApiUrl(path), {
     ...options,
     headers:{
       'Content-Type':'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...(options.headers || {})
     }
   });
