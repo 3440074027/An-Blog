@@ -8397,10 +8397,7 @@ themeOptions.forEach(opt=>{
 let umUsers = [];
 let umRoles = [
   {name:'站主',permissions:['全部权限'],users:0},
-  {name:'管理员',permissions:['用户管理','内容管理','公告管理'],users:0},
-  {name:'编辑',permissions:['发文','评论管理'],users:0},
-  {name:'作者',permissions:['发文'],users:0},
-  {name:'普通用户',permissions:['评论','点赞'],users:0},
+  {name:'作者',permissions:['发文','评论','点赞'],users:0},
   {name:'访客',permissions:['浏览'],users:0}
 ];
 let registerEnabled = true;
@@ -8477,13 +8474,11 @@ async function loadRealUsers(){
         const profile = u.profile || {};
         const username = u.username || '';
         // 站主判断
-        let role = '普通用户';
+        let role = '访客';
         if(username === SITE_OWNER_USERNAME) role = '站主';
         // 从 profile.tags 中读取角色（如果有）
         const tags = profile.tags || [];
-        if(tags.includes('管理员') && role !== '站主') role = '管理员';
-        else if(tags.includes('编辑')) role = '编辑';
-        else if(tags.includes('作者')) role = '作者';
+        if(tags.includes('作者') && role !== '站主') role = '作者';
         // 检查禁用状态
         const isDisabled = tags.includes('disabled') || tags.includes('禁用');
         return {
@@ -8511,12 +8506,10 @@ async function loadRealUsers(){
           umUsers = data.users.map(u=>{
             const profile = u.profile || {};
             const username = u.username || '';
-            let role = '普通用户';
+            let role = '访客';
             if(username === SITE_OWNER_USERNAME) role = '站主';
             const tags = profile.tags || [];
-            if(tags.includes('管理员') && role !== '站主') role = '管理员';
-            else if(tags.includes('编辑')) role = '编辑';
-            else if(tags.includes('作者')) role = '作者';
+            if(tags.includes('作者') && role !== '站主') role = '作者';
             const isDisabled = tags.includes('disabled') || tags.includes('禁用');
             return {
               username: username,
@@ -8625,7 +8618,7 @@ window.umEditUser = function(username){
   }
   const canChangeRole = isOwner && !isSiteOwnerUser(user);
   const canResetPwd = canManage;
-  const roleOptions = ['管理员','编辑','作者','普通用户','访客'].map(r=>
+  const roleOptions = ['作者','访客'].map(r=>
     `<option value="${r}" ${user.role===r?'selected':''}>${r}</option>`
   ).join('');
   openUmModal('编辑用户 - ' + escapeHtml(username), `
@@ -8929,7 +8922,7 @@ if(homeUserManageBtn) homeUserManageBtn.addEventListener('click', (e)=>{
   if(isAdminUser(user)){
     openUserManagePanel();
   }else{
-    showLoginToast('只有站主和管理员才能使用用户管理功能。', 'warn', '权限不足');
+    showLoginToast('只有站主和作者才能使用用户控制台。', 'warn', '权限不足');
   }
 });
 // 全屏模式
@@ -9096,7 +9089,7 @@ function updateUserManageLang(dict){
   const tabs = document.querySelectorAll('.user-manage-tab');
   const tabNames = {
     lifecycle: dict.umTabLifecycle || '账号管理',
-    roles: dict.umTabRoles || '权限角色',
+    roles: dict.umTabRoles || '权限管控',
     users: dict.umTabUsers || '用户信息',
     security: dict.umTabSecurity || '状态风控',
     batch: dict.umTabBatch || '批量操作',
@@ -9673,21 +9666,18 @@ function isSiteOwnerUser(user){
   return name === SITE_OWNER_USERNAME || name.toLowerCase() === SITE_OWNER_USERNAME.toLowerCase();
 }
 
-/* 判断用户是否为管理员（站主或拥有管理员标签） */
+/* 判断用户是否拥有管理权限（站主或拥有作者标签） */
 function isAdminUser(user){
   if(!user) return false;
   if(isSiteOwnerUser(user)) return true;
   const tags = user.profile?.tags || user.tags || [];
-  return tags.includes('管理员');
+  return tags.includes('作者');
 }
 
 /* 角色等级：用于权限比较 */
 const ROLE_LEVEL = {
   '站主': 100,
-  '管理员': 80,
-  '编辑': 60,
   '作者': 50,
-  '普通用户': 30,
   '访客': 10
 };
 
@@ -9696,13 +9686,13 @@ function canManageUser(currentUser, targetUser){
   if(!currentUser || !targetUser) return false;
   // 站主可操作所有人
   if(isSiteOwnerUser(currentUser)) return true;
-  // 管理员不能操作站主
+  // 非站主不能操作站主
   if(isSiteOwnerUser(targetUser)) return false;
-  const currentRole = targetUser.role || '普通用户';
+  const currentRole = targetUser.role || '访客';
   const currentLevel = ROLE_LEVEL[currentRole] || 0;
-  const targetRole = targetUser.role || '普通用户';
+  const targetRole = targetUser.role || '访客';
   const targetLevel = ROLE_LEVEL[targetRole] || 0;
-  // 管理员只能操作比自己等级低的用户
+  // 只能操作比自己等级低的用户
   return currentLevel > targetLevel;
 }
 
@@ -13836,7 +13826,7 @@ startSiteVersionPoll();
   </div>
   <div class="user-manage-tabs">
     <button class="user-manage-tab active" data-tab="lifecycle">账号管理</button>
-    <button class="user-manage-tab" data-tab="roles">权限角色</button>
+    <button class="user-manage-tab" data-tab="roles">权限管控</button>
     <button class="user-manage-tab" data-tab="users">用户信息</button>
     <button class="user-manage-tab" data-tab="security">状态风控</button>
     <button class="user-manage-tab" data-tab="batch">批量操作</button>
@@ -13853,10 +13843,7 @@ startSiteVersionPoll();
           <select id="umRoleFilter" style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;">
             <option value="all" style="background:#1a1f3a;color:#fff;">全部身份</option>
             <option value="站主" style="background:#1a1f3a;color:#fff;">站主</option>
-            <option value="管理员" style="background:#1a1f3a;color:#fff;">管理员</option>
-            <option value="编辑" style="background:#1a1f3a;color:#fff;">编辑</option>
             <option value="作者" style="background:#1a1f3a;color:#fff;">作者</option>
-            <option value="普通用户" style="background:#1a1f3a;color:#fff;">普通用户</option>
             <option value="访客" style="background:#1a1f3a;color:#fff;">访客</option>
           </select>
           <button id="umSearchBtn">搜索</button>
@@ -13869,7 +13856,7 @@ startSiteVersionPoll();
         </table>
       </div>
     </div>
-    <!-- 权限角色 -->
+    <!-- 权限管控 -->
     <div class="user-manage-section" data-section="roles">
       <div class="um-toolbar">
         <button class="um-btn primary" id="umAddRoleBtn"><span>+</span> 新增角色</button>
