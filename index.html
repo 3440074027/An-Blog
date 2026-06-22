@@ -96,10 +96,11 @@
   body{
     font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",
       "Helvetica Neue",Arial,"Noto Sans CJK SC","WenQuanYi Micro Hei",sans-serif;
-    color:var(--ink);
+    color:var(--theme-text);
     overflow-x:hidden;
     overflow-y:auto;
-    background:#f7f2ff;
+    background:var(--theme-bg);
+    transition:background .5s, color .5s;
   }
   .video-bg{
     position:fixed;
@@ -146,7 +147,35 @@
     animation-direction:alternate-reverse;
   }
   body.blog-home-mode{
-    background:#0a0820;
+    background:#0a0820 !important;
+  }
+  body[data-theme="light"] .video-bg{
+    background:
+      radial-gradient(circle at 12% 18%, rgba(91,140,255,.3) 0 16%, transparent 34%),
+      radial-gradient(circle at 82% 20%, rgba(144,225,255,.35) 0 14%, transparent 32%),
+      radial-gradient(circle at 54% 82%, rgba(255,139,139,.25) 0 18%, transparent 38%),
+      linear-gradient(135deg, #f0f4ff 0%, #e8f0ff 45%, #fff0f0 100%);
+  }
+  body[data-theme="ocean"] .video-bg{
+    background:
+      radial-gradient(circle at 12% 18%, rgba(0,180,216,.35) 0 16%, transparent 34%),
+      radial-gradient(circle at 82% 20%, rgba(144,224,239,.4) 0 14%, transparent 32%),
+      radial-gradient(circle at 54% 82%, rgba(0,150,199,.3) 0 18%, transparent 38%),
+      linear-gradient(135deg, #e0f7fa 0%, #caf0f8 45%, #90e0ef 100%);
+  }
+  body[data-theme="forest"] .video-bg{
+    background:
+      radial-gradient(circle at 12% 18%, rgba(45,106,79,.3) 0 16%, transparent 34%),
+      radial-gradient(circle at 82% 20%, rgba(82,183,136,.35) 0 14%, transparent 32%),
+      radial-gradient(circle at 54% 82%, rgba(116,198,157,.25) 0 18%, transparent 38%),
+      linear-gradient(135deg, #e8f5e9 0%, #d8f3dc 45%, #b7e4c7 100%);
+  }
+  body[data-theme="sunset"] .video-bg{
+    background:
+      radial-gradient(circle at 12% 18%, rgba(231,111,81,.3) 0 16%, transparent 34%),
+      radial-gradient(circle at 82% 20%, rgba(244,162,97,.35) 0 14%, transparent 32%),
+      radial-gradient(circle at 54% 82%, rgba(255,183,77,.25) 0 18%, transparent 38%),
+      linear-gradient(135deg, #fff3e0 0%, #ffe0b2 45%, #ffcc80 100%);
   }
   body.blog-home-mode .video-bg{
     opacity:0;
@@ -7453,7 +7482,7 @@
         <span class="theme-name">日落</span>
       </div>
     </div>
-    <button class="home-tool-btn" id="homeUserManageBtn" type="button" data-label="用户管理" aria-label="用户管理" title="用户管理（仅管理员）" style="display:none;">
+    <button class="home-tool-btn" id="homeUserManageBtn" type="button" data-label="用户管理" aria-label="用户管理" title="用户管理">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
         <circle cx="9" cy="7" r="4"/>
@@ -8217,17 +8246,14 @@ themeOptions.forEach(opt=>{
 const homeUserManageBtn = document.getElementById('homeUserManageBtn');
 if(homeUserManageBtn) homeUserManageBtn.addEventListener('click', (e)=>{
   e.stopPropagation();
-  openUserManagePanel();
-});
-
-// 显示/隐藏用户管理按钮（仅站主/管理员）
-function updateUserManageBtnVisibility(){
   const user = readSavedUser();
   const isAdmin = isSiteOwnerUser(user);
-  if(homeUserManageBtn){
-    homeUserManageBtn.style.display = isAdmin ? 'flex' : 'none';
+  if(isAdmin){
+    openUserManagePanel();
+  }else{
+    showLoginToast('只有站主和管理员才能使用用户管理功能。', 'warn', '权限不足');
   }
-}
+});
 // 全屏模式
 const homeFullscreenBtn = document.getElementById('homeFullscreenBtn');
 if(homeFullscreenBtn) homeFullscreenBtn.addEventListener('click', (e)=>{
@@ -8381,6 +8407,28 @@ function applyLang(lang){
   try{ if(typeof renderPublicArticles === 'function') renderPublicArticles(); }catch(_){ }
   try{ if(typeof renderAnnouncements === 'function') renderAnnouncements(); }catch(_){ }
   try{ if(typeof updateToolStats === 'function') updateToolStats(); }catch(_){ }
+  // 更新用户管理面板语言
+  updateUserManageLang(dict);
+}
+
+// 用户管理面板语言更新
+function updateUserManageLang(dict){
+  const panelTitle = document.querySelector('.user-manage-header h2');
+  if(panelTitle) panelTitle.textContent = dict.userManageTitle || '用户管理中心';
+  const tabs = document.querySelectorAll('.user-manage-tab');
+  const tabNames = {
+    lifecycle: dict.umTabLifecycle || '账号管理',
+    roles: dict.umTabRoles || '权限角色',
+    users: dict.umTabUsers || '用户信息',
+    security: dict.umTabSecurity || '状态风控',
+    batch: dict.umTabBatch || '批量操作',
+    audit: dict.umTabAudit || '安全审计',
+    ops: dict.umTabOps || '运营内容'
+  };
+  tabs.forEach(tab=>{
+    const key = tab.dataset.tab;
+    if(tabNames[key]) tab.textContent = tabNames[key];
+  });
 }
 document.querySelectorAll('.lang-item').forEach(item=>{
   item.addEventListener('click', ()=>{
@@ -10963,7 +11011,6 @@ function enterDashboard(userLike){
   if(topTools) topTools.classList.add('portal-mode');
   const topToolsLeft = document.getElementById('topToolsLeft');
   if(topToolsLeft) topToolsLeft.style.display = 'flex';
-  updateUserManageBtnVisibility();
   if(getAuthToken() && readSavedUser()?.username !== 'guest'){
     setTimeout(()=>{
       if(typeof refreshFriends === 'function') refreshFriends({ silent:true });
