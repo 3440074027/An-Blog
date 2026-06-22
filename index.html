@@ -20,6 +20,75 @@
     --accent:#0f1226;
     --accent2:#7c5cff;
     --shadow:0 30px 80px rgba(10,8,40,.35);
+    --theme-primary:#7c5cff;
+    --theme-secondary:#ff8bcd;
+    --theme-bg:#f7f2ff;
+    --theme-card-bg:rgba(255,255,255,.92);
+    --theme-text:#0f1226;
+    --theme-muted:#7d8298;
+    --theme-border:rgba(255,255,255,.28);
+    --theme-btn-bg:rgba(255,255,255,.18);
+    --theme-btn-border:rgba(255,255,255,.28);
+    --theme-gradient-start:rgba(255,255,255,.3);
+    --theme-gradient-end:rgba(124,92,255,.2);
+    --theme-glow:rgba(124,92,255,.28);
+  }
+  /* ============ 主题系统 ============ */
+  [data-theme="light"]{
+    --theme-primary:#5b8cff;
+    --theme-secondary:#ff8b8b;
+    --theme-bg:#f0f4ff;
+    --theme-card-bg:rgba(255,255,255,.95);
+    --theme-text:#1a1a2e;
+    --theme-muted:#6b7280;
+    --theme-border:rgba(0,0,0,.12);
+    --theme-btn-bg:rgba(255,255,255,.72);
+    --theme-btn-border:rgba(0,0,0,.15);
+    --theme-gradient-start:rgba(91,140,255,.25);
+    --theme-gradient-end:rgba(255,139,139,.15);
+    --theme-glow:rgba(91,140,255,.2);
+  }
+  [data-theme="ocean"]{
+    --theme-primary:#00b4d8;
+    --theme-secondary:#90e0ef;
+    --theme-bg:#e0f7fa;
+    --theme-card-bg:rgba(255,255,255,.92);
+    --theme-text:#023e8a;
+    --theme-muted:#0077b6;
+    --theme-border:rgba(0,180,216,.3);
+    --theme-btn-bg:rgba(0,180,216,.18);
+    --theme-btn-border:rgba(0,180,216,.35);
+    --theme-gradient-start:rgba(0,180,216,.3);
+    --theme-gradient-end:rgba(144,224,239,.2);
+    --theme-glow:rgba(0,180,216,.3);
+  }
+  [data-theme="forest"]{
+    --theme-primary:#2d6a4f;
+    --theme-secondary:#95d5b2;
+    --theme-bg:#e8f5e9;
+    --theme-card-bg:rgba(255,255,255,.92);
+    --theme-text:#1b4332;
+    --theme-muted:#52796f;
+    --theme-border:rgba(45,106,79,.3);
+    --theme-btn-bg:rgba(45,106,79,.18);
+    --theme-btn-border:rgba(45,106,79,.35);
+    --theme-gradient-start:rgba(45,106,79,.3);
+    --theme-gradient-end:rgba(149,213,178,.2);
+    --theme-glow:rgba(45,106,79,.3);
+  }
+  [data-theme="sunset"]{
+    --theme-primary:#e76f51;
+    --theme-secondary:#f4a261;
+    --theme-bg:#fff3e0;
+    --theme-card-bg:rgba(255,255,255,.92);
+    --theme-text:#6a4c3a;
+    --theme-muted:#a67c52;
+    --theme-border:rgba(231,111,81,.3);
+    --theme-btn-bg:rgba(231,111,81,.18);
+    --theme-btn-border:rgba(231,111,81,.35);
+    --theme-gradient-start:rgba(231,111,81,.3);
+    --theme-gradient-end:rgba(244,162,97,.2);
+    --theme-glow:rgba(231,111,81,.3);
   }
 
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -149,21 +218,40 @@
     z-index:220;
   }
   .top-tools.portal-mode{flex-direction:column;}
+  /* ============ 左上角工具栏 ============ */
+  .top-tools-left{
+    position:fixed;
+    top:28px;left:32px;
+    display:none;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:0;
+    z-index:220;
+  }
+  .top-tools-left #homeSettingsBtn{
+    display:flex;
+  }
+  .top-tools-left .home-settings-menu{
+    position:relative;
+    top:auto;
+    left:auto;
+    overflow:visible;
+  }
   .icon-btn{
     width:44px;height:44px;border-radius:50%;
-    background:rgba(255,255,255,.18);
+    background:var(--theme-btn-bg);
     backdrop-filter:blur(10px);
     -webkit-backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,.28);
-    color:#fff;
+    border:1px solid var(--theme-btn-border);
+    color:var(--theme-text);
     display:flex;align-items:center;justify-content:center;
-    cursor:pointer;transition:transform .25s, background .25s;
+    cursor:pointer;transition:transform .25s, background .25s, border-color .25s;
   }
   .icon-btn:hover{
-    background:rgba(255,255,255,.32);
+    background:var(--theme-gradient-start);
     transform:translateY(-2px);
   }
-  .icon-btn svg{width:20px;height:20px;stroke:#fff;}
+  .icon-btn svg{width:20px;height:20px;stroke:var(--theme-text);}
   #langBtn{
     background:linear-gradient(135deg, rgba(255,255,255,.34), rgba(124,92,255,.22));
     border:2px solid rgba(255,255,255,.74);
@@ -204,7 +292,7 @@
   }
   .return-btn.visible{display:flex;}
   .return-btn{
-    margin-top:10px;
+    margin-top:0;
     flex:0 0 auto;
   }
   .return-btn:hover{
@@ -212,26 +300,6 @@
     transform:translateY(-2px);
   }
   .return-btn svg{width:20px;height:20px;stroke:#fff;}
-  .home-settings-wrap{
-    display:none;
-    position:relative;
-    width:44px;
-    min-height:44px;
-    margin-bottom:0;
-    pointer-events:auto;
-    overflow:visible;
-  }
-  .home-settings-wrap::before{
-    content:"";
-    position:absolute;
-    top:0;
-    right:0;
-    width:44px;
-    height:44px;
-    border-radius:999px;
-    background:transparent;
-    pointer-events:none;
-  }
   #homeSettingsBtn{
     background:linear-gradient(135deg, rgba(255,255,255,.3), rgba(124,92,255,.2));
     border:1px solid rgba(255,255,255,.58);
@@ -251,7 +319,7 @@
     position:relative;
     width:44px;
     height:44px;
-    margin-bottom:10px;
+    margin-bottom:0;
     overflow:visible;
     flex:0 0 auto;
     z-index:6;
@@ -362,7 +430,7 @@
     position:relative;
     width:44px;
     height:44px;
-    margin-bottom:10px;
+    margin-bottom:0;
     border-radius:50%;
     border:1px solid rgba(255,255,255,.56);
     color:#fff;
@@ -396,21 +464,13 @@
   }
   .home-mail-badge.active{display:grid;}
   .top-tools.portal-mode #homeSettingsBtn{
-    display:flex;
+    display:none !important;
+  }
+  .top-tools.portal-mode .home-settings-menu{
+    display:none !important;
   }
   .top-tools.portal-mode #langBtn{
     display:none !important;
-  }
-  .top-tools.portal-mode .lang-wrap{
-    position:absolute;
-    top:0;
-    right:0;
-    width:0;
-    height:0;
-  }
-  .top-tools.portal-mode .lang-panel{
-    top:116px;
-    right:0;
   }
   .home-settings-menu{
     position:relative;
@@ -419,21 +479,20 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:12px;
+    gap:8px;
     max-height:0;
     padding-top:0;
-    overflow:hidden;
+    overflow:visible;
     opacity:0;
     transform:translateY(-10px) scale(.92);
     pointer-events:none;
     transition:opacity .28s, transform .28s, max-height .28s, padding-top .28s;
   }
-  #homeSettingsBtn:hover + .home-settings-menu,
-  #homeSettingsBtn:focus + .home-settings-menu,
+  .top-tools-left:hover .home-settings-menu,
   .home-settings-menu:hover,
   .home-settings-menu:focus-within{
-    max-height:64px;
-    padding-top:12px;
+    max-height:300px;
+    padding-top:10px;
     opacity:1;
     transform:translateY(0) scale(1);
     pointer-events:auto;
@@ -443,43 +502,43 @@
     width:44px;
     height:44px;
     border-radius:50%;
-    border:1px solid rgba(255,255,255,.48);
-    color:#fff;
+    border:1px solid var(--theme-btn-border);
+    color:var(--theme-text);
     cursor:pointer;
     display:flex;
     align-items:center;
     justify-content:center;
-    background:linear-gradient(135deg, rgba(255,255,255,.22), rgba(124,92,255,.18));
+    background:linear-gradient(135deg, var(--theme-gradient-start), var(--theme-gradient-end));
     backdrop-filter:blur(12px);
     -webkit-backdrop-filter:blur(12px);
     box-shadow:0 12px 30px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.28);
     opacity:0;
     transform:translateY(-8px) scale(.82);
-    transition:opacity .25s, transform .25s, background .25s, box-shadow .25s;
+    transition:opacity .25s, transform .25s, background .25s, box-shadow .25s, border-color .25s;
   }
-  #homeSettingsBtn:hover + .home-settings-menu .home-tool-btn,
-  #homeSettingsBtn:focus + .home-settings-menu .home-tool-btn,
+  .top-tools-left:hover .home-settings-menu .home-tool-btn,
   .home-settings-menu:hover .home-tool-btn,
   .home-settings-menu:focus-within .home-tool-btn{
     opacity:1;
     transform:translateY(0) scale(1);
   }
-  #homeSettingsBtn:hover + .home-settings-menu .home-tool-btn,
-  #homeSettingsBtn:focus + .home-settings-menu .home-tool-btn,
-  .home-settings-menu:hover .home-tool-btn,
-  .home-settings-menu:focus-within .home-tool-btn{transition-delay:.04s;}
+  .top-tools-left:hover .home-settings-menu .home-tool-btn:nth-child(1){transition-delay:.02s;}
+  .top-tools-left:hover .home-settings-menu .home-tool-btn:nth-child(2){transition-delay:.04s;}
+  .top-tools-left:hover .home-settings-menu .home-tool-btn:nth-child(3){transition-delay:.06s;}
+  .top-tools-left:hover .home-settings-menu .home-tool-btn:nth-child(4){transition-delay:.08s;}
+  .top-tools-left:hover .home-settings-menu .home-tool-btn:nth-child(5){transition-delay:.10s;}
   .home-tool-btn:hover{
-    background:linear-gradient(135deg, rgba(255,255,255,.36), rgba(255,143,199,.26));
-    box-shadow:0 16px 34px rgba(0,0,0,.25), 0 0 24px rgba(124,92,255,.28), inset 0 1px 0 rgba(255,255,255,.42);
+    background:linear-gradient(135deg, var(--theme-gradient-start), var(--theme-secondary));
+    box-shadow:0 16px 34px rgba(0,0,0,.25), 0 0 24px var(--theme-glow), inset 0 1px 0 rgba(255,255,255,.42);
     transform:translateY(-1px) scale(1.05);
   }
   .home-tool-btn svg{width:20px;height:20px;stroke:currentColor;}
   .home-tool-btn::after{
     content:attr(data-label);
     position:absolute;
-    right:56px;
+    left:56px;
     top:50%;
-    transform:translateY(-50%) translateX(8px);
+    transform:translateY(-50%) translateX(-8px);
     white-space:nowrap;
     padding:7px 10px;
     border-radius:999px;
@@ -499,11 +558,66 @@
     transform:translateY(-50%) translateX(0);
   }
 
+  /* ============ 主题选择器 ============ */
+  .theme-selector{
+    position:absolute;
+    top:0;
+    left:56px;
+    width:160px;
+    background:linear-gradient(180deg, rgba(20,28,60,.92), rgba(10,14,36,.94));
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:14px;
+    padding:10px;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    opacity:0;
+    transform:translateX(-8px) scale(.96);
+    pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    z-index:300;
+  }
+  .theme-selector.open{
+    opacity:1;
+    transform:translateX(0) scale(1);
+    pointer-events:auto;
+  }
+  .theme-option{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 10px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:background .2s;
+    color:#fff;
+    font-size:13px;
+  }
+  .theme-option:hover{
+    background:rgba(255,255,255,.12);
+  }
+  .theme-option.active{
+    background:rgba(124,92,255,.2);
+  }
+  .theme-dot{
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    flex-shrink:0;
+    border:2px solid rgba(255,255,255,.4);
+  }
+  .theme-option.active .theme-dot{
+    border-color:#fff;
+    box-shadow:0 0 8px rgba(255,255,255,.4);
+  }
+  .theme-name{
+    font-weight:500;
+  }
+
   /* ============ 语言下拉面板 ============ */
-  .lang-wrap{position:relative;}
   .lang-panel{
     position:absolute;
-    top:54px;right:0;
+    top:110px;left:56px;
     width:220px;
     background:linear-gradient(180deg, rgba(20,28,60,.92), rgba(10,14,36,.94));
     border:1px solid rgba(255,255,255,.12);
@@ -536,6 +650,163 @@
   }
   .lang-item.active .lang-code{color:#cdb6ff;}
   .lang-name{font-weight:500;}
+
+  /* ============ 用户管理面板 ============ */
+  .user-manage-overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.55);
+    backdrop-filter:blur(6px);
+    z-index:490;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s;
+  }
+  .user-manage-overlay.open{opacity:1;pointer-events:auto;}
+  .user-manage-panel{
+    position:fixed;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%) scale(.95);
+    width:min(900px, calc(100vw - 40px));
+    height:min(700px, calc(100dvh - 60px));
+    background:linear-gradient(180deg, rgba(20,28,60,.96), rgba(10,14,36,.98));
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:20px;
+    box-shadow:0 40px 100px rgba(0,0,0,.6);
+    backdrop-filter:blur(20px);
+    z-index:500;
+    display:flex;flex-direction:column;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s, transform .3s;
+  }
+  .user-manage-panel.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+  .user-manage-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 24px 14px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .user-manage-header h2{
+    color:#fff;font-size:18px;font-weight:700;
+    background:linear-gradient(90deg, #fff, #cdb6ff);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .user-manage-close{
+    width:32px;height:32px;border-radius:50%;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.2);
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:background .2s;
+  }
+  .user-manage-close:hover{background:rgba(255,255,255,.2);}
+  .user-manage-close svg{width:16px;height:16px;stroke:currentColor;}
+  .user-manage-tabs{
+    display:flex;gap:4px;
+    padding:10px 24px 0;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    overflow-x:auto;
+  }
+  .user-manage-tab{
+    padding:8px 14px;border-radius:10px 10px 0 0;
+    background:transparent;border:none;
+    color:rgba(255,255,255,.55);font-size:13px;font-weight:500;
+    cursor:pointer;white-space:nowrap;
+    transition:color .2s, background .2s;
+    border-bottom:2px solid transparent;
+  }
+  .user-manage-tab:hover{color:rgba(255,255,255,.85);}
+  .user-manage-tab.active{
+    color:#fff;
+    background:linear-gradient(180deg, rgba(124,92,255,.15), transparent);
+    border-bottom-color:#7c5cff;
+  }
+  .user-manage-body{
+    flex:1;overflow-y:auto;
+    padding:20px 24px;
+  }
+  .user-manage-section{display:none;}
+  .user-manage-section.active{display:block;}
+  .um-toolbar{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:16px;flex-wrap:wrap;
+  }
+  .um-btn{
+    padding:8px 16px;border-radius:10px;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.15);
+    color:#fff;font-size:13px;font-weight:500;
+    cursor:pointer;display:flex;align-items:center;gap:6px;
+    transition:background .2s, border-color .2s;
+  }
+  .um-btn:hover{background:rgba(255,255,255,.18);}
+  .um-btn.primary{
+    background:linear-gradient(135deg, rgba(124,92,255,.5), rgba(124,92,255,.3));
+    border-color:rgba(124,92,255,.5);
+  }
+  .um-btn.primary:hover{background:linear-gradient(135deg, rgba(124,92,255,.6), rgba(124,92,255,.4));}
+  .um-btn.danger{
+    background:linear-gradient(135deg, rgba(231,111,81,.4), rgba(231,111,81,.2));
+    border-color:rgba(231,111,81,.4);
+  }
+  .um-btn.danger:hover{background:linear-gradient(135deg, rgba(231,111,81,.5), rgba(231,111,81,.3));}
+  .um-search{display:flex;gap:6px;margin-left:auto;}
+  .um-search input{
+    padding:7px 12px;border-radius:8px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12);
+    color:#fff;font-size:13px;outline:none;
+    width:180px;
+  }
+  .um-search input::placeholder{color:rgba(255,255,255,.35);}
+  .um-search button{
+    padding:7px 14px;border-radius:8px;
+    background:rgba(124,92,255,.3);
+    border:1px solid rgba(124,92,255,.4);
+    color:#fff;font-size:13px;cursor:pointer;
+  }
+  .um-table-wrap{overflow-x:auto;}
+  .um-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .um-table th,.um-table td{
+    padding:10px 12px;text-align:left;
+    border-bottom:1px solid rgba(255,255,255,.06);
+    color:rgba(255,255,255,.7);
+  }
+  .um-table th{color:rgba(255,255,255,.9);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.3px;}
+  .um-table tbody tr:hover{background:rgba(255,255,255,.04);}
+  .um-table .um-actions{display:flex;gap:6px;}
+  .um-table .um-actions button{
+    padding:4px 10px;border-radius:6px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12);
+    color:rgba(255,255,255,.7);font-size:11px;cursor:pointer;
+  }
+  .um-table .um-actions button:hover{background:rgba(255,255,255,.15);color:#fff;}
+  .um-role-list,.um-user-grid,.um-security-list,.um-audit-list,.um-ops-content{
+    display:grid;gap:10px;
+  }
+  .um-user-grid{grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));}
+  .um-card{
+    padding:14px;border-radius:12px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.08);
+    color:#fff;
+  }
+  .um-card h4{font-size:14px;margin-bottom:6px;}
+  .um-card p{font-size:12px;color:rgba(255,255,255,.55);}
+  .um-batch-actions{display:grid;gap:20px;}
+  .um-batch-group h4{color:#fff;font-size:14px;margin-bottom:10px;}
+  .um-batch-area{
+    padding:30px;border-radius:12px;
+    border:2px dashed rgba(255,255,255,.15);
+    text-align:center;color:rgba(255,255,255,.5);
+    cursor:pointer;transition:border-color .2s, background .2s;
+  }
+  .um-batch-area:hover{border-color:rgba(124,92,255,.4);background:rgba(124,92,255,.05);}
+  .um-batch-btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .um-status-badge{
+    display:inline-block;padding:3px 10px;border-radius:999px;
+    font-size:11px;font-weight:600;
+  }
+  .um-status-badge.active{background:rgba(45,211,111,.2);color:#2dd36f;}
+  .um-status-badge.disabled{background:rgba(235,68,90,.2);color:#eb445a;}
+  .um-status-badge.pending{background:rgba(255,196,9,.2);color:#ffc409;}
 
   /* ============ 登录卡片 ============ */
   .stage{
@@ -7113,42 +7384,6 @@
 
 <!-- 右上角工具栏 -->
 <div class="top-tools">
-  <!-- 语言按钮 -->
-  <div class="lang-wrap">
-    <button class="icon-btn" id="langBtn" title="语言设置" aria-label="语言设置">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="2" y1="12" x2="22" y2="12"/>
-        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-      </svg>
-    </button>
-    <div class="lang-panel" id="langPanel" role="menu">
-      <div class="lang-item active" data-lang="zh-CN">
-        <span class="lang-code">CN</span><span class="lang-name">简体中文</span>
-      </div>
-      <div class="lang-item" data-lang="zh-HK">
-        <span class="lang-code">HK</span><span class="lang-name">繁體中文</span>
-      </div>
-      <div class="lang-item" data-lang="en-US">
-        <span class="lang-code">US</span><span class="lang-name">English</span>
-      </div>
-      <div class="lang-item" data-lang="ja-JP">
-        <span class="lang-code">JP</span><span class="lang-name">日本語</span>
-      </div>
-      <div class="lang-item" data-lang="ko-KR">
-        <span class="lang-code">KR</span><span class="lang-name">한국어</span>
-      </div>
-      <div class="lang-item" data-lang="fr-FR">
-        <span class="lang-code">FR</span><span class="lang-name">Français</span>
-      </div>
-      <div class="lang-item" data-lang="de-DE">
-        <span class="lang-code">DE</span><span class="lang-name">Deutsch</span>
-      </div>
-      <div class="lang-item" data-lang="ar-SA">
-        <span class="lang-code">AR</span><span class="lang-name">العربية</span>
-      </div>
-    </div>
-  </div>
   <div class="home-search-popover" id="homeSearchPopover" aria-label="首页搜索">
     <div class="search-star" aria-hidden="true">✦</div>
     <input id="homeSearchInput" type="search" placeholder="搜索用户、文章标题..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" data-lpignore="true" data-1p-ignore="true" data-form-type="other" />
@@ -7166,6 +7401,16 @@
     </svg>
     <span class="home-mail-badge" id="homeChatBadge">0</span>
   </button>
+  <button class="return-btn" id="returnLoginBtn" type="button" title="返回登录" aria-label="返回登录">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"/>
+      <path d="M12 19l-7-7 7-7"/>
+    </svg>
+  </button>
+</div>
+
+<!-- 左上角工具栏 -->
+<div class="top-tools-left" id="topToolsLeft">
   <button class="icon-btn" id="homeSettingsBtn" type="button" title="设置" aria-label="设置">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="3"/>
@@ -7173,20 +7418,91 @@
     </svg>
   </button>
   <div class="home-settings-menu" aria-label="首页设置功能">
-    <button class="home-tool-btn" id="homeLangBtn" type="button" data-label="语言切换" aria-label="语言切换">
+    <button class="home-tool-btn" id="homeLangBtn" type="button" data-label="语言切换" aria-label="语言切换" title="切换网站显示语言">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"/>
         <line x1="2" y1="12" x2="22" y2="12"/>
         <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
       </svg>
     </button>
+    <button class="home-tool-btn" id="homeThemeBtn" type="button" data-label="主题切换" aria-label="主题切换" title="切换网站主题">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+    </button>
+    <div class="theme-selector" id="themeSelector">
+      <div class="theme-option active" data-theme="default" title="默认主题">
+        <span class="theme-dot" style="background:linear-gradient(135deg,#7c5cff,#ff8bcd)"></span>
+        <span class="theme-name">默认</span>
+      </div>
+      <div class="theme-option" data-theme="light" title="浅色主题">
+        <span class="theme-dot" style="background:linear-gradient(135deg,#5b8cff,#ff8b8b)"></span>
+        <span class="theme-name">浅色</span>
+      </div>
+      <div class="theme-option" data-theme="ocean" title="海洋主题">
+        <span class="theme-dot" style="background:linear-gradient(135deg,#00b4d8,#90e0ef)"></span>
+        <span class="theme-name">海洋</span>
+      </div>
+      <div class="theme-option" data-theme="forest" title="森林主题">
+        <span class="theme-dot" style="background:linear-gradient(135deg,#2d6a4f,#95d5b2)"></span>
+        <span class="theme-name">森林</span>
+      </div>
+      <div class="theme-option" data-theme="sunset" title="日落主题">
+        <span class="theme-dot" style="background:linear-gradient(135deg,#e76f51,#f4a261)"></span>
+        <span class="theme-name">日落</span>
+      </div>
+    </div>
+    <button class="home-tool-btn" id="homeUserManageBtn" type="button" data-label="用户管理" aria-label="用户管理" title="用户管理（仅管理员）" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </button>
+    <button class="home-tool-btn" id="homeFullscreenBtn" type="button" data-label="全屏模式" aria-label="全屏模式" title="切换全屏显示">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 3 21 3 21 9"/>
+        <polyline points="9 21 3 21 3 15"/>
+        <line x1="21" y1="3" x2="14" y2="10"/>
+        <line x1="3" y1="21" x2="10" y2="14"/>
+      </svg>
+    </button>
+    <button class="home-tool-btn" id="homeSoundBtn" type="button" data-label="音效开关" aria-label="音效开关" title="开启/关闭网站音效">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      </svg>
+    </button>
   </div>
-  <button class="return-btn" id="returnLoginBtn" type="button" title="返回登录" aria-label="返回登录">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M19 12H5"/>
-      <path d="M12 19l-7-7 7-7"/>
-    </svg>
-  </button>
+  <!-- 语言选择面板 -->
+  <div class="lang-panel" id="langPanel" role="menu">
+    <div class="lang-item active" data-lang="zh-CN">
+      <span class="lang-code">CN</span><span class="lang-name">简体中文</span>
+    </div>
+    <div class="lang-item" data-lang="zh-HK">
+      <span class="lang-code">HK</span><span class="lang-name">繁體中文</span>
+    </div>
+    <div class="lang-item" data-lang="en-US">
+      <span class="lang-code">US</span><span class="lang-name">English</span>
+    </div>
+    <div class="lang-item" data-lang="ja-JP">
+      <span class="lang-code">JP</span><span class="lang-name">日本語</span>
+    </div>
+    <div class="lang-item" data-lang="ko-KR">
+      <span class="lang-code">KR</span><span class="lang-name">한국어</span>
+    </div>
+    <div class="lang-item" data-lang="fr-FR">
+      <span class="lang-code">FR</span><span class="lang-name">Français</span>
+    </div>
+    <div class="lang-item" data-lang="de-DE">
+      <span class="lang-code">DE</span><span class="lang-name">Deutsch</span>
+    </div>
+    <div class="lang-item" data-lang="ar-SA">
+      <span class="lang-code">AR</span><span class="lang-name">العربية</span>
+    </div>
+  </div>
 </div>
 <div class="transition-flare" id="transitionFlare" aria-hidden="true"></div>
 <div class="light-feathers" id="lightFeathers" aria-hidden="true"></div>
@@ -7838,7 +8154,7 @@ const langBtn = document.getElementById('langBtn');
 const langPanel = document.getElementById('langPanel');
 const homeLangBtn = document.getElementById('homeLangBtn');
 const homeSettingsBtn = document.getElementById('homeSettingsBtn');
-langBtn.addEventListener('click', (e)=>{
+if(langBtn) langBtn.addEventListener('click', (e)=>{
   e.stopPropagation();
   langPanel.classList.toggle('open');
 });
@@ -7848,6 +8164,91 @@ if(homeLangBtn){
     langPanel.classList.toggle('open');
   });
 }
+// 主题切换
+const homeThemeBtn = document.getElementById('homeThemeBtn');
+const themeSelector = document.getElementById('themeSelector');
+const themeOptions = document.querySelectorAll('.theme-option');
+const themes = ['default','light','ocean','forest','sunset'];
+let currentThemeIndex = 0;
+
+function applyTheme(theme){
+  document.body.setAttribute('data-theme', theme === 'default' ? '' : theme);
+  localStorage.setItem('ans_blog_theme', theme);
+  themeOptions.forEach(opt=>{
+    opt.classList.toggle('active', opt.dataset.theme === theme);
+  });
+  const themeNames = {default:'默认',light:'浅色',ocean:'海洋',forest:'森林',sunset:'日落'};
+  showLoginToast(`已切换到${themeNames[theme]}主题。`, 'success', '主题切换');
+}
+
+if(homeThemeBtn){
+  homeThemeBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    themeSelector.classList.toggle('open');
+  });
+}
+
+themeOptions.forEach(opt=>{
+  opt.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const theme = opt.dataset.theme;
+    currentThemeIndex = themes.indexOf(theme);
+    applyTheme(theme);
+    themeSelector.classList.remove('open');
+  });
+});
+
+document.addEventListener('click', (e)=>{
+  if(themeSelector && !themeSelector.contains(e.target) && e.target!==homeThemeBtn){
+    themeSelector.classList.remove('open');
+  }
+});
+
+// 加载保存的主题
+const savedTheme = localStorage.getItem('ans_blog_theme') || 'default';
+if(savedTheme && savedTheme !== 'default'){
+  document.body.setAttribute('data-theme', savedTheme);
+  currentThemeIndex = themes.indexOf(savedTheme);
+}
+themeOptions.forEach(opt=>{
+  opt.classList.toggle('active', opt.dataset.theme === savedTheme);
+});
+// 用户管理按钮
+const homeUserManageBtn = document.getElementById('homeUserManageBtn');
+if(homeUserManageBtn) homeUserManageBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  openUserManagePanel();
+});
+
+// 显示/隐藏用户管理按钮（仅站主/管理员）
+function updateUserManageBtnVisibility(){
+  const user = readSavedUser();
+  const isAdmin = isSiteOwnerUser(user);
+  if(homeUserManageBtn){
+    homeUserManageBtn.style.display = isAdmin ? 'flex' : 'none';
+  }
+}
+// 全屏模式
+const homeFullscreenBtn = document.getElementById('homeFullscreenBtn');
+if(homeFullscreenBtn) homeFullscreenBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen?.() || document.documentElement.webkitRequestFullscreen?.();
+    showLoginToast('已进入全屏模式，按 Esc 退出。', 'success', '全屏模式');
+  }else{
+    document.exitFullscreen?.() || document.webkitExitFullscreen?.();
+    showLoginToast('已退出全屏模式。', 'success', '全屏模式');
+  }
+});
+// 音效开关
+const homeSoundBtn = document.getElementById('homeSoundBtn');
+let soundEnabled = localStorage.getItem('ans_blog_sound') !== 'off';
+if(homeSoundBtn) homeSoundBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  soundEnabled = !soundEnabled;
+  localStorage.setItem('ans_blog_sound', soundEnabled ? 'on' : 'off');
+  showLoginToast(soundEnabled ? '音效已开启。' : '音效已关闭。', 'success', '音效设置');
+});
 document.addEventListener('click', (e)=>{
   if(!langPanel.contains(e.target) && e.target!==langBtn && e.target!==homeLangBtn && !homeLangBtn?.contains(e.target)){
     langPanel.classList.remove('open');
@@ -10560,6 +10961,9 @@ function enterDashboard(userLike){
   }
   if(returnLoginBtn) returnLoginBtn.classList.add('visible');
   if(topTools) topTools.classList.add('portal-mode');
+  const topToolsLeft = document.getElementById('topToolsLeft');
+  if(topToolsLeft) topToolsLeft.style.display = 'flex';
+  updateUserManageBtnVisibility();
   if(getAuthToken() && readSavedUser()?.username !== 'guest'){
     setTimeout(()=>{
       if(typeof refreshFriends === 'function') refreshFriends({ silent:true });
@@ -13438,7 +13842,326 @@ startSiteVersionPoll();
     }
   });
 })();
+
+/* =============== 用户管理面板 =============== */
+const userManageOverlay = document.getElementById('userManageOverlay');
+const userManagePanel = document.getElementById('userManagePanel');
+const userManageClose = document.getElementById('userManageClose');
+
+function openUserManagePanel(){
+  if(userManageOverlay) userManageOverlay.classList.add('open');
+  if(userManagePanel) userManagePanel.classList.add('open');
+  loadUserManageData();
+}
+
+function closeUserManagePanel(){
+  if(userManageOverlay) userManageOverlay.classList.remove('open');
+  if(userManagePanel) userManagePanel.classList.remove('open');
+}
+
+if(userManageClose) userManageClose.addEventListener('click', closeUserManagePanel);
+if(userManageOverlay) userManageOverlay.addEventListener('click', closeUserManagePanel);
+
+// Tab 切换
+document.querySelectorAll('.user-manage-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.user-manage-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.user-manage-section').forEach(s=>s.classList.remove('active'));
+    tab.classList.add('active');
+    const section = document.querySelector(`.user-manage-section[data-section="${tab.dataset.tab}"]`);
+    if(section) section.classList.add('active');
+  });
+});
+
+// 模拟用户数据
+let umUsers = [
+  {username:'An',nickname:'站主An',role:'站主',status:'active',regTime:'2024-01-01',avatar:''},
+  {username:'admin',nickname:'管理员',role:'管理员',status:'active',regTime:'2024-03-15',avatar:''},
+  {username:'user1',nickname:'用户一',role:'普通用户',status:'active',regTime:'2024-06-20',avatar:''},
+  {username:'user2',nickname:'用户二',role:'普通用户',status:'disabled',regTime:'2024-08-10',avatar:''},
+  {username:'guest1',nickname:'访客一',role:'访客',status:'pending',regTime:'2025-01-05',avatar:''}
+];
+
+let umRoles = [
+  {name:'站主',permissions:['全部权限'],users:1},
+  {name:'管理员',permissions:['用户管理','内容管理','公告管理'],users:1},
+  {name:'编辑',permissions:['发文','评论管理'],users:0},
+  {name:'作者',permissions:['发文'],users:0},
+  {name:'普通用户',permissions:['评论','点赞'],users:2},
+  {name:'访客',permissions:['浏览'],users:1}
+];
+
+function loadUserManageData(){
+  renderUserTable();
+  renderRoleList();
+  renderUserGrid();
+}
+
+function renderUserTable(){
+  const tbody = document.getElementById('umUserTableBody');
+  if(!tbody) return;
+  tbody.innerHTML = umUsers.map(u=>`
+    <tr>
+      <td>${escapeHtml(u.username)}</td>
+      <td>${escapeHtml(u.nickname)}</td>
+      <td>${escapeHtml(u.role)}</td>
+      <td><span class="um-status-badge ${u.status}">${u.status==='active'?'正常':u.status==='disabled'?'禁用':'待审核'}</span></td>
+      <td>${u.regTime}</td>
+      <td><div class="um-actions">
+        <button onclick="umEditUser('${u.username}')">编辑</button>
+        <button onclick="umResetPwd('${u.username}')">重置密码</button>
+        <button onclick="umToggleStatus('${u.username}')">${u.status==='active'?'禁用':'启用'}</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+function renderRoleList(){
+  const list = document.getElementById('umRoleList');
+  if(!list) return;
+  list.innerHTML = umRoles.map(r=>`
+    <div class="um-card">
+      <h4>${escapeHtml(r.name)} <span style="color:rgba(255,255,255,.4);font-size:12px;">(${r.users}人)</span></h4>
+      <p>${r.permissions.map(p=>escapeHtml(p)).join(' · ')}</p>
+    </div>
+  `).join('');
+}
+
+function renderUserGrid(){
+  const grid = document.getElementById('umUserGrid');
+  if(!grid) return;
+  grid.innerHTML = umUsers.map(u=>`
+    <div class="um-card">
+      <h4>${escapeHtml(u.nickname)}</h4>
+      <p>@${escapeHtml(u.username)} · ${escapeHtml(u.role)}</p>
+      <p>注册: ${u.regTime}</p>
+      <p><span class="um-status-badge ${u.status}">${u.status==='active'?'正常':u.status==='disabled'?'禁用':'待审核'}</span></p>
+    </div>
+  `).join('');
+}
+
+// 用户管理操作函数
+window.umEditUser = function(username){
+  showLoginToast(`编辑用户: ${username}`, 'info', '用户管理');
+};
+window.umResetPwd = function(username){
+  if(confirm(`确定要重置 ${username} 的密码吗？`)){
+    showLoginToast(`已重置 ${username} 的密码`, 'success', '用户管理');
+  }
+};
+window.umToggleStatus = function(username){
+  const user = umUsers.find(u=>u.username===username);
+  if(user){
+    user.status = user.status==='active'?'disabled':'active';
+    renderUserTable();
+    renderUserGrid();
+    showLoginToast(`已${user.status==='active'?'启用':'禁用'}用户 ${username}`, 'success', '用户管理');
+  }
+};
+
+// 搜索功能
+const umSearchInput = document.getElementById('umSearchInput');
+const umSearchBtn = document.getElementById('umSearchBtn');
+if(umSearchBtn){
+  umSearchBtn.addEventListener('click', ()=>{
+    const q = umSearchInput?.value?.trim()?.toLowerCase();
+    if(!q){renderUserTable();return;}
+    const filtered = umUsers.filter(u=>
+      u.username.toLowerCase().includes(q)||
+      u.nickname.toLowerCase().includes(q)
+    );
+    const tbody = document.getElementById('umUserTableBody');
+    if(tbody) tbody.innerHTML = filtered.map(u=>`
+      <tr>
+        <td>${escapeHtml(u.username)}</td>
+        <td>${escapeHtml(u.nickname)}</td>
+        <td>${escapeHtml(u.role)}</td>
+        <td><span class="um-status-badge ${u.status}">${u.status==='active'?'正常':u.status==='disabled'?'禁用':'待审核'}</span></td>
+        <td>${u.regTime}</td>
+        <td><div class="um-actions">
+          <button onclick="umEditUser('${u.username}')">编辑</button>
+          <button onclick="umResetPwd('${u.username}')">重置密码</button>
+          <button onclick="umToggleStatus('${u.username}')">${u.status==='active'?'禁用':'启用'}</button>
+        </div></td>
+      </tr>
+    `).join('');
+  });
+}
+
+// 新增用户
+const umAddUserBtn = document.getElementById('umAddUserBtn');
+if(umAddUserBtn){
+  umAddUserBtn.addEventListener('click', ()=>{
+    const name = prompt('请输入新用户名:');
+    if(name && !umUsers.find(u=>u.username===name)){
+      umUsers.push({username:name,nickname:name,role:'普通用户',status:'active',regTime:new Date().toISOString().slice(0,10),avatar:''});
+      renderUserTable();renderUserGrid();
+      showLoginToast(`已创建用户: ${name}`, 'success', '用户管理');
+    }
+  });
+}
+
+// 注册管控
+let registerEnabled = true;
+const umToggleRegisterBtn = document.getElementById('umToggleRegisterBtn');
+if(umToggleRegisterBtn){
+  umToggleRegisterBtn.addEventListener('click', ()=>{
+    registerEnabled = !registerEnabled;
+    umToggleRegisterBtn.textContent = registerEnabled ? '关闭注册' : '开启注册';
+    showLoginToast(registerEnabled ? '注册入口已开启' : '注册入口已关闭', 'success', '用户管理');
+  });
+}
+
+// 批量操作按钮
+const umBatchEnable = document.getElementById('umBatchEnable');
+if(umBatchEnable) umBatchEnable.addEventListener('click', ()=>showLoginToast('批量启用功能开发中...', 'info', '用户管理'));
+const umBatchDisable = document.getElementById('umBatchDisable');
+if(umBatchDisable) umBatchDisable.addEventListener('click', ()=>showLoginToast('批量禁用功能开发中...', 'info', '用户管理'));
+const umBatchRole = document.getElementById('umBatchRole');
+if(umBatchRole) umBatchRole.addEventListener('click', ()=>showLoginToast('批量改角色功能开发中...', 'info', '用户管理'));
+const umBatchDelete = document.getElementById('umBatchDelete');
+if(umBatchDelete) umBatchDelete.addEventListener('click', ()=>showLoginToast('批量删除功能开发中...', 'info', '用户管理'));
+
+// 安全审计按钮
+const umLoginLogBtn = document.getElementById('umLoginLogBtn');
+if(umLoginLogBtn) umLoginLogBtn.addEventListener('click', ()=>showLoginToast('登录日志功能开发中...', 'info', '用户管理'));
+const umOpLogBtn = document.getElementById('umOpLogBtn');
+if(umOpLogBtn) umOpLogBtn.addEventListener('click', ()=>showLoginToast('操作日志功能开发中...', 'info', '用户管理'));
+const umViolationBtn = document.getElementById('umViolationBtn');
+if(umViolationBtn) umViolationBtn.addEventListener('click', ()=>showLoginToast('违规档案功能开发中...', 'info', '用户管理'));
+
+// 运营按钮
+const umNotifyBtn = document.getElementById('umNotifyBtn');
+if(umNotifyBtn) umNotifyBtn.addEventListener('click', ()=>showLoginToast('群发通知功能开发中...', 'info', '用户管理'));
+const umStatsBtn = document.getElementById('umStatsBtn');
+if(umStatsBtn) umStatsBtn.addEventListener('click', ()=>{
+  const content = document.getElementById('umOpsContent');
+  if(content) content.innerHTML = `
+    <div class="um-card"><h4>总用户数</h4><p style="font-size:24px;font-weight:700;color:#7c5cff;">${umUsers.length}</p></div>
+    <div class="um-card"><h4>活跃用户</h4><p style="font-size:24px;font-weight:700;color:#2dd36f;">${umUsers.filter(u=>u.status==='active').length}</p></div>
+    <div class="um-card"><h4>禁用用户</h4><p style="font-size:24px;font-weight:700;color:#eb445a;">${umUsers.filter(u=>u.status==='disabled').length}</p></div>
+  `;
+});
+
+// IP封禁
+const umIpBanBtn = document.getElementById('umIpBanBtn');
+if(umIpBanBtn) umIpBanBtn.addEventListener('click', ()=>{
+  const ip = prompt('请输入要封禁的IP地址:');
+  if(ip) showLoginToast(`已封禁IP: ${ip}`, 'success', '用户管理');
+});
+
+// 导出数据
+const umExportBtn = document.getElementById('umExportBtn');
+if(umExportBtn){
+  umExportBtn.addEventListener('click', ()=>{
+    const csv = '用户名,昵称,角色,状态,注册时间\n' + umUsers.map(u=>`${u.username},${u.nickname},${u.role},${u.status},${u.regTime}`).join('\n');
+    const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `users_${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+    showLoginToast('用户数据已导出', 'success', '用户管理');
+  });
+}
 </script>
+
+<!-- 用户管理面板 -->
+<div class="user-manage-overlay" id="userManageOverlay"></div>
+<div class="user-manage-panel" id="userManagePanel">
+  <div class="user-manage-header">
+    <h2>用户管理中心</h2>
+    <button class="user-manage-close" id="userManageClose" type="button" aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="user-manage-tabs">
+    <button class="user-manage-tab active" data-tab="lifecycle">账号管理</button>
+    <button class="user-manage-tab" data-tab="roles">权限角色</button>
+    <button class="user-manage-tab" data-tab="users">用户信息</button>
+    <button class="user-manage-tab" data-tab="security">状态风控</button>
+    <button class="user-manage-tab" data-tab="batch">批量操作</button>
+    <button class="user-manage-tab" data-tab="audit">安全审计</button>
+    <button class="user-manage-tab" data-tab="ops">运营内容</button>
+  </div>
+  <div class="user-manage-body">
+    <!-- 账号生命周期 -->
+    <div class="user-manage-section active" data-section="lifecycle">
+      <div class="um-toolbar">
+        <button class="um-btn primary" id="umAddUserBtn"><span>+</span> 新增账号</button>
+        <button class="um-btn" id="umToggleRegisterBtn">关闭注册</button>
+        <div class="um-search"><input type="text" placeholder="搜索用户..." id="umSearchInput"/><button id="umSearchBtn">搜索</button></div>
+      </div>
+      <div class="um-table-wrap">
+        <table class="um-table">
+          <thead><tr><th>用户名</th><th>昵称</th><th>角色</th><th>状态</th><th>注册时间</th><th>操作</th></tr></thead>
+          <tbody id="umUserTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- 权限角色 -->
+    <div class="user-manage-section" data-section="roles">
+      <div class="um-toolbar">
+        <button class="um-btn primary" id="umAddRoleBtn"><span>+</span> 新增角色</button>
+      </div>
+      <div class="um-role-list" id="umRoleList"></div>
+    </div>
+    <!-- 用户信息 -->
+    <div class="user-manage-section" data-section="users">
+      <div class="um-toolbar">
+        <div class="um-search"><input type="text" placeholder="搜索用户..." id="umUserSearchInput"/><button id="umUserSearchBtn">搜索</button></div>
+        <button class="um-btn" id="umExportBtn">导出数据</button>
+      </div>
+      <div class="um-user-grid" id="umUserGrid"></div>
+    </div>
+    <!-- 状态风控 -->
+    <div class="user-manage-section" data-section="security">
+      <div class="um-toolbar">
+        <button class="um-btn" id="umBlacklistBtn">黑名单</button>
+        <button class="um-btn" id="umWhitelistBtn">白名单</button>
+        <button class="um-btn danger" id="umIpBanBtn">IP封禁</button>
+      </div>
+      <div class="um-security-list" id="umSecurityList"></div>
+    </div>
+    <!-- 批量操作 -->
+    <div class="user-manage-section" data-section="batch">
+      <div class="um-batch-actions">
+        <div class="um-batch-group">
+          <h4>批量导入</h4>
+          <div class="um-batch-area" id="umImportArea">
+            <p>拖拽 CSV 文件到此处或点击上传</p>
+            <input type="file" accept=".csv" id="umImportFile" hidden/>
+          </div>
+        </div>
+        <div class="um-batch-group">
+          <h4>批量操作</h4>
+          <div class="um-batch-btns">
+            <button class="um-btn" id="umBatchEnable">批量启用</button>
+            <button class="um-btn" id="umBatchDisable">批量禁用</button>
+            <button class="um-btn" id="umBatchRole">批量改角色</button>
+            <button class="um-btn danger" id="umBatchDelete">批量删除</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 安全审计 -->
+    <div class="user-manage-section" data-section="audit">
+      <div class="um-toolbar">
+        <button class="um-btn" id="umLoginLogBtn">登录日志</button>
+        <button class="um-btn" id="umOpLogBtn">操作日志</button>
+        <button class="um-btn" id="umViolationBtn">违规档案</button>
+      </div>
+      <div class="um-audit-list" id="umAuditList"></div>
+    </div>
+    <!-- 运营内容 -->
+    <div class="user-manage-section" data-section="ops">
+      <div class="um-toolbar">
+        <button class="um-btn primary" id="umNotifyBtn">群发通知</button>
+        <button class="um-btn" id="umStatsBtn">数据统计</button>
+      </div>
+      <div class="um-ops-content" id="umOpsContent"></div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
