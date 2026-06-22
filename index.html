@@ -680,8 +680,11 @@
   .lang-item.active .lang-code{color:#cdb6ff;}
   .lang-name{font-weight:500;}
 
-  /* 登录页隐藏用户控制台按钮 */
+  /* 登录页隐藏用户控制台、搜索、聊天功能 */
   body:not(.portal-mode) #homeUserManageBtn{display:none !important;}
+  body:not(.portal-mode) .home-search-popover{display:none !important;}
+  body:not(.portal-mode) #homeChatBtn{display:none !important;}
+  body:not(.portal-mode) .ai-bot-fab{display:none !important;}
 
   /* ============ 用户控制台美化弹窗 ============ */
   .um-modal-overlay{
@@ -7732,7 +7735,7 @@
         </svg>
         <span data-i18n="username">用户名</span>
       </div>
-      <input type="text" class="input-box" id="nameInput" autocomplete="off" />
+      <input type="text" class="input-box" id="nameInput" autocomplete="username" />
 
       <div class="field-label">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -7742,7 +7745,7 @@
         <span data-i18n="password">密码</span>
       </div>
       <div class="password-wrap">
-        <input type="password" class="input-box" id="passwordInput" autocomplete="off" />
+        <input type="password" class="input-box" id="passwordInput" autocomplete="current-password" />
         <button class="password-toggle" id="passwordToggle" type="button" aria-label="显示密码">
           <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
@@ -7758,15 +7761,6 @@
       </div>
 
       <div class="login-options-row">
-        <label class="remember-account" for="rememberAccountInput">
-          <input type="checkbox" id="rememberAccountInput" />
-          <span class="remember-box" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 8.4 6.5 12 13 4.5"/>
-            </svg>
-          </span>
-          <span class="remember-text" data-i18n="rememberAccount">记住账户</span>
-        </label>
         <button class="guest-login-link" id="guestLoginBtn" type="button">
           <span class="guest-spark" aria-hidden="true">✦</span>
           <span data-i18n="visitorLogin">游客登录</span>
@@ -11436,6 +11430,7 @@ function enterDashboard(userLike){
   }
   if(returnLoginBtn) returnLoginBtn.classList.add('visible');
   if(topTools) topTools.classList.add('portal-mode');
+  document.body.classList.add('portal-mode');
   const topToolsLeft = document.getElementById('topToolsLeft');
   if(topToolsLeft) topToolsLeft.style.display = 'flex';
   if(getAuthToken() && readSavedUser()?.username !== 'guest'){
@@ -11801,6 +11796,7 @@ function returnToLogin(){
   }
   if(returnLoginBtn) returnLoginBtn.classList.remove('visible');
   if(topTools) topTools.classList.remove('portal-mode');
+  document.body.classList.remove('portal-mode');
   document.body.classList.remove('site-owner');
   searchResultsPanel?.classList.remove('open');
   closePublicProfile();
@@ -11819,41 +11815,6 @@ function returnToLogin(){
 }
 
 /* 登录按钮：使用网页内部账号表校验用户名和密码 */
-const REMEMBER_ACCOUNT_KEY = 'ans_blog_remember_account';
-const rememberAccountInput = document.getElementById('rememberAccountInput');
-if(rememberAccountInput){
-  rememberAccountInput.addEventListener('change', ()=>{
-    const pwI = document.getElementById('passwordInput');
-    const nmI = document.getElementById('nameInput');
-    if(rememberAccountInput.checked){
-      if(pwI) pwI.setAttribute('autocomplete','current-password');
-      if(nmI) nmI.setAttribute('autocomplete','username');
-    }else{
-      if(pwI) pwI.setAttribute('autocomplete','off');
-      if(nmI) nmI.setAttribute('autocomplete','off');
-    }
-  });
-}
-
-/* 页面加载时：从 localStorage 读取已记住的账户并预填表单 */
-(function loadRememberedAccount(){
-  try{
-    const raw = localStorage.getItem(REMEMBER_ACCOUNT_KEY);
-    if(!raw) return;
-    const data = JSON.parse(raw);
-    if(data && typeof data.name === 'string' && typeof data.password === 'string'){
-      const nameEl = document.getElementById('nameInput');
-      if(nameEl) nameEl.value = data.name;
-      if(passwordInput) passwordInput.value = data.password;
-      if(rememberAccountInput) rememberAccountInput.checked = true;
-      const pwI = document.getElementById('passwordInput');
-      const nmI = document.getElementById('nameInput');
-      if(pwI) pwI.setAttribute('autocomplete','current-password');
-      if(nmI) nmI.setAttribute('autocomplete','username');
-    }
-  }catch(_){ /* 忽略损坏的存储值 */ }
-})();
-
 const registerModal = document.getElementById('registerModal');
 const registerForm = document.getElementById('registerForm');
 const registerCloseBtn = document.getElementById('registerCloseBtn');
@@ -12253,20 +12214,6 @@ document.querySelector('.btn-login').addEventListener('click', async ()=>{
       body:JSON.stringify({ username:name, password })
     });
     saveLoginSession(result.token, result.user);
-    if(rememberAccountInput && rememberAccountInput.checked){
-      localStorage.setItem(REMEMBER_ACCOUNT_KEY, JSON.stringify({ name, password }));
-      // 开启记住账户：让浏览器弹出保存密码框
-      const pwInput = document.getElementById('passwordInput');
-      const nmInput = document.getElementById('nameInput');
-      if(pwInput) pwInput.setAttribute('autocomplete','current-password');
-      if(nmInput) nmInput.setAttribute('autocomplete','username');
-    }else{
-      localStorage.removeItem(REMEMBER_ACCOUNT_KEY);
-      const pwInput = document.getElementById('passwordInput');
-      const nmInput = document.getElementById('nameInput');
-      if(pwInput) pwInput.setAttribute('autocomplete','off');
-      if(nmInput) nmInput.setAttribute('autocomplete','off');
-    }
     showLoginToast(dict.loginSuccess + name + '!', 'success', '欢迎回来');
     enterDashboard(result.user);
   }catch(error){
