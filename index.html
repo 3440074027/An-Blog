@@ -8832,27 +8832,21 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(umSearchInput) umSearchInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') filterAndRenderUsers(); });
   if(umRoleFilter) umRoleFilter.addEventListener('change', filterAndRenderUsers);
 
-  // 注册管控（持久化到 localStorage，仅站主显示）
+  // 注册管控（持久化到 localStorage）
   const umToggleRegisterBtn = document.getElementById('umToggleRegisterBtn');
-  const currentUserForReg = readSavedUser();
-  const isOwnerForReg = isSiteOwnerUser(currentUserForReg);
   // 从 localStorage 恢复注册状态
   const savedRegStatus = localStorage.getItem('ans_blog_register_enabled');
   if(savedRegStatus !== null){
     registerEnabled = savedRegStatus === 'true';
   }
   if(umToggleRegisterBtn){
-    if(!isOwnerForReg){
-      umToggleRegisterBtn.style.display = 'none';
-    }else{
+    umToggleRegisterBtn.textContent = registerEnabled ? '关闭注册' : '开启注册';
+    umToggleRegisterBtn.addEventListener('click', ()=>{
+      registerEnabled = !registerEnabled;
+      localStorage.setItem('ans_blog_register_enabled', String(registerEnabled));
       umToggleRegisterBtn.textContent = registerEnabled ? '关闭注册' : '开启注册';
-      umToggleRegisterBtn.addEventListener('click', ()=>{
-        registerEnabled = !registerEnabled;
-        localStorage.setItem('ans_blog_register_enabled', String(registerEnabled));
-        umToggleRegisterBtn.textContent = registerEnabled ? '关闭注册' : '开启注册';
-        showLoginToast(registerEnabled ? '注册入口已开启' : '注册入口已关闭', 'success', '用户控制台');
-      });
-    }
+      showLoginToast(registerEnabled ? '注册入口已开启' : '注册入口已关闭', 'success', '用户控制台');
+    });
   }
 
   // 批量操作按钮
