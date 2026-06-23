@@ -6268,9 +6268,6 @@
     box-shadow:0 34px 100px rgba(0,0,0,.44), 0 0 60px rgba(212,175,55,.04);
     transition: all .35s cubic-bezier(.4,0,.2,1);
   }
-  .article-detail-card.comments-open{
-    width:min(1100px, 96vw);
-  }
   .article-detail-body{
     flex:1;display:flex;flex-direction:column;min-width:0;position:relative;
     transition: all .35s cubic-bezier(.4,0,.2,1);
@@ -6279,6 +6276,7 @@
   }
   .article-detail-card.comments-open{
     width:min(1480px, 96vw);
+    margin-left:calc(-190px);
   }
   .article-detail-card.comments-open .article-detail-body{
     margin-right:0;
@@ -11760,33 +11758,6 @@ async function postComment(){
   }
   el.sendBtn.disabled = true;
   el.sendBtn.textContent = '发送中...';
-  const savedUser = readSavedUser();
-  const tempComment = {
-    id: 'temp-' + Date.now(),
-    author: savedUser?.username || '匿名',
-    content: content,
-    createdAt: new Date().toISOString(),
-    parentId: currentReplyToId || null
-  };
-  // 立即显示到列表
-  const commentEl = renderCommentHtml(tempComment, !!currentReplyToId);
-  commentEl.style.opacity = '0.5';
-  const emptyEl = el.list?.querySelector('.cp-empty');
-  if(emptyEl) emptyEl.remove();
-  if(currentReplyToId && el.list){
-    // 回复：插入到被回复评论之后
-    const parentEl = el.list.querySelector(`.cp-comment[data-id="${CSS.escape(currentReplyToId)}"]`);
-    if(parentEl && parentEl.nextSibling){
-      el.list.insertBefore(commentEl, parentEl.nextSibling);
-    }else if(el.list){
-      el.list.appendChild(commentEl);
-    }
-  }else if(el.list){
-    // 顶层评论：插入到最前面
-    el.list.insertBefore(commentEl, el.list.firstChild);
-  }
-  // 滚动到新评论
-  commentEl.scrollIntoView({ behavior:'smooth', block:'nearest' });
   try{
     const body = {
       articleId: currentCommentArticleId,
@@ -11807,26 +11778,13 @@ async function postComment(){
       el.textarea.value = '';
       cancelReply();
       showLoginToast('评论发表成功。', 'success', '成功');
-      // 更新临时评论为真实数据
-      if(data.comment && data.comment.id){
-        commentEl.dataset.id = data.comment.id;
-        commentEl.style.opacity = '1';
-      }else{
-        // 服务端没返回完整数据，重新加载
-        loadComments();
-      }
-      // 更新计数
-      if(el.countEl){
-        const currentCount = parseInt(el.countEl.textContent || '0', 10);
-        el.countEl.textContent = currentCount + 1;
-      }
+      // 延迟 300ms 后从数据库重新加载评论，确保数据已持久化
+      setTimeout(()=> loadComments(), 300);
     }else{
       showLoginToast((data && data.error) || '发表评论失败。', 'error', '失败');
-      commentEl.remove();
     }
   }catch(error){
     showLoginToast('网络错误，请稍后重试。', 'error', '失败');
-    commentEl.remove();
   }finally{
     el.sendBtn.disabled = false;
     el.sendBtn.textContent = '发送';
