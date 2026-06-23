@@ -896,6 +896,19 @@
     font-size:12px;color:rgba(255,255,255,.35);transition:transform .3s;flex-shrink:0;
   }
   .perm-user-item.expanded .perm-user-arrow{transform:rotate(90deg);}
+  .perm-user-badges{
+    display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;
+  }
+  .perm-badge{
+    font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;white-space:nowrap;
+    transition:all .2s;
+  }
+  .perm-badge.on{
+    background:rgba(45,211,111,.15);color:#2dd36f;border:1px solid rgba(45,211,111,.25);
+  }
+  .perm-badge.off{
+    background:rgba(235,68,90,.12);color:#eb445a;border:1px solid rgba(235,68,90,.2);
+  }
   .perm-user-perms{
     max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease;
     padding:0 16px;border-top:0 solid rgba(255,255,255,.08);
@@ -9062,17 +9075,34 @@ document.addEventListener('DOMContentLoaded', ()=>{
     { key:'canLike',          tag:'no_like',          icon:'&#128077;', label:'点赞权限', desc:'点赞' }
   ];
 
-  function renderPermUserList(){
+  function renderPermUserList(filterQuery = ''){
     if(!umPermUserListEl) return;
     if(!umUsers || !umUsers.length){
       umPermUserListEl.innerHTML = '<div style="color:rgba(255,255,255,.4);font-size:13px;text-align:center;padding:24px 0;">暂无用户数据</div>';
       return;
     }
-    umPermUserListEl.innerHTML = umUsers.map(u => {
+    const q = filterQuery.toLowerCase().trim();
+    let displayUsers = umUsers;
+    if(q){
+      displayUsers = umUsers.filter(u =>
+        (u.username || '').toLowerCase().includes(q) ||
+        (u.nickname || '').toLowerCase().includes(q)
+      );
+    }
+    if(!displayUsers.length){
+      umPermUserListEl.innerHTML = '<div style="color:rgba(255,255,255,.4);font-size:13px;text-align:center;padding:24px 0;">未找到匹配用户</div>';
+      return;
+    }
+    umPermUserListEl.innerHTML = displayUsers.map(u => {
       const avatar = u.avatar
         ? `<img src="${escapeHtml(u.avatar)}" alt="" />`
         : `<span>${escapeHtml((u.nickname || u.username).charAt(0).toUpperCase())}</span>`;
       const tags = (u._profile?.tags) || [];
+      // 生成权限状态摘要徽章
+      const permBadges = PERM_DEFS.map(p => {
+        const enabled = !tags.includes(p.tag);
+        return `<span class="perm-badge ${enabled ? 'on' : 'off'}">${p.label}${enabled ? '✓' : '✗'}</span>`;
+      }).join('');
       return `
         <div class="perm-user-item" data-username="${escapeHtml(u.username)}">
           <div class="perm-user-header">
@@ -9080,6 +9110,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             <div class="perm-user-info">
               <div class="perm-user-name">${escapeHtml(u.nickname || u.username)}</div>
               <div class="perm-user-sub">@${escapeHtml(u.username)} · ${escapeHtml(u.role || '用户')}</div>
+              <div class="perm-user-badges">${permBadges}</div>
             </div>
             <span class="perm-user-arrow">&#9654;</span>
           </div>
@@ -9131,6 +9162,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
           if(descEl) descEl.textContent = c.checked ? '已开启' : '已禁止';
         });
 
+        // 更新头部徽章
+        updatePermHeaderBadges(item, user);
+
         try{
           const token = getAuthToken();
           const response = await fetch(authApiUrl('/api/admin'), {
@@ -9166,6 +9200,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
               const descEl = c.closest('.perm-row')?.querySelector('.perm-row-desc');
               if(descEl) descEl.textContent = c.checked ? '已开启' : '已禁止';
             });
+            updatePermHeaderBadges(item, user);
           }
         }catch(e){
           showLoginToast('网络错误，保存失败', 'error', '操作失败');
@@ -9176,14 +9211,44 @@ document.addEventListener('DOMContentLoaded', ()=>{
             const descEl = c.closest('.perm-row')?.querySelector('.perm-row-desc');
             if(descEl) descEl.textContent = c.checked ? '已开启' : '已禁止';
           });
+          updatePermHeaderBadges(item, user);
         }
       });
     });
   }
 
+  // 更新用户头部的权限状态徽章
+  function updatePermHeaderBadges(item, user){
+    const badgesEl = item.querySelector('.perm-user-badges');
+    if(!badgesEl) return;
+    const tags = (user._profile?.tags) || [];
+    badgesEl.innerHTML = PERM_DEFS.map(p => {
+      const enabled = !tags.includes(p.tag);
+      return `<span class="perm-badge ${enabled ? 'on' : 'off'}">${p.label}${enabled ? '✓' : '✗'}</span>`;
+    }).join('');
+  }
+
   // 刷新用户列表（供外部调用）
   function refreshPermUserList(){
-    renderPermUserList();
+    const input = document.getElementById('umPermSearchInput');
+    renderPermUserList(input ? input.value : '');
+  }
+
+  // 权限设置搜索功能
+  const umPermSearchInput = document.getElementById('umPermSearchInput');
+  const umPermSearchBtn = document.getElementById('umPermSearchBtn');
+  if(umPermSearchInput){
+    umPermSearchInput.addEventListener('input', ()=>{
+      renderPermUserList(umPermSearchInput.value);
+    });
+    umPermSearchInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape'){ umPermSearchInput.value = ''; renderPermUserList(''); }
+    });
+  }
+  if(umPermSearchBtn){
+    umPermSearchBtn.addEventListener('click', ()=>{
+      renderPermUserList(umPermSearchInput ? umPermSearchInput.value : '');
+    });
   }
 
   // 安全审计按钮
@@ -14588,6 +14653,10 @@ startSiteVersionPoll();
     <div class="user-manage-section" data-section="roles">
       <div class="um-toolbar">
         <span style="color:rgba(255,255,255,.6);font-size:13px;">点击用户展开权限面板，勾选即时生效</span>
+        <div class="um-search">
+          <input type="text" placeholder="搜索用户..." id="umPermSearchInput"/>
+          <button id="umPermSearchBtn">搜索</button>
+        </div>
       </div>
       <div class="um-permission-panel" id="umPermissionPanel" style="padding:16px 0;">
         <div id="umPermUserList" class="perm-user-list"></div>
