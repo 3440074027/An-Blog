@@ -6277,19 +6277,33 @@
     margin-right:0;
     width:100%;
   }
+  .article-detail-card.comments-open{
+    width:min(1480px, 96vw);
+  }
   .article-detail-card.comments-open .article-detail-body{
     margin-right:0;
-    width:calc(100% - 380px);
+    width:100%;
+    min-width:0;
   }
   .article-detail-comments-panel{
-    width:0;overflow:hidden;
+    position:absolute;
+    top:0;right:0;bottom:0;
+    width:380px;
+    transform:translateX(100%);
+    overflow:hidden;
     border-left:1px solid rgba(255,255,255,.08);
-    transition: all .35s cubic-bezier(.4,0,.2,1);
+    transition: transform .35s cubic-bezier(.4,0,.2,1);
     display:flex;flex-direction:column;
     flex-shrink:0;
+    background:
+      radial-gradient(ellipse at 15% 0%, rgba(212,175,55,.12), transparent 40%),
+      radial-gradient(ellipse at 85% 8%, rgba(255,200,100,.08), transparent 35%),
+      radial-gradient(ellipse at 50% 100%, rgba(100,180,220,.06), transparent 40%),
+      linear-gradient(170deg, #0B1628 0%, #132240 30%, #1A3050 55%, #0F2035 80%, #0A1525 100%);
+    z-index:20;
   }
   .article-detail-card.comments-open .article-detail-comments-panel{
-    width:380px;
+    transform:translateX(0);
   }
   .article-detail-scroll{
     flex:1 1 auto;
@@ -6351,20 +6365,6 @@
   .cp-input textarea:focus{border-color:rgba(124,92,255,.5);}
   .cp-input .cp-input-tools{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
   .cp-input .cp-input-left{display:flex;align-items:center;gap:8px;}
-  .cp-input .cp-image-btn{
-    width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:15px;
-    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative;
-  }
-  .cp-input .cp-image-btn:hover{background:rgba(124,92,255,.15);border-color:rgba(124,92,255,.3);color:#7c5cff;}
-  .cp-input .cp-image-btn.has-image{background:rgba(124,92,255,.15);border-color:#7c5cff;color:#7c5cff;}
-  .cp-input .cp-image-preview{position:relative;display:inline-block;margin-top:8px;border-radius:8px;overflow:hidden;max-width:120px;}
-  .cp-input .cp-image-preview img{width:100%;display:block;border-radius:8px;}
-  .cp-input .cp-image-preview .cp-image-remove{
-    position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;
-    background:rgba(0,0,0,.6);border:none;color:#fff;font-size:12px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-  }
   .cp-input .cp-send-btn{
     padding:7px 20px;border-radius:10px;background:linear-gradient(135deg,#7c5cff,#5b3cd4);
     border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .2s;
@@ -8343,6 +8343,7 @@
           <div class="article-detail-meta" id="articleDetailMeta"></div>
         </div>
         <div class="article-detail-head-right article-detail-actions">
+          <button id="articleDetailCommentsBtn" class="article-detail-comments-btn" type="button">评论 <span class="cmt-count" id="articleDetailCmtCount">0</span></button>
           <button id="articleDetailEditBtn" type="button">修改文章</button>
           <button id="articleDetailDeleteBtn" class="danger" type="button" hidden>删除文章</button>
           <button id="articleDetailCloseBtn" type="button">关闭</button>
@@ -8356,7 +8357,6 @@
         <span id="articleDetailPageInfo">第 1 / 1 页</span>
         <button id="articleDetailNextPage" type="button">下一页</button>
       </div>
-      <button id="articleDetailCommentsBtn" class="article-detail-comments-btn" type="button" style="position:absolute;right:20px;bottom:20px;z-index:10;">评论 <span class="cmt-count" id="articleDetailCmtCount">0</span></button>
     </div>
     <div class="article-detail-comments-panel" id="articleDetailCommentsPanel">
       <div class="cp-header">
@@ -8373,11 +8373,7 @@
         </div>
         <textarea id="cpTextarea" placeholder="写下你的评论..." maxlength="2000"></textarea>
         <div class="cp-input-tools">
-          <div class="cp-input-left">
-            <button class="cp-image-btn" id="cpImageBtn" title="添加图片(1MB以内)">&#x1f5bc;</button>
-            <input type="file" id="cpImageInput" accept="image/*" style="display:none" />
-            <div id="cpImagePreviewWrap"></div>
-          </div>
+          <div class="cp-input-left"></div>
           <button class="cp-send-btn" id="cpSendBtn">发送</button>
         </div>
       </div>
@@ -10615,6 +10611,15 @@ function setPublishProgress(percent){
 
 function openArticleEditor(article = null){
   if(!requireRealUser(article ? '修改文章' : '发布文章')) return;
+  // 检查发布权限（仅新建时检查）
+  if(!article){
+    const user = readSavedUser();
+    const tags = user?.profile?.tags || user?.tags || [];
+    if(tags.includes('no_post')){
+      showLoginToast('您已被禁止发布文章，请联系站主。', 'error', '权限不足');
+      return;
+    }
+  }
   editingArticleId = article?.id || '';
   articleTitleInput.value = article?.title || '';
   articleCategoryInput.value = article?.category || '随笔';
@@ -11519,8 +11524,6 @@ window.addEventListener('resize', ()=>setTimeout(refreshArticlePageSize, 120));
 let currentCommentArticleId = null;
 let currentReplyToId = null;
 let currentReplyToAuthor = '';
-let _cpSelectedImageDataUrl = null;
-
 function compressImage(file, maxSize, callback){
   const img = new Image();
   img.onload = function(){
@@ -11563,9 +11566,6 @@ function getCommentElements(){
     list: document.getElementById('cpList'),
     textarea: document.getElementById('cpTextarea'),
     sendBtn: document.getElementById('cpSendBtn'),
-    imageInput: document.getElementById('cpImageInput'),
-    imageBtn: document.getElementById('cpImageBtn'),
-    imagePreviewWrap: document.getElementById('cpImagePreviewWrap'),
     replyHint: document.getElementById('cpReplyHint'),
     replyText: document.getElementById('cpReplyText'),
     cancelReplyBtn: document.getElementById('cpCancelReply'),
@@ -11596,9 +11596,6 @@ function closeCommentsPanel(){
   currentReplyToId = null;
   currentReplyToAuthor = '';
   if(el.replyHint) el.replyHint.style.display = 'none';
-  _cpSelectedImageDataUrl = null;
-  if(el.imagePreviewWrap) el.imagePreviewWrap.innerHTML = '';
-  if(el.imageInput) el.imageInput.value = '';
   if(el.textarea) el.textarea.value = '';
   const viewerEl = document.getElementById('cpImageViewer');
   if(viewerEl) viewerEl.classList.remove('active');
@@ -11672,17 +11669,12 @@ function renderCommentHtml(comment, isReply){
   const isOwner = isSiteOwnerUser(currentUser);
   const isSelf = currentUser && currentUser.username === comment.author;
   const canDelete = isOwner || isSelf;
-  let imageHtml = '';
-  if(comment.image && comment.image.startsWith('data:image/')){
-    imageHtml = `<img class="cp-comment-image" src="${comment.image}" alt="评论图片" onclick="showCpImage(this.src)" />`;
-  }
   div.innerHTML = `
     <div class="cp-comment-avatar" title="${escapeHtml(authorName)}">${escapeHtml(initial)}</div>
     <div class="cp-comment-body">
       <div class="cp-comment-author">${escapeHtml(authorName)}</div>
       <div class="cp-comment-meta">${date}</div>
       <div class="cp-comment-text">${escapeHtml(comment.content)}</div>
-      ${imageHtml}
       <div class="cp-comment-actions">
         <button onclick="startReply('${comment.id}','${escapeHtml(authorName)}')">回复</button>
         <button onclick="copyCommentText(this)">复制</button>
@@ -11733,12 +11725,6 @@ function showCpImage(src){
   }
 }
 
-function removeCpImage(){
-  _cpSelectedImageDataUrl = null;
-  const wrap = document.getElementById('cpImagePreviewWrap');
-  if(wrap) wrap.innerHTML = '';
-}
-
 function startReply(commentId, authorName){
   currentReplyToId = commentId;
   currentReplyToAuthor = authorName;
@@ -11774,11 +11760,37 @@ async function postComment(){
   }
   el.sendBtn.disabled = true;
   el.sendBtn.textContent = '发送中...';
+  const savedUser = readSavedUser();
+  const tempComment = {
+    id: 'temp-' + Date.now(),
+    author: savedUser?.username || '匿名',
+    content: content,
+    createdAt: new Date().toISOString(),
+    parentId: currentReplyToId || null
+  };
+  // 立即显示到列表
+  const commentEl = renderCommentHtml(tempComment, !!currentReplyToId);
+  commentEl.style.opacity = '0.5';
+  const emptyEl = el.list?.querySelector('.cp-empty');
+  if(emptyEl) emptyEl.remove();
+  if(currentReplyToId && el.list){
+    // 回复：插入到被回复评论之后
+    const parentEl = el.list.querySelector(`.cp-comment[data-id="${CSS.escape(currentReplyToId)}"]`);
+    if(parentEl && parentEl.nextSibling){
+      el.list.insertBefore(commentEl, parentEl.nextSibling);
+    }else if(el.list){
+      el.list.appendChild(commentEl);
+    }
+  }else if(el.list){
+    // 顶层评论：插入到最前面
+    el.list.insertBefore(commentEl, el.list.firstChild);
+  }
+  // 滚动到新评论
+  commentEl.scrollIntoView({ behavior:'smooth', block:'nearest' });
   try{
     const body = {
       articleId: currentCommentArticleId,
       content,
-      image: _cpSelectedImageDataUrl || '',
       parentId: currentReplyToId || null
     };
     const token = getAuthToken();
@@ -11793,17 +11805,28 @@ async function postComment(){
     const data = await response.json().catch(()=>({}));
     if(response.ok && data && data.ok){
       el.textarea.value = '';
-      _cpSelectedImageDataUrl = null;
-      if(el.imagePreviewWrap) el.imagePreviewWrap.innerHTML = '';
-      if(el.imageInput) el.imageInput.value = '';
       cancelReply();
       showLoginToast('评论发表成功。', 'success', '成功');
-      loadComments();
+      // 更新临时评论为真实数据
+      if(data.comment && data.comment.id){
+        commentEl.dataset.id = data.comment.id;
+        commentEl.style.opacity = '1';
+      }else{
+        // 服务端没返回完整数据，重新加载
+        loadComments();
+      }
+      // 更新计数
+      if(el.countEl){
+        const currentCount = parseInt(el.countEl.textContent || '0', 10);
+        el.countEl.textContent = currentCount + 1;
+      }
     }else{
       showLoginToast((data && data.error) || '发表评论失败。', 'error', '失败');
+      commentEl.remove();
     }
   }catch(error){
     showLoginToast('网络错误，请稍后重试。', 'error', '失败');
+    commentEl.remove();
   }finally{
     el.sendBtn.disabled = false;
     el.sendBtn.textContent = '发送';
@@ -11839,8 +11862,6 @@ async function deleteComment(commentId){
   const btn = document.getElementById('articleDetailCommentsBtn');
   const cpClose = document.getElementById('cpCloseBtn');
   const cpSend = document.getElementById('cpSendBtn');
-  const cpImgInput = document.getElementById('cpImageInput');
-  const cpImgBtn = document.getElementById('cpImageBtn');
   const cpCancel = document.getElementById('cpCancelReply');
   const cpTA = document.getElementById('cpTextarea');
   const cpViewer = document.getElementById('cpImageViewer');
@@ -11858,38 +11879,6 @@ async function deleteComment(commentId){
   }
   if(cpClose) cpClose.addEventListener('click', closeCommentsPanel);
   if(cpSend) cpSend.addEventListener('click', postComment);
-  if(cpImgBtn && cpImgInput){
-    cpImgBtn.addEventListener('click', ()=> cpImgInput.click());
-    cpImgInput.addEventListener('change', function(){
-      const file = this.files && this.files[0];
-      if(!file) return;
-      if(!file.type.startsWith('image/')){
-        showLoginToast('请选择图片文件。', 'warn', '提示');
-        this.value = '';
-        return;
-      }
-      if(file.size > 10 * 1024 * 1024){
-        showLoginToast('图片过大，请选择10MB以内的图片。', 'warn', '提示');
-        this.value = '';
-        return;
-      }
-      compressImage(file, 1 * 1024 * 1024, function(dataUrl){
-        if(!dataUrl){
-          showLoginToast('图片处理失败。', 'error', '失败');
-          return;
-        }
-        _cpSelectedImageDataUrl = dataUrl;
-        const wrap = document.getElementById('cpImagePreviewWrap');
-        if(wrap){
-          wrap.innerHTML = '<div style="position:relative;display:inline-block;">' +
-            '<img src="' + dataUrl + '" style="max-height:60px;border-radius:6px;border:1px solid rgba(255,255,255,.15);" />' +
-            '<button onclick="removeCpImage()" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:none;background:#eb445a;color:#fff;font-size:12px;line-height:18px;text-align:center;cursor:pointer;">&times;</button>' +
-            '</div>';
-        }
-      });
-      this.value = '';
-    });
-  }
   if(cpCancel) cpCancel.addEventListener('click', cancelReply);
   if(cpTA){
     cpTA.addEventListener('keydown', function(e){
