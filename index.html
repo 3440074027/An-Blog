@@ -871,6 +871,17 @@
     border-color:rgba(231,111,81,.4);
   }
   .um-btn.danger:hover{background:linear-gradient(135deg, rgba(231,111,81,.5), rgba(231,111,81,.3));}
+  .perm-type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+  .perm-type-card{
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+    border-radius:14px;padding:16px;cursor:pointer;transition:all .25s;
+    display:flex;flex-direction:column;gap:6px;user-select:none;
+  }
+  .perm-type-card:hover{background:rgba(255,255,255,.1);border-color:rgba(124,92,255,.3);transform:translateY(-1px);}
+  .perm-type-card.selected{background:rgba(124,92,255,.15);border-color:#7c5cff;box-shadow:0 0 20px rgba(124,92,255,.15);}
+  .perm-type-icon{font-size:22px;line-height:1;}
+  .perm-type-name{font-size:14px;font-weight:600;color:rgba(255,255,255,.9);}
+  .perm-type-desc{font-size:11px;color:rgba(255,255,255,.4);line-height:1.4;}
   .um-search{display:flex;gap:6px;margin-left:auto;}
   .um-search input{
     padding:7px 12px;border-radius:8px;
@@ -9007,56 +9018,105 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // 权限设置面板
   const umPermUserSelect = document.getElementById('umPermUserSelect');
   const umPermForm = document.getElementById('umPermForm');
-  const umPermNickname = document.getElementById('umPermNickname');
-  const umPermSignature = document.getElementById('umPermSignature');
-  const umPermIntro = document.getElementById('umPermIntro');
-  const umPermCanComment = document.getElementById('umPermCanComment');
-  const umPermCanCommentImage = document.getElementById('umPermCanCommentImage');
-  const umPermCanLike = document.getElementById('umPermCanLike');
-  const umPermCanPost = document.getElementById('umPermCanPost');
+  const umPermToggle = document.getElementById('umPermToggle');
+  const umPermToggleText = document.getElementById('umPermToggleText');
+  const umPermStatusHint = document.getElementById('umPermStatusHint');
   const umPermSaveBtn = document.getElementById('umPermSaveBtn');
   const umPermResetBtn = document.getElementById('umPermResetBtn');
+  const permTypeCards = document.querySelectorAll('.perm-type-card');
   let currentPermUser = null;
+  let currentPermType = null;
 
-  function refreshPermUserList(){
-    if(!umPermUserSelect) return;
-    umPermUserSelect.innerHTML = '<option value="">-- 请选择用户 --</option>' + umUsers.map(u=>
-      `<option value="${escapeHtml(u.username)}">${escapeHtml(u.nickname)} (@${escapeHtml(u.username)})</option>`
-    ).join('');
-  }
+  // 权限类型 → tag 映射
+  const PERM_MAP = {
+    post: { tag:'no_post', label:'文章权限', enabledText:'允许发布文章', disabledText:'禁止发布文章' },
+    comment: { tag:'no_comment', label:'评论权限', enabledText:'允许发表评论', disabledText:'禁止发表评论' },
+    comment_image: { tag:'no_comment_image', label:'评论发图', enabledText:'允许评论上传图片', disabledText:'禁止评论上传图片' },
+    like: { tag:'no_like', label:'点赞权限', enabledText:'允许点赞', disabledText:'禁止点赞' }
+  };
 
+  // 选择权限类型
+  permTypeCards.forEach(card => {
+    card.addEventListener('click', ()=>{
+      permTypeCards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      currentPermType = card.dataset.perm;
+      // 启用用户选择
+      if(umPermUserSelect){
+        umPermUserSelect.innerHTML = '<option value="">-- 请选择用户 --</option>' +
+          umUsers.map(u => `<option value="${escapeHtml(u.username)}">${escapeHtml(u.nickname)} (@${escapeHtml(u.username)})</option>`).join('');
+        umPermUserSelect.value = '';
+      }
+      if(umPermForm) umPermForm.style.display = 'none';
+      currentPermUser = null;
+      updatePermToggleLabel();
+    });
+  });
+
+  // 选择用户
   if(umPermUserSelect){
     umPermUserSelect.addEventListener('change', ()=>{
       const username = umPermUserSelect.value;
-      if(!username){ if(umPermForm) umPermForm.style.display='none'; return; }
+      if(!username || !currentPermType){ 
+        if(umPermForm) umPermForm.style.display='none';
+        currentPermUser = null;
+        return;
+      }
       const user = umUsers.find(u=>u.username===username);
       if(!user){ if(umPermForm) umPermForm.style.display='none'; return; }
       currentPermUser = user;
       if(umPermForm) umPermForm.style.display='block';
-      if(umPermNickname) umPermNickname.value = user.nickname || '';
-      // 从 profile 中读取其他设置（如果已加载）
-      const profile = user._profile || {};
-      if(umPermSignature) umPermSignature.value = profile.signature || '';
-      if(umPermIntro) umPermIntro.value = profile.intro || '';
-      const tags = profile.tags || [];
-      if(umPermCanComment) umPermCanComment.checked = !tags.includes('no_comment');
-      if(umPermCanCommentImage) umPermCanCommentImage.checked = !tags.includes('no_comment_image');
-      if(umPermCanLike) umPermCanLike.checked = !tags.includes('no_like');
-      if(umPermCanPost) umPermCanPost.checked = !tags.includes('no_post');
+      updatePermToggleLabel();
     });
   }
 
+  function updatePermToggleLabel(){
+    const info = PERM_MAP[currentPermType];
+    if(!info || !umPermToggle || !umPermToggleText || !umPermStatusHint) return;
+    // 如果没选用户或没选权限类型，置灰
+    if(!currentPermUser || !currentPermType){
+      umPermToggle.disabled = true;
+      umPermToggleText.textContent = '请先选择权限和用户';
+      umPermStatusHint.textContent = '';
+      return;
+    }
+    umPermToggle.disabled = false;
+    const tags = (currentPermUser._profile?.tags) || [];
+    const isDisabled = tags.includes(info.tag);
+    umPermToggle.checked = !isDisabled;
+    umPermToggleText.textContent = isDisabled ? '已禁止' : '已开启';
+    umPermStatusHint.textContent = isDisabled ? info.disabledText : info.enabledText;
+  }
+
+  // 切换事件 - 动态更新文字
+  if(umPermToggle){
+    umPermToggle.addEventListener('change', ()=>{
+      const info = PERM_MAP[currentPermType];
+      if(!info) return;
+      if(umPermToggle.checked){
+        umPermToggleText.textContent = '已开启';
+        umPermStatusHint.textContent = info.enabledText;
+      }else{
+        umPermToggleText.textContent = '已禁止';
+        umPermStatusHint.textContent = info.disabledText;
+      }
+    });
+  }
+
+  // 保存
   if(umPermSaveBtn){
     umPermSaveBtn.addEventListener('click', async ()=>{
-      if(!currentPermUser) return;
+      if(!currentPermUser || !currentPermType) return;
+      const info = PERM_MAP[currentPermType];
+      if(!info) return;
       const username = currentPermUser.username;
-      const newNickname = umPermNickname?.value?.trim();
-      const signature = umPermSignature?.value?.trim();
-      const intro = umPermIntro?.value?.trim();
-      const canComment = umPermCanComment?.checked;
-      const canCommentImage = umPermCanCommentImage?.checked;
-      const canLike = umPermCanLike?.checked;
-      const canPost = umPermCanPost?.checked;
+      const enabled = umPermToggle?.checked !== false;
+      // 获取当前用户已有的权限状态，只更新选中的权限
+      const currentTags = (currentPermUser._profile?.tags) || [];
+      const canPost = info.tag === 'no_post' ? enabled : !currentTags.includes('no_post');
+      const canComment = info.tag === 'no_comment' ? enabled : !currentTags.includes('no_comment');
+      const canCommentImage = info.tag === 'no_comment_image' ? enabled : !currentTags.includes('no_comment_image');
+      const canLike = info.tag === 'no_like' ? enabled : !currentTags.includes('no_like');
       try{
         const token = getAuthToken();
         const response = await fetch(authApiUrl('/api/admin'), {
@@ -9068,32 +9128,21 @@ document.addEventListener('DOMContentLoaded', ()=>{
           body:JSON.stringify({
             action:'edit',
             username,
-            nickname: newNickname,
-            permissions: {
-              signature,
-              intro,
-              canComment,
-              canCommentImage,
-              canLike,
-              canPost
-            }
+            permissions: { canPost, canComment, canCommentImage, canLike }
           })
         });
         const resp = await response.json().catch(()=>({}));
         if(response.ok && resp && resp.ok){
-          if(newNickname) currentPermUser.nickname = newNickname;
-          // 同步更新本地缓存的权限状态
+          // 更新本地缓存
           if(!currentPermUser._profile) currentPermUser._profile = {};
           if(!currentPermUser._profile.tags) currentPermUser._profile.tags = [];
           let tags = currentPermUser._profile.tags;
           const permTags = ['no_comment','no_comment_image','no_like','no_post'];
           tags = tags.filter(t => !permTags.includes(t));
-          if(canComment === false) tags.push('no_comment');
-          if(canCommentImage === false) tags.push('no_comment_image');
-          if(canLike === false) tags.push('no_like');
-          if(canPost === false) tags.push('no_post');
+          if(!enabled) tags.push(info.tag);
           currentPermUser._profile.tags = tags;
-          showLoginToast(`已保存 ${username} 的权限设置`, 'success', '权限设置');
+          updatePermToggleLabel();
+          showLoginToast(`已${enabled ? '开启' : '禁止'} ${username} 的${info.label}`, 'success', '权限设置');
           renderUserTable();renderUserGrid();
         }else{
           showLoginToast((resp?.error || '保存失败'), 'error', '操作失败');
@@ -9104,16 +9153,20 @@ document.addEventListener('DOMContentLoaded', ()=>{
     });
   }
 
+  // 重置
   if(umPermResetBtn){
     umPermResetBtn.addEventListener('click', ()=>{
-      if(umPermNickname) umPermNickname.value = currentPermUser?.nickname || '';
-      if(umPermSignature) umPermSignature.value = '';
-      if(umPermIntro) umPermIntro.value = '';
-      if(umPermCanComment) umPermCanComment.checked = true;
-      if(umPermCanCommentImage) umPermCanCommentImage.checked = true;
-      if(umPermCanLike) umPermCanLike.checked = true;
-      if(umPermCanPost) umPermCanPost.checked = true;
+      if(umPermUserSelect) umPermUserSelect.value = '';
+      currentPermUser = null;
+      if(umPermForm) umPermForm.style.display = 'none';
+      updatePermToggleLabel();
     });
+  }
+
+  // 刷新用户下拉列表（供外部调用）
+  function refreshPermUserList(){
+    if(!umPermUserSelect) return;
+    umPermUserSelect.innerHTML = '<option value="">-- 请先选择上方权限类型 --</option>';
   }
 
   // 安全审计按钮
@@ -14517,50 +14570,50 @@ startSiteVersionPoll();
     <!-- 权限设置 -->
     <div class="user-manage-section" data-section="roles">
       <div class="um-toolbar">
-        <span style="color:rgba(255,255,255,.6);font-size:13px;">选择用户后设置其个人权限</span>
+        <span style="color:rgba(255,255,255,.6);font-size:13px;">选择权限类型 → 选择用户 → 设置状态</span>
       </div>
       <div class="um-permission-panel" id="umPermissionPanel" style="padding:16px 0;">
         <div class="um-form-group">
+          <label>权限类型</label>
+          <div class="perm-type-grid">
+            <div class="perm-type-card" data-perm="post" tabindex="0" role="button">
+              <span class="perm-type-icon">&#128221;</span>
+              <span class="perm-type-name">文章权限</span>
+              <span class="perm-type-desc">开启/禁止该用户发布文章</span>
+            </div>
+            <div class="perm-type-card" data-perm="comment" tabindex="0" role="button">
+              <span class="perm-type-icon">&#128172;</span>
+              <span class="perm-type-name">评论权限</span>
+              <span class="perm-type-desc">开启/禁止该用户发表评论</span>
+            </div>
+            <div class="perm-type-card" data-perm="comment_image" tabindex="0" role="button">
+              <span class="perm-type-icon">&#128247;</span>
+              <span class="perm-type-name">评论发图</span>
+              <span class="perm-type-desc">开启/禁止该用户评论上传图片</span>
+            </div>
+            <div class="perm-type-card" data-perm="like" tabindex="0" role="button">
+              <span class="perm-type-icon">&#128077;</span>
+              <span class="perm-type-name">点赞权限</span>
+              <span class="perm-type-desc">开启/禁止该用户点赞</span>
+            </div>
+          </div>
+        </div>
+        <div class="um-form-group" style="margin-top:16px;">
           <label>选择用户</label>
           <select id="umPermUserSelect" style="width:100%;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:14px;outline:none;">
-            <option value="">-- 请选择用户 --</option>
+            <option value="">-- 请先选择上方权限类型 --</option>
           </select>
         </div>
         <div id="umPermForm" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);">
-          <div class="um-form-group">
-            <label>昵称</label>
-            <input type="text" id="umPermNickname" style="width:100%;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:14px;outline:none;" />
+          <div class="um-form-group" style="display:flex;align-items:center;gap:12px;padding:12px 0;">
+            <label id="umPermToggleLabel" style="margin:0;font-size:14px;font-weight:500;color:rgba(255,255,255,.85);">当前状态</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:rgba(255,255,255,.7);">
+              <input type="checkbox" id="umPermToggle" style="width:18px;height:18px;accent-color:#7c5cff;" />
+              <span id="umPermToggleText">已开启</span>
+            </label>
+            <span id="umPermStatusHint" style="font-size:11px;color:rgba(255,255,255,.4);"></span>
           </div>
-          <div class="um-form-group" style="margin-top:12px;">
-            <label>个人签名</label>
-            <input type="text" id="umPermSignature" placeholder="设置个人签名..." style="width:100%;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:14px;outline:none;" />
-          </div>
-          <div class="um-form-group" style="margin-top:12px;">
-            <label>个人简介</label>
-            <textarea id="umPermIntro" rows="3" placeholder="设置个人简介..." style="width:100%;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:14px;outline:none;resize:vertical;"></textarea>
-          </div>
-          <div class="um-form-group" style="margin-top:12px;">
-            <label>功能权限</label>
-            <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:rgba(255,255,255,.8);font-size:14px;">
-                <input type="checkbox" id="umPermCanComment" style="width:16px;height:16px;accent-color:#7c5cff;" />
-                允许评论
-              </label>
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:rgba(255,255,255,.8);font-size:14px;">
-                <input type="checkbox" id="umPermCanCommentImage" style="width:16px;height:16px;accent-color:#7c5cff;" />
-                评论可发图
-              </label>
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:rgba(255,255,255,.8);font-size:14px;">
-                <input type="checkbox" id="umPermCanLike" style="width:16px;height:16px;accent-color:#7c5cff;" />
-                允许点赞
-              </label>
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:rgba(255,255,255,.8);font-size:14px;">
-                <input type="checkbox" id="umPermCanPost" style="width:16px;height:16px;accent-color:#7c5cff;" />
-                允许发文
-              </label>
-            </div>
-          </div>
-          <div style="margin-top:18px;display:flex;gap:10px;">
+          <div style="margin-top:12px;display:flex;gap:10px;">
             <button class="um-btn primary" id="umPermSaveBtn">保存设置</button>
             <button class="um-btn" id="umPermResetBtn">重置</button>
           </div>
