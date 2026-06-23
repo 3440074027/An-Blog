@@ -6267,26 +6267,18 @@
     border:1px solid rgba(212,175,55,.15);
     box-shadow:0 34px 100px rgba(0,0,0,.44), 0 0 60px rgba(212,175,55,.04);
     transition: all .35s cubic-bezier(.4,0,.2,1);
-    position:relative;
   }
   .article-detail-body{
-    flex:1;display:flex;flex-direction:column;min-width:0;position:relative;
+    width:100%;display:flex;flex-direction:column;min-width:0;position:relative;
     transition: all .35s cubic-bezier(.4,0,.2,1);
-    width:100%;
-    transform:translateX(0);
   }
   .article-detail-card.comments-open .article-detail-body{
-    width:calc(100% - 380px);
-    transform:translateX(-380px);
+    width:720px;min-width:720px;
   }
   .article-detail-comments-panel{
-    position:absolute;
-    top:0;right:0;bottom:0;
-    width:380px;
-    transform:translateX(100%);
-    overflow:hidden;
+    width:0;overflow:hidden;
     border-left:1px solid rgba(255,255,255,.08);
-    transition: transform .35s cubic-bezier(.4,0,.2,1);
+    transition: all .35s cubic-bezier(.4,0,.2,1);
     display:flex;flex-direction:column;
     flex-shrink:0;
     background:
@@ -6294,10 +6286,9 @@
       radial-gradient(ellipse at 85% 8%, rgba(255,200,100,.08), transparent 35%),
       radial-gradient(ellipse at 50% 100%, rgba(100,180,220,.06), transparent 40%),
       linear-gradient(170deg, #0B1628 0%, #132240 30%, #1A3050 55%, #0F2035 80%, #0A1525 100%);
-    z-index:20;
   }
   .article-detail-card.comments-open .article-detail-comments-panel{
-    transform:translateX(0);
+    width:380px;
   }
   .article-detail-scroll{
     flex:1 1 auto;
@@ -10191,6 +10182,7 @@ let publicArticles = [];
 let articleFilterMode = 'all';
 let editingArticleId = '';
 let currentDetailArticleId = '';
+let currentDetailArticleAuthor = '';
 
 function updateToolStats(user = readSavedUser()){
   const profile = user?.profile || {};
@@ -11055,6 +11047,7 @@ async function openArticleDetail(id){
   if(!article) return;
   currentDetailArticleId = id;
   currentCommentArticleId = id;
+  currentDetailArticleAuthor = article.author || '';
   const authorUsername = article.author || '';
   if(articleDetailTitle) articleDetailTitle.textContent = article.title || '未命名文章';
   if(articleDetailMeta) articleDetailMeta.innerHTML = `<span>${article.category || '随笔'}</span>`;
@@ -11662,7 +11655,8 @@ function renderCommentHtml(comment, isReply){
   const currentUser = readSavedUser();
   const isOwner = isSiteOwnerUser(currentUser);
   const isSelf = currentUser && currentUser.username === comment.author;
-  const canDelete = isOwner || isSelf;
+  const isArticleAuthor = currentUser && currentUser.username === currentDetailArticleAuthor;
+  const canDelete = isOwner || isSelf || isArticleAuthor;
   div.innerHTML = `
     <div class="cp-comment-avatar" title="${escapeHtml(authorName)}">${escapeHtml(initial)}</div>
     <div class="cp-comment-body">
@@ -11801,10 +11795,17 @@ async function postComment(){
       el.textarea.value = '';
       cancelReply();
       showLoginToast('评论发表成功。', 'success', '成功');
-      // 更新临时评论为真实数据（服务端返回了真实ID则更新，否则保留临时ID）
+      // 更新临时评论为真实数据
       if(data.comment && data.comment.id){
         commentEl.dataset.id = data.comment.id;
+        commentEl.style.opacity = '1';
+        // 更新评论数据中的其他字段
+        if(data.comment.createdAt){
+          const metaEl = commentEl.querySelector('.cp-comment-meta');
+          if(metaEl) metaEl.textContent = data.comment.createdAt.slice(0, 10);
+        }
       }
+      // 无论服务端是否返回完整数据，都保持临时评论显示
       commentEl.style.opacity = '1';
       // 更新计数
       if(el.countEl){
