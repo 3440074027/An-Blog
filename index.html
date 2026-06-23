@@ -6219,9 +6219,11 @@
     flex:1;display:flex;flex-direction:column;min-width:0;position:relative;
     transition: all .35s cubic-bezier(.4,0,.2,1);
     margin-right:0;
+    width:100%;
   }
   .article-detail-card.comments-open .article-detail-body{
     margin-right:0;
+    width:calc(100% - 380px);
   }
   .article-detail-comments-panel{
     width:0;overflow:hidden;
@@ -9056,8 +9058,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
       const canLike = umPermCanLike?.checked;
       const canPost = umPermCanPost?.checked;
       try{
-        const resp = await authRequest('/api/admin', {
+        const token = getAuthToken();
+        const response = await fetch(authApiUrl('/api/admin'), {
           method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+            ...(token ? {'Authorization':'Bearer '+token} : {})
+          },
           body:JSON.stringify({
             action:'edit',
             username,
@@ -9072,8 +9079,20 @@ document.addEventListener('DOMContentLoaded', ()=>{
             }
           })
         });
-        if(resp && resp.ok){
+        const resp = await response.json().catch(()=>({}));
+        if(response.ok && resp && resp.ok){
           if(newNickname) currentPermUser.nickname = newNickname;
+          // 同步更新本地缓存的权限状态
+          if(!currentPermUser._profile) currentPermUser._profile = {};
+          if(!currentPermUser._profile.tags) currentPermUser._profile.tags = [];
+          let tags = currentPermUser._profile.tags;
+          const permTags = ['no_comment','no_comment_image','no_like','no_post'];
+          tags = tags.filter(t => !permTags.includes(t));
+          if(canComment === false) tags.push('no_comment');
+          if(canCommentImage === false) tags.push('no_comment_image');
+          if(canLike === false) tags.push('no_like');
+          if(canPost === false) tags.push('no_post');
+          currentPermUser._profile.tags = tags;
           showLoginToast(`已保存 ${username} 的权限设置`, 'success', '权限设置');
           renderUserTable();renderUserGrid();
         }else{
@@ -10736,6 +10755,14 @@ async function insertArticleImages(files){
 async function saveArticleFromEditor(){
   const user = requireRealUser(editingArticleId ? '修改文章' : '发布文章');
   if(!user) return;
+  // 检查发布权限（仅新建时检查）
+  if(!editingArticleId){
+    const tags = user.profile?.tags || user.tags || [];
+    if(tags.includes('no_post')){
+      showLoginToast('您已被禁止发布文章。', 'error', '权限不足');
+      return;
+    }
+  }
   const title = String(articleTitleInput?.value || '').trim();
   // 保存当前页到数组
   if(articleContentEditor) articleEditorPages[articleEditorCurrentPage] = articleContentEditor.innerHTML;

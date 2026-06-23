@@ -167,6 +167,11 @@ export async function onRequestPost(context){
   const auth = await requireUser(context.request);
   if(auth.error) return json({ error:auth.error }, auth.status);
   try{
+    // 检查发布权限
+    const tags = auth.user.profile?.tags || [];
+    if(tags.includes('no_post')){
+      return json({ error:'您已被禁止发布文章。' }, 403);
+    }
     const body = await readJsonBody(context.request);
     const article = sanitizeArticle(body.article || body || {}, auth.user.username);
     if(!article.content) return json({ error:'文章正文不能为空。' }, 400);

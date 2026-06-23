@@ -4,7 +4,8 @@ import {
   readJsonBody,
   requireUser,
   isSiteOwner,
-  redis
+  redis,
+  nowIso
 } from './_lib/auth.js';
 import { DB_COMMENTS_HASH, DB_ARTICLES_HASH } from './_lib/db-keys.js';
 
