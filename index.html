@@ -6530,14 +6530,14 @@
     line-height:1.9;
     font-size:15px;
     overflow:hidden;
-    max-width:680px;
+    max-width:42em; /* 约60-80汉字宽度 */
     margin:0 auto;
     text-align:left;
   }
-  .article-detail-content p{margin:0 0 20px;}
+  .article-detail-content p{margin:0 0 16px;}
   .article-detail-content h1,.article-detail-content h2,.article-detail-content h3,.article-detail-content h4,.article-detail-content h5,.article-detail-content h6{
     color:#F0D060;
-    margin:28px 0 14px;
+    margin:24px 0 12px;
     font-weight:700;
   }
   .article-detail-content h1{font-size:28px}
@@ -6545,7 +6545,7 @@
   .article-detail-content h3{font-size:18px}
   .article-detail-content h4{font-size:16px}
   .article-detail-content blockquote{
-    margin:20px 0;padding:14px 20px;
+    margin:16px 0;padding:12px 18px;
     border-left:3px solid rgba(212,175,55,.4);
     background:rgba(212,175,55,.06);
     border-radius:0 10px 10px 0;
@@ -6553,7 +6553,7 @@
     font-style:italic;
   }
   .article-detail-content pre{
-    margin:20px 0;padding:16px;
+    margin:16px 0;padding:16px;
     background:rgba(0,0,0,.3);
     border:1px solid rgba(212,175,55,.12);
     border-radius:12px;
@@ -6563,44 +6563,37 @@
     overflow-x:auto;
   }
   .article-detail-content hr{
-    border:none;height:1px;margin:28px 0;
+    border:none;height:1px;margin:24px 0;
     background:linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
   }
-  /* 图片：居中内嵌，柔和圆角，统一间距 */
+  /* 图片：居中、不硬拉伸、圆角阴影、统一间距 */
   .article-detail-content img{
-    max-width:min(580px, 85%);
-    max-height:none;
+    max-width:min(85%, 36em);
     height:auto;
     object-fit:contain;
     border-radius:6px;
     display:block;
     margin:24px auto;
-    border:none;
     box-shadow:0 4px 16px rgba(0,0,0,.18);
     transition:transform .25s, box-shadow .25s;
   }
-  .article-detail-content img:hover{transform:scale(1.01);box-shadow:0 8px 24px rgba(0,0,0,.24);}
-  /* 小图保持原尺寸居中 */
-  .article-detail-content img[width],
-  .article-detail-content img[style*="width:"]{
-    max-width:none;
-  }
+  .article-detail-content img:hover{transform:scale(1.015);box-shadow:0 8px 24px rgba(0,0,0,.25);}
   .article-detail-content figure{
     margin:24px auto;
     text-align:center;
-    max-width:min(580px, 85%);
+    max-width:min(85%, 36em);
   }
   .article-detail-content figure img{
     max-width:100%;
-    max-height:none;
     height:auto;
     margin:0;
   }
   .article-detail-content figcaption{
-    font-size:13px;
-    color:rgba(200,210,225,.45);
+    font-size:12px;
+    color:rgba(255,255,255,.4);
     margin-top:8px;
     font-style:normal;
+    text-align:center;
     line-height:1.5;
   }
   .article-detail-content p + img,
@@ -6611,10 +6604,9 @@
   .article-rich-editor .article-img-row{
     display:flex;
     flex-wrap:wrap;
-    gap:10px;
+    gap:8px;
     margin:24px 0;
     width:100%;
-    justify-content:center;
     align-items:flex-start;
   }
   .article-detail-content .article-img-row img,
@@ -6626,13 +6618,12 @@
     border-radius:6px;
     margin:0;
     display:block;
-    border:none;
     box-shadow:0 4px 16px rgba(0,0,0,.18);
     cursor:pointer;
     transition:transform .2s, box-shadow .2s;
   }
   .article-detail-content .article-img-row img:hover,
-  .article-rich-editor .article-img-row img:hover{transform:scale(1.01);box-shadow:0 8px 24px rgba(0,0,0,.24);}
+  .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 8px 24px rgba(0,0,0,.25);}
   /* 图片变换框 */
   .article-rich-editor .img-resize-wrap{
     position:relative;
@@ -7289,7 +7280,7 @@
     border:none;
     line-height:1.85;
     font-size:15px;
-    max-width:680px;
+    max-width:42em;
     margin:0 auto;
     text-align:left;
   }
@@ -7299,36 +7290,27 @@
     pointer-events:none;
   }
   .article-rich-editor img{
-    max-width:min(580px, 85%);
-    max-height:none;
+    max-width:min(85%, 36em);
     height:auto;
     object-fit:contain;
     border-radius:6px;
     display:block;
     margin:24px auto;
-    border:none;
     box-shadow:0 4px 16px rgba(0,0,0,.18);
     transition:transform .25s, box-shadow .25s;
   }
-  .article-rich-editor img:hover{transform:scale(1.01);box-shadow:0 8px 24px rgba(0,0,0,.24);}
+  .article-rich-editor img:hover{transform:scale(1.015);box-shadow:0 8px 24px rgba(0,0,0,.25);}
   .article-rich-editor figure{
     margin:24px auto;
     text-align:center;
-    max-width:min(580px, 85%);
+    max-width:min(85%, 36em);
   }
   .article-rich-editor figure img{
     max-width:100%;
-    max-height:none;
     height:auto;
     margin:0;
   }
-  .article-rich-editor figcaption{
-    font-size:13px;
-    color:rgba(200,210,225,.45);
-    margin-top:8px;
-    font-style:normal;
-    line-height:1.5;
-  }
+  .article-rich-editor figcaption{font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;font-style:italic;}
   /* 编辑器内多图行 */
   .article-rich-editor .article-img-row{
     display:flex;
@@ -10869,30 +10851,12 @@ async function insertArticleImages(files){
     sel.removeAllRanges();
     sel.addRange(newRange);
   }
-  // 确保图片插在段落之间：如果光标在段落中间，先断开段落
-  let container = range.startContainer;
-  if(container.nodeType === Node.TEXT_NODE) container = container.parentElement;
-  if(container && container.tagName === 'P' && !range.collapsed && range.startOffset > 0 && range.startOffset < container.childNodes.length){
-    // 在段落中间：将光标后的内容移到新段落
-    const after = document.createRange();
-    after.setStart(container, range.startOffset);
-    after.collapse(false);
-    const afterFrag = after.cloneContents();
-    after.deleteContents();
-    const newP = document.createElement('p');
-    newP.appendChild(afterFrag);
-    container.after(newP);
-    // 重新定位光标到两个段落之间
-    const between = document.createRange();
-    between.setStartAfter(container);
-    between.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(between);
-  }
-  // 每张图片用 figure 包裹，居中内嵌
-  const frag = document.createDocumentFragment();
+  // 所有图片放在一行，按原始比例分配宽度
+  const wrapper = document.createElement('div');
+  // 原图原比例插入：不裁剪、不挤压，按原始比例显示
+  const row = document.createElement('div');
+  row.className = 'article-img-row';
   sources.forEach(src => {
-    const figure = document.createElement('figure');
     const img = document.createElement('img');
     img.src = src;
     img.alt = '文章图片';
@@ -10900,21 +10864,22 @@ async function insertArticleImages(files){
     img.style.maxWidth = '100%';
     img.style.height = 'auto';
     img.style.display = 'block';
-    img.style.borderRadius = '6px';
+    img.style.borderRadius = '14px';
     img.style.margin = '0';
-    figure.appendChild(img);
-    frag.appendChild(figure);
+    row.appendChild(img);
   });
+  wrapper.appendChild(row);
+  const frag = document.createDocumentFragment();
+  while(wrapper.firstChild) frag.appendChild(wrapper.firstChild);
   range.deleteContents();
   range.insertNode(frag);
-  // 移动光标到最后一个 figure 之后，插入空段落方便继续输入
-  const lastFigure = frag.lastChild;
-  if(lastFigure){
-    const newP = document.createElement('p');
-    newP.innerHTML = '<br>';
-    lastFigure.after(newP);
+  // 移动光标到最后
+  const lastSrc = sources[sources.length - 1];
+  const allImgs = editor.querySelectorAll('img[src="' + lastSrc + '"]');
+  const lastImg = allImgs[allImgs.length - 1];
+  if(lastImg){
     const nextRange = document.createRange();
-    nextRange.setStart(newP, 0);
+    nextRange.setStartAfter(lastImg);
     nextRange.collapse(true);
     sel.removeAllRanges();
     sel.addRange(nextRange);
