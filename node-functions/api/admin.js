@@ -99,9 +99,10 @@ export async function onRequestPost(context){
           }
           // 功能权限标签管理
           let tags = target.profile.tags || [];
-          const permTags = ['no_comment', 'no_like', 'no_post'];
+          const permTags = ['no_comment', 'no_comment_image', 'no_like', 'no_post'];
           tags = tags.filter(t => !permTags.includes(t));
           if(permissions.canComment === false) tags.push('no_comment');
+          if(permissions.canCommentImage === false) tags.push('no_comment_image');
           if(permissions.canLike === false) tags.push('no_like');
           if(permissions.canPost === false) tags.push('no_post');
           target.profile.tags = tags;
