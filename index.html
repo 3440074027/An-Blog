@@ -8652,7 +8652,8 @@ function closeUmModal(){
 // 从API加载真实用户数据
 async function loadRealUsers(){
   try{
-    const resp = await authRequest('/api/users/search', {
+    // 传 q= 空字符串确保获取所有用户（部分服务端实现要求 q 参数存在才返回数据）
+    const resp = await authRequest('/api/users/search?q=', {
       method:'GET',
       headers: authorizedHeaders()
     });
@@ -8685,7 +8686,7 @@ async function loadRealUsers(){
   // 如果API没有返回数据，尝试备用方式
   if(umUsers.length === 0){
     try{
-      const resp2 = await fetch('/api/users/search', {
+      const resp2 = await fetch('/api/users/search?q=', {
         headers: getAuthToken() ? {'Authorization':'Bearer '+getAuthToken()} : {}
       });
       if(resp2.ok){
@@ -8973,6 +8974,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
       tab.classList.add('active');
       const section = document.querySelector(`.user-manage-section[data-section="${tab.dataset.tab}"]`);
       if(section) section.classList.add('active');
+      // 切换到权限设置标签时，刷新用户列表
+      if(tab.dataset.tab === 'roles' && typeof refreshPermUserList === 'function'){
+        refreshPermUserList();
+      }
     });
   });
 
@@ -9180,9 +9185,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   function refreshPermUserList(){
     renderPermUserList();
   }
-
-  // 初始渲染
-  renderPermUserList();
 
   // 安全审计按钮
   const umLoginLogBtn = document.getElementById('umLoginLogBtn');
