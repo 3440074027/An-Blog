@@ -6213,11 +6213,11 @@
     transition: all .35s cubic-bezier(.4,0,.2,1);
   }
   .article-detail-card.comments-open{
-    width:min(1200px, 98vw);
+    width:min(1100px, 96vw);
   }
   .article-detail-body{
-    flex:1;display:flex;flex-direction:column;min-width:0;
-    transition:margin-right .35s cubic-bezier(.4,0,.2,1);
+    flex:1;display:flex;flex-direction:column;min-width:0;position:relative;
+    transition: all .35s cubic-bezier(.4,0,.2,1);
     margin-right:0;
   }
   .article-detail-card.comments-open .article-detail-body{
@@ -6226,7 +6226,7 @@
   .article-detail-comments-panel{
     width:0;overflow:hidden;
     border-left:1px solid rgba(255,255,255,.08);
-    transition:width .35s cubic-bezier(.4,0,.2,1);
+    transition: all .35s cubic-bezier(.4,0,.2,1);
     display:flex;flex-direction:column;
     flex-shrink:0;
   }
@@ -8285,7 +8285,6 @@
           <div class="article-detail-meta" id="articleDetailMeta"></div>
         </div>
         <div class="article-detail-head-right article-detail-actions">
-          <button id="articleDetailCommentsBtn" class="article-detail-comments-btn" type="button">评论 <span class="cmt-count" id="articleDetailCmtCount">0</span></button>
           <button id="articleDetailEditBtn" type="button">修改文章</button>
           <button id="articleDetailDeleteBtn" class="danger" type="button" hidden>删除文章</button>
           <button id="articleDetailCloseBtn" type="button">关闭</button>
@@ -8299,6 +8298,7 @@
         <span id="articleDetailPageInfo">第 1 / 1 页</span>
         <button id="articleDetailNextPage" type="button">下一页</button>
       </div>
+      <button id="articleDetailCommentsBtn" class="article-detail-comments-btn" type="button" style="position:absolute;right:20px;bottom:20px;z-index:10;">评论 <span class="cmt-count" id="articleDetailCmtCount">0</span></button>
     </div>
     <div class="article-detail-comments-panel" id="articleDetailCommentsPanel">
       <div class="cp-header">
@@ -8694,6 +8694,7 @@ function loadUserManageData(){
     renderUserTable();
     renderRoleList();
     renderUserGrid();
+    refreshPermUserList();
   });
 }
 
@@ -11028,6 +11029,7 @@ function goArticleDetailPage(direction){
 }
 
 function closeArticleDetail(){
+  closeCommentsPanel();
   articleDetailModal?.classList.remove('open');
   articleDetailModal?.setAttribute('aria-hidden', 'true');
 }
@@ -11447,7 +11449,15 @@ async function loadComments(){
   el.list.querySelectorAll('.cp-comment').forEach(c=>c.remove());
   el.list.querySelectorAll('.cp-empty').forEach(c=>c.remove());
   try{
-    const data = await authRequest(`/api/comments?articleId=${encodeURIComponent(currentCommentArticleId)}`, { method:'GET' });
+    const token = getAuthToken();
+    const response = await fetch(authApiUrl(`/api/comments?articleId=${encodeURIComponent(currentCommentArticleId)}`), {
+      method:'GET',
+      headers:{
+        'Content-Type':'application/json',
+        ...(token ? {'Authorization':'Bearer '+token} : {})
+      }
+    });
+    const data = await response.json().catch(()=>({}));
     const comments = data.comments || [];
     renderComments(comments);
     if(el.countEl) el.countEl.textContent = comments.length;
@@ -11609,8 +11619,17 @@ async function postComment(){
       image: _cpSelectedImageDataUrl || '',
       parentId: currentReplyToId || null
     };
-    const data = await authRequest('/api/comments', { method:'POST', body: JSON.stringify(body) });
-    if(data && data.ok){
+    const token = getAuthToken();
+    const response = await fetch(authApiUrl('/api/comments'), {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        ...(token ? {'Authorization':'Bearer '+token} : {})
+      },
+      body: JSON.stringify(body)
+    });
+    const data = await response.json().catch(()=>({}));
+    if(response.ok && data && data.ok){
       el.textarea.value = '';
       _cpSelectedImageDataUrl = null;
       if(el.imagePreviewWrap) el.imagePreviewWrap.innerHTML = '';
@@ -11622,7 +11641,7 @@ async function postComment(){
       showLoginToast((data && data.error) || '发表评论失败。', 'error', '失败');
     }
   }catch(error){
-    showLoginToast('发表评论失败，请稍后重试。', 'error', '失败');
+    showLoginToast('网络错误，请稍后重试。', 'error', '失败');
   }finally{
     el.sendBtn.disabled = false;
     el.sendBtn.textContent = '发送';
@@ -11633,15 +11652,23 @@ async function deleteComment(commentId){
   const confirmed = await showConfirmDialog('确定要删除这条评论吗？', '删除后不可恢复。', '确认删除', '取消');
   if(!confirmed) return;
   try{
-    const data = await authRequest(`/api/comments?id=${encodeURIComponent(commentId)}`, { method:'DELETE' });
-    if(data && data.ok){
+    const token = getAuthToken();
+    const response = await fetch(authApiUrl(`/api/comments?id=${encodeURIComponent(commentId)}`), {
+      method:'DELETE',
+      headers:{
+        'Content-Type':'application/json',
+        ...(token ? {'Authorization':'Bearer '+token} : {})
+      }
+    });
+    const data = await response.json().catch(()=>({}));
+    if(response.ok && data && data.ok){
       showLoginToast('评论已删除。', 'success', '已删除');
       loadComments();
     }else{
       showLoginToast((data && data.error) || '删除评论失败。', 'error', '失败');
     }
   }catch(error){
-    showLoginToast('删除评论失败。', 'error', '失败');
+    showLoginToast('网络错误，请稍后重试。', 'error', '失败');
   }
 }
 
