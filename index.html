@@ -6530,7 +6530,7 @@
     line-height:1.9;
     font-size:15px;
     overflow:hidden;
-    max-width:42em; /* 约60-80汉字宽度 */
+    max-width:42em;
     margin:0 auto;
     text-align:left;
   }
@@ -6539,6 +6539,7 @@
     color:#F0D060;
     margin:24px 0 12px;
     font-weight:700;
+    text-align:left;
   }
   .article-detail-content h1{font-size:28px}
   .article-detail-content h2{font-size:22px}
@@ -6566,30 +6567,32 @@
     border:none;height:1px;margin:24px 0;
     background:linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
   }
-  /* 图片：居中、不硬拉伸、圆角阴影、统一间距 */
+  /* 图片：居中、柔和圆角+淡阴影、统一上下边距 */
   .article-detail-content img{
-    max-width:min(85%, 36em);
+    max-width:85%;
     height:auto;
     object-fit:contain;
     border-radius:6px;
     display:block;
     margin:24px auto;
+    border:none;
     box-shadow:0 4px 16px rgba(0,0,0,.18);
     transition:transform .25s, box-shadow .25s;
   }
-  .article-detail-content img:hover{transform:scale(1.015);box-shadow:0 8px 24px rgba(0,0,0,.25);}
+  .article-detail-content img:hover{transform:scale(1.015);box-shadow:0 8px 24px rgba(0,0,0,.24);}
   .article-detail-content figure{
     margin:24px auto;
     text-align:center;
-    max-width:min(85%, 36em);
+    max-width:85%;
   }
   .article-detail-content figure img{
     max-width:100%;
     height:auto;
     margin:0;
   }
+  /* 图注：小字号、浅灰色、居中、与图片留间距 */
   .article-detail-content figcaption{
-    font-size:12px;
+    font-size:13px;
     color:rgba(255,255,255,.4);
     margin-top:8px;
     font-style:normal;
@@ -6608,6 +6611,7 @@
     margin:24px 0;
     width:100%;
     align-items:flex-start;
+    justify-content:center;
   }
   .article-detail-content .article-img-row img,
   .article-rich-editor .article-img-row img{
@@ -6618,12 +6622,13 @@
     border-radius:6px;
     margin:0;
     display:block;
+    border:none;
     box-shadow:0 4px 16px rgba(0,0,0,.18);
     cursor:pointer;
     transition:transform .2s, box-shadow .2s;
   }
   .article-detail-content .article-img-row img:hover,
-  .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 8px 24px rgba(0,0,0,.25);}
+  .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 8px 24px rgba(0,0,0,.24);}
   /* 图片变换框 */
   .article-rich-editor .img-resize-wrap{
     position:relative;
@@ -7290,20 +7295,21 @@
     pointer-events:none;
   }
   .article-rich-editor img{
-    max-width:min(85%, 36em);
+    max-width:85%;
     height:auto;
     object-fit:contain;
     border-radius:6px;
     display:block;
     margin:24px auto;
+    border:none;
     box-shadow:0 4px 16px rgba(0,0,0,.18);
     transition:transform .25s, box-shadow .25s;
   }
-  .article-rich-editor img:hover{transform:scale(1.015);box-shadow:0 8px 24px rgba(0,0,0,.25);}
+  .article-rich-editor img:hover{transform:scale(1.015);box-shadow:0 8px 24px rgba(0,0,0,.24);}
   .article-rich-editor figure{
     margin:24px auto;
     text-align:center;
-    max-width:min(85%, 36em);
+    max-width:85%;
   }
   .article-rich-editor figure img{
     max-width:100%;
