@@ -6530,14 +6530,12 @@
     line-height:1.9;
     font-size:15px;
     overflow:hidden;
-    text-align:left;
   }
   .article-detail-content p{margin:0 0 16px;text-align:left;}
   .article-detail-content h1,.article-detail-content h2,.article-detail-content h3,.article-detail-content h4,.article-detail-content h5,.article-detail-content h6{
     color:#F0D060;
     margin:24px 0 12px;
     font-weight:700;
-    text-align:left;
   }
   .article-detail-content h1{font-size:28px}
   .article-detail-content h2{font-size:22px}
@@ -6550,7 +6548,6 @@
     border-radius:0 10px 10px 0;
     color:rgba(200,210,225,.7);
     font-style:italic;
-    text-align:left;
   }
   .article-detail-content pre{
     margin:16px 0;padding:16px;
@@ -6566,64 +6563,36 @@
     border:none;height:1px;margin:24px 0;
     background:linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
   }
-  /* 图片：宽度为正文70%-90%居中，小图保持原尺寸不拉伸，统一圆角+淡阴影 */
   .article-detail-content img{
-    max-width:min(85%, 640px);
-    width:auto;
-    height:auto;
-    object-fit:contain;
-    border-radius:6px;
-    display:block;
-    margin:24px auto;
-    border:none;
-    box-shadow:0 2px 12px rgba(0,0,0,.18);
-    transition:transform .25s, box-shadow .25s;
+    max-width:85%;height:auto;display:block;margin:24px auto;
+    border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,.08);
+    transition:box-shadow .25s;
   }
-  .article-detail-content img:hover{transform:scale(1.015);box-shadow:0 6px 20px rgba(0,0,0,.25);}
+  .article-detail-content img:hover{box-shadow:0 6px 18px rgba(0,0,0,.14);}
   .article-detail-content figure{
-    margin:24px auto;
-    text-align:center;
-    max-width:min(85%, 640px);
-    width:auto;
+    margin:24px auto;text-align:center;
+    max-width:85%;
   }
-  .article-detail-content figure img{
-    max-width:100%;
-    height:auto;
-    margin:0;
-    border-radius:6px;
-    box-shadow:0 2px 12px rgba(0,0,0,.18);
-  }
+  .article-detail-content figure img{max-width:100%;margin:0;}
   .article-detail-content figcaption{font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;font-style:italic;}
-  /* 统一图文间距24px */
-  .article-detail-content p + img,
-  .article-detail-content img + p{margin-top:24px;}
-  .article-detail-content p:has(img){margin:24px 0;text-align:center;}
-  /* 多图并排布局 */
+  /* 单图示例：小尺寸图片不拉伸，保持原尺寸居中 */
+  .article-detail-content img[width]:not([width=""]){
+    width:auto;max-width:85%;
+  }
+  /* 图片行内居中排列（编辑器兼容） */
   .article-detail-content .article-img-row,
   .article-rich-editor .article-img-row{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin:24px 0;
-    width:100%;
-    align-items:flex-start;
+    text-align:center;margin:24px 0;
   }
   .article-detail-content .article-img-row img,
   .article-rich-editor .article-img-row img{
-    flex:1 1 auto;
-    min-width:120px;
-    max-width:100%;
-    height:auto;
-    border-radius:6px;
-    margin:0;
-    display:block;
-    border:none;
-    box-shadow:0 2px 12px rgba(0,0,0,.18);
-    cursor:pointer;
-    transition:transform .2s, box-shadow .2s;
+    display:inline-block;vertical-align:middle;
+    max-width:85%;height:auto;
+    border-radius:6px;margin:0 4px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
   }
   .article-detail-content .article-img-row img:hover,
-  .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 6px 20px rgba(0,0,0,.25);}
+  .article-rich-editor .article-img-row img:hover{box-shadow:0 6px 18px rgba(0,0,0,.14);}
   /* 图片变换框 */
   .article-rich-editor .img-resize-wrap{
     position:relative;
@@ -6638,16 +6607,14 @@
     display:block;
     max-width:100%;
     height:auto;
-    border-radius:14px;
-    border:1.5px solid rgba(255,255,255,.18);
-    box-shadow:0 6px 18px rgba(0,0,0,.2);
+    border-radius:6px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
     pointer-events:auto;
     user-select:none;
     -webkit-user-select:none;
   }
   .article-rich-editor .img-resize-wrap.selected img{
-    border-color:rgba(127,247,255,.6);
-    box-shadow:0 0 0 3px rgba(127,247,255,.2), 0 6px 18px rgba(0,0,0,.2);
+    box-shadow:0 0 0 3px rgba(127,247,255,.25), 0 2px 10px rgba(0,0,0,.08);
   }
   .article-rich-editor .img-resize-border{
     position:absolute;inset:0;
@@ -10849,35 +10816,30 @@ async function insertArticleImages(files){
     sel.removeAllRanges();
     sel.addRange(newRange);
   }
-  // 所有图片放在一行，按原始比例分配宽度
-  const wrapper = document.createElement('div');
-  // 原图原比例插入：不裁剪、不挤压，按原始比例显示
-  const row = document.createElement('div');
-  row.className = 'article-img-row';
-  sources.forEach(src => {
+  // 每张图单独一行居中插入，后面带一个空段落
+  const frag = document.createDocumentFragment();
+  sources.forEach((src, idx) => {
+    const p = document.createElement('p');
+    p.style.textAlign = 'center';
+    p.style.margin = '24px 0';
     const img = document.createElement('img');
     img.src = src;
     img.alt = '文章图片';
     img.loading = 'lazy';
-    img.style.maxWidth = '100%';
-    img.style.height = 'auto';
-    img.style.display = 'block';
-    img.style.borderRadius = '14px';
-    img.style.margin = '0';
-    row.appendChild(img);
+    p.appendChild(img);
+    frag.appendChild(p);
+    // 每张图后插入一个空段落，确保光标能换行
+    const brP = document.createElement('p');
+    brP.innerHTML = '<br>';
+    frag.appendChild(brP);
   });
-  wrapper.appendChild(row);
-  const frag = document.createDocumentFragment();
-  while(wrapper.firstChild) frag.appendChild(wrapper.firstChild);
   range.deleteContents();
   range.insertNode(frag);
-  // 移动光标到最后
-  const lastSrc = sources[sources.length - 1];
-  const allImgs = editor.querySelectorAll('img[src="' + lastSrc + '"]');
-  const lastImg = allImgs[allImgs.length - 1];
-  if(lastImg){
+  // 移动光标到最后一个空段落
+  const lastP = editor.querySelector('p:last-of-type');
+  if(lastP){
     const nextRange = document.createRange();
-    nextRange.setStartAfter(lastImg);
+    nextRange.setStart(lastP, 0);
     nextRange.collapse(true);
     sel.removeAllRanges();
     sel.addRange(nextRange);
@@ -11505,6 +11467,37 @@ function initEditorImageResize(){
   });
 }
 initEditorImageResize();
+
+// 修复插入图片后按 Enter 不能换行的问题
+if(articleContentEditor){
+  articleContentEditor.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && !e.shiftKey){
+      const sel = window.getSelection();
+      if(!sel || !sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      if(!range.collapsed) return;
+      let node = range.startContainer;
+      if(node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+      // 检查光标是否在包含图片的段落中，且在段落末尾
+      const p = node?.closest?.('p');
+      if(p && p.querySelector('img')){
+        // 光标在当前段落末尾 → 手动插入空段落再换行
+        const after = p.nextElementSibling;
+        if(!after || after.tagName !== 'P' || !after.querySelector('br')){
+          e.preventDefault();
+          const newP = document.createElement('p');
+          newP.innerHTML = '<br>';
+          p.parentNode?.insertBefore(newP, p.nextSibling);
+          const newRange = document.createRange();
+          newRange.setStart(newP, 0);
+          newRange.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(newRange);
+        }
+      }
+    }
+  });
+}
 
 if(articleSaveBtn) articleSaveBtn.addEventListener('click', saveArticleFromEditor);
 renderArticles();
