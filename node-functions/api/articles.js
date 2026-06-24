@@ -10,6 +10,7 @@ import {
 } from './_lib/auth.js';
 import {
   DB_ARTICLES_HASH,
+  DB_COMMENTS_HASH,
   LEGACY_ARTICLE_INDEX_KEY,
   LEGACY_ARTICLES_KEY,
   legacyArticleKey
@@ -129,13 +130,49 @@ async function writeArticleIndex(index){
   return index;
 }
 
+async function getArticleComments(articleId){
+  try{
+    const raw = await redis.hgetall(DB_COMMENTS_HASH);
+    if(!raw) return [];
+    const comments = [];
+    for(const [key, val] of Object.entries(raw)){
+      try{
+        const c = JSON.parse(val);
+        if(c.articleId === articleId){
+          comments.push({
+            id: c.id,
+            articleId: c.articleId,
+            author: c.author,
+            content: c.content,
+            image: c.image || null,
+            parentId: c.parentId || null,
+            createdAt: c.createdAt,
+            updatedAt: c.updatedAt
+          });
+        }
+      }catch(_){}
+    }
+    comments.sort((a, b)=> a.createdAt.localeCompare(b.createdAt));
+    return comments;
+  }catch(error){
+    console.error('getArticleComments error:', error);
+    return [];
+  }
+}
+
 async function getArticle(id){
   const article = await redis.hget(DB_ARTICLES_HASH, id);
-  if(article) return sanitizeArticle(article, article.author);
+  if(article){
+    const result = sanitizeArticle(article, article.author);
+    // 从 db:comments 读取该文章的评论
+    result.comments = await getArticleComments(id);
+    return result;
+  }
   const legacy = await redis.get(legacyArticleKey(id));
   if(legacy){
     const migrated = sanitizeArticle(legacy, legacy.author);
     await redis.hset(DB_ARTICLES_HASH, { [migrated.id]: migrated });
+    migrated.comments = await getArticleComments(id);
     return migrated;
   }
   return null;

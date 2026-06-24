@@ -10547,10 +10547,21 @@ function requireRealUser(actionText = '使用文章功能'){
 async function loadPublicArticles(){
   try{
     const data = await authRequest('/api/articles', { method:'GET' });
-    publicArticles = Array.isArray(data.articles) ? data.articles : [];
-    // 确保每篇文章都有 comments 数组
+    const freshArticles = Array.isArray(data.articles) ? data.articles : [];
+    // 保留已有文章的评论数据，避免被列表接口覆盖丢失
+    const existingComments = new Map();
     publicArticles.forEach(a => {
-      if(!Array.isArray(a.comments)) a.comments = [];
+      if(Array.isArray(a.comments) && a.comments.length > 0){
+        existingComments.set(a.id, a.comments);
+      }
+    });
+    publicArticles = freshArticles;
+    publicArticles.forEach(a => {
+      if(existingComments.has(a.id)){
+        a.comments = existingComments.get(a.id);
+      }else if(!Array.isArray(a.comments)){
+        a.comments = [];
+      }
     });
     renderArticles();
     updateToolStats();
@@ -11021,6 +11032,13 @@ async function openArticleDetail(id){
   currentDetailArticleId = id;
   currentCommentArticleId = id;
   currentDetailArticleAuthor = article.author || '';
+  // 将文章详情（含评论）同步到 publicArticles 缓存
+  const idx = publicArticles.findIndex(a => a.id === id);
+  if(idx >= 0){
+    publicArticles[idx] = { ...publicArticles[idx], ...article };
+  }else{
+    publicArticles.push(article);
+  }
   const authorUsername = article.author || '';
   if(articleDetailTitle) articleDetailTitle.textContent = article.title || '未命名文章';
   if(articleDetailMeta) articleDetailMeta.innerHTML = `<span>${article.category || '随笔'}</span>`;
@@ -11602,63 +11620,15 @@ async function loadComments(){
   if(!el.list || !currentCommentArticleId) return;
   if(el.loadingEl) el.loadingEl.style.display = 'block';
   try{
-    // 优先从本地缓存读取，避免 API 延迟导致评论丢失
+    // 从本地文章缓存读取评论（文章详情 API 已返回评论数据）
     const localArticle = publicArticles.find(a => a.id === currentCommentArticleId);
-    if(localArticle && Array.isArray(localArticle.comments) && localArticle.comments.length > 0){
-      renderComments(localArticle.comments);
-      if(el.countEl) el.countEl.textContent = localArticle.comments.length;
-      // 后台静默从 API 同步最新数据
-      syncCommentsFromServer();
-      return;
-    }
-    // 本地没有，从 API 读取
-    const response = await fetch(authApiUrl(`/api/comments?articleId=${encodeURIComponent(currentCommentArticleId)}`), {
-      method:'GET',
-      headers:{
-        'Content-Type':'application/json',
-        ...(getAuthToken() ? {'Authorization':'Bearer '+getAuthToken()} : {})
-      }
-    });
-    const data = await response.json().catch(()=>({}));
-    const comments = data.comments || [];
-    // 同步到本地文章缓存
-    if(localArticle){
-      localArticle.comments = comments;
-    }
+    const comments = localArticle && Array.isArray(localArticle.comments) ? localArticle.comments : [];
     renderComments(comments);
     if(el.countEl) el.countEl.textContent = comments.length;
   }catch(error){
     showLoginToast('加载评论失败。', 'error', '错误');
   }finally{
     if(el.loadingEl) el.loadingEl.style.display = 'none';
-  }
-}
-
-/* 后台静默同步评论（不清除已有 DOM） */
-async function syncCommentsFromServer(){
-  try{
-    const response = await fetch(authApiUrl(`/api/comments?articleId=${encodeURIComponent(currentCommentArticleId)}`), {
-      method:'GET',
-      headers:{
-        'Content-Type':'application/json',
-        ...(getAuthToken() ? {'Authorization':'Bearer '+getAuthToken()} : {})
-      }
-    });
-    const data = await response.json().catch(()=>({}));
-    const comments = data.comments || [];
-    const localArticle = publicArticles.find(a => a.id === currentCommentArticleId);
-    if(localArticle){
-      localArticle.comments = comments;
-    }
-    // 只在评论数量变化时才重新渲染
-    const el = getCommentElements();
-    const domCount = el.list ? el.list.querySelectorAll('.cp-comment').length : 0;
-    if(comments.length !== domCount){
-      renderComments(comments);
-      if(el.countEl) el.countEl.textContent = comments.length;
-    }
-  }catch(_){
-    // 静默失败
   }
 }
 

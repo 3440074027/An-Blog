@@ -104,6 +104,29 @@ export async function onRequestPost(context){
     await redis.hset(DB_COMMENTS_HASH, comment.id, JSON.stringify(comment));
     await bumpCommentsVersion(comment.articleId);
 
+    // 同时更新文章数据中的 comments 字段，确保文章数据包含评论
+    try{
+      const article = await redis.hget(DB_ARTICLES_HASH, articleId);
+      if(article){
+        const articleData = typeof article === 'string' ? JSON.parse(article) : article;
+        if(!Array.isArray(articleData.comments)) articleData.comments = [];
+        articleData.comments.push({
+          id: comment.id,
+          articleId: comment.articleId,
+          author: comment.author,
+          content: comment.content,
+          image: comment.image,
+          parentId: comment.parentId,
+          createdAt: comment.createdAt,
+          updatedAt: comment.updatedAt
+        });
+        articleData.updatedAt = nowIso();
+        await redis.hset(DB_ARTICLES_HASH, { [articleId]: articleData });
+      }
+    }catch(err){
+      console.error('update article comments error:', err);
+    }
+
     return json({ ok:true, comment }, 201);
   }catch(error){
     console.error('comments POST error:', error);
@@ -151,6 +174,22 @@ export async function onRequestDelete(context){
 
     await redis.hdel(DB_COMMENTS_HASH, commentId);
     if(comment.articleId) await bumpCommentsVersion(comment.articleId);
+
+    // 同时更新文章数据中的 comments 字段，移除已删除的评论
+    try{
+      const article = await redis.hget(DB_ARTICLES_HASH, comment.articleId);
+      if(article){
+        const articleData = typeof article === 'string' ? JSON.parse(article) : article;
+        if(Array.isArray(articleData.comments)){
+          articleData.comments = articleData.comments.filter(c => c.id !== commentId);
+          articleData.updatedAt = nowIso();
+          await redis.hset(DB_ARTICLES_HASH, { [comment.articleId]: articleData });
+        }
+      }
+    }catch(err){
+      console.error('update article comments after delete error:', err);
+    }
+
     return json({ ok:true, deleted:true });
   }catch(error){
     console.error('comments DELETE error:', error);
