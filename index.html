@@ -11339,12 +11339,13 @@ if(articleContentEditor){
     }
   });
 }
-// 编辑器图片拖动功能——点击图片后可直接拖动位置
+// 编辑器图片拖动功能——按住图片拖动移动位置，不影响文字排版
 function initEditorImageDrag(){
   if(!articleContentEditor) return;
   let activeWrap = null;
   let dragging = false;
-  let startX, startY, startLeft, startTop;
+  let hasMoved = false;
+  let startX, startY;
 
   function ensureWrap(img){
     let wrap = img.closest('.img-resize-wrap');
@@ -11360,59 +11361,64 @@ function initEditorImageDrag(){
     return wrap;
   }
 
-  // mousedown：开始拖动
-  articleContentEditor.addEventListener('mousedown', (e)=>{
-    const img = e.target.closest?.('img');
-    if(!img || !articleContentEditor.contains(img)) return;
-    e.preventDefault();
-    e.stopPropagation();
-
-    const wrap = ensureWrap(img);
+  function startDrag(wrap, clientX, clientY){
     activeWrap = wrap;
     dragging = true;
-
-    // 禁用编辑器文本选择
-    articleContentEditor.style.userSelect = 'none';
-    articleContentEditor.style.webkitUserSelect = 'none';
-
-    startX = e.clientX;
-    startY = e.clientY;
-    const rect = wrap.getBoundingClientRect();
-    const parentRect = articleContentEditor.getBoundingClientRect();
-    startLeft = rect.left - parentRect.left;
-    startTop = rect.top - parentRect.top;
-
-    wrap.style.position = 'relative';
-    wrap.style.left = '0px';
-    wrap.style.top = '0px';
+    hasMoved = false;
+    startX = clientX;
+    startY = clientY;
     wrap.style.cursor = 'grabbing';
     wrap.style.zIndex = '10';
+    articleContentEditor.style.userSelect = 'none';
+    articleContentEditor.style.webkitUserSelect = 'none';
+  }
 
-    const onMove = (ev)=>{
-      if(!dragging || !activeWrap) return;
-      const dx = ev.clientX - startX;
-      const dy = ev.clientY - startY;
-      activeWrap.style.transform = `translate(${dx}px, ${dy}px)`;
-    };
-    const onUp = ()=>{
-      dragging = false;
-      // 恢复编辑器文本选择
-      articleContentEditor.style.userSelect = '';
-      articleContentEditor.style.webkitUserSelect = '';
-      if(activeWrap){
-        activeWrap.style.cursor = 'grab';
-        activeWrap.style.zIndex = '';
-        // 将 transform 转为 margin 偏移
+  function moveDrag(clientX, clientY){
+    if(!dragging || !activeWrap) return;
+    const dx = clientX - startX;
+    const dy = clientY - startY;
+    // 只有移动超过 3px 才算真正拖动，避免误触
+    if(!hasMoved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
+    hasMoved = true;
+    activeWrap.style.transform = `translate(${dx}px, ${dy}px)`;
+  }
+
+  function endDrag(){
+    dragging = false;
+    articleContentEditor.style.userSelect = '';
+    articleContentEditor.style.webkitUserSelect = '';
+    if(activeWrap){
+      activeWrap.style.cursor = 'grab';
+      activeWrap.style.zIndex = '';
+      if(hasMoved){
+        // 将 transform 转为 margin 偏移固化位置
         const t = activeWrap.style.transform;
         if(t && t !== 'none'){
           const match = t.match(/translate\(([^,]+),\s*([^)]+)\)/);
           if(match){
-            activeWrap.style.marginLeft = match[1];
-            activeWrap.style.marginTop = match[2];
+            const curML = parseFloat(activeWrap.style.marginLeft) || 0;
+            const curMT = parseFloat(activeWrap.style.marginTop) || 0;
+            activeWrap.style.marginLeft = (curML + parseFloat(match[1])) + 'px';
+            activeWrap.style.marginTop = (curMT + parseFloat(match[2])) + 'px';
           }
         }
-        activeWrap.style.transform = '';
       }
+      activeWrap.style.transform = '';
+    }
+    activeWrap = null;
+  }
+
+  // 鼠标事件
+  articleContentEditor.addEventListener('mousedown', (e)=>{
+    const img = e.target.closest?.('img');
+    if(!img || !articleContentEditor.contains(img)) return;
+    const wrap = ensureWrap(img);
+    startDrag(wrap, e.clientX, e.clientY);
+    // 不阻止默认行为，让文字选择/居中等操作正常工作
+    // 只在实际拖动时通过 document 级事件处理
+    const onMove = (ev)=>{ moveDrag(ev.clientX, ev.clientY); };
+    const onUp = ()=>{
+      endDrag();
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
     };
@@ -11420,52 +11426,21 @@ function initEditorImageDrag(){
     document.addEventListener('mouseup', onUp);
   });
 
-  // 触摸支持
+  // 触摸事件
   articleContentEditor.addEventListener('touchstart', (e)=>{
     const img = e.target.closest?.('img');
     if(!img || !articleContentEditor.contains(img)) return;
-
-    const wrap = ensureWrap(img);
-    activeWrap = wrap;
-    dragging = true;
-
     const touch = e.touches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
-    const rect = wrap.getBoundingClientRect();
-    const parentRect = articleContentEditor.getBoundingClientRect();
-    startLeft = rect.left - parentRect.left;
-    startTop = rect.top - parentRect.top;
-
-    wrap.style.position = 'relative';
-    wrap.style.left = '0px';
-    wrap.style.top = '0px';
-    wrap.style.cursor = 'grabbing';
-    wrap.style.zIndex = '10';
-
+    const wrap = ensureWrap(img);
+    startDrag(wrap, touch.clientX, touch.clientY);
     const onTouchMove = (ev)=>{
       if(!dragging || !activeWrap) return;
-      ev.preventDefault();
+      if(hasMoved) ev.preventDefault();
       const t = ev.touches[0];
-      const dx = t.clientX - startX;
-      const dy = t.clientY - startY;
-      activeWrap.style.transform = `translate(${dx}px, ${dy}px)`;
+      moveDrag(t.clientX, t.clientY);
     };
     const onTouchEnd = ()=>{
-      dragging = false;
-      if(activeWrap){
-        activeWrap.style.cursor = 'grab';
-        activeWrap.style.zIndex = '';
-        const t = activeWrap.style.transform;
-        if(t && t !== 'none'){
-          const match = t.match(/translate\(([^,]+),\s*([^)]+)\)/);
-          if(match){
-            activeWrap.style.marginLeft = match[1];
-            activeWrap.style.marginTop = match[2];
-          }
-        }
-        activeWrap.style.transform = '';
-      }
+      endDrag();
       document.removeEventListener('touchmove', onTouchMove);
       document.removeEventListener('touchend', onTouchEnd);
     };
