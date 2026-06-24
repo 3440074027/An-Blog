@@ -33,7 +33,6 @@ export const DB_ARTICLES_HASH = 'db:articles';
 export const DB_ANNOUNCEMENTS_KEY = 'db:announcements';
 export const DB_VERSIONS_HASH = 'db:versions';
 export const DB_VISITOR_COUNT_KEY = 'db:visitor-count';
-export const DB_COMMENTS_HASH = 'db:comments';
 
 // 邮件相关键（旧版数据，清理用）
 export const LEGACY_DB_MAILS_HASH = 'db:mails';
@@ -50,9 +49,7 @@ export const VERSION_FIELDS = {
   // 好友列表/请求版本：用户列表或请求变化时 bump
   friends: username => `friends:${username}`,
   // 聊天版本：用户的任一会话有新消息时 bump
-  chat: username => `chat:${username}`,
-  // 文章评论版本
-  comments: articleId => `comments:${articleId}`
+  chat: username => `chat:${username}`
 };
 
 // 会话 ID（用户名按字典序拼接，保证 a→b 与 b→a 是同一个会话）

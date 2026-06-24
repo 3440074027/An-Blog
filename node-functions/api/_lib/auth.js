@@ -520,11 +520,6 @@ export async function bumpChatVersion(username){
   return bumpVersion(VERSION_FIELDS.chat(username));
 }
 
-export async function bumpCommentsVersion(articleId){
-  if(!articleId) return 0;
-  return bumpVersion(VERSION_FIELDS.comments(articleId));
-}
-
 export async function readVersionFields(fields){
   if(!fields || !fields.length) return [];
   try{

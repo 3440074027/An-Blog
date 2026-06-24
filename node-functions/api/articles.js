@@ -10,7 +10,6 @@ import {
 } from './_lib/auth.js';
 import {
   DB_ARTICLES_HASH,
-  DB_COMMENTS_HASH,
   LEGACY_ARTICLE_INDEX_KEY,
   LEGACY_ARTICLES_KEY,
   legacyArticleKey
@@ -130,64 +129,16 @@ async function writeArticleIndex(index){
   return index;
 }
 
-async function getArticleComments(articleId){
-  try{
-    const raw = await redis.hgetall(DB_COMMENTS_HASH);
-    if(!raw) return [];
-    const comments = [];
-    // 处理对象格式 { field: value } 或数组格式 [field1, value1, field2, value2]
-    const entries = Array.isArray(raw)
-      ? raw.reduce((acc, val, i, arr)=>{ if(i % 2 === 0 && arr[i+1] !== undefined) acc.push([val, arr[i+1]]); return acc; }, [])
-      : Object.entries(raw);
-    for(const [key, val] of entries){
-      try{
-        const c = JSON.parse(val);
-        if(c.articleId === articleId){
-          comments.push({
-            id: c.id,
-            articleId: c.articleId,
-            author: c.author,
-            content: c.content,
-            image: c.image || null,
-            parentId: c.parentId || null,
-            createdAt: c.createdAt,
-            updatedAt: c.updatedAt
-          });
-        }
-      }catch(_){}
-    }
-    comments.sort((a, b)=> a.createdAt.localeCompare(b.createdAt));
-    return comments;
-  }catch(error){
-    console.error('getArticleComments error:', error);
-    return [];
-  }
-}
-
 async function getArticle(id){
   const article = await redis.hget(DB_ARTICLES_HASH, id);
   if(article){
     const result = sanitizeArticle(article, article.author);
-    // 优先使用文章中存储的 comments 字段，同时从 db:comments 读取兜底
-    const storedComments = Array.isArray(article.comments) ? article.comments : [];
-    const dbComments = await getArticleComments(id);
-    // 合并：以 db:comments 为准，但保留文章中独有的评论（兜底）
-    const dbCommentIds = new Set(dbComments.map(c => c.id));
-    const mergedComments = [...dbComments];
-    for(const c of storedComments){
-      if(!dbCommentIds.has(c.id)){
-        mergedComments.push(c);
-      }
-    }
-    mergedComments.sort((a, b)=> a.createdAt.localeCompare(b.createdAt));
-    result.comments = mergedComments;
     return result;
   }
   const legacy = await redis.get(legacyArticleKey(id));
   if(legacy){
     const migrated = sanitizeArticle(legacy, legacy.author);
     await redis.hset(DB_ARTICLES_HASH, { [migrated.id]: migrated });
-    migrated.comments = await getArticleComments(id);
     return migrated;
   }
   return null;
