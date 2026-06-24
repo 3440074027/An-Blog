@@ -135,7 +135,11 @@ async function getArticleComments(articleId){
     const raw = await redis.hgetall(DB_COMMENTS_HASH);
     if(!raw) return [];
     const comments = [];
-    for(const [key, val] of Object.entries(raw)){
+    // 处理对象格式 { field: value } 或数组格式 [field1, value1, field2, value2]
+    const entries = Array.isArray(raw)
+      ? raw.reduce((acc, val, i, arr)=>{ if(i % 2 === 0 && arr[i+1] !== undefined) acc.push([val, arr[i+1]]); return acc; }, [])
+      : Object.entries(raw);
+    for(const [key, val] of entries){
       try{
         const c = JSON.parse(val);
         if(c.articleId === articleId){
@@ -164,8 +168,19 @@ async function getArticle(id){
   const article = await redis.hget(DB_ARTICLES_HASH, id);
   if(article){
     const result = sanitizeArticle(article, article.author);
-    // 从 db:comments 读取该文章的评论
-    result.comments = await getArticleComments(id);
+    // 优先使用文章中存储的 comments 字段，同时从 db:comments 读取兜底
+    const storedComments = Array.isArray(article.comments) ? article.comments : [];
+    const dbComments = await getArticleComments(id);
+    // 合并：以 db:comments 为准，但保留文章中独有的评论（兜底）
+    const dbCommentIds = new Set(dbComments.map(c => c.id));
+    const mergedComments = [...dbComments];
+    for(const c of storedComments){
+      if(!dbCommentIds.has(c.id)){
+        mergedComments.push(c);
+      }
+    }
+    mergedComments.sort((a, b)=> a.createdAt.localeCompare(b.createdAt));
+    result.comments = mergedComments;
     return result;
   }
   const legacy = await redis.get(legacyArticleKey(id));

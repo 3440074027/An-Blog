@@ -22,7 +22,11 @@ export async function onRequestGet(context){
     const raw = await redis.hgetall(DB_COMMENTS_HASH);
     if(!raw) return json({ comments:[] });
     const comments = [];
-    for(const [id, val] of Object.entries(raw)){
+    // 处理对象格式 { field: value } 或数组格式 [field1, value1, field2, value2]
+    const entries = Array.isArray(raw)
+      ? raw.reduce((acc, val, i, arr)=>{ if(i % 2 === 0 && arr[i+1] !== undefined) acc.push([val, arr[i+1]]); return acc; }, [])
+      : Object.entries(raw);
+    for(const [id, val] of entries){
       try{
         const c = JSON.parse(val);
         if(c.articleId === articleId){
@@ -101,7 +105,7 @@ export async function onRequestPost(context){
       updatedAt: now
     };
 
-    await redis.hset(DB_COMMENTS_HASH, comment.id, JSON.stringify(comment));
+    await redis.hset(DB_COMMENTS_HASH, { [comment.id]: JSON.stringify(comment) });
     await bumpCommentsVersion(comment.articleId);
 
     // 同时更新文章数据中的 comments 字段，确保文章数据包含评论
