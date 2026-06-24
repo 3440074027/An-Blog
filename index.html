@@ -6530,11 +6530,9 @@
     line-height:1.9;
     font-size:15px;
     overflow:hidden;
-    max-width:42em;
-    margin:0 auto;
     text-align:left;
   }
-  .article-detail-content p{margin:0 0 16px;}
+  .article-detail-content p{margin:0 0 16px;text-align:left;}
   .article-detail-content h1,.article-detail-content h2,.article-detail-content h3,.article-detail-content h4,.article-detail-content h5,.article-detail-content h6{
     color:#F0D060;
     margin:24px 0 12px;
@@ -6552,6 +6550,7 @@
     border-radius:0 10px 10px 0;
     color:rgba(200,210,225,.7);
     font-style:italic;
+    text-align:left;
   }
   .article-detail-content pre{
     margin:16px 0;padding:16px;
@@ -6567,38 +6566,35 @@
     border:none;height:1px;margin:24px 0;
     background:linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
   }
-  /* 图片：居中、柔和圆角+淡阴影、统一上下边距 */
+  /* 图片：宽度为正文70%-90%居中，小图保持原尺寸不拉伸，统一圆角+淡阴影 */
   .article-detail-content img{
-    max-width:85%;
+    max-width:min(85%, 640px);
+    width:auto;
     height:auto;
     object-fit:contain;
     border-radius:6px;
     display:block;
     margin:24px auto;
     border:none;
-    box-shadow:0 4px 16px rgba(0,0,0,.18);
+    box-shadow:0 2px 12px rgba(0,0,0,.18);
     transition:transform .25s, box-shadow .25s;
   }
-  .article-detail-content img:hover{transform:scale(1.015);box-shadow:0 8px 24px rgba(0,0,0,.24);}
+  .article-detail-content img:hover{transform:scale(1.015);box-shadow:0 6px 20px rgba(0,0,0,.25);}
   .article-detail-content figure{
     margin:24px auto;
     text-align:center;
-    max-width:85%;
+    max-width:min(85%, 640px);
+    width:auto;
   }
   .article-detail-content figure img{
     max-width:100%;
     height:auto;
     margin:0;
+    border-radius:6px;
+    box-shadow:0 2px 12px rgba(0,0,0,.18);
   }
-  /* 图注：小字号、浅灰色、居中、与图片留间距 */
-  .article-detail-content figcaption{
-    font-size:13px;
-    color:rgba(255,255,255,.4);
-    margin-top:8px;
-    font-style:normal;
-    text-align:center;
-    line-height:1.5;
-  }
+  .article-detail-content figcaption{font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;font-style:italic;}
+  /* 统一图文间距24px */
   .article-detail-content p + img,
   .article-detail-content img + p{margin-top:24px;}
   .article-detail-content p:has(img){margin:24px 0;text-align:center;}
@@ -6611,7 +6607,6 @@
     margin:24px 0;
     width:100%;
     align-items:flex-start;
-    justify-content:center;
   }
   .article-detail-content .article-img-row img,
   .article-rich-editor .article-img-row img{
@@ -6623,12 +6618,12 @@
     margin:0;
     display:block;
     border:none;
-    box-shadow:0 4px 16px rgba(0,0,0,.18);
+    box-shadow:0 2px 12px rgba(0,0,0,.18);
     cursor:pointer;
     transition:transform .2s, box-shadow .2s;
   }
   .article-detail-content .article-img-row img:hover,
-  .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 8px 24px rgba(0,0,0,.24);}
+  .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 6px 20px rgba(0,0,0,.25);}
   /* 图片变换框 */
   .article-rich-editor .img-resize-wrap{
     position:relative;
@@ -7285,9 +7280,6 @@
     border:none;
     line-height:1.85;
     font-size:15px;
-    max-width:42em;
-    margin:0 auto;
-    text-align:left;
   }
   .article-rich-editor:empty::before{
     content:attr(data-placeholder);
@@ -7295,25 +7287,25 @@
     pointer-events:none;
   }
   .article-rich-editor img{
-    max-width:85%;
-    height:auto;
+    max-width:min(360px, 92%);
+    max-height:240px;
     object-fit:contain;
-    border-radius:6px;
+    border-radius:16px;
     display:block;
-    margin:24px auto;
-    border:none;
-    box-shadow:0 4px 16px rgba(0,0,0,.18);
+    margin:16px auto;
+    border:1.5px solid rgba(255,255,255,.18);
+    box-shadow:0 8px 24px rgba(0,0,0,.2);
     transition:transform .25s, box-shadow .25s;
   }
-  .article-rich-editor img:hover{transform:scale(1.015);box-shadow:0 8px 24px rgba(0,0,0,.24);}
+  .article-rich-editor img:hover{transform:scale(1.015);box-shadow:0 12px 32px rgba(0,0,0,.28);}
   .article-rich-editor figure{
-    margin:24px auto;
+    margin:16px auto;
     text-align:center;
-    max-width:85%;
+    width:min(360px, 92%);
   }
   .article-rich-editor figure img{
     max-width:100%;
-    height:auto;
+    max-height:240px;
     margin:0;
   }
   .article-rich-editor figcaption{font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;font-style:italic;}
