@@ -11602,7 +11602,16 @@ async function loadComments(){
   if(!el.list || !currentCommentArticleId) return;
   if(el.loadingEl) el.loadingEl.style.display = 'block';
   try{
-    // 始终从 API 读取最新评论，保证数据一致性
+    // 优先从本地缓存读取，避免 API 延迟导致评论丢失
+    const localArticle = publicArticles.find(a => a.id === currentCommentArticleId);
+    if(localArticle && Array.isArray(localArticle.comments) && localArticle.comments.length > 0){
+      renderComments(localArticle.comments);
+      if(el.countEl) el.countEl.textContent = localArticle.comments.length;
+      // 后台静默从 API 同步最新数据
+      syncCommentsFromServer();
+      return;
+    }
+    // 本地没有，从 API 读取
     const response = await fetch(authApiUrl(`/api/comments?articleId=${encodeURIComponent(currentCommentArticleId)}`), {
       method:'GET',
       headers:{
@@ -11613,7 +11622,6 @@ async function loadComments(){
     const data = await response.json().catch(()=>({}));
     const comments = data.comments || [];
     // 同步到本地文章缓存
-    const localArticle = publicArticles.find(a => a.id === currentCommentArticleId);
     if(localArticle){
       localArticle.comments = comments;
     }
@@ -11623,6 +11631,34 @@ async function loadComments(){
     showLoginToast('加载评论失败。', 'error', '错误');
   }finally{
     if(el.loadingEl) el.loadingEl.style.display = 'none';
+  }
+}
+
+/* 后台静默同步评论（不清除已有 DOM） */
+async function syncCommentsFromServer(){
+  try{
+    const response = await fetch(authApiUrl(`/api/comments?articleId=${encodeURIComponent(currentCommentArticleId)}`), {
+      method:'GET',
+      headers:{
+        'Content-Type':'application/json',
+        ...(getAuthToken() ? {'Authorization':'Bearer '+getAuthToken()} : {})
+      }
+    });
+    const data = await response.json().catch(()=>({}));
+    const comments = data.comments || [];
+    const localArticle = publicArticles.find(a => a.id === currentCommentArticleId);
+    if(localArticle){
+      localArticle.comments = comments;
+    }
+    // 只在评论数量变化时才重新渲染
+    const el = getCommentElements();
+    const domCount = el.list ? el.list.querySelectorAll('.cp-comment').length : 0;
+    if(comments.length !== domCount){
+      renderComments(comments);
+      if(el.countEl) el.countEl.textContent = comments.length;
+    }
+  }catch(_){
+    // 静默失败
   }
 }
 
@@ -11808,8 +11844,36 @@ async function postComment(){
       el.textarea.value = '';
       cancelReply();
       showLoginToast('评论发表成功。', 'success', '成功');
-      // 从服务器重新加载评论列表，确保数据一致
-      await loadComments();
+      // 用服务器返回的真实评论替换临时评论
+      if(data.comment){
+        const realComment = data.comment;
+        commentEl.dataset.id = realComment.id;
+        commentEl.style.opacity = '1';
+        const metaEl = commentEl.querySelector('.cp-comment-meta');
+        if(metaEl) metaEl.textContent = realComment.createdAt ? realComment.createdAt.slice(0, 10) : '';
+        // 同步到本地文章缓存
+        const article = publicArticles.find(a => a.id === currentCommentArticleId);
+        if(article){
+          if(!Array.isArray(article.comments)) article.comments = [];
+          article.comments.push({
+            id: realComment.id,
+            articleId: realComment.articleId || currentCommentArticleId,
+            author: realComment.author || tempComment.author,
+            content: realComment.content || tempComment.content,
+            image: realComment.image || null,
+            parentId: realComment.parentId || tempComment.parentId,
+            createdAt: realComment.createdAt || tempComment.createdAt,
+            updatedAt: realComment.updatedAt || realComment.createdAt
+          });
+        }
+      }else{
+        commentEl.style.opacity = '1';
+      }
+      // 更新计数
+      if(el.countEl){
+        const currentCount = parseInt(el.countEl.textContent || '0', 10);
+        el.countEl.textContent = currentCount + 1;
+      }
       return;
     }else{
       showLoginToast((data && data.error) || '发表评论失败。', 'error', '失败');
