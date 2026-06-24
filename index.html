@@ -6653,58 +6653,6 @@
       grid-template-columns:1fr;
     }
   }
-  /* 图片变换框 */
-  .article-rich-editor .img-resize-wrap{
-    position:relative;
-    display:inline-block;
-    max-width:100%;
-    margin:4px;
-    cursor:default;
-    user-select:none;
-    -webkit-user-select:none;
-  }
-  .article-rich-editor .img-resize-wrap img{
-    display:block;
-    max-width:100%;
-    height:auto;
-    border-radius:6px;
-    box-shadow:0 2px 10px rgba(0,0,0,.08);
-    pointer-events:auto;
-    user-select:none;
-    -webkit-user-select:none;
-  }
-  .article-rich-editor .img-resize-wrap.selected img{
-    box-shadow:0 0 0 3px rgba(127,247,255,.25), 0 2px 10px rgba(0,0,0,.08);
-  }
-  .article-rich-editor .img-resize-border{
-    position:absolute;inset:0;
-    border:2px dashed rgba(127,247,255,.5);
-    border-radius:14px;
-    pointer-events:none;
-    display:none;
-  }
-  .article-rich-editor .img-resize-wrap.selected .img-resize-border{
-    display:block;
-  }
-  .article-rich-editor .img-resize-handle{
-    position:absolute;
-    width:14px;height:14px;
-    background:linear-gradient(135deg, #7ff7ff, #ff8fc7);
-    border:2px solid #fff;
-    border-radius:50%;
-    box-shadow:0 0 8px rgba(127,247,255,.6);
-    cursor:nwse-resize;
-    z-index:10;
-    display:none;
-    pointer-events:auto;
-  }
-  .article-rich-editor .img-resize-wrap.selected .img-resize-handle{
-    display:block;
-  }
-  .article-rich-editor .img-resize-handle.br{bottom:-7px;right:-7px;}
-  .article-rich-editor .img-resize-handle.bl{bottom:-7px;left:-7px;cursor:nesw-resize;}
-  .article-rich-editor .img-resize-handle.tr{top:-7px;right:-7px;cursor:nesw-resize;}
-  .article-rich-editor .img-resize-handle.tl{top:-7px;left:-7px;cursor:nwse-resize;}
   /* 分页标记 */
   .article-page-break{
     page-break-after:always;
@@ -11391,15 +11339,12 @@ if(articleContentEditor){
     }
   });
 }
-// 编辑器图片变换框功能——点击显示定界框，长按拖动位置，手柄缩放
-function initEditorImageResize(){
+// 编辑器图片拖动功能——点击图片后可直接拖动位置
+function initEditorImageDrag(){
   if(!articleContentEditor) return;
   let activeWrap = null;
-  let resizing = false;
   let dragging = false;
-  let longPressTimer = null;
-  let isLongPress = false;
-  let startX, startY, startW, startH, startLeft, startTop;
+  let startX, startY, startLeft, startTop;
 
   function ensureWrap(img){
     let wrap = img.closest('.img-resize-wrap');
@@ -11408,156 +11353,127 @@ function initEditorImageResize(){
       wrap.className = 'img-resize-wrap';
       wrap.style.display = 'inline-block';
       wrap.style.verticalAlign = 'top';
+      wrap.style.cursor = 'grab';
       img.parentNode.insertBefore(wrap, img);
       wrap.appendChild(img);
-      const border = document.createElement('div');
-      border.className = 'img-resize-border';
-      wrap.appendChild(border);
-      ['tl','tr','bl','br'].forEach(pos=>{
-        const handle = document.createElement('div');
-        handle.className = 'img-resize-handle ' + pos;
-        handle.dataset.handle = pos;
-        wrap.appendChild(handle);
-      });
     }
     return wrap;
   }
 
-  // 点击图片：显示定界框
-  articleContentEditor.addEventListener('click', (e)=>{
-    if(isLongPress){ isLongPress = false; return; }
+  // mousedown：开始拖动
+  articleContentEditor.addEventListener('mousedown', (e)=>{
     const img = e.target.closest?.('img');
-    if(!img || !articleContentEditor.contains(img)){
-      document.querySelectorAll('.img-resize-wrap.selected').forEach(w=>w.classList.remove('selected'));
-      activeWrap = null;
-      return;
-    }
+    if(!img || !articleContentEditor.contains(img)) return;
     e.preventDefault();
     e.stopPropagation();
+
     const wrap = ensureWrap(img);
-    document.querySelectorAll('.img-resize-wrap.selected').forEach(w=>w.classList.remove('selected'));
-    wrap.classList.add('selected');
     activeWrap = wrap;
-  });
+    dragging = true;
 
-  // 点击编辑器空白处取消选中
-  articleContentEditor.addEventListener('click', (e)=>{
-    if(e.target === articleContentEditor){
-      document.querySelectorAll('.img-resize-wrap.selected').forEach(w=>w.classList.remove('selected'));
-      activeWrap = null;
-    }
-  });
+    // 禁用编辑器文本选择
+    articleContentEditor.style.userSelect = 'none';
+    articleContentEditor.style.webkitUserSelect = 'none';
 
-  // mousedown：长按拖动 / 手柄缩放
-  articleContentEditor.addEventListener('mousedown', (e)=>{
-    const handle = e.target.closest?.('.img-resize-handle');
-    const wrap = e.target.closest?.('.img-resize-wrap');
-    if(!wrap || !articleContentEditor.contains(wrap)) return;
+    startX = e.clientX;
+    startY = e.clientY;
+    const rect = wrap.getBoundingClientRect();
+    const parentRect = articleContentEditor.getBoundingClientRect();
+    startLeft = rect.left - parentRect.left;
+    startTop = rect.top - parentRect.top;
 
-    // 手柄缩放
-    if(handle){
-      e.preventDefault();
-      e.stopPropagation();
-      resizing = true;
-      activeWrap = wrap;
-      startX = e.clientX;
-      startY = e.clientY;
-      const img = wrap.querySelector('img');
-      const rect = img.getBoundingClientRect();
-      startW = rect.width;
-      startH = rect.height;
-      const pos = handle.dataset.handle || 'br';
-      const onMove = (ev)=>{
-        if(!resizing || !activeWrap) return;
-        let dx = ev.clientX - startX;
-        let dy = ev.clientY - startY;
-        if(pos.includes('l')) dx = -dx;
-        if(pos.includes('t')) dy = -dy;
-        const newW = Math.max(60, startW + dx);
-        const ratio = startH / startW;
-        const newH = Math.max(40, newW * ratio);
-        img.style.width = newW + 'px';
-        img.style.height = newH + 'px';
-      };
-      const onUp = ()=>{
-        resizing = false;
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-      };
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-      return;
-    }
+    wrap.style.position = 'relative';
+    wrap.style.left = '0px';
+    wrap.style.top = '0px';
+    wrap.style.cursor = 'grabbing';
+    wrap.style.zIndex = '10';
 
-    // 长按检测（300ms）
-    const imgEl = wrap.querySelector('img');
-    if(imgEl && wrap.classList.contains('selected')){
-      longPressTimer = setTimeout(()=>{
-        isLongPress = true;
-        dragging = true;
-        activeWrap = wrap;
-        // 禁用编辑器文本选择
-        articleContentEditor.style.userSelect = 'none';
-        articleContentEditor.style.webkitUserSelect = 'none';
-        startX = e.clientX;
-        startY = e.clientY;
-        const rect = wrap.getBoundingClientRect();
-        const parentRect = articleContentEditor.getBoundingClientRect();
-        startLeft = rect.left - parentRect.left;
-        startTop = rect.top - parentRect.top;
-        wrap.style.position = 'relative';
-        wrap.style.left = '0px';
-        wrap.style.top = '0px';
-        wrap.style.cursor = 'grabbing';
-        const onMove = (ev)=>{
-          if(!dragging || !activeWrap) return;
-          const dx = ev.clientX - startX;
-          const dy = ev.clientY - startY;
-          activeWrap.style.transform = `translate(${dx}px, ${dy}px)`;
-        };
-        const onUp = ()=>{
-          dragging = false;
-          isLongPress = false;
-          // 恢复编辑器文本选择
-          articleContentEditor.style.userSelect = '';
-          articleContentEditor.style.webkitUserSelect = '';
-          if(activeWrap){
-            activeWrap.style.cursor = '';
-            // 将 transform 转为 margin 偏移
-            const t = activeWrap.style.transform;
-            if(t && t !== 'none'){
-              const match = t.match(/translate\(([^,]+),\s*([^)]+)\)/);
-              if(match){
-                activeWrap.style.marginLeft = match[1];
-                activeWrap.style.marginTop = match[2];
-              }
-            }
-            activeWrap.style.transform = '';
+    const onMove = (ev)=>{
+      if(!dragging || !activeWrap) return;
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      activeWrap.style.transform = `translate(${dx}px, ${dy}px)`;
+    };
+    const onUp = ()=>{
+      dragging = false;
+      // 恢复编辑器文本选择
+      articleContentEditor.style.userSelect = '';
+      articleContentEditor.style.webkitUserSelect = '';
+      if(activeWrap){
+        activeWrap.style.cursor = 'grab';
+        activeWrap.style.zIndex = '';
+        // 将 transform 转为 margin 偏移
+        const t = activeWrap.style.transform;
+        if(t && t !== 'none'){
+          const match = t.match(/translate\(([^,]+),\s*([^)]+)\)/);
+          if(match){
+            activeWrap.style.marginLeft = match[1];
+            activeWrap.style.marginTop = match[2];
           }
-          document.removeEventListener('mousemove', onMove);
-          document.removeEventListener('mouseup', onUp);
-        };
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onUp);
-      }, 300);
-    }
+        }
+        activeWrap.style.transform = '';
+      }
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   });
 
-  // 如果鼠标在300ms内抬起，取消长按
-  articleContentEditor.addEventListener('mouseup', ()=>{
-    if(longPressTimer){
-      clearTimeout(longPressTimer);
-      longPressTimer = null;
-    }
-  });
-  articleContentEditor.addEventListener('mousemove', ()=>{
-    if(longPressTimer && !dragging){
-      clearTimeout(longPressTimer);
-      longPressTimer = null;
-    }
-  });
+  // 触摸支持
+  articleContentEditor.addEventListener('touchstart', (e)=>{
+    const img = e.target.closest?.('img');
+    if(!img || !articleContentEditor.contains(img)) return;
+
+    const wrap = ensureWrap(img);
+    activeWrap = wrap;
+    dragging = true;
+
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+    const rect = wrap.getBoundingClientRect();
+    const parentRect = articleContentEditor.getBoundingClientRect();
+    startLeft = rect.left - parentRect.left;
+    startTop = rect.top - parentRect.top;
+
+    wrap.style.position = 'relative';
+    wrap.style.left = '0px';
+    wrap.style.top = '0px';
+    wrap.style.cursor = 'grabbing';
+    wrap.style.zIndex = '10';
+
+    const onTouchMove = (ev)=>{
+      if(!dragging || !activeWrap) return;
+      ev.preventDefault();
+      const t = ev.touches[0];
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      activeWrap.style.transform = `translate(${dx}px, ${dy}px)`;
+    };
+    const onTouchEnd = ()=>{
+      dragging = false;
+      if(activeWrap){
+        activeWrap.style.cursor = 'grab';
+        activeWrap.style.zIndex = '';
+        const t = activeWrap.style.transform;
+        if(t && t !== 'none'){
+          const match = t.match(/translate\(([^,]+),\s*([^)]+)\)/);
+          if(match){
+            activeWrap.style.marginLeft = match[1];
+            activeWrap.style.marginTop = match[2];
+          }
+        }
+        activeWrap.style.transform = '';
+      }
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+    };
+    document.addEventListener('touchmove', onTouchMove, { passive:false });
+    document.addEventListener('touchend', onTouchEnd);
+  }, { passive:true });
 }
-initEditorImageResize();
+initEditorImageDrag();
 
 // 修复插入图片后按 Enter 不能换行的问题
 if(articleContentEditor){
