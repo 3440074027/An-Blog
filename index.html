@@ -10554,6 +10554,10 @@ async function loadPublicArticles(){
   try{
     const data = await authRequest('/api/articles', { method:'GET' });
     publicArticles = Array.isArray(data.articles) ? data.articles : [];
+    // 确保每篇文章都有 comments 数组
+    publicArticles.forEach(a => {
+      if(!Array.isArray(a.comments)) a.comments = [];
+    });
     renderArticles();
     updateToolStats();
   }catch(error){
@@ -10890,6 +10894,9 @@ async function saveArticleFromEditor(){
     setPublishProgress(8);
     await new Promise(resolve=>setTimeout(resolve, 80));
     setPublishProgress(24);
+    // 保留已有评论数据（如果编辑的是已有文章）
+    const existingArticle = publicArticles.find(a => a.id === editingArticleId);
+    const existingComments = existingArticle?.comments || [];
     const article = {
       id:editingArticleId || `article-${Date.now()}-${Math.random().toString(16).slice(2)}`,
       title:title.slice(0, 120),
@@ -10899,6 +10906,7 @@ async function saveArticleFromEditor(){
       content:allContent.slice(0, 8_000_000),
       thumb:getFirstArticleImage(allContent),
       fontFamily:articleFontSelect?.value || '',
+      comments: existingComments,
       createdAt:new Date().toISOString().slice(0, 16).replace('T', ' '),
       updatedAt:new Date().toISOString()
     };
@@ -11596,6 +11604,14 @@ async function loadComments(){
   if(!el.list || !currentCommentArticleId) return;
   if(el.loadingEl) el.loadingEl.style.display = 'block';
   try{
+    // 优先从 publicArticles 本地缓存读取评论（与文章数据一起持久化）
+    const localArticle = publicArticles.find(a => a.id === currentCommentArticleId);
+    if(localArticle && Array.isArray(localArticle.comments) && localArticle.comments.length > 0){
+      renderComments(localArticle.comments);
+      if(el.countEl) el.countEl.textContent = localArticle.comments.length;
+      return;
+    }
+    // 本地没有，从 API 读取
     const response = await fetch(authApiUrl(`/api/comments?articleId=${encodeURIComponent(currentCommentArticleId)}`), {
       method:'GET',
       headers:{
@@ -11604,6 +11620,10 @@ async function loadComments(){
     });
     const data = await response.json().catch(()=>({}));
     const comments = data.comments || [];
+    // 同步到本地文章缓存
+    if(localArticle){
+      localArticle.comments = comments;
+    }
     renderComments(comments);
     if(el.countEl) el.countEl.textContent = comments.length;
   }catch(error){
@@ -11825,8 +11845,18 @@ async function postComment(){
         const currentCount = parseInt(el.countEl.textContent || '0', 10);
         el.countEl.textContent = currentCount + 1;
       }
-      // 评论已持久化到数据库并显示在DOM中，不需要重新加载
-      // 其他用户下次打开评论面板时会通过 loadComments() 看到这条评论
+      // 将评论保存到 publicArticles 对应文章的 comments 数组中（实现本地持久化）
+      const article = publicArticles.find(a => a.id === currentCommentArticleId);
+      if(article){
+        if(!Array.isArray(article.comments)) article.comments = [];
+        article.comments.push({
+          id: data.comment?.id || commentEl.dataset.id || tempComment.id,
+          author: tempComment.author,
+          content: tempComment.content,
+          createdAt: data.comment?.createdAt || tempComment.createdAt,
+          parentId: tempComment.parentId
+        });
+      }
       return;
     }else{
       showLoginToast((data && data.error) || '发表评论失败。', 'error', '失败');
@@ -11857,7 +11887,20 @@ async function deleteComment(commentId){
     const data = await response.json().catch(()=>({}));
     if(response.ok && data && data.ok){
       showLoginToast('评论已删除。', 'success', '已删除');
-      loadComments();
+      // 从本地文章缓存中删除该评论
+      const article = publicArticles.find(a => a.id === currentCommentArticleId);
+      if(article && Array.isArray(article.comments)){
+        article.comments = article.comments.filter(c => c.id !== commentId);
+      }
+      // 从 DOM 中移除
+      const commentEl = document.querySelector(`.cp-comment[data-id="${CSS.escape(commentId)}"]`);
+      if(commentEl) commentEl.remove();
+      // 更新计数
+      const el = getCommentElements();
+      if(el.countEl){
+        const currentCount = parseInt(el.countEl.textContent || '0', 10);
+        el.countEl.textContent = Math.max(0, currentCount - 1);
+      }
     }else{
       showLoginToast((data && data.error) || '删除评论失败。', 'error', '失败');
     }
