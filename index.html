@@ -5651,7 +5651,7 @@
     margin:0;
     color:rgba(255,255,255,.68);
     font-size:12px;
-    font-weight:750;
+    font-weight:700;
     line-height:1.7;
   }
   .profile-intro-block{
@@ -6349,10 +6349,12 @@
   }
   .cp-input textarea:focus{border-color:rgba(124,92,255,.5);}
   .cp-input{display:flex;flex-direction:column;gap:8px;}
-  .cp-input textarea{flex:1;min-height:56px;}
+  .cp-input .cp-textarea-row{display:flex;gap:8px;align-items:flex-end;}
+  .cp-input .cp-textarea-row textarea{flex:1;min-height:56px;}
   .cp-input .cp-send-btn{
+    flex-shrink:0;
     align-self:flex-end;
-    padding:8px 22px;border-radius:10px;
+    padding:8px 22px;border-radius:10px;height:56px;
     background:linear-gradient(135deg,#7c5cff,#5b3cd4);
     border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;
     transition:opacity .2s, transform .15s;
@@ -7256,7 +7258,9 @@
   .article-rich-editor:empty::before{
     content:attr(data-placeholder);
     color:rgba(255,255,255,.3);
+    font-size:14px;
     pointer-events:none;
+    display:block;
   }
   .article-rich-editor img{
     max-width:min(360px, 92%);
@@ -7304,13 +7308,6 @@
     transition:transform .2s, box-shadow .2s;
   }
   .article-rich-editor .article-img-row img:hover{transform:scale(1.02);box-shadow:0 10px 28px rgba(0,0,0,.28);}
-  .article-rich-editor:empty::before{
-    content:attr(data-placeholder);
-    color:rgba(255,255,255,.3);
-    font-size:14px;
-    pointer-events:none;
-    display:block;
-  }
   .article-editor-actions{
     display:flex;
     justify-content:space-between;
@@ -7429,11 +7426,6 @@
     color:rgba(255,255,255,.62);
     font-size:11px;
     font-weight:900;
-  }
-  .article-card:hover{
-    transform:translateY(-3px);
-    background:rgba(255,255,255,.17);
-    border-color:rgba(255,255,255,.28);
   }
   .article-thumb{
     position:relative;
@@ -8337,8 +8329,10 @@
           <span id="cpReplyText">回复 @someone</span>
           <button id="cpCancelReply">取消回复</button>
         </div>
-        <textarea id="cpTextarea" placeholder="写下你的评论..." maxlength="2000"></textarea>
-        <button class="cp-send-btn" id="cpSendBtn">发送</button>
+        <div class="cp-textarea-row">
+          <textarea id="cpTextarea" placeholder="写下你的评论..." maxlength="2000"></textarea>
+          <button class="cp-send-btn" id="cpSendBtn">发送</button>
+        </div>
       </div>
     </div>
   </div>
@@ -8506,7 +8500,7 @@ if(homeLangBtn){
 const homeThemeBtn = document.getElementById('homeThemeBtn');
 const themeSelector = document.getElementById('themeSelector');
 const themeOptions = document.querySelectorAll('.theme-option');
-const themes = ['default','light','ocean','forest','sunset'];
+const themes = ['default','light','ocean','forest','sunset','rose','cherry','amber','lime','mint','sky','indigo','violet','slate','zinc','cocoa','lavender','peach','aurora','sakura'];
 let currentThemeIndex = 0;
 
 function applyTheme(theme){
@@ -8515,8 +8509,8 @@ function applyTheme(theme){
   themeOptions.forEach(opt=>{
     opt.classList.toggle('active', opt.dataset.theme === theme);
   });
-  const themeNames = {default:'默认',light:'浅色',ocean:'海洋',forest:'森林',sunset:'日落'};
-  showLoginToast(`已切换到${themeNames[theme]}主题。`, 'success', '主题切换');
+  const themeNames = {default:'默认',light:'浅色',ocean:'海洋',forest:'森林',sunset:'日落',rose:'玫瑰',cherry:'樱花',amber:'琥珀',lime:'青柠',mint:'薄荷',sky:'天空',indigo:'靛蓝',violet:'紫罗兰',slate:'石板',zinc:'锌灰',cocoa:'可可',lavender:'薰衣草',peach:'蜜桃',aurora:'极光',sakura:'日式樱花'};
+  showLoginToast(`已切换到${themeNames[theme] || theme}主题。`, 'success', '主题切换');
 }
 
 if(homeThemeBtn){
@@ -10216,9 +10210,9 @@ function uaAvatarStyle(value){ return value ? `url('${value}')` : 'linear-gradie
 function uaGetTags(article){ return Array.from(new Set([article.category, ...(Array.isArray(article.tags) ? article.tags : [])].filter(Boolean))); }
 function uaGalleryImages(article){
   const gallery = Array.isArray(article?.gallery) ? article.gallery : [];
-  const images = gallery.filter(src => typeof src === 'string' && src.startsWith('data:image/')).slice(0, 5);
+  let images = gallery.filter(src => typeof src === 'string' && src.startsWith('data:image/')).slice(0, 5);
   const thumb = String(article?.thumb || '');
-  if(!images.length && thumb.startsWith('data:image/')) images.push(thumb);
+  if(!images.length && thumb.startsWith('data:image/')) images = [thumb, ...images];
   return images;
 }
 function uaThumbStyle(article){
@@ -10425,9 +10419,9 @@ function articleThumbStyle(article){
 
 function articleGalleryImages(article){
   const gallery = Array.isArray(article?.gallery) ? article.gallery : [];
-  const images = gallery.filter(src=>typeof src === 'string' && src.startsWith('data:image/')).slice(0, 5);
+  let images = gallery.filter(src=>typeof src === 'string' && src.startsWith('data:image/')).slice(0, 5);
   const thumb = String(article?.thumb || '');
-  if(!images.length && thumb.startsWith('data:image/')) images.push(thumb);
+  if(!images.length && thumb.startsWith('data:image/')) images = [thumb, ...images];
   return images;
 }
 
@@ -11590,6 +11584,10 @@ function openCommentsPanel(){
 function closeCommentsPanel(){
   const el = getCommentElements();
   if(el.card) el.card.classList.remove('comments-open');
+  // 清除评论列表 DOM，确保下次打开时干净渲染
+  if(el.list){
+    el.list.querySelectorAll('.cp-comment, .cp-empty').forEach(c=>c.remove());
+  }
   if(el.panel) el.panel.scrollTop = 0;
   currentReplyToId = null;
   currentReplyToAuthor = '';
@@ -11604,23 +11602,18 @@ async function loadComments(){
   if(!el.list || !currentCommentArticleId) return;
   if(el.loadingEl) el.loadingEl.style.display = 'block';
   try{
-    // 优先从 publicArticles 本地缓存读取评论（与文章数据一起持久化）
-    const localArticle = publicArticles.find(a => a.id === currentCommentArticleId);
-    if(localArticle && Array.isArray(localArticle.comments) && localArticle.comments.length > 0){
-      renderComments(localArticle.comments);
-      if(el.countEl) el.countEl.textContent = localArticle.comments.length;
-      return;
-    }
-    // 本地没有，从 API 读取
+    // 始终从 API 读取最新评论，保证数据一致性
     const response = await fetch(authApiUrl(`/api/comments?articleId=${encodeURIComponent(currentCommentArticleId)}`), {
       method:'GET',
       headers:{
-        'Content-Type':'application/json'
+        'Content-Type':'application/json',
+        ...(getAuthToken() ? {'Authorization':'Bearer '+getAuthToken()} : {})
       }
     });
     const data = await response.json().catch(()=>({}));
     const comments = data.comments || [];
     // 同步到本地文章缓存
+    const localArticle = publicArticles.find(a => a.id === currentCommentArticleId);
     if(localArticle){
       localArticle.comments = comments;
     }
@@ -11637,38 +11630,22 @@ function renderComments(comments){
   const el = getCommentElements();
   if(!el.list) return;
   if(el.loadingEl) el.loadingEl.style.display = 'none';
-  // 只移除空状态提示，保留已有评论（避免清除用户刚发送的临时评论）
-  el.list.querySelectorAll('.cp-empty').forEach(c=>c.remove());
+  // 清除旧评论 DOM，全量渲染保证数据一致性
+  el.list.querySelectorAll('.cp-comment, .cp-empty').forEach(c=>c.remove());
   if(!comments || comments.length === 0){
-    // 如果列表已有评论（可能是临时评论），不显示空提示
-    if(el.list.querySelectorAll('.cp-comment').length === 0){
-      const empty = document.createElement('div');
-      empty.className = 'cp-empty';
-      empty.textContent = '暂无评论，快来写第一条吧~';
-      el.list.appendChild(empty);
-    }
+    const empty = document.createElement('div');
+    empty.className = 'cp-empty';
+    empty.textContent = '暂无评论，快来写第一条吧~';
+    el.list.appendChild(empty);
     return;
   }
-  // 用服务器数据更新/补充列表，不清除已有 DOM
-  const existingIds = new Set();
-  el.list.querySelectorAll('.cp-comment').forEach(c => {
-    if(c.dataset.id && !c.dataset.id.startsWith('temp-')){
-      existingIds.add(c.dataset.id);
-    }
-  });
   const topLevel = comments.filter(c => !c.parentId);
   const replies = comments.filter(c => c.parentId);
   topLevel.forEach(comment => {
-    if(!existingIds.has(comment.id)){
-      el.list.appendChild(renderCommentHtml(comment, false));
-      existingIds.add(comment.id);
-    }
+    el.list.appendChild(renderCommentHtml(comment, false));
     const childReplies = replies.filter(r => r.parentId === comment.id);
     childReplies.forEach(reply => {
-      if(!existingIds.has(reply.id)){
-        el.list.appendChild(renderCommentHtml(reply, true));
-        existingIds.add(reply.id);
-      }
+      el.list.appendChild(renderCommentHtml(reply, true));
     });
   });
 }
@@ -11831,32 +11808,8 @@ async function postComment(){
       el.textarea.value = '';
       cancelReply();
       showLoginToast('评论发表成功。', 'success', '成功');
-      // 更新临时评论为真实数据
-      if(data.comment && data.comment.id){
-        commentEl.dataset.id = data.comment.id;
-      }
-      if(data.comment && data.comment.createdAt){
-        const metaEl = commentEl.querySelector('.cp-comment-meta');
-        if(metaEl) metaEl.textContent = data.comment.createdAt.slice(0, 10);
-      }
-      commentEl.style.opacity = '1';
-      // 更新计数
-      if(el.countEl){
-        const currentCount = parseInt(el.countEl.textContent || '0', 10);
-        el.countEl.textContent = currentCount + 1;
-      }
-      // 将评论保存到 publicArticles 对应文章的 comments 数组中（实现本地持久化）
-      const article = publicArticles.find(a => a.id === currentCommentArticleId);
-      if(article){
-        if(!Array.isArray(article.comments)) article.comments = [];
-        article.comments.push({
-          id: data.comment?.id || commentEl.dataset.id || tempComment.id,
-          author: tempComment.author,
-          content: tempComment.content,
-          createdAt: data.comment?.createdAt || tempComment.createdAt,
-          parentId: tempComment.parentId
-        });
-      }
+      // 从服务器重新加载评论列表，确保数据一致
+      await loadComments();
       return;
     }else{
       showLoginToast((data && data.error) || '发表评论失败。', 'error', '失败');

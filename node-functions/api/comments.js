@@ -5,7 +5,8 @@ import {
   requireUser,
   isSiteOwner,
   redis,
-  nowIso
+  nowIso,
+  bumpCommentsVersion
 } from './_lib/auth.js';
 import { DB_COMMENTS_HASH, DB_ARTICLES_HASH } from './_lib/db-keys.js';
 
@@ -101,6 +102,7 @@ export async function onRequestPost(context){
     };
 
     await redis.hset(DB_COMMENTS_HASH, comment.id, JSON.stringify(comment));
+    await bumpCommentsVersion(comment.articleId);
 
     return json({ ok:true, comment }, 201);
   }catch(error){
@@ -148,6 +150,7 @@ export async function onRequestDelete(context){
     }
 
     await redis.hdel(DB_COMMENTS_HASH, commentId);
+    if(comment.articleId) await bumpCommentsVersion(comment.articleId);
     return json({ ok:true, deleted:true });
   }catch(error){
     console.error('comments DELETE error:', error);
