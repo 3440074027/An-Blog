@@ -11594,10 +11594,7 @@ function closeCommentsPanel(){
 async function loadComments(){
   const el = getCommentElements();
   if(!el.list || !currentCommentArticleId) return;
-  if(_cpPosting) return; // 发送评论中，不清除列表
   if(el.loadingEl) el.loadingEl.style.display = 'block';
-  el.list.querySelectorAll('.cp-comment').forEach(c=>c.remove());
-  el.list.querySelectorAll('.cp-empty').forEach(c=>c.remove());
   try{
     const response = await fetch(authApiUrl(`/api/comments?articleId=${encodeURIComponent(currentCommentArticleId)}`), {
       method:'GET',
@@ -11620,22 +11617,38 @@ function renderComments(comments){
   const el = getCommentElements();
   if(!el.list) return;
   if(el.loadingEl) el.loadingEl.style.display = 'none';
-  el.list.querySelectorAll('.cp-comment').forEach(c=>c.remove());
+  // 只移除空状态提示，保留已有评论（避免清除用户刚发送的临时评论）
   el.list.querySelectorAll('.cp-empty').forEach(c=>c.remove());
   if(!comments || comments.length === 0){
-    const empty = document.createElement('div');
-    empty.className = 'cp-empty';
-    empty.textContent = '暂无评论，快来写第一条吧~';
-    el.list.appendChild(empty);
+    // 如果列表已有评论（可能是临时评论），不显示空提示
+    if(el.list.querySelectorAll('.cp-comment').length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'cp-empty';
+      empty.textContent = '暂无评论，快来写第一条吧~';
+      el.list.appendChild(empty);
+    }
     return;
   }
+  // 用服务器数据更新/补充列表，不清除已有 DOM
+  const existingIds = new Set();
+  el.list.querySelectorAll('.cp-comment').forEach(c => {
+    if(c.dataset.id && !c.dataset.id.startsWith('temp-')){
+      existingIds.add(c.dataset.id);
+    }
+  });
   const topLevel = comments.filter(c => !c.parentId);
   const replies = comments.filter(c => c.parentId);
   topLevel.forEach(comment => {
-    el.list.appendChild(renderCommentHtml(comment, false));
+    if(!existingIds.has(comment.id)){
+      el.list.appendChild(renderCommentHtml(comment, false));
+      existingIds.add(comment.id);
+    }
     const childReplies = replies.filter(r => r.parentId === comment.id);
     childReplies.forEach(reply => {
-      el.list.appendChild(renderCommentHtml(reply, true));
+      if(!existingIds.has(reply.id)){
+        el.list.appendChild(renderCommentHtml(reply, true));
+        existingIds.add(reply.id);
+      }
     });
   });
 }
@@ -11812,11 +11825,8 @@ async function postComment(){
         const currentCount = parseInt(el.countEl.textContent || '0', 10);
         el.countEl.textContent = currentCount + 1;
       }
-      // 延迟重新加载评论，确保与服务器同步（他人可见）
-      setTimeout(()=>{
-        _cpPosting = false;
-        loadComments();
-      }, 800);
+      // 评论已持久化到数据库并显示在DOM中，不需要重新加载
+      // 其他用户下次打开评论面板时会通过 loadComments() 看到这条评论
       return;
     }else{
       showLoginToast((data && data.error) || '发表评论失败。', 'error', '失败');
