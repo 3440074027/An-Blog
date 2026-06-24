@@ -6348,14 +6348,19 @@
     outline:none;min-height:56px;transition:border-color .2s;font-family:inherit;
   }
   .cp-input textarea:focus{border-color:rgba(124,92,255,.5);}
-  .cp-input .cp-input-tools{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
-  .cp-input .cp-input-left{display:flex;align-items:center;gap:8px;}
+  .cp-input{display:flex;flex-direction:column;gap:8px;}
+  .cp-input textarea{flex:1;min-height:56px;}
   .cp-input .cp-send-btn{
-    padding:7px 20px;border-radius:10px;background:linear-gradient(135deg,#7c5cff,#5b3cd4);
-    border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .2s;
+    align-self:flex-end;
+    padding:8px 22px;border-radius:10px;
+    background:linear-gradient(135deg,#7c5cff,#5b3cd4);
+    border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;
+    transition:opacity .2s, transform .15s;
+    box-shadow:0 2px 8px rgba(124,92,255,.25);
   }
-  .cp-input .cp-send-btn:hover{opacity:.85;}
-  .cp-input .cp-send-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .cp-input .cp-send-btn:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 12px rgba(124,92,255,.35);}
+  .cp-input .cp-send-btn:active{transform:translateY(0);}
+  .cp-input .cp-send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
   .cp-input .cp-reply-hint{
     font-size:11px;color:rgba(124,92,255,.7);margin-bottom:6px;display:flex;justify-content:space-between;
   }
@@ -8333,10 +8338,7 @@
           <button id="cpCancelReply">取消回复</button>
         </div>
         <textarea id="cpTextarea" placeholder="写下你的评论..." maxlength="2000"></textarea>
-        <div class="cp-input-tools">
-          <div class="cp-input-left"></div>
-          <button class="cp-send-btn" id="cpSendBtn">发送</button>
-        </div>
+        <button class="cp-send-btn" id="cpSendBtn">发送</button>
       </div>
     </div>
   </div>
@@ -11511,6 +11513,7 @@ window.addEventListener('resize', ()=>setTimeout(refreshArticlePageSize, 120));
 let currentCommentArticleId = null;
 let currentReplyToId = null;
 let currentReplyToAuthor = '';
+let _cpPosting = false; // 防止 postComment 期间 loadComments 清除临时评论
 function compressImage(file, maxSize, callback){
   const img = new Image();
   img.onload = function(){
@@ -11591,16 +11594,15 @@ function closeCommentsPanel(){
 async function loadComments(){
   const el = getCommentElements();
   if(!el.list || !currentCommentArticleId) return;
+  if(_cpPosting) return; // 发送评论中，不清除列表
   if(el.loadingEl) el.loadingEl.style.display = 'block';
   el.list.querySelectorAll('.cp-comment').forEach(c=>c.remove());
   el.list.querySelectorAll('.cp-empty').forEach(c=>c.remove());
   try{
-    const token = getAuthToken();
     const response = await fetch(authApiUrl(`/api/comments?articleId=${encodeURIComponent(currentCommentArticleId)}`), {
       method:'GET',
       headers:{
-        'Content-Type':'application/json',
-        ...(token ? {'Authorization':'Bearer '+token} : {})
+        'Content-Type':'application/json'
       }
     });
     const data = await response.json().catch(()=>({}));
@@ -11748,6 +11750,7 @@ async function postComment(){
   }
   el.sendBtn.disabled = true;
   el.sendBtn.textContent = '发送中...';
+  _cpPosting = true;
   const savedUser = readSavedUser();
   const tempComment = {
     id: 'temp-' + Date.now(),
@@ -11798,20 +11801,23 @@ async function postComment(){
       // 更新临时评论为真实数据
       if(data.comment && data.comment.id){
         commentEl.dataset.id = data.comment.id;
-        commentEl.style.opacity = '1';
-        // 更新评论数据中的其他字段
-        if(data.comment.createdAt){
-          const metaEl = commentEl.querySelector('.cp-comment-meta');
-          if(metaEl) metaEl.textContent = data.comment.createdAt.slice(0, 10);
-        }
       }
-      // 无论服务端是否返回完整数据，都保持临时评论显示
+      if(data.comment && data.comment.createdAt){
+        const metaEl = commentEl.querySelector('.cp-comment-meta');
+        if(metaEl) metaEl.textContent = data.comment.createdAt.slice(0, 10);
+      }
       commentEl.style.opacity = '1';
       // 更新计数
       if(el.countEl){
         const currentCount = parseInt(el.countEl.textContent || '0', 10);
         el.countEl.textContent = currentCount + 1;
       }
+      // 延迟重新加载评论，确保与服务器同步（他人可见）
+      setTimeout(()=>{
+        _cpPosting = false;
+        loadComments();
+      }, 800);
+      return;
     }else{
       showLoginToast((data && data.error) || '发表评论失败。', 'error', '失败');
       commentEl.remove();
@@ -11820,6 +11826,7 @@ async function postComment(){
     showLoginToast('网络错误，请稍后重试。', 'error', '失败');
     commentEl.remove();
   }finally{
+    _cpPosting = false;
     el.sendBtn.disabled = false;
     el.sendBtn.textContent = '发送';
   }
