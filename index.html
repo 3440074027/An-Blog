@@ -1363,47 +1363,32 @@
 
   /* -- 文章卡片 -- */
   .ua-article{
-    min-height:300px;
-    display:grid;grid-template-rows:180px auto;
-    overflow:hidden;border-radius:24px;
+    min-height:280px;
+    display:grid;grid-template-rows:150px auto;
+    overflow:hidden;border-radius:20px;
     cursor:pointer;
-    background:linear-gradient(180deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,.08) 100%);
-    border:1px solid rgba(255,255,255,.16);
-    box-shadow:0 12px 40px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.2);
-    backdrop-filter:blur(12px) saturate(1.1);
-    -webkit-backdrop-filter:blur(12px) saturate(1.1);
+    background:linear-gradient(145deg, rgba(39,55,84,.62), rgba(255,255,255,.12));
+    border:1.5px solid rgba(255,255,255,.3);
+    box-shadow:0 24px 80px rgba(5,10,30,.28), inset 0 1px 0 rgba(255,255,255,.22);
+    backdrop-filter:blur(22px) saturate(1.12);
+    -webkit-backdrop-filter:blur(22px) saturate(1.12);
     color:#fff;
     animation:uaCardIn 0.4s ease both;
-    transition:all .35s cubic-bezier(.34,1.56,.64,1);
+    transition:all 0.25s ease;
   }
   .ua-article:hover{
-    transform:translateY(-6px) scale(1.01);
-    box-shadow:0 24px 64px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.28);
-    border-color:rgba(255,255,255,.32);
+    transform:translateY(-4px);
+    box-shadow:0 32px 100px rgba(5,10,30,.35), inset 0 1px 0 rgba(255,255,255,.28);
+    border-color:rgba(255,255,255,.45);
   }
   @keyframes uaCardIn{
-    from{opacity:0;transform:translateY(18px) scale(.98)}
+    from{opacity:0;transform:translateY(12px)}
     to{opacity:1;transform:none}
   }
   .ua-thumb{
     position:relative;overflow:hidden;
     background:var(--ua-thumb,linear-gradient(135deg,rgba(255,185,222,.3),rgba(144,225,255,.3)));
     background-size:cover;background-position:center;
-    transition:transform .5s cubic-bezier(.22,.08,.28,1);
-  }
-  .ua-article:hover .ua-thumb{
-    transform:scale(1.08);
-  }
-  .ua-thumb::after{
-    content:'';
-    position:absolute;inset:0;
-    background:linear-gradient(180deg, transparent 40%, rgba(0,0,0,.35) 100%);
-    pointer-events:none;
-    opacity:0;
-    transition:opacity .3s;
-  }
-  .ua-article:hover .ua-thumb::after{
-    opacity:1;
   }
   .ua-thumb-slide{
     position:absolute;inset:0;opacity:0;
@@ -1425,37 +1410,25 @@
     36%,92%{opacity:0;transform:scale(1.04)}
     100%{opacity:1;transform:scale(1)}
   }
-  .ua-article-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px}
+  .ua-article-body{padding:16px}
   .ua-article small{
     color:rgba(255,185,222,.95);font-size:11px;font-weight:600;
     letter-spacing:0.02em;
   }
   .ua-article h2{
-    margin:0;font-size:17px;line-height:1.35;
-    color:#fff;font-weight:800;
-    letter-spacing:-.01em;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-    overflow:hidden;
-    transition:color .2s;
-  }
-  .ua-article:hover h2{
-    color:#ffe4f0;
+    margin:8px 0 6px;font-size:16px;line-height:1.35;
+    color:#fff;font-weight:700;
+    text-shadow:0 1px 4px rgba(0,0,0,.12);
   }
   .ua-article p{
-    margin:0;color:rgba(255,255,255,.55);
-    font-size:12.5px;line-height:1.6;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-    overflow:hidden;
+    margin:0;color:rgba(255,255,255,.65);
+    font-size:13px;line-height:1.7;
   }
   .ua-article-tags{
-    display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;
+    display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;
   }
   .ua-article-tags span{
-    padding:3px 10px;border-radius:999px;
+    padding:3px 10px;border-radius:6px;
     font-size:10px;font-weight:500;
     color:rgba(255,255,255,.8);
     background:rgba(255,255,255,.08);
@@ -6101,178 +6074,40 @@
   }
   .article-grid{
     grid-template-columns:repeat(3, minmax(0, 1fr));
-    gap:20px;
     min-height:0;
     align-content:start;
   }
   .article-grid.turning{
-    animation:articlePageTurn .5s cubic-bezier(.22,.08,.28,1) both;
+    animation:articlePageTurn .46s cubic-bezier(.22,.08,.28,1) both;
   }
   @keyframes articlePageTurn{
-    0%{opacity:0;transform:translateY(24px) scale(.96);filter:blur(8px);}
+    0%{opacity:.2;transform:translateY(18px) scale(.98);filter:blur(10px);}
     100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0);}
   }
   .article-card{
     position:relative;
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-    border-radius:24px;
-    background:linear-gradient(180deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,.08) 100%);
-    border:1px solid rgba(255,255,255,.16);
-    box-shadow:0 12px 40px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.2);
-    transition:all .35s cubic-bezier(.34,1.56,.64,1);
+    min-height:100px;
+    display:grid;
+    grid-template-columns:72px 1fr;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:18px;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.14);
+    transition:transform .22s, background .22s, border-color .22s;
     cursor:pointer;
-    backdrop-filter:blur(12px) saturate(1.1);
-    -webkit-backdrop-filter:blur(12px) saturate(1.1);
   }
   .article-card:hover{
-    transform:translateY(-6px) scale(1.01);
-    box-shadow:0 24px 64px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.28);
-    border-color:rgba(255,255,255,.32);
+    transform:translateY(-3px);
+    background:rgba(255,255,255,.17);
+    border-color:rgba(255,255,255,.28);
   }
   .article-card.selectable{
     cursor:pointer;
   }
   .article-card.selected{
     outline:2px solid rgba(255,143,199,.72);
-    background:linear-gradient(180deg, rgba(255,143,199,.18) 0%, rgba(255,143,199,.08) 100%);
-  }
-  .article-card .article-thumb-wrap{
-    position:relative;
-    width:100%;
-    height:140px;
-    overflow:hidden;
-    flex-shrink:0;
-  }
-  .article-card .article-thumb-wrap::after{
-    content:'';
-    position:absolute;inset:0;
-    background:linear-gradient(180deg, transparent 50%, rgba(0,0,0,.45) 100%);
-    pointer-events:none;
-    transition:opacity .3s;
-  }
-  .article-card .article-card-author-on-thumb{
-    position:absolute;
-    bottom:10px;
-    left:12px;
-    z-index:4;
-    display:flex;
-    align-items:center;
-    gap:6px;
-    pointer-events:none;
-  }
-  .article-card .article-card-author-on-thumb .author-avatar-on-thumb{
-    width:28px;
-    height:28px;
-    border-radius:50%;
-    background:linear-gradient(135deg, rgba(212,175,55,.5), rgba(100,180,220,.5));
-    background-size:cover;
-    background-position:center;
-    border:2px solid rgba(255,255,255,.55);
-    box-shadow:0 2px 8px rgba(0,0,0,.3);
-    flex-shrink:0;
-  }
-  .article-card .article-card-author-on-thumb .author-name-on-thumb{
-    font-size:11px;
-    font-weight:700;
-    color:rgba(255,255,255,.9);
-    text-shadow:0 1px 4px rgba(0,0,0,.5);
-    max-width:80px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  .article-card .article-thumb{
-    width:100%;
-    height:100%;
-    border-radius:0;
-    min-height:auto;
-    transition:transform .5s cubic-bezier(.22,.08,.28,1);
-  }
-  .article-card:hover .article-thumb{
-    transform:scale(1.08);
-  }
-  .article-card .article-category-badge{
-    position:absolute;
-    top:12px;
-    left:12px;
-    z-index:3;
-    padding:4px 12px;
-    border-radius:999px;
-    font-size:11px;
-    font-weight:700;
-    color:#fff;
-    background:linear-gradient(135deg, rgba(124,92,255,.75), rgba(255,143,199,.75));
-    border:1px solid rgba(255,255,255,.25);
-    backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px);
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
-    pointer-events:none;
-  }
-  .article-card .article-card-body{
-    padding:12px 14px 14px;
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    flex:1;
-  }
-  .article-card h3{
-    margin:0;
-    color:#fff;
-    font-size:15px;
-    line-height:1.3;
-    font-weight:800;
-    letter-spacing:-.01em;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-    overflow:hidden;
-    transition:color .2s;
-  }
-  .article-card:hover h3{
-    color:#ffe4f0;
-  }
-  .article-card .article-summary{
-    margin:0;
-    color:rgba(255,255,255,.55);
-    font-size:12.5px;
-    font-weight:500;
-    line-height:1.6;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-    overflow:hidden;
-  }
-  .article-card .article-card-footer{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-top:auto;
-    padding-top:8px;
-    border-top:1px solid rgba(255,255,255,.08);
-  }
-  .article-card .article-card-author{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    font-size:11px;
-    color:rgba(255,255,255,.5);
-    font-weight:600;
-  }
-  .article-card .article-card-author-avatar{
-    width:20px;
-    height:20px;
-    border-radius:50%;
-    background:linear-gradient(135deg, rgba(212,175,55,.4), rgba(100,180,220,.4));
-    background-size:cover;
-    background-position:center;
-    border:1.5px solid rgba(255,255,255,.2);
-  }
-  .article-card .article-card-time{
-    font-size:11px;
-    color:rgba(255,255,255,.35);
-    font-weight:500;
+    background:rgba(255,143,199,.16);
   }
   .article-select-mark{
     position:absolute;
@@ -6288,6 +6123,26 @@
     font-weight:950;
     background:rgba(12,16,38,.72);
     border:1px solid rgba(255,255,255,.28);
+  }
+  /* 文章卡片左下角作者头像 */
+  .article-card-author-avatar{
+    position:absolute;
+    bottom:10px;
+    left:10px;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:linear-gradient(135deg, #7c5cff, #3ad6ff 55%, #ff8fc7);
+    background-size:cover;
+    background-position:center;
+    border:2px solid rgba(255,255,255,.35);
+    box-shadow:0 2px 6px rgba(0,0,0,.2);
+    z-index:2;
+    pointer-events:none;
+  }
+  .article-card-author-avatar[style*="--card-avatar:url"]{
+    background-image:var(--card-avatar);
+    background-color:transparent;
   }
   .article-select-check{
     position:absolute;
@@ -6763,7 +6618,6 @@
   /* ============ 文章详情排版响应式适配 ============ */
   /* 平板端（<=1024px） */
   @media(max-width:1024px){
-    .article-grid{grid-template-columns:repeat(2, minmax(0, 1fr));gap:16px;}
     .article-detail-content .article-cover-image{
       max-width:100%;
       padding:0 20px;
@@ -6778,9 +6632,6 @@
   }
   /* 移动端（<=768px） */
   @media(max-width:768px){
-    .article-grid{grid-template-columns:1fr;gap:14px;}
-    .article-card .article-thumb-wrap{height:180px;}
-    .article-card h3{font-size:16px;}
     .article-detail-card{
       width:100vw;
       max-height:100vh;
@@ -7420,32 +7271,6 @@
     border:none;
     line-height:1.85;
     font-size:15px;
-    position:relative;
-  }
-  /* 编辑器内图片拖动容器 */
-  .article-rich-editor .img-resize-wrap{
-    position:relative;
-    display:inline-block;
-    vertical-align:top;
-    cursor:grab;
-    max-width:100%;
-  }
-  .article-rich-editor .img-resize-wrap img{
-    display:block;
-    max-width:min(360px, 92%);
-    max-height:240px;
-    object-fit:contain;
-    border-radius:16px;
-    border:1.5px solid rgba(255,255,255,.18);
-    box-shadow:0 8px 24px rgba(0,0,0,.2);
-    transition:transform .25s, box-shadow .25s;
-    pointer-events:none;
-    user-select:none;
-    -webkit-user-select:none;
-  }
-  .article-rich-editor .img-resize-wrap img:hover{
-    transform:scale(1.015);
-    box-shadow:0 12px 32px rgba(0,0,0,.28);
   }
   .article-rich-editor:empty::before{
     content:attr(data-placeholder);
@@ -7622,12 +7447,12 @@
   .article-thumb{
     position:relative;
     overflow:hidden;
-    border-radius:18px;
-    min-height:98px;
+    border-radius:14px;
+    min-height:72px;
     background:var(--article-thumb);
     background-size:cover;
     background-position:center;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 16px 30px rgba(0,0,0,.14);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 12px 24px rgba(0,0,0,.12);
   }
   .article-thumb-slide{
     position:absolute;
@@ -7661,22 +7486,30 @@
     100%{opacity:1;transform:scale(1);}
   }
   .article-card h3{
-    margin:4px 0 8px;
+    margin:3px 0 4px;
     color:#fff;
-    font-size:17px;
-    line-height:1.28;
+    font-size:14px;
+    line-height:1.25;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
   }
   .article-card p{
-    margin:0 0 9px;
-    color:rgba(255,255,255,.62);
-    font-size:12px;
-    font-weight:700;
-    line-height:1.55;
+    margin:0 0 2px;
+    color:rgba(255,255,255,.58);
+    font-size:11px;
+    font-weight:500;
+    line-height:1.45;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
   }
   .article-card small{
-    color:rgba(255,255,255,.48);
-    font-size:10px;
-    font-weight:900;
+    color:rgba(255,255,255,.45);
+    font-size:9px;
+    font-weight:800;
   }
   .article-pager{
     display:flex;
@@ -7820,7 +7653,7 @@
     .notice-carousel-card{min-height:260px;max-height:330px;}
     .notice-image{width:120px;max-height:86px;opacity:.72;}
     .article-grid{grid-template-columns:1fr;}
-    .article-card{grid-template-columns:82px 1fr;}
+    .article-card{grid-template-columns:64px 1fr;}
     .article-pager{flex-wrap:wrap;}
   }
 
@@ -10286,7 +10119,7 @@ const BLOG_ARTICLES = [
 ];
 
 let articlePage = 1;
-let articlesPerPage = 4;
+let articlesPerPage = 6;
 let deleteArticleMode = false;
 let ownerDeleteArticleMode = false;
 let selectedArticleIds = new Set();
@@ -10568,6 +10401,22 @@ function articleGalleryImages(article){
   return images;
 }
 
+function getArticleCardAvatar(article){
+  // 优先从文章的 authorAvatar 字段获取
+  if(article.authorAvatar && article.authorAvatar.startsWith('data:image/')){
+    return `url('${article.authorAvatar}')`;
+  }
+  // 从 umUsers 中查找作者头像
+  const authorName = article.author || '';
+  if(authorName && umUsers){
+    const user = umUsers.find(u => u.username === authorName);
+    if(user && user.profile && user.profile.avatar && user.profile.avatar.startsWith('data:image/')){
+      return `url('${user.profile.avatar}')`;
+    }
+  }
+  return '';
+}
+
 function renderArticleThumb(article){
   const images = articleGalleryImages(article);
   if(!images.length){
@@ -10583,7 +10432,15 @@ function renderArticleThumb(article){
 }
 
 function computeArticlesPerPage(){
-  return 6;
+  if(!articleGrid) return 6;
+  const rect = articleGrid.getBoundingClientRect();
+  const card = articleGrid.closest('.blog-posts-card');
+  const cardRect = card ? card.getBoundingClientRect() : rect;
+  const width = rect.width || cardRect.width || window.innerWidth;
+  const height = Math.max(140, (cardRect.height || 430) - 118);
+  const columns = width >= 960 ? 3 : width >= 560 ? 2 : 1;
+  const rows = Math.max(1, Math.floor(height / 120));
+  return Math.max(2, Math.min(12, columns * rows));
 }
 
 function refreshArticlePageSize(){
@@ -10608,20 +10465,11 @@ function renderArticles(){
   if(!items.length){
     articleGrid.innerHTML = `
       <article class="article-card">
-        <div class="article-thumb-wrap">
-          <div class="article-thumb" style="--article-thumb:linear-gradient(135deg,#7c5cff,#ff8fc7)"></div>
-          <span class="article-category-badge">${articleFilterMode === 'mine' ? '我的文章' : '公开文章'}</span>
-        </div>
-        <div class="article-card-body">
+        <div class="article-thumb" style="--article-thumb:linear-gradient(135deg,#7c5cff,#ff8fc7)"></div>
+        <div>
+          <small>EMPTY · ${articleFilterMode === 'mine' ? '我的文章' : '公开文章'}</small>
           <h3>${articleFilterMode === 'mine' ? '你还没有发布文章' : '还没有公开文章'}</h3>
-          <p class="article-summary">${articleFilterMode === 'mine' ? '点击右上角"发布文章"，创建第一篇和账号绑定的文章。' : '所有用户发布的文章都会在这里公开显示。'}</p>
-          <div class="article-card-footer">
-            <div class="article-card-author">
-              <div class="article-card-author-avatar"></div>
-              <span>@系统</span>
-            </div>
-            <span class="article-card-time">--</span>
-          </div>
+          <p>${articleFilterMode === 'mine' ? '点击右上角“发布文章”，创建第一篇和账号绑定的文章。' : '所有用户发布的文章都会在这里公开显示。'}</p>
         </div>
       </article>
     `;
@@ -10631,71 +10479,54 @@ function renderArticles(){
     if(deleteArticleMode) return isCurrentUserAuthor(article);
     return false;
   };
-  articleGrid.innerHTML = items.map(article=>{
-    const authorAvatar = article.authorAvatar || '';
-    const authorName = escapeHtml(article.author || '匿名');
-    const avatarStyle = (authorAvatar.startsWith('data:image/') || authorAvatar.startsWith('http'))
-      ? `background-image:url('${authorAvatar}')` : '';
-    return `
+  articleGrid.innerHTML = items.map(article=>`
     <article class="article-card ${canSelect(article) ? 'selectable' : ''} ${selectedArticleIds.has(article.id) ? 'selected' : ''}" data-article-id="${escapeHtml(article.id || '')}" data-demo="${article.demo ? '1' : '0'}">
       ${canSelect(article) ? `<input class="article-select-check" type="checkbox" ${selectedArticleIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}
-      <div class="article-thumb-wrap">
-        ${renderArticleThumb(article)}
-        <span class="article-category-badge">${escapeHtml(article.category || '随笔')}</span>
-        <div class="article-card-author-on-thumb">
-          <div class="author-avatar-on-thumb" style="${avatarStyle}"></div>
-          <span class="author-name-on-thumb">@${authorName}</span>
-        </div>
-      </div>
-      <div class="article-card-body">
+      ${renderArticleThumb(article)}
+      <div>
+        <small>${escapeHtml(article.category)} · ${escapeHtml(article.createdAt || '')} · @${escapeHtml(article.author || '')}</small>
         <h3>${escapeHtml(article.title)}</h3>
-        <p class="article-summary">${escapeHtml(article.summary || '')}</p>
-        <div class="article-card-footer">
-          <div class="article-card-author">
-            <div class="article-card-author-avatar" style="${avatarStyle}"></div>
-            <span>@${authorName}</span>
-          </div>
-          <span class="article-card-time">${escapeHtml(article.createdAt || '').slice(0, 10)}</span>
-        </div>
+        <p>${escapeHtml(article.summary)}</p>
       </div>
+      <div class="article-card-author-avatar" style="--card-avatar:${getArticleCardAvatar(article)}"></div>
     </article>
-  `}).join('');
-    }
-    if(articlePageInfo) articlePageInfo.textContent = `第 ${articlePage} / ${totalPages} 页`;
-    articleAllBtn?.classList.toggle('active', articleFilterMode === 'all');
-    if(articlePageInput){
-      articlePageInput.max = totalPages;
-      articlePageInput.value = articlePage;
-    }
-    if(articlePrevBtn) articlePrevBtn.disabled = articlePage <= 1;
-    if(articleNextBtn) articleNextBtn.disabled = articlePage >= totalPages;
-    articleGrid.querySelectorAll('.article-card.selectable').forEach(card=>{
-      const toggle = ()=>{
-        const id = card.dataset.articleId;
-        if(!id) return;
-        if(selectedArticleIds.has(id)) selectedArticleIds.delete(id);
-        else selectedArticleIds.add(id);
-        renderArticles();
-      };
-      card.addEventListener('click', event=>{
-        if(event.target.closest('.article-select-check')) return;
-        toggle();
-      });
-      card.querySelector('.article-select-check')?.addEventListener('change', toggle);
-    });
-    articleGrid.querySelectorAll('.article-card:not(.selectable)').forEach(card=>{
-      card.addEventListener('click', ()=>{
-        const id = card.dataset.articleId;
-        if(id) openArticleDetail(id);
-      });
-    });
-    updateToolStats();
+  `).join('');
   }
+  if(articlePageInfo) articlePageInfo.textContent = `第 ${articlePage} / ${totalPages} 页`;
+  articleAllBtn?.classList.toggle('active', articleFilterMode === 'all');
+  if(articlePageInput){
+    articlePageInput.max = totalPages;
+    articlePageInput.value = articlePage;
+  }
+  if(articlePrevBtn) articlePrevBtn.disabled = articlePage <= 1;
+  if(articleNextBtn) articleNextBtn.disabled = articlePage >= totalPages;
+  articleGrid.querySelectorAll('.article-card.selectable').forEach(card=>{
+    const toggle = ()=>{
+      const id = card.dataset.articleId;
+      if(!id) return;
+      if(selectedArticleIds.has(id)) selectedArticleIds.delete(id);
+      else selectedArticleIds.add(id);
+      renderArticles();
+    };
+    card.addEventListener('click', event=>{
+      if(event.target.closest('.article-select-check')) return;
+      toggle();
+    });
+    card.querySelector('.article-select-check')?.addEventListener('change', toggle);
+  });
+  articleGrid.querySelectorAll('.article-card:not(.selectable)').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const id = card.dataset.articleId;
+      if(id) openArticleDetail(id);
+    });
+  });
+  updateToolStats();
+}
 
-  function goArticlePage(nextPage){
-    articlePage = Number(nextPage) || 1;
-    renderArticles();
-  }
+function goArticlePage(nextPage){
+  articlePage = Number(nextPage) || 1;
+  renderArticles();
+}
 
 function requireRealUser(actionText = '使用文章功能'){
   const user = readSavedUser();
@@ -11553,15 +11384,12 @@ if(articleContentEditor){
     }
   });
 }
-// 编辑器图片拖动功能——图片 absolute 定位，可在编辑器内任意位置拖动，网格对齐
+// 编辑器图片拖动功能——点击图片后可直接拖动位置
 function initEditorImageDrag(){
   if(!articleContentEditor) return;
   let activeWrap = null;
   let dragging = false;
   let startX, startY, startLeft, startTop;
-  const GRID = 20;
-
-  function snap(val){ return Math.round(val / GRID) * GRID; }
 
   function ensureWrap(img){
     let wrap = img.closest('.img-resize-wrap');
@@ -11577,53 +11405,6 @@ function initEditorImageDrag(){
     return wrap;
   }
 
-  // 将 wrap 从文档流转为 absolute 定位，记录当前位置
-  function makeAbsolute(wrap){
-    if(wrap.style.position === 'absolute') return;
-    const rect = wrap.getBoundingClientRect();
-    const editorRect = articleContentEditor.getBoundingClientRect();
-    const scrollLeft = articleContentEditor.scrollLeft || 0;
-    const scrollTop = articleContentEditor.scrollTop || 0;
-    const left = rect.left - editorRect.left + scrollLeft;
-    const top = rect.top - editorRect.top + scrollTop;
-    wrap.style.position = 'absolute';
-    wrap.style.left = snap(left) + 'px';
-    wrap.style.top = snap(top) + 'px';
-    wrap.style.margin = '0';
-  }
-
-  function startDrag(wrap, clientX, clientY){
-    makeAbsolute(wrap);
-    activeWrap = wrap;
-    dragging = true;
-
-    articleContentEditor.style.userSelect = 'none';
-    articleContentEditor.style.webkitUserSelect = 'none';
-
-    startX = clientX;
-    startY = clientY;
-    startLeft = parseFloat(wrap.style.left) || 0;
-    startTop = parseFloat(wrap.style.top) || 0;
-
-    wrap.style.cursor = 'grabbing';
-    wrap.style.zIndex = '100';
-  }
-
-  function endDrag(){
-    dragging = false;
-    articleContentEditor.style.userSelect = '';
-    articleContentEditor.style.webkitUserSelect = '';
-    if(activeWrap){
-      activeWrap.style.cursor = 'grab';
-      activeWrap.style.zIndex = '';
-      // 网格对齐
-      const left = parseFloat(activeWrap.style.left) || 0;
-      const top = parseFloat(activeWrap.style.top) || 0;
-      activeWrap.style.left = snap(left) + 'px';
-      activeWrap.style.top = snap(top) + 'px';
-    }
-  }
-
   // mousedown：开始拖动
   articleContentEditor.addEventListener('mousedown', (e)=>{
     const img = e.target.closest?.('img');
@@ -11632,26 +11413,51 @@ function initEditorImageDrag(){
     e.stopPropagation();
 
     const wrap = ensureWrap(img);
-    startDrag(wrap, e.clientX, e.clientY);
+    activeWrap = wrap;
+    dragging = true;
+
+    // 禁用编辑器文本选择
+    articleContentEditor.style.userSelect = 'none';
+    articleContentEditor.style.webkitUserSelect = 'none';
+
+    startX = e.clientX;
+    startY = e.clientY;
+    const rect = wrap.getBoundingClientRect();
+    const parentRect = articleContentEditor.getBoundingClientRect();
+    startLeft = rect.left - parentRect.left;
+    startTop = rect.top - parentRect.top;
+
+    wrap.style.position = 'relative';
+    wrap.style.left = '0px';
+    wrap.style.top = '0px';
+    wrap.style.cursor = 'grabbing';
+    wrap.style.zIndex = '10';
 
     const onMove = (ev)=>{
       if(!dragging || !activeWrap) return;
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
-      let newLeft = startLeft + dx;
-      let newTop = startTop + dy;
-      // 边界检查
-      const editorW = articleContentEditor.clientWidth;
-      const wrapRect = activeWrap.getBoundingClientRect();
-      const maxLeft = editorW - wrapRect.width;
-      const maxTop = articleContentEditor.scrollHeight - wrapRect.height;
-      newLeft = Math.max(0, Math.min(newLeft, Math.max(0, maxLeft)));
-      newTop = Math.max(0, Math.min(newTop, Math.max(0, maxTop)));
-      activeWrap.style.left = newLeft + 'px';
-      activeWrap.style.top = newTop + 'px';
+      activeWrap.style.transform = `translate(${dx}px, ${dy}px)`;
     };
     const onUp = ()=>{
-      endDrag();
+      dragging = false;
+      // 恢复编辑器文本选择
+      articleContentEditor.style.userSelect = '';
+      articleContentEditor.style.webkitUserSelect = '';
+      if(activeWrap){
+        activeWrap.style.cursor = 'grab';
+        activeWrap.style.zIndex = '';
+        // 将 transform 转为 margin 偏移
+        const t = activeWrap.style.transform;
+        if(t && t !== 'none'){
+          const match = t.match(/translate\(([^,]+),\s*([^)]+)\)/);
+          if(match){
+            activeWrap.style.marginLeft = match[1];
+            activeWrap.style.marginTop = match[2];
+          }
+        }
+        activeWrap.style.transform = '';
+      }
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
     };
@@ -11665,8 +11471,22 @@ function initEditorImageDrag(){
     if(!img || !articleContentEditor.contains(img)) return;
 
     const wrap = ensureWrap(img);
+    activeWrap = wrap;
+    dragging = true;
+
     const touch = e.touches[0];
-    startDrag(wrap, touch.clientX, touch.clientY);
+    startX = touch.clientX;
+    startY = touch.clientY;
+    const rect = wrap.getBoundingClientRect();
+    const parentRect = articleContentEditor.getBoundingClientRect();
+    startLeft = rect.left - parentRect.left;
+    startTop = rect.top - parentRect.top;
+
+    wrap.style.position = 'relative';
+    wrap.style.left = '0px';
+    wrap.style.top = '0px';
+    wrap.style.cursor = 'grabbing';
+    wrap.style.zIndex = '10';
 
     const onTouchMove = (ev)=>{
       if(!dragging || !activeWrap) return;
@@ -11674,19 +11494,23 @@ function initEditorImageDrag(){
       const t = ev.touches[0];
       const dx = t.clientX - startX;
       const dy = t.clientY - startY;
-      let newLeft = startLeft + dx;
-      let newTop = startTop + dy;
-      const editorW = articleContentEditor.clientWidth;
-      const wrapRect = activeWrap.getBoundingClientRect();
-      const maxLeft = editorW - wrapRect.width;
-      const maxTop = articleContentEditor.scrollHeight - wrapRect.height;
-      newLeft = Math.max(0, Math.min(newLeft, Math.max(0, maxLeft)));
-      newTop = Math.max(0, Math.min(newTop, Math.max(0, maxTop)));
-      activeWrap.style.left = newLeft + 'px';
-      activeWrap.style.top = newTop + 'px';
+      activeWrap.style.transform = `translate(${dx}px, ${dy}px)`;
     };
     const onTouchEnd = ()=>{
-      endDrag();
+      dragging = false;
+      if(activeWrap){
+        activeWrap.style.cursor = 'grab';
+        activeWrap.style.zIndex = '';
+        const t = activeWrap.style.transform;
+        if(t && t !== 'none'){
+          const match = t.match(/translate\(([^,]+),\s*([^)]+)\)/);
+          if(match){
+            activeWrap.style.marginLeft = match[1];
+            activeWrap.style.marginTop = match[2];
+          }
+        }
+        activeWrap.style.transform = '';
+      }
       document.removeEventListener('touchmove', onTouchMove);
       document.removeEventListener('touchend', onTouchEnd);
     };
