@@ -10,6 +10,8 @@ import {
 } from './_lib/auth.js';
 import {
   DB_ARTICLES_HASH,
+  DB_USERS_HASH,
+  DB_INTERACTIONS_HASH,
   LEGACY_ARTICLE_INDEX_KEY,
   LEGACY_ARTICLES_KEY,
   legacyArticleKey
@@ -64,7 +66,7 @@ function sanitizeArticle(input = {}, fallbackAuthor = ''){
   };
 }
 
-function toArticleMeta(article){
+function toArticleMeta(article, authorAvatarMap = {}){
   return {
     id: article.id,
     title: article.title,
@@ -75,18 +77,59 @@ function toArticleMeta(article){
     gallery: Array.isArray(article.gallery) ? article.gallery.slice(0, 5) : [],
     fontFamily: article.fontFamily,
     author: article.author,
+    authorAvatar: authorAvatarMap[article.author] || article.authorAvatar || '',
     createdAt: article.createdAt,
     updatedAt: article.updatedAt
   };
+}
+
+// 批量获取作者头像
+async function batchGetAuthorAvatars(authors){
+  const uniqueAuthors = [...new Set(authors.filter(Boolean))];
+  if(!uniqueAuthors.length) return {};
+  const map = {};
+  try{
+    for(const username of uniqueAuthors){
+      const raw = await redis.hget(DB_USERS_HASH, username);
+      if(raw){
+        const user = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        const avatar = user?.profile?.avatar || user?.avatar || '';
+        if(avatar) map[username] = avatar;
+      }
+    }
+  }catch(error){
+    console.error('batchGetAuthorAvatars error:', error);
+  }
+  return map;
+}
+
+// 获取文章互动数据
+async function getArticleInteractions(articleId){
+  if(!articleId) return { likes: 0, favorites: 0, loves: 0 };
+  try{
+    const raw = await redis.hget(DB_INTERACTIONS_HASH, articleId);
+    if(!raw) return { likes: 0, favorites: 0, loves: 0 };
+    const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    return {
+      likes: Number(data.likes) || 0,
+      favorites: Number(data.favorites) || 0,
+      loves: Number(data.loves) || 0
+    };
+  }catch(error){
+    return { likes: 0, favorites: 0, loves: 0 };
+  }
 }
 
 async function readArticleIndex(){
   try{
     const articles = await redis.hvals(DB_ARTICLES_HASH);
     if(Array.isArray(articles) && articles.length){
-      return articles
-        .map(article=>toArticleMeta(sanitizeArticle(article, article.author)))
-        .filter(item=>item.author && item.id)
+      const sanitized = articles
+        .map(article=>sanitizeArticle(article, article.author))
+        .filter(item=>item.author && item.id);
+      const authorAvatarMap = await batchGetAuthorAvatars(sanitized.map(a=>a.author));
+      return sanitized
+        .map(article=>toArticleMeta(article, authorAvatarMap))
         .sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
     }
   }catch(error){
@@ -104,7 +147,8 @@ async function readArticleIndex(){
     if(valid.length){
       const payload = Object.fromEntries(valid.map(article=>[article.id, article]));
       await redis.hset(DB_ARTICLES_HASH, payload);
-      return valid.map(toArticleMeta).sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+      const authorAvatarMap = await batchGetAuthorAvatars(valid.map(a=>a.author));
+      return valid.map(article=>toArticleMeta(article, authorAvatarMap)).sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
     }
   }
 
@@ -116,7 +160,8 @@ async function readArticleIndex(){
         const payload = Object.fromEntries(migrated.slice(0, 1000).map(article=>[article.id, article]));
         await redis.hset(DB_ARTICLES_HASH, payload);
       }
-      return migrated.map(toArticleMeta).sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+      const authorAvatarMap = await batchGetAuthorAvatars(migrated.map(a=>a.author));
+      return migrated.map(article=>toArticleMeta(article, authorAvatarMap)).sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
     }
   }catch(error){
     console.error('legacy articles migration skipped:', error);
@@ -133,12 +178,16 @@ async function getArticle(id){
   const article = await redis.hget(DB_ARTICLES_HASH, id);
   if(article){
     const result = sanitizeArticle(article, article.author);
+    const avatarMap = await batchGetAuthorAvatars([result.author]);
+    result.authorAvatar = avatarMap[result.author] || '';
     return result;
   }
   const legacy = await redis.get(legacyArticleKey(id));
   if(legacy){
     const migrated = sanitizeArticle(legacy, legacy.author);
     await redis.hset(DB_ARTICLES_HASH, { [migrated.id]: migrated });
+    const avatarMap = await batchGetAuthorAvatars([migrated.author]);
+    migrated.authorAvatar = avatarMap[migrated.author] || '';
     return migrated;
   }
   return null;
@@ -156,7 +205,8 @@ export async function onRequestGet(context){
     if(id){
       const article = await getArticle(id);
       if(!article) return json({ error:'文章不存在。' }, 404);
-      return json({ ok:true, article });
+      const interactions = await getArticleInteractions(id);
+      return json({ ok:true, article: { ...article, ...interactions } });
     }
     const articles = await readArticleIndex();
     return json({ ok:true, articles:articles.sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt))) });

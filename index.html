@@ -1464,6 +1464,31 @@
   .ua-article-tags span:nth-child(3n+1){background:rgba(255,185,222,.12);border-color:rgba(255,185,222,.18)}
   .ua-article-tags span:nth-child(3n+2){background:rgba(144,225,255,.12);border-color:rgba(144,225,255,.18)}
   .ua-article-tags span:nth-child(3n){background:rgba(172,146,255,.12);border-color:rgba(172,146,255,.18)}
+  .ua-article-footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:auto;
+    padding-top:10px;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .ua-article-author{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    color:rgba(255,255,255,.5);
+    font-weight:600;
+  }
+  .ua-article-author-avatar{
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    background:linear-gradient(135deg, rgba(212,175,55,.4), rgba(100,180,220,.4));
+    background-size:cover;
+    background-position:center;
+    border:1.5px solid rgba(255,255,255,.2);
+  }
 
   /* -- 分页 -- */
   .ua-pager{
@@ -6818,6 +6843,120 @@
     color:rgba(255,255,255,.4);
     white-space:nowrap;
   }
+  /* 文章互动按钮栏 */
+  .article-interaction-bar{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    padding:24px 0 16px;
+    margin:0 auto;
+    max-width:720px;
+    border-top:1px solid rgba(255,255,255,.1);
+  }
+  .interaction-btn-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+  }
+  .interaction-btn{
+    position:relative;
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    border:1.5px solid rgba(255,255,255,.2);
+    background:linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    color:rgba(255,255,255,.7);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 4px 12px rgba(0,0,0,.1);
+  }
+  .interaction-btn svg{
+    width:22px;
+    height:22px;
+    transition:transform .25s;
+  }
+  .interaction-btn:hover{
+    transform:translateY(-3px) scale(1.08);
+    box-shadow:0 8px 24px rgba(0,0,0,.2);
+    border-color:rgba(255,255,255,.4);
+    color:#fff;
+  }
+  .interaction-btn:hover svg{
+    transform:scale(1.15);
+  }
+  .interaction-btn:active{
+    transform:translateY(0) scale(.95);
+  }
+  .interaction-btn.active[data-action="like"]{
+    background:linear-gradient(135deg, rgba(255,100,140,.35), rgba(255,80,120,.25));
+    border-color:rgba(255,100,140,.5);
+    color:#ff6b8a;
+  }
+  .interaction-btn.active[data-action="favorite"]{
+    background:linear-gradient(135deg, rgba(255,190,60,.35), rgba(255,160,40,.25));
+    border-color:rgba(255,190,60,.5);
+    color:#ffbe3c;
+  }
+  .interaction-btn.active[data-action="love"]{
+    background:linear-gradient(135deg, rgba(255,100,180,.35), rgba(200,80,255,.25));
+    border-color:rgba(255,100,180,.5);
+    color:#ff64b4;
+  }
+  .interaction-count{
+    position:absolute;
+    top:-6px;
+    right:-6px;
+    min-width:20px;
+    height:20px;
+    padding:0 5px;
+    border-radius:999px;
+    background:linear-gradient(135deg, #7c5cff, #ff8fc7);
+    color:#fff;
+    font-size:10px;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 2px 6px rgba(0,0,0,.2);
+    border:1.5px solid rgba(255,255,255,.3);
+  }
+  .interaction-label{
+    font-size:11px;
+    color:rgba(255,255,255,.45);
+    font-weight:600;
+    transition:color .2s;
+  }
+  .interaction-btn-wrap:hover .interaction-label{
+    color:rgba(255,255,255,.7);
+  }
+  .interaction-divider{
+    width:1px;
+    height:36px;
+    background:linear-gradient(180deg, transparent, rgba(255,255,255,.15), transparent);
+    margin:0 4px;
+  }
+  .article-interaction-bar .interaction-btn.active svg{
+    fill:currentColor;
+    fill-opacity:.25;
+  }
+  /* 互动按钮动画 */
+  @keyframes interactionPop{
+    0%{transform:scale(1)}
+    40%{transform:scale(1.25)}
+    70%{transform:scale(.9)}
+    100%{transform:scale(1)}
+  }
+  .interaction-btn.just-activated{
+    animation:interactionPop .4s cubic-bezier(.34,1.56,.64,1);
+  }
+
   /* 详情页分页控件 */
   .article-detail-pager{
     display:flex;
@@ -7386,15 +7525,81 @@
     min-height:300px;
     max-height:48vh;
     overflow:auto;
-    padding:20px 24px;
+    padding:32px 24px;
     border-radius:0;
     outline:none;
-    color:#fff;
+    color:rgba(200,210,225,.88);
     background:transparent;
     border:none;
-    line-height:1.85;
+    line-height:1.65;
     font-size:15px;
     position:relative;
+    max-width:720px;
+    margin:0 auto;
+    text-align:justify;
+    text-justify:inter-ideograph;
+  }
+  .article-rich-editor p{
+    margin:0 0 1.5em;
+    text-align:justify;
+    text-justify:inter-ideograph;
+  }
+  .article-rich-editor h1,.article-rich-editor h2,.article-rich-editor h3,.article-rich-editor h4,.article-rich-editor h5,.article-rich-editor h6{
+    color:#F0D060;
+    margin:2em 0 1em;
+    font-weight:700;
+    text-align:center;
+  }
+  .article-rich-editor h1{font-size:28px}
+  .article-rich-editor h2{font-size:22px}
+  .article-rich-editor h3{font-size:18px}
+  .article-rich-editor h4{font-size:16px}
+  .article-rich-editor blockquote{
+    margin:1.5em 0;padding:14px 20px;
+    border-left:3px solid rgba(212,175,55,.4);
+    background:rgba(212,175,55,.06);
+    border-radius:0 10px 10px 0;
+    color:rgba(200,210,225,.7);
+    font-style:italic;
+  }
+  .article-rich-editor pre{
+    margin:1.5em 0;padding:16px;
+    background:rgba(0,0,0,.3);
+    border:1px solid rgba(212,175,55,.12);
+    border-radius:12px;
+    font-family:'Consolas','Courier New',monospace;
+    font-size:13px;
+    color:rgba(200,210,225,.8);
+    overflow-x:auto;
+  }
+  .article-rich-editor hr{
+    border:none;height:1px;margin:2em 0;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+  }
+  .article-rich-editor ul,.article-rich-editor ol{margin:1.5em 0;padding-left:24px;}
+  .article-rich-editor li{margin:6px 0;color:rgba(255,255,255,.82);}
+  .article-rich-editor a{color:#8fceff;text-decoration:none;border-bottom:1px solid rgba(143,206,255,.3);transition:border-color .2s;}
+  .article-rich-editor a:hover{border-color:rgba(143,206,255,.7);}
+  .article-rich-editor img{
+    max-width:100%;
+    height:auto;
+    display:block;
+    margin:1.5em auto;
+    border-radius:6px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+    transition:box-shadow .25s;
+  }
+  .article-rich-editor img:hover{box-shadow:0 6px 18px rgba(0,0,0,.14);}
+  .article-rich-editor figure{margin:1.5em 0;text-align:center;max-width:100%;}
+  .article-rich-editor figure img{max-width:100%;margin:0;}
+  .article-rich-editor figcaption{
+    font-size:13px;
+    color:rgba(200,210,225,.45);
+    margin-top:8px;
+    font-weight:400;
+    max-width:100%;
+    text-align:center;
+    margin-bottom:1em;
   }
   /* 编辑器内图片拖动容器 */
   .article-rich-editor .img-resize-wrap{
@@ -8448,6 +8653,36 @@
       </div>
       <div class="article-detail-scroll">
         <div class="article-detail-content" id="articleDetailContent"></div>
+        <div class="article-interaction-bar" id="articleInteractionBar">
+          <div class="interaction-btn-wrap">
+            <button class="interaction-btn" id="btnLike" data-action="like" type="button" title="点赞">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span class="interaction-count" id="countLike">0</span>
+            </button>
+            <span class="interaction-label">点赞</span>
+          </div>
+          <div class="interaction-btn-wrap">
+            <button class="interaction-btn" id="btnFavorite" data-action="favorite" type="button" title="收藏">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span class="interaction-count" id="countFavorite">0</span>
+            </button>
+            <span class="interaction-label">收藏</span>
+          </div>
+          <div class="interaction-btn-wrap">
+            <button class="interaction-btn" id="btnLove" data-action="love" type="button" title="喜欢">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <span class="interaction-count" id="countLove">0</span>
+            </button>
+            <span class="interaction-label">喜欢</span>
+          </div>
+          <div class="interaction-divider"></div>
+          <div class="interaction-btn-wrap">
+            <button class="interaction-btn" id="btnShare" data-action="share" type="button" title="复制链接">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </button>
+            <span class="interaction-label">分享</span>
+          </div>
+        </div>
       </div>
       <div class="article-detail-pager" id="articleDetailPager" hidden>
         <button id="articleDetailPrevPage" type="button">上一页</button>
@@ -10383,7 +10618,10 @@ function uaRenderArticles(){
   const items = uaFilteredArticles.slice((uaCurrentPage - 1) * UA_PAGE_SIZE, uaCurrentPage * UA_PAGE_SIZE);
   uaEmptyState.hidden = items.length > 0;
   const currentUser = readSavedUser()?.username || '';
-  uaArticleGrid.innerHTML = items.map((article, index) => `<article class="ua-article ${uaDeleteMode ? 'selectable' : ''} ${uaSelectedIds.has(article.id) ? 'selected' : ''}" style="animation-delay:${index * 45}ms" data-id="${escapeHtml(article.id)}">${uaDeleteMode ? `<input class="article-select-check" type="checkbox" ${uaSelectedIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}${uaRenderThumb(article)}<div class="ua-article-body"><small>${escapeHtml(article.category || '随笔')} · ${escapeHtml(article.createdAt || '')}</small><h2>${escapeHtml(article.title || '未命名文章')}</h2><p>${escapeHtml(article.summary || '点击阅读完整文章。')}</p><div class="ua-article-tags">${uaGetTags(article).slice(0, 4).map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}</div></div></article>`).join('');
+  uaArticleGrid.innerHTML = items.map((article, index) => {
+    const authorAvatar = article.authorAvatar || '';
+    return `<article class="ua-article ${uaDeleteMode ? 'selectable' : ''} ${uaSelectedIds.has(article.id) ? 'selected' : ''}" style="animation-delay:${index * 45}ms" data-id="${escapeHtml(article.id)}">${uaDeleteMode ? `<input class="article-select-check" type="checkbox" ${uaSelectedIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}${uaRenderThumb(article)}<div class="ua-article-body"><small>${escapeHtml(article.category || '随笔')} · ${escapeHtml(article.createdAt || '')}</small><h2>${escapeHtml(article.title || '未命名文章')}</h2><p>${escapeHtml(article.summary || '点击阅读完整文章。')}</p><div class="ua-article-tags">${uaGetTags(article).slice(0, 4).map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}</div><div class="ua-article-footer"><div class="ua-article-author"><div class="ua-article-author-avatar" style="${authorAvatar.startsWith('data:image/') || authorAvatar.startsWith('http') ? `background-image:url('${authorAvatar}')` : ''}"></div><span>@${escapeHtml(article.author || '匿名')}</span></div></div></div></article>`;
+  }).join('');
   uaArticleGrid.querySelectorAll('[data-id]').forEach(card => {
     card.addEventListener('click', (e) => {
       if(uaDeleteMode){
@@ -11230,6 +11468,155 @@ function processArticleLayout(container, article){
   }
 }
 
+/* =============== 文章互动系统 =============== */
+let currentInteractionArticleId = null;
+let currentInteractionState = { liked:false, favorited:false, loved:false, likes:0, favorites:0, loves:0 };
+
+async function loadArticleInteractions(articleId){
+  currentInteractionArticleId = articleId;
+  // 重置状态
+  const btnLike = document.getElementById('btnLike');
+  const btnFavorite = document.getElementById('btnFavorite');
+  const btnLove = document.getElementById('btnLove');
+  const countLike = document.getElementById('countLike');
+  const countFavorite = document.getElementById('countFavorite');
+  const countLove = document.getElementById('countLove');
+
+  [btnLike, btnFavorite, btnLove].forEach(btn=> btn?.classList.remove('active'));
+  if(countLike) countLike.textContent = '0';
+  if(countFavorite) countFavorite.textContent = '0';
+  if(countLove) countLove.textContent = '0';
+
+  try{
+    const response = await fetch(authApiUrl(`/api/interactions?articleId=${encodeURIComponent(articleId)}`), {
+      method:'GET',
+      headers:{ 'Content-Type':'application/json' }
+    });
+    const data = await response.json().catch(()=>({}));
+    if(data.ok){
+      currentInteractionState = {
+        liked: data.liked || false,
+        favorited: data.favorited || false,
+        loved: data.loved || false,
+        likes: data.likes || 0,
+        favorites: data.favorites || 0,
+        loves: data.loves || 0
+      };
+      if(btnLike){
+        btnLike.classList.toggle('active', currentInteractionState.liked);
+        if(countLike) countLike.textContent = currentInteractionState.likes;
+      }
+      if(btnFavorite){
+        btnFavorite.classList.toggle('active', currentInteractionState.favorited);
+        if(countFavorite) countFavorite.textContent = currentInteractionState.favorites;
+      }
+      if(btnLove){
+        btnLove.classList.toggle('active', currentInteractionState.loved);
+        if(countLove) countLove.textContent = currentInteractionState.loves;
+      }
+    }
+  }catch(error){
+    console.error('load interactions error:', error);
+  }
+}
+
+async function toggleInteraction(action){
+  if(action === 'share'){
+    // 分享：复制链接
+    const url = window.location.origin + window.location.pathname + '?article=' + encodeURIComponent(currentInteractionArticleId || '');
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(url).then(()=>{
+        showLoginToast('文章链接已复制到剪贴板。', 'success', '已复制');
+      }).catch(()=>{
+        showLoginToast('复制失败，请手动复制链接。', 'error', '复制失败');
+      });
+    }else{
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try{
+        document.execCommand('copy');
+        showLoginToast('文章链接已复制到剪贴板。', 'success', '已复制');
+      }catch(_){
+        showLoginToast('复制失败，请手动复制链接。', 'error', '复制失败');
+      }
+      document.body.removeChild(ta);
+    }
+    return;
+  }
+
+  const token = getAuthToken();
+  if(!token){
+    showLoginToast('请先登录后再互动。', 'warn', '需要登录');
+    showLoginModal();
+    return;
+  }
+
+  const btnMap = { like:'btnLike', favorite:'btnFavorite', love:'btnLove' };
+  const countMap = { like:'countLike', favorite:'countFavorite', love:'countLove' };
+  const stateKey = action + 'd'; // liked / favorited / loved
+  const countKey = action + 's'; // likes / favorites / loves
+
+  const btn = document.getElementById(btnMap[action]);
+  const countEl = document.getElementById(countMap[action]);
+  const isActive = btn?.classList.contains('active');
+
+  // 乐观更新 UI
+  if(btn){
+    btn.classList.toggle('active', !isActive);
+    btn.classList.add('just-activated');
+    setTimeout(()=> btn.classList.remove('just-activated'), 500);
+  }
+  if(countEl){
+    const currentCount = parseInt(countEl.textContent || '0', 10);
+    countEl.textContent = Math.max(0, isActive ? currentCount - 1 : currentCount + 1);
+  }
+
+  try{
+    const response = await fetch(authApiUrl('/api/interactions'), {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+token
+      },
+      body:JSON.stringify({
+        articleId: currentInteractionArticleId,
+        action: action,
+        cancel: isActive
+      })
+    });
+    const data = await response.json().catch(()=>({}));
+    if(!response.ok || !data.ok){
+      // 回滚 UI
+      if(btn) btn.classList.toggle('active', isActive);
+      if(countEl){
+        const currentCount = parseInt(countEl.textContent || '0', 10);
+        countEl.textContent = Math.max(0, !isActive ? currentCount - 1 : currentCount + 1);
+      }
+      showLoginToast(data.error || '操作失败，请稍后重试。', 'error', '失败');
+    }
+  }catch(error){
+    // 回滚 UI
+    if(btn) btn.classList.toggle('active', isActive);
+    if(countEl){
+      const currentCount = parseInt(countEl.textContent || '0', 10);
+      countEl.textContent = Math.max(0, !isActive ? currentCount - 1 : currentCount + 1);
+    }
+    showLoginToast('网络错误，请稍后重试。', 'error', '失败');
+  }
+}
+
+// 互动按钮事件绑定
+(function initInteractionEvents(){
+  ['like', 'favorite', 'love', 'share'].forEach(action=>{
+    const btn = document.getElementById('btn' + action.charAt(0).toUpperCase() + action.slice(1));
+    if(btn) btn.addEventListener('click', ()=> toggleInteraction(action));
+  });
+})();
+
 async function openArticleDetail(id){
   const article = await fetchArticleDetail(id).catch(error=>{
     showLoginToast(error.message || '读取文章详情失败。', 'error', '打开失败');
@@ -11319,6 +11706,8 @@ async function openArticleDetail(id){
   const isAuthor = isCurrentUserAuthor(article);
   if(articleDetailEditBtn) articleDetailEditBtn.style.display = isAuthor ? 'inline-flex' : 'none';
   if(articleDetailDeleteBtn) articleDetailDeleteBtn.hidden = !(isAuthor || isOwner);
+  // 加载互动数据
+  loadArticleInteractions(id);
   articleDetailModal?.classList.add('open');
   articleDetailModal?.setAttribute('aria-hidden', 'false');
 }
