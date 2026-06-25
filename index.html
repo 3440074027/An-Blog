@@ -6423,13 +6423,13 @@
     line-height:1.65;
     font-size:15px;
     overflow:hidden;
-    position:relative;
   }
 
   /* 正文段落 */
   .article-detail-content p{
     margin:0 0 1.5em;
-    text-align:center;
+    text-align:justify;
+    text-justify:inter-ideograph;
   }
 
   /* 标题居中 */
@@ -7253,21 +7253,30 @@
     font-size:15px;
     position:relative;
   }
-  /* 编辑器内绝对定位图片 */
+  /* 编辑器内图片拖动容器 */
   .article-rich-editor .img-resize-wrap{
+    position:relative;
     display:inline-block;
     vertical-align:top;
+    cursor:grab;
     max-width:100%;
   }
   .article-rich-editor .img-resize-wrap img{
     display:block;
-    max-width:100%;
-    height:auto;
-    border-radius:6px;
-    box-shadow:0 2px 10px rgba(0,0,0,.08);
-    pointer-events:auto;
+    max-width:min(360px, 92%);
+    max-height:240px;
+    object-fit:contain;
+    border-radius:16px;
+    border:1.5px solid rgba(255,255,255,.18);
+    box-shadow:0 8px 24px rgba(0,0,0,.2);
+    transition:transform .25s, box-shadow .25s;
+    pointer-events:none;
     user-select:none;
     -webkit-user-select:none;
+  }
+  .article-rich-editor .img-resize-wrap img:hover{
+    transform:scale(1.015);
+    box-shadow:0 12px 32px rgba(0,0,0,.28);
   }
   .article-rich-editor:empty::before{
     content:attr(data-placeholder);
@@ -11356,12 +11365,15 @@ if(articleContentEditor){
     }
   });
 }
-// 编辑器图片拖动功能——点击图片后可直接拖动到任意位置
+// 编辑器图片拖动功能——图片 absolute 定位，可在编辑器内任意位置拖动，网格对齐
 function initEditorImageDrag(){
   if(!articleContentEditor) return;
   let activeWrap = null;
   let dragging = false;
   let startX, startY, startLeft, startTop;
+  const GRID = 20;
+
+  function snap(val){ return Math.round(val / GRID) * GRID; }
 
   function ensureWrap(img){
     let wrap = img.closest('.img-resize-wrap');
@@ -11377,7 +11389,54 @@ function initEditorImageDrag(){
     return wrap;
   }
 
-  // mousedown：开始拖动，转为绝对定位
+  // 将 wrap 从文档流转为 absolute 定位，记录当前位置
+  function makeAbsolute(wrap){
+    if(wrap.style.position === 'absolute') return;
+    const rect = wrap.getBoundingClientRect();
+    const editorRect = articleContentEditor.getBoundingClientRect();
+    const scrollLeft = articleContentEditor.scrollLeft || 0;
+    const scrollTop = articleContentEditor.scrollTop || 0;
+    const left = rect.left - editorRect.left + scrollLeft;
+    const top = rect.top - editorRect.top + scrollTop;
+    wrap.style.position = 'absolute';
+    wrap.style.left = snap(left) + 'px';
+    wrap.style.top = snap(top) + 'px';
+    wrap.style.margin = '0';
+  }
+
+  function startDrag(wrap, clientX, clientY){
+    makeAbsolute(wrap);
+    activeWrap = wrap;
+    dragging = true;
+
+    articleContentEditor.style.userSelect = 'none';
+    articleContentEditor.style.webkitUserSelect = 'none';
+
+    startX = clientX;
+    startY = clientY;
+    startLeft = parseFloat(wrap.style.left) || 0;
+    startTop = parseFloat(wrap.style.top) || 0;
+
+    wrap.style.cursor = 'grabbing';
+    wrap.style.zIndex = '100';
+  }
+
+  function endDrag(){
+    dragging = false;
+    articleContentEditor.style.userSelect = '';
+    articleContentEditor.style.webkitUserSelect = '';
+    if(activeWrap){
+      activeWrap.style.cursor = 'grab';
+      activeWrap.style.zIndex = '';
+      // 网格对齐
+      const left = parseFloat(activeWrap.style.left) || 0;
+      const top = parseFloat(activeWrap.style.top) || 0;
+      activeWrap.style.left = snap(left) + 'px';
+      activeWrap.style.top = snap(top) + 'px';
+    }
+  }
+
+  // mousedown：开始拖动
   articleContentEditor.addEventListener('mousedown', (e)=>{
     const img = e.target.closest?.('img');
     if(!img || !articleContentEditor.contains(img)) return;
@@ -11385,33 +11444,7 @@ function initEditorImageDrag(){
     e.stopPropagation();
 
     const wrap = ensureWrap(img);
-    activeWrap = wrap;
-    dragging = true;
-
-    // 禁用编辑器文本选择
-    articleContentEditor.style.userSelect = 'none';
-    articleContentEditor.style.webkitUserSelect = 'none';
-
-    // 获取编辑器内部坐标
-    const editorRect = articleContentEditor.getBoundingClientRect();
-    const wrapRect = wrap.getBoundingClientRect();
-
-    // 计算图片当前在编辑器内的位置（考虑已有偏移）
-    const currentLeft = parseFloat(wrap.style.left) || (wrapRect.left - editorRect.left);
-    const currentTop = parseFloat(wrap.style.top) || (wrapRect.top - editorRect.top);
-
-    startX = e.clientX;
-    startY = e.clientY;
-    startLeft = currentLeft;
-    startTop = currentTop;
-
-    // 转为绝对定位
-    wrap.style.position = 'absolute';
-    wrap.style.left = currentLeft + 'px';
-    wrap.style.top = currentTop + 'px';
-    wrap.style.cursor = 'grabbing';
-    wrap.style.zIndex = '10';
-    wrap.style.margin = '0';
+    startDrag(wrap, e.clientX, e.clientY);
 
     const onMove = (ev)=>{
       if(!dragging || !activeWrap) return;
@@ -11419,23 +11452,18 @@ function initEditorImageDrag(){
       const dy = ev.clientY - startY;
       let newLeft = startLeft + dx;
       let newTop = startTop + dy;
-      // 限制在编辑器边界内
-      const maxLeft = articleContentEditor.clientWidth - wrap.offsetWidth;
-      const maxTop = articleContentEditor.scrollHeight - wrap.offsetHeight;
-      newLeft = Math.max(0, Math.min(newLeft, maxLeft));
-      newTop = Math.max(0, Math.min(newTop, maxTop));
+      // 边界检查
+      const editorW = articleContentEditor.clientWidth;
+      const wrapRect = activeWrap.getBoundingClientRect();
+      const maxLeft = editorW - wrapRect.width;
+      const maxTop = articleContentEditor.scrollHeight - wrapRect.height;
+      newLeft = Math.max(0, Math.min(newLeft, Math.max(0, maxLeft)));
+      newTop = Math.max(0, Math.min(newTop, Math.max(0, maxTop)));
       activeWrap.style.left = newLeft + 'px';
       activeWrap.style.top = newTop + 'px';
     };
     const onUp = ()=>{
-      dragging = false;
-      // 恢复编辑器文本选择
-      articleContentEditor.style.userSelect = '';
-      articleContentEditor.style.webkitUserSelect = '';
-      if(activeWrap){
-        activeWrap.style.cursor = 'grab';
-        activeWrap.style.zIndex = '';
-      }
+      endDrag();
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
     };
@@ -11449,27 +11477,8 @@ function initEditorImageDrag(){
     if(!img || !articleContentEditor.contains(img)) return;
 
     const wrap = ensureWrap(img);
-    activeWrap = wrap;
-    dragging = true;
-
     const touch = e.touches[0];
-    const editorRect = articleContentEditor.getBoundingClientRect();
-    const wrapRect = wrap.getBoundingClientRect();
-
-    const currentLeft = parseFloat(wrap.style.left) || (wrapRect.left - editorRect.left);
-    const currentTop = parseFloat(wrap.style.top) || (wrapRect.top - editorRect.top);
-
-    startX = touch.clientX;
-    startY = touch.clientY;
-    startLeft = currentLeft;
-    startTop = currentTop;
-
-    wrap.style.position = 'absolute';
-    wrap.style.left = currentLeft + 'px';
-    wrap.style.top = currentTop + 'px';
-    wrap.style.cursor = 'grabbing';
-    wrap.style.zIndex = '10';
-    wrap.style.margin = '0';
+    startDrag(wrap, touch.clientX, touch.clientY);
 
     const onTouchMove = (ev)=>{
       if(!dragging || !activeWrap) return;
@@ -11479,19 +11488,17 @@ function initEditorImageDrag(){
       const dy = t.clientY - startY;
       let newLeft = startLeft + dx;
       let newTop = startTop + dy;
-      const maxLeft = articleContentEditor.clientWidth - wrap.offsetWidth;
-      const maxTop = articleContentEditor.scrollHeight - wrap.offsetHeight;
-      newLeft = Math.max(0, Math.min(newLeft, maxLeft));
-      newTop = Math.max(0, Math.min(newTop, maxTop));
+      const editorW = articleContentEditor.clientWidth;
+      const wrapRect = activeWrap.getBoundingClientRect();
+      const maxLeft = editorW - wrapRect.width;
+      const maxTop = articleContentEditor.scrollHeight - wrapRect.height;
+      newLeft = Math.max(0, Math.min(newLeft, Math.max(0, maxLeft)));
+      newTop = Math.max(0, Math.min(newTop, Math.max(0, maxTop)));
       activeWrap.style.left = newLeft + 'px';
       activeWrap.style.top = newTop + 'px';
     };
     const onTouchEnd = ()=>{
-      dragging = false;
-      if(activeWrap){
-        activeWrap.style.cursor = 'grab';
-        activeWrap.style.zIndex = '';
-      }
+      endDrag();
       document.removeEventListener('touchmove', onTouchMove);
       document.removeEventListener('touchend', onTouchEnd);
     };
