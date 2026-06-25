@@ -6394,6 +6394,7 @@
   }
   .article-detail-card{
     width:min(1200px, 96vw);
+    height:min(800px, 90vh);
     max-height:90vh;
     overflow:hidden;
     display:flex;
@@ -6413,13 +6414,15 @@
   }
   .article-detail-body{
     width:100%;display:flex;flex-direction:column;min-width:0;position:relative;
+    flex:1 1 auto;
     transition: all .35s cubic-bezier(.4,0,.2,1);
   }
   .article-detail-scroll{
-    flex:1 1 0;
+    flex:1 1 auto;
     overflow-y:auto;
     overflow-x:hidden;
     min-height:0;
+    width:100%;
   }
   .article-detail-scroll::-webkit-scrollbar{width:6px;}
   .article-detail-scroll::-webkit-scrollbar-track{background:transparent;}
@@ -6579,14 +6582,13 @@
 
   /* ============ 文章详情正文排版规范 ============ */
   .article-detail-content{
-    padding:32px 0 40px;
+    padding:32px 24px 40px;
     margin:0 auto;
     width:100%;
     max-width:720px;
     color:rgba(200,210,225,.88);
     line-height:1.65;
     font-size:15px;
-    overflow:hidden;
   }
 
   /* 正文段落 */
@@ -6782,6 +6784,7 @@
     .article-card h3{font-size:18px;}
     .article-detail-card{
       width:100vw;
+      height:100vh;
       max-height:100vh;
       border-radius:0;
     }
