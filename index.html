@@ -6394,7 +6394,6 @@
   }
   .article-detail-card{
     width:min(1200px, 96vw);
-    height:min(800px, 90vh);
     max-height:90vh;
     overflow:hidden;
     display:flex;
@@ -6413,21 +6412,31 @@
     transition: all .35s cubic-bezier(.4,0,.2,1);
   }
   .article-detail-body{
-    width:100%;display:flex;flex-direction:column;min-width:0;position:relative;
-    flex:1 1 auto;
+    width:100%;max-height:90vh;display:flex;flex-direction:column;min-width:0;position:relative;
     transition: all .35s cubic-bezier(.4,0,.2,1);
   }
   .article-detail-scroll{
-    flex:1 1 auto;
+    flex:1 1 0;
     overflow-y:auto;
     overflow-x:hidden;
     min-height:0;
-    width:100%;
+    position:relative;
   }
-  .article-detail-scroll::-webkit-scrollbar{width:6px;}
-  .article-detail-scroll::-webkit-scrollbar-track{background:transparent;}
-  .article-detail-scroll::-webkit-scrollbar-thumb{background:rgba(212,175,55,.25);border-radius:3px;}
-  .article-detail-scroll::-webkit-scrollbar-thumb:hover{background:rgba(212,175,55,.4);}
+  .article-detail-scroll::-webkit-scrollbar{width:8px;}
+  .article-detail-scroll::-webkit-scrollbar-track{
+    background:rgba(255,255,255,.04);
+    border-radius:0 0 4px 0;
+  }
+  .article-detail-scroll::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, rgba(212,175,55,.5), rgba(212,175,55,.25));
+    border-radius:4px;
+    border:1px solid rgba(255,255,255,.1);
+  }
+  .article-detail-scroll::-webkit-scrollbar-thumb:hover{
+    background:linear-gradient(180deg, rgba(212,175,55,.7), rgba(212,175,55,.45));
+    border-color:rgba(255,255,255,.2);
+  }
+  .article-detail-scroll::-webkit-scrollbar-corner{background:transparent;}
   .article-detail-head{
     display:flex;
     flex-direction:column;
@@ -6582,13 +6591,14 @@
 
   /* ============ 文章详情正文排版规范 ============ */
   .article-detail-content{
-    padding:32px 24px 40px;
+    padding:32px 0 40px;
     margin:0 auto;
     width:100%;
     max-width:720px;
     color:rgba(200,210,225,.88);
     line-height:1.65;
     font-size:15px;
+    overflow:hidden;
   }
 
   /* 正文段落 */
@@ -6784,7 +6794,6 @@
     .article-card h3{font-size:18px;}
     .article-detail-card{
       width:100vw;
-      height:100vh;
       max-height:100vh;
       border-radius:0;
     }
