@@ -33,6 +33,7 @@ export const DB_ARTICLES_HASH = 'db:articles';
 export const DB_ANNOUNCEMENTS_KEY = 'db:announcements';
 export const DB_VERSIONS_HASH = 'db:versions';
 export const DB_VISITOR_COUNT_KEY = 'db:visitor-count';
+export const DB_REACTIONS_HASH = 'db:reactions';
 
 // 邮件相关键（旧版数据，清理用）
 export const LEGACY_DB_MAILS_HASH = 'db:mails';
