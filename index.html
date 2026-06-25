@@ -6147,13 +6147,41 @@
   }
   .article-card .article-thumb-wrap::after{
     content:'';
+    position:absolute;inset:0;
+    background:linear-gradient(180deg, transparent 50%, rgba(0,0,0,.45) 100%);
+    pointer-events:none;
+    transition:opacity .3s;
+  }
+  .article-card .article-card-author-on-thumb{
     position:absolute;
-    inset:0;
-    background:linear-gradient(180deg, transparent 30%, rgba(0,0,0,.45) 100%);
+    bottom:10px;
+    left:12px;
+    z-index:4;
+    display:flex;
+    align-items:center;
+    gap:6px;
     pointer-events:none;
   }
-  .article-card:hover .article-thumb-wrap::after{
-    background:linear-gradient(180deg, transparent 20%, rgba(0,0,0,.5) 100%);
+  .article-card .article-card-author-on-thumb .author-avatar-on-thumb{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:linear-gradient(135deg, rgba(212,175,55,.5), rgba(100,180,220,.5));
+    background-size:cover;
+    background-position:center;
+    border:2px solid rgba(255,255,255,.55);
+    box-shadow:0 2px 8px rgba(0,0,0,.3);
+    flex-shrink:0;
+  }
+  .article-card .article-card-author-on-thumb .author-name-on-thumb{
+    font-size:11px;
+    font-weight:700;
+    color:rgba(255,255,255,.9);
+    text-shadow:0 1px 4px rgba(0,0,0,.5);
+    max-width:80px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
   .article-card .article-thumb{
     width:100%;
@@ -6164,37 +6192,6 @@
   }
   .article-card:hover .article-thumb{
     transform:scale(1.08);
-  }
-  /* 图片左下角作者头像覆盖层 */
-  .article-card .article-card-cover-author{
-    position:absolute;
-    bottom:10px;
-    left:12px;
-    z-index:3;
-    display:flex;
-    align-items:center;
-    gap:6px;
-    pointer-events:none;
-  }
-  .article-card .article-card-cover-avatar{
-    width:28px;
-    height:28px;
-    border-radius:50%;
-    background:linear-gradient(135deg, rgba(212,175,55,.5), rgba(100,180,220,.5));
-    background-size:cover;
-    background-position:center;
-    border:2px solid rgba(255,255,255,.4);
-    box-shadow:0 2px 8px rgba(0,0,0,.2);
-  }
-  .article-card .article-card-cover-name{
-    font-size:11px;
-    font-weight:700;
-    color:#fff;
-    text-shadow:0 1px 4px rgba(0,0,0,.4);
-    max-width:80px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
   }
   .article-card .article-category-badge{
     position:absolute;
@@ -6214,17 +6211,17 @@
     pointer-events:none;
   }
   .article-card .article-card-body{
-    padding:16px 18px 18px;
+    padding:12px 14px 14px;
     display:flex;
     flex-direction:column;
-    gap:8px;
+    gap:6px;
     flex:1;
   }
   .article-card h3{
     margin:0;
     color:#fff;
-    font-size:17px;
-    line-height:1.35;
+    font-size:15px;
+    line-height:1.3;
     font-weight:800;
     letter-spacing:-.01em;
     display:-webkit-box;
@@ -6252,20 +6249,20 @@
     align-items:center;
     justify-content:space-between;
     margin-top:auto;
-    padding-top:10px;
+    padding-top:8px;
     border-top:1px solid rgba(255,255,255,.08);
   }
   .article-card .article-card-author{
     display:flex;
     align-items:center;
-    gap:8px;
-    font-size:12px;
+    gap:6px;
+    font-size:11px;
     color:rgba(255,255,255,.5);
     font-weight:600;
   }
   .article-card .article-card-author-avatar{
-    width:24px;
-    height:24px;
+    width:20px;
+    height:20px;
     border-radius:50%;
     background:linear-gradient(135deg, rgba(212,175,55,.4), rgba(100,180,220,.4));
     background-size:cover;
@@ -6782,8 +6779,8 @@
   /* 移动端（<=768px） */
   @media(max-width:768px){
     .article-grid{grid-template-columns:1fr;gap:14px;}
-    .article-card .article-thumb-wrap{height:200px;}
-    .article-card h3{font-size:18px;}
+    .article-card .article-thumb-wrap{height:180px;}
+    .article-card h3{font-size:16px;}
     .article-detail-card{
       width:100vw;
       max-height:100vh;
@@ -6856,83 +6853,6 @@
     padding:14px 0 4px;
     border-top:1px solid rgba(255,255,255,.1);
     margin-top:8px;
-  }
-  /* 点赞/收藏/喜欢交互栏 */
-  .article-reactions-bar{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:12px;
-    padding:14px 0 6px;
-    border-top:1px solid rgba(212,175,55,.1);
-    margin-top:4px;
-  }
-  .article-reaction-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:7px 18px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.12);
-    background:rgba(255,255,255,.05);
-    color:rgba(255,255,255,.55);
-    font-size:13px;
-    font-weight:600;
-    cursor:pointer;
-    transition:all .25s cubic-bezier(.34,1.56,.64,1);
-    user-select:none;
-    -webkit-user-select:none;
-    white-space:nowrap;
-  }
-  .article-reaction-btn:hover{
-    background:rgba(255,255,255,.1);
-    border-color:rgba(255,255,255,.2);
-    transform:translateY(-1px);
-  }
-  .article-reaction-btn:active{
-    transform:scale(.95);
-  }
-  .article-reaction-btn .reaction-icon{
-    font-size:18px;
-    line-height:1;
-    transition:transform .3s cubic-bezier(.34,1.56,.64,1);
-  }
-  .article-reaction-btn.active{
-    border-color:rgba(255,255,255,.25);
-  }
-  .article-reaction-btn.active .reaction-icon{
-    animation:reactionPop .4s cubic-bezier(.34,1.56,.64,1);
-  }
-  @keyframes reactionPop{
-    0%{transform:scale(1)}
-    40%{transform:scale(1.4)}
-    100%{transform:scale(1)}
-  }
-  /* 点赞 - 暖金 */
-  .article-reaction-btn.like-btn.active{
-    background:linear-gradient(135deg, rgba(255,200,50,.15), rgba(255,170,50,.1));
-    border-color:rgba(255,200,50,.35);
-    color:#ffd04a;
-    box-shadow:0 2px 10px rgba(255,200,50,.15);
-  }
-  /* 收藏 - 淡紫 */
-  .article-reaction-btn.fav-btn.active{
-    background:linear-gradient(135deg, rgba(172,146,255,.15), rgba(140,110,255,.1));
-    border-color:rgba(172,146,255,.35);
-    color:#c4b5fd;
-    box-shadow:0 2px 10px rgba(172,146,255,.15);
-  }
-  /* 喜欢 - 粉红 */
-  .article-reaction-btn.love-btn.active{
-    background:linear-gradient(135deg, rgba(255,100,130,.15), rgba(255,80,120,.1));
-    border-color:rgba(255,100,130,.35);
-    color:#ff8fa5;
-    box-shadow:0 2px 10px rgba(255,100,130,.15);
-  }
-  .article-reaction-btn .reaction-count{
-    font-size:12px;
-    font-weight:700;
-    min-width:8px;
   }
   .article-detail-pager button{
     min-height:34px;
@@ -8554,23 +8474,6 @@
       </div>
       <div class="article-detail-scroll">
         <div class="article-detail-content" id="articleDetailContent"></div>
-      </div>
-      <div class="article-reactions-bar" id="articleReactionsBar">
-        <button class="article-reaction-btn like-btn" id="reactionLikeBtn" type="button">
-          <span class="reaction-icon">&#x1F44D;</span>
-          <span class="reaction-label">赞</span>
-          <span class="reaction-count" id="reactionLikeCount">0</span>
-        </button>
-        <button class="article-reaction-btn fav-btn" id="reactionFavBtn" type="button">
-          <span class="reaction-icon">&#x2B50;</span>
-          <span class="reaction-label">收藏</span>
-          <span class="reaction-count" id="reactionFavCount">0</span>
-        </button>
-        <button class="article-reaction-btn love-btn" id="reactionLoveBtn" type="button">
-          <span class="reaction-icon">&#x2764;</span>
-          <span class="reaction-label">喜欢</span>
-          <span class="reaction-count" id="reactionLoveCount">0</span>
-        </button>
       </div>
       <div class="article-detail-pager" id="articleDetailPager" hidden>
         <button id="articleDetailPrevPage" type="button">上一页</button>
@@ -10680,15 +10583,7 @@ function renderArticleThumb(article){
 }
 
 function computeArticlesPerPage(){
-  if(!articleGrid) return 6;
-  const rect = articleGrid.getBoundingClientRect();
-  const card = articleGrid.closest('.blog-posts-card');
-  const cardRect = card ? card.getBoundingClientRect() : rect;
-  const width = rect.width || cardRect.width || window.innerWidth;
-  const height = Math.max(200, (cardRect.height || 460) - 120);
-  const columns = width >= 960 ? 3 : width >= 560 ? 2 : 1;
-  const rows = Math.max(1, Math.floor(height / 280));
-  return Math.max(3, Math.min(9, columns * rows));
+  return 6;
 }
 
 function refreshArticlePageSize(){
@@ -10716,15 +10611,15 @@ function renderArticles(){
         <div class="article-thumb-wrap">
           <div class="article-thumb" style="--article-thumb:linear-gradient(135deg,#7c5cff,#ff8fc7)"></div>
           <span class="article-category-badge">${articleFilterMode === 'mine' ? '我的文章' : '公开文章'}</span>
-          <div class="article-card-cover-author">
-            <div class="article-card-cover-avatar"></div>
-            <span class="article-card-cover-name">@系统</span>
-          </div>
         </div>
         <div class="article-card-body">
           <h3>${articleFilterMode === 'mine' ? '你还没有发布文章' : '还没有公开文章'}</h3>
           <p class="article-summary">${articleFilterMode === 'mine' ? '点击右上角"发布文章"，创建第一篇和账号绑定的文章。' : '所有用户发布的文章都会在这里公开显示。'}</p>
           <div class="article-card-footer">
+            <div class="article-card-author">
+              <div class="article-card-author-avatar"></div>
+              <span>@系统</span>
+            </div>
             <span class="article-card-time">--</span>
           </div>
         </div>
@@ -10738,22 +10633,28 @@ function renderArticles(){
   };
   articleGrid.innerHTML = items.map(article=>{
     const authorAvatar = article.authorAvatar || '';
-    const avatarStyle = (authorAvatar.startsWith('data:image/') || authorAvatar.startsWith('http')) ? `background-image:url('${authorAvatar}')` : '';
+    const authorName = escapeHtml(article.author || '匿名');
+    const avatarStyle = (authorAvatar.startsWith('data:image/') || authorAvatar.startsWith('http'))
+      ? `background-image:url('${authorAvatar}')` : '';
     return `
     <article class="article-card ${canSelect(article) ? 'selectable' : ''} ${selectedArticleIds.has(article.id) ? 'selected' : ''}" data-article-id="${escapeHtml(article.id || '')}" data-demo="${article.demo ? '1' : '0'}">
       ${canSelect(article) ? `<input class="article-select-check" type="checkbox" ${selectedArticleIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}
       <div class="article-thumb-wrap">
         ${renderArticleThumb(article)}
         <span class="article-category-badge">${escapeHtml(article.category || '随笔')}</span>
-        <div class="article-card-cover-author">
-          <div class="article-card-cover-avatar" style="${avatarStyle}"></div>
-          <span class="article-card-cover-name">@${escapeHtml(article.author || '匿名')}</span>
+        <div class="article-card-author-on-thumb">
+          <div class="author-avatar-on-thumb" style="${avatarStyle}"></div>
+          <span class="author-name-on-thumb">@${authorName}</span>
         </div>
       </div>
       <div class="article-card-body">
         <h3>${escapeHtml(article.title)}</h3>
         <p class="article-summary">${escapeHtml(article.summary || '')}</p>
         <div class="article-card-footer">
+          <div class="article-card-author">
+            <div class="article-card-author-avatar" style="${avatarStyle}"></div>
+            <span>@${authorName}</span>
+          </div>
           <span class="article-card-time">${escapeHtml(article.createdAt || '').slice(0, 10)}</span>
         </div>
       </div>
@@ -11354,102 +11255,6 @@ function processArticleLayout(container, article){
   }
 }
 
-/* =============== 文章点赞/收藏/喜欢系统 =============== */
-let _currentReactions = { likes:[], favorites:[], loves:[] };
-let _userReactionState = { like:false, favorite:false, love:false };
-
-async function loadReactions(articleId){
-  const likeCountEl = document.getElementById('reactionLikeCount');
-  const favCountEl = document.getElementById('reactionFavCount');
-  const loveCountEl = document.getElementById('reactionLoveCount');
-  if(likeCountEl) likeCountEl.textContent = '0';
-  if(favCountEl) favCountEl.textContent = '0';
-  if(loveCountEl) loveCountEl.textContent = '0';
-  _currentReactions = { likes:[], favorites:[], loves:[] };
-  _userReactionState = { like:false, favorite:false, love:false };
-
-  updateReactionBtnStates();
-
-  if(!articleId) return;
-  try{
-    const res = await fetch(authApiUrl(`/api/reactions?articleId=${encodeURIComponent(articleId)}`));
-    const data = await res.json().catch(()=>({}));
-    if(data && data.ok && data.reactions){
-      _currentReactions = data.reactions || { likes:[], favorites:[], loves:[] };
-      if(likeCountEl) likeCountEl.textContent = (_currentReactions.likes || []).length;
-      if(favCountEl) favCountEl.textContent = (_currentReactions.favorites || []).length;
-      if(loveCountEl) loveCountEl.textContent = (_currentReactions.loves || []).length;
-    }
-    // 获取当前用户的反应状态
-    const user = readSavedUser();
-    if(user && user.username){
-      const username = user.username;
-      _userReactionState = {
-        like: (_currentReactions.likes || []).includes(username),
-        favorite: (_currentReactions.favorites || []).includes(username),
-        love: (_currentReactions.loves || []).includes(username)
-      };
-    }
-    updateReactionBtnStates();
-  }catch(_){}
-}
-
-function updateReactionBtnStates(){
-  const likeBtn = document.getElementById('reactionLikeBtn');
-  const favBtn = document.getElementById('reactionFavBtn');
-  const loveBtn = document.getElementById('reactionLoveBtn');
-  if(likeBtn) likeBtn.classList.toggle('active', _userReactionState.like);
-  if(favBtn) favBtn.classList.toggle('active', _userReactionState.favorite);
-  if(loveBtn) loveBtn.classList.toggle('active', _userReactionState.love);
-}
-
-async function toggleReaction(type){
-  const articleId = currentDetailArticleId;
-  if(!articleId) return;
-  const user = readSavedUser();
-  if(!user || !user.username){
-    showLoginToast('请先登录后再操作。', 'warn', '提示');
-    return;
-  }
-  const btn = document.getElementById(
-    type === 'like' ? 'reactionLikeBtn' : type === 'favorite' ? 'reactionFavBtn' : 'reactionLoveBtn'
-  );
-  if(btn) btn.disabled = true;
-
-  try{
-    const token = getAuthToken();
-    const res = await fetch(authApiUrl('/api/reactions'), {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        ...(token ? {'Authorization':'Bearer '+token} : {})
-      },
-      body: JSON.stringify({ articleId, type })
-    });
-    const data = await res.json().catch(()=>({}));
-    if(data && data.ok){
-      // 重新加载反应数据
-      await loadReactions(articleId);
-      const typeName = { like:'点赞', favorite:'收藏', love:'喜欢' }[type] || type;
-      const isActive = _userReactionState[type];
-      showLoginToast(isActive ? `已${typeName}。` : `已取消${typeName}。`, 'success', isActive ? `${typeName}成功` : `取消${typeName}`);
-    }else{
-      showLoginToast((data && data.error) || '操作失败。', 'error', '失败');
-    }
-  }catch(_){
-    showLoginToast('网络错误，请稍后重试。', 'error', '失败');
-  }finally{
-    if(btn) btn.disabled = false;
-  }
-}
-
-// 初始化反应按钮事件
-(function initReactionsEvents(){
-  document.getElementById('reactionLikeBtn')?.addEventListener('click', ()=> toggleReaction('like'));
-  document.getElementById('reactionFavBtn')?.addEventListener('click', ()=> toggleReaction('favorite'));
-  document.getElementById('reactionLoveBtn')?.addEventListener('click', ()=> toggleReaction('love'));
-})();
-
 async function openArticleDetail(id){
   const article = await fetchArticleDetail(id).catch(error=>{
     showLoginToast(error.message || '读取文章详情失败。', 'error', '打开失败');
@@ -11533,8 +11338,6 @@ async function openArticleDetail(id){
     }
     // 排版后处理：首图提取、竖图检测、多图网格
     processArticleLayout(articleDetailContent, article);
-    // 加载点赞/收藏/喜欢数据
-    loadReactions(id);
   }
   const user = readSavedUser();
   const isOwner = isSiteOwnerUser(user);
