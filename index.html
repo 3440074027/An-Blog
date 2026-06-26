@@ -6073,7 +6073,9 @@
     box-shadow:0 18px 46px rgba(0,0,0,.24);
   }
   .article-grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:16px;
     min-height:0;
     align-content:start;
   }
@@ -6086,21 +6088,63 @@
   }
   .article-card{
     position:relative;
-    min-height:126px;
     display:grid;
-    grid-template-columns:92px 1fr;
-    gap:14px;
-    padding:14px;
-    border-radius:22px;
+    grid-template-rows:140px auto;
+    gap:0;
+    overflow:hidden;
+    border-radius:20px;
     background:rgba(255,255,255,.12);
     border:1px solid rgba(255,255,255,.14);
-    transition:transform .22s, background .22s, border-color .22s;
+    transition:all .28s cubic-bezier(.22,.08,.28,1);
     cursor:pointer;
   }
   .article-card:hover{
-    transform:translateY(-3px);
+    transform:translateY(-6px);
     background:rgba(255,255,255,.17);
-    border-color:rgba(255,255,255,.28);
+    border-color:rgba(255,255,255,.32);
+    box-shadow:0 20px 50px rgba(0,0,0,.25);
+  }
+  .article-card:hover .article-thumb{
+    transform:scale(1.08);
+  }
+  .article-card:hover h3{
+    color:#7ff7ff;
+  }
+  .article-card-image-wrap{
+    position:relative;
+    overflow:hidden;
+    height:140px;
+  }
+  .article-card-image-wrap .article-thumb{
+    position:absolute;
+    inset:0;
+    border-radius:0;
+    min-height:auto;
+    box-shadow:none;
+    transition:transform .5s cubic-bezier(.22,.08,.28,1);
+  }
+  .article-card-category{
+    position:absolute;
+    top:10px;
+    left:10px;
+    z-index:3;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:10px;
+    font-weight:800;
+    color:#fff;
+    background:rgba(124,92,255,.85);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.25);
+    text-shadow:0 1px 2px rgba(0,0,0,.2);
+    pointer-events:none;
+  }
+  .article-card-body{
+    padding:14px;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
   }
   .article-card.selectable{
     cursor:pointer;
@@ -7348,17 +7392,22 @@
     100%{opacity:1;transform:scale(1);}
   }
   .article-card h3{
-    margin:4px 0 8px;
+    margin:8px 0 6px;
     color:#fff;
-    font-size:17px;
-    line-height:1.28;
+    font-size:15px;
+    line-height:1.35;
+    transition:color .28s;
   }
   .article-card p{
-    margin:0 0 9px;
+    margin:0;
     color:rgba(255,255,255,.62);
     font-size:12px;
     font-weight:700;
     line-height:1.55;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
   }
   .article-card small{
     color:rgba(255,255,255,.48);
@@ -7507,8 +7556,15 @@
     .notice-carousel-card{min-height:260px;max-height:330px;}
     .notice-image{width:120px;max-height:86px;opacity:.72;}
     .article-grid{grid-template-columns:1fr;}
-    .article-card{grid-template-columns:82px 1fr;}
+    .article-card{grid-template-rows:120px auto;}
+    .article-card-image-wrap{height:120px;}
     .article-pager{flex-wrap:wrap;}
+  }
+  @media (max-width: 1200px) and (min-width: 821px){
+    .article-grid{grid-template-columns:repeat(3, minmax(0, 1fr));}
+  }
+  @media (max-width: 560px){
+    .article-grid{grid-template-columns:1fr;}
   }
 
 </style>
@@ -10268,15 +10324,21 @@ function renderArticleThumb(article){
 }
 
 function computeArticlesPerPage(){
-  if(!articleGrid) return 4;
+  if(!articleGrid) return 8;
   const rect = articleGrid.getBoundingClientRect();
-  const card = articleGrid.closest('.blog-posts-card');
-  const cardRect = card ? card.getBoundingClientRect() : rect;
-  const width = rect.width || cardRect.width || window.innerWidth;
-  const height = Math.max(180, (cardRect.height || 430) - 118);
-  const columns = width >= 960 ? 3 : width >= 560 ? 2 : 1;
-  const rows = Math.max(1, Math.floor(height / 148));
-  return Math.max(2, Math.min(12, columns * rows));
+  const width = rect.width || window.innerWidth;
+  if(width >= 1120) return 8;
+  if(width >= 820) return 6;
+  if(width >= 560) return 4;
+  return 4;
+}
+
+const CATEGORY_COLORS = {
+  '技术':'rgba(59,130,246,.88)','随笔':'rgba(139,92,246,.88)','生活':'rgba(236,72,153,.88)',
+  '旅行':'rgba(16,185,129,.88)','阅读':'rgba(245,158,11,.88)','默认':'rgba(124,92,255,.88)'
+};
+function getCategoryColor(cat){
+  return CATEGORY_COLORS[cat] || CATEGORY_COLORS['默认'];
 }
 
 function refreshArticlePageSize(){
@@ -10301,9 +10363,12 @@ function renderArticles(){
   if(!items.length){
     articleGrid.innerHTML = `
       <article class="article-card">
-        <div class="article-thumb" style="--article-thumb:linear-gradient(135deg,#7c5cff,#ff8fc7)"></div>
-        <div>
-          <small>EMPTY · ${articleFilterMode === 'mine' ? '我的文章' : '公开文章'}</small>
+        <div class="article-card-image-wrap">
+          <div class="article-thumb" style="--article-thumb:linear-gradient(135deg,#7c5cff,#ff8fc7)"></div>
+          <span class="article-card-category" style="background:${CATEGORY_COLORS['默认']}">EMPTY</span>
+        </div>
+        <div class="article-card-body">
+          <small>${articleFilterMode === 'mine' ? '我的文章' : '公开文章'}</small>
           <h3>${articleFilterMode === 'mine' ? '你还没有发布文章' : '还没有公开文章'}</h3>
           <p>${articleFilterMode === 'mine' ? '点击右上角“发布文章”，创建第一篇和账号绑定的文章。' : '所有用户发布的文章都会在这里公开显示。'}</p>
         </div>
@@ -10318,9 +10383,12 @@ function renderArticles(){
   articleGrid.innerHTML = items.map(article=>`
     <article class="article-card ${canSelect(article) ? 'selectable' : ''} ${selectedArticleIds.has(article.id) ? 'selected' : ''}" data-article-id="${escapeHtml(article.id || '')}" data-demo="${article.demo ? '1' : '0'}">
       ${canSelect(article) ? `<input class="article-select-check" type="checkbox" ${selectedArticleIds.has(article.id) ? 'checked' : ''} aria-label="选择文章" />` : ''}
-      ${renderArticleThumb(article)}
-      <div>
-        <small>${escapeHtml(article.category)} · ${escapeHtml(article.createdAt || '')} · @${escapeHtml(article.author || '')}</small>
+      <div class="article-card-image-wrap">
+        ${renderArticleThumb(article)}
+        <span class="article-card-category" style="background:${getCategoryColor(escapeHtml(article.category || '随笔'))}">${escapeHtml(article.category || '随笔')}</span>
+      </div>
+      <div class="article-card-body">
+        <small>${escapeHtml(article.createdAt || '')} · @${escapeHtml(article.author || '')}</small>
         <h3>${escapeHtml(article.title)}</h3>
         <p>${escapeHtml(article.summary)}</p>
       </div>
