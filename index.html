@@ -4584,15 +4584,14 @@
   .blog-hero-topline,
   .blog-section-head{
     display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:14px;
+    flex-direction:column;
+    gap:10px;
     margin-bottom:auto;
   }
   .blog-hero-topline span,
   .blog-section-head span{
     color:#7ff7ff;
-    font-size:11px;
+    font-size:13px;
     font-weight:900;
     letter-spacing:.18em;
   }
@@ -5497,6 +5496,7 @@
     border-radius:30px;
     padding:22px;
     min-height:0;
+    overflow:hidden;
   }
   .blog-post-grid{
     display:grid;
@@ -6211,226 +6211,248 @@
     background:rgba(255,255,255,.15);
     color:#fff;
   }
-  .article-toolbar{
+  .article-filter-bar{
+    position:sticky;
+    top:0;
+    z-index:20;
     display:flex;
     flex-wrap:wrap;
-    gap:8px 10px;
+    gap:6px 8px;
     align-items:center;
-    justify-content:flex-end;
-    position:relative;
-    z-index:100;
+    padding:10px 12px;
+    margin:0 -22px 12px;
+    border-radius:16px;
+    background:rgba(12,16,38,.75);
+    border:1px solid rgba(255,255,255,.1);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
   }
-  .article-toolbar button,
-  .article-filter-dropdown > button{
-    min-height:30px;
-    padding:0 12px;
+  .af-trigger{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+  }
+  .af-trigger > button{
+    min-height:28px;
+    padding:0 11px;
     border-radius:999px;
-    border:1px solid rgba(255,255,255,.18);
-    color:#fff;
-    font-size:11px;
-    font-weight:950;
-    cursor:pointer;
-    background:linear-gradient(135deg, rgba(127,247,255,.18), rgba(255,143,199,.16));
-    transition:all .15s;
-  }
-  .article-toolbar button.active,
-  .article-filter-dropdown > button.active{
-    background:linear-gradient(135deg, rgba(127,247,255,.34), rgba(255,143,199,.28));
-    box-shadow:0 0 0 3px rgba(127,247,255,.1), 0 12px 28px rgba(0,0,0,.2);
-  }
-  .article-toolbar button.danger{
-    background:linear-gradient(135deg, rgba(255,91,122,.28), rgba(255,143,199,.18));
-  }
-  .article-filter-dropdown{
-    position:relative;
-    display:inline-block;
-  }
-  .article-filter-dropdown > button::after{
-    content:"▼";
-    margin-left:5px;
-    font-size:9px;
-    opacity:.7;
-  }
-  .article-filter-menu{
-    position:fixed;
-    z-index:9999;
-    min-width:160px;
-    max-height:260px;
-    overflow-y:auto;
-    padding:8px;
-    border-radius:14px;
-    background:rgba(12,16,38,.92);
     border:1px solid rgba(255,255,255,.16);
-    backdrop-filter:blur(16px);
-    -webkit-backdrop-filter:blur(16px);
-    display:none;
-  }
-  .article-filter-menu.open{display:block;}
-  .article-filter-menu button{
-    width:100%;
-    text-align:left;
-    margin:0 0 2px;
-    border-radius:10px;
-    background:transparent;
-    border:none;
-    min-height:30px;
-    padding:5px 10px;
-    font-size:11px;
-    color:rgba(255,255,255,.8);
-    font-weight:700;
-    cursor:pointer;
-    transition:background .15s;
-  }
-  .article-filter-menu button:hover{
-    background:rgba(255,255,255,.12);
-    color:#fff;
-  }
-  .article-filter-menu button.active{
-    background:linear-gradient(135deg, rgba(127,247,255,.22), rgba(255,143,199,.16));
-    color:#fff;
-    font-weight:800;
-  }
-  .article-sort-group{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    align-items:center;
-  }
-  .article-sort-group::before{
-    content:"排序:";
-    color:rgba(255,255,255,.5);
-    font-size:10px;
-    font-weight:800;
-    margin-right:2px;
-  }
-  .article-sort-group button{
-    min-height:26px;
-    padding:0 10px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.12);
-    color:rgba(255,255,255,.7);
+    color:rgba(255,255,255,.82);
     font-size:10px;
     font-weight:800;
     cursor:pointer;
     background:rgba(255,255,255,.08);
     transition:all .15s;
+    white-space:nowrap;
   }
-  .article-sort-group button:hover{
+  .af-trigger > button::after{
+    content:" ▾";
+    font-size:8px;
+    opacity:.6;
+  }
+  .af-trigger > button:hover{
     background:rgba(255,255,255,.14);
     color:#fff;
   }
-  .article-sort-group button.active{
-    background:linear-gradient(135deg, rgba(127,247,255,.28), rgba(255,143,199,.22));
+  .af-trigger > button.active{
+    background:linear-gradient(135deg, rgba(127,247,255,.3), rgba(255,143,199,.22));
+    color:#fff;
+    border-color:rgba(127,247,255,.35);
+  }
+  .af-panel{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:50%;
+    transform:translateX(-50%);
+    z-index:50;
+    min-width:200px;
+    max-width:280px;
+    padding:10px;
+    border-radius:14px;
+    background:rgba(8,12,30,.95);
+    border:1px solid rgba(255,255,255,.16);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    box-shadow:0 16px 48px rgba(0,0,0,.45);
+    display:none;
+  }
+  .af-panel.open{display:block;}
+  .af-panel-label{
+    display:block;
+    margin-bottom:6px;
+    color:rgba(255,255,255,.5);
+    font-size:9px;
+    font-weight:900;
+    letter-spacing:.08em;
+  }
+  .af-search-input{
+    width:100%;
+    min-height:30px;
+    padding:0 10px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.06);
+    color:#fff;
+    font-size:12px;
+    font-weight:600;
+    outline:none;
+    transition:border-color .15s;
+  }
+  .af-search-input:focus{
+    border-color:rgba(127,247,255,.5);
+  }
+  .af-search-input::placeholder{
+    color:rgba(255,255,255,.3);
+    font-weight:500;
+  }
+  .af-results{
+    margin-top:6px;
+    max-height:180px;
+    overflow-y:auto;
+  }
+  .af-results button{
+    width:100%;
+    text-align:left;
+    margin:0 0 2px;
+    border-radius:8px;
+    background:transparent;
+    border:none;
+    min-height:28px;
+    padding:4px 10px;
+    font-size:11px;
+    color:rgba(255,255,255,.75);
+    font-weight:700;
+    cursor:pointer;
+    transition:all .12s;
+  }
+  .af-results button:hover{
+    background:rgba(255,255,255,.1);
+    color:#fff;
+  }
+  .af-results button.active{
+    background:linear-gradient(135deg, rgba(127,247,255,.2), rgba(255,143,199,.14));
+    color:#fff;
+    font-weight:800;
+  }
+  .af-clear{
+    margin-top:6px;
+    width:100%;
+    min-height:26px;
+    border-radius:8px;
+    border:none;
+    background:rgba(255,255,255,.06);
+    color:rgba(255,255,255,.5);
+    font-size:10px;
+    font-weight:800;
+    cursor:pointer;
+    transition:all .12s;
+  }
+  .af-clear:hover{
+    background:rgba(255,255,255,.12);
+    color:#fff;
+  }
+  .af-date-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:6px;
+  }
+  .af-date-row label{
+    color:rgba(255,255,255,.5);
+    font-size:9px;
+    font-weight:800;
+  }
+  .af-date-row input[type="date"]{
+    min-height:30px;
+    padding:0 8px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.06);
+    color:#fff;
+    font-size:11px;
+    font-weight:600;
+    outline:none;
+    cursor:pointer;
+  }
+  .af-date-row input[type="date"]:focus{
+    border-color:rgba(127,247,255,.5);
+  }
+  .af-date-row input[type="date"]::-webkit-calendar-picker-indicator{
+    filter:invert(1);
+    cursor:pointer;
+  }
+  .af-date-shortcuts{
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px;
+    margin-top:8px;
+  }
+  .af-date-shortcuts button{
+    min-height:24px;
+    padding:0 8px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.1);
+    background:rgba(255,255,255,.05);
+    color:rgba(255,255,255,.6);
+    font-size:9px;
+    font-weight:800;
+    cursor:pointer;
+    transition:all .12s;
+  }
+  .af-date-shortcuts button:hover{
+    background:rgba(255,255,255,.12);
+    color:#fff;
+  }
+  .af-sort-group{
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px;
+    margin-left:2px;
+  }
+  .af-sort-group button{
+    min-height:26px;
+    padding:0 9px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    color:rgba(255,255,255,.6);
+    font-size:10px;
+    font-weight:800;
+    cursor:pointer;
+    background:rgba(255,255,255,.06);
+    transition:all .15s;
+  }
+  .af-sort-group button:hover{
+    background:rgba(255,255,255,.14);
+    color:#fff;
+  }
+  .af-sort-group button.active{
+    background:linear-gradient(135deg, rgba(127,247,255,.28), rgba(255,143,199,.2));
     color:#fff;
     border-color:rgba(255,255,255,.28);
   }
-  .article-filter-dropdown > input{
-    min-height:30px;
+  .af-bar-actions{
+    display:flex;
+    gap:6px;
+    align-items:center;
+    margin-left:auto;
+  }
+  .af-bar-actions button{
+    min-height:28px;
     padding:0 12px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.18);
     color:#fff;
-    font-size:11px;
-    font-weight:950;
-    background:linear-gradient(135deg, rgba(127,247,255,.18), rgba(255,143,199,.16));
-    width:100px;
-    outline:none;
-    transition:all .15s;
-    font-family:inherit;
-  }
-  .article-filter-dropdown > input::placeholder{
-    color:rgba(255,255,255,.7);
-  }
-  .article-filter-dropdown > input:focus{
-    border-color:rgba(127,247,255,.5);
-    box-shadow:0 0 0 3px rgba(127,247,255,.1);
-  }
-  .article-filter-dropdown > input.active{
-    background:linear-gradient(135deg, rgba(127,247,255,.34), rgba(255,143,199,.28));
-  }
-  .article-time-menu{min-width:240px;padding:14px;}
-  .article-time-mode{
-    display:flex;
-    gap:6px;
-    margin-bottom:12px;
-  }
-  .article-time-mode button{
-    flex:1;
-    text-align:center;
-    border-radius:999px;
     font-size:10px;
-    padding:5px 8px;
-  }
-  .article-time-field{
-    margin-bottom:10px;
-  }
-  .article-time-field label{
-    display:block;
-    font-size:10px;
-    color:rgba(255,255,255,.6);
-    margin-bottom:5px;
-    font-weight:700;
-  }
-  .article-time-field input[type="date"]{
-    width:100%;
-    min-height:32px;
-    padding:0 10px;
-    border-radius:10px;
-    border:1px solid rgba(255,255,255,.2);
-    background:rgba(255,255,255,.1);
-    color:#fff;
-    font-size:11px;
-    font-family:inherit;
-    outline:none;
-  }
-  .article-time-field input[type="date"]::-webkit-calendar-picker-indicator{
-    filter:invert(1);
-    cursor:pointer;
-  }
-  .article-time-range{
-    display:flex;
-    align-items:center;
-    gap:6px;
-  }
-  .article-time-range span{
-    color:rgba(255,255,255,.5);
-    font-size:10px;
-  }
-  .article-time-actions{
-    display:flex;
-    gap:8px;
-    margin-top:12px;
-    justify-content:flex-end;
-  }
-  .article-time-actions button{
-    min-height:28px;
-    padding:0 12px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.2);
-    background:rgba(255,255,255,.1);
-    color:rgba(255,255,255,.8);
-    font-size:10px;
-    font-weight:800;
-    cursor:pointer;
-  }
-  .article-time-actions button:hover{
-    background:rgba(255,255,255,.18);
-    color:#fff;
-  }
-  .blog-section-head span{
-    font-size:22px;
     font-weight:900;
-    letter-spacing:.5px;
-    background:linear-gradient(135deg, #7ff7ff, #ff8fc7);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-    background-clip:text;
+    cursor:pointer;
+    background:linear-gradient(135deg, rgba(127,247,255,.18), rgba(255,143,199,.16));
+    transition:all .15s;
   }
-  .blog-section-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 8px 8px;
+  .af-bar-actions button:hover{
+    background:linear-gradient(135deg, rgba(127,247,255,.28), rgba(255,143,199,.22));
+  }
+  .af-bar-actions button.danger{
+    background:linear-gradient(135deg, rgba(255,91,122,.28), rgba(255,143,199,.18));
   }
   .article-editor-modal{
     position:fixed;
@@ -7753,6 +7775,9 @@
     .article-grid{grid-template-columns:1fr;}
     .article-card{grid-template-rows:120px auto;}
     .article-card-image-wrap{height:120px;}
+    .article-filter-bar{margin:0 -12px 10px;padding:8px 10px;}
+    .af-panel{min-width:180px;max-width:calc(100vw - 40px);}
+    .af-sort-group{display:none;}
     .article-pager{flex-wrap:wrap;}
   }
   @media (max-width: 1200px) and (min-width: 821px){
@@ -8237,33 +8262,60 @@
       <section class="blog-posts-card blog-glass-card" id="blogPosts">
         <div class="blog-section-head">
           <span>文章收纳区</span>
-          <div class="article-toolbar">
-            <button id="articleScopeAllBtn" type="button">全部文章</button>
-            <button id="articleScopeMineBtn" type="button">我的文章</button>
-            <div class="article-filter-dropdown" id="articleUserFilter">
-              <input id="articleUserFilterInput" type="text" placeholder="用户" autocomplete="off" />
-              <div class="article-filter-menu" id="articleUserFilterMenu"></div>
+          <div class="article-filter-bar" id="articleFilterBar">
+            <div class="af-trigger" id="afUserTrigger">
+              <button id="articleUserFilterBtn" type="button">用户</button>
+              <div class="af-panel" id="afUserPanel">
+                <span class="af-panel-label">搜索用户</span>
+                <input class="af-search-input" id="afUserSearch" type="text" placeholder="输入昵称..." />
+                <div class="af-results" id="afUserResults"></div>
+              </div>
             </div>
-            <div class="article-filter-dropdown" id="articleTagFilter">
-              <input id="articleTagFilterInput" type="text" placeholder="标签" autocomplete="off" />
-              <div class="article-filter-menu" id="articleTagFilterMenu"></div>
+            <div class="af-trigger" id="afTagTrigger">
+              <button id="articleTagFilterBtn" type="button">标签</button>
+              <div class="af-panel" id="afTagPanel">
+                <span class="af-panel-label">搜索标签</span>
+                <input class="af-search-input" id="afTagSearch" type="text" placeholder="输入标签..." />
+                <div class="af-results" id="afTagResults"></div>
+              </div>
             </div>
-            <div class="article-filter-dropdown" id="articleTimeFilter">
+            <div class="af-trigger" id="afTimeTrigger">
               <button id="articleTimeFilterBtn" type="button">时间</button>
-              <div class="article-filter-menu article-time-menu" id="articleTimeFilterMenu"></div>
+              <div class="af-panel" id="afTimePanel">
+                <span class="af-panel-label">选择时间范围</span>
+                <div class="af-date-row">
+                  <label>起始</label>
+                  <input id="afTimeFrom" type="date" />
+                </div>
+                <div class="af-date-row">
+                  <label>截止</label>
+                  <input id="afTimeTo" type="date" />
+                </div>
+                <div class="af-date-shortcuts">
+                  <button type="button" data-days="7">一周内</button>
+                  <button type="button" data-days="30">一月内</button>
+                  <button type="button" data-days="90">三月内</button>
+                  <button type="button" data-days="365">一年内</button>
+                </div>
+                <button class="af-clear" type="button" id="afTimeClear">清除时间</button>
+              </div>
             </div>
-            <div class="article-sort-group" id="articleSortGroup">
+            <div class="af-sort-group">
               <button id="articleSortNew" type="button" data-sort="new">最新发布</button>
               <button id="articleSortOld" type="button" data-sort="old">最早发布</button>
               <button id="articleSortTitle" type="button" data-sort="title">标题排序</button>
               <button id="articleSortImage" type="button" data-sort="image">优先图文</button>
             </div>
-            <button id="articlePublishBtn" type="button">发布文章</button>
-            <button id="articleOwnerDeleteModeBtn" class="danger" type="button" hidden>管理删除</button>
-            <div class="article-delete-tools" id="articleDeleteTools">
-              <button id="articleDeleteConfirmBtn" class="danger" type="button">确认删除</button>
-              <button id="articleDeleteCancelBtn" type="button">取消</button>
+            <div class="af-bar-actions">
+              <button id="articleScopeAllBtn" type="button">全部文章</button>
+              <button id="articleScopeMineBtn" type="button">我的文章</button>
+              <button id="articlePublishBtn" type="button">发布文章</button>
+              <button id="articleOwnerDeleteModeBtn" class="danger" type="button" hidden>管理删除</button>
             </div>
+          </div>
+          <div class="article-delete-tools" id="articleDeleteTools">
+            <button id="articleDeleteConfirmBtn" class="danger" type="button">确认删除</button>
+            <button id="articleDeleteCancelBtn" type="button">取消</button>
           </div>
         </div>
         <div class="blog-post-grid article-grid" id="articleGrid"></div>
@@ -9842,12 +9894,19 @@ const articlePageInput = document.getElementById('articlePageInput');
 const articleJumpBtn = document.getElementById('articleJumpBtn');
 const articleScopeAllBtn = document.getElementById('articleScopeAllBtn');
 const articleScopeMineBtn = document.getElementById('articleScopeMineBtn');
-const articleUserFilterInput = document.getElementById('articleUserFilterInput');
-const articleUserFilterMenu = document.getElementById('articleUserFilterMenu');
-const articleTagFilterInput = document.getElementById('articleTagFilterInput');
-const articleTagFilterMenu = document.getElementById('articleTagFilterMenu');
+const articleUserFilterBtn = document.getElementById('articleUserFilterBtn');
+const afUserPanel = document.getElementById('afUserPanel');
+const afUserSearch = document.getElementById('afUserSearch');
+const afUserResults = document.getElementById('afUserResults');
+const articleTagFilterBtn = document.getElementById('articleTagFilterBtn');
+const afTagPanel = document.getElementById('afTagPanel');
+const afTagSearch = document.getElementById('afTagSearch');
+const afTagResults = document.getElementById('afTagResults');
 const articleTimeFilterBtn = document.getElementById('articleTimeFilterBtn');
-const articleTimeFilterMenu = document.getElementById('articleTimeFilterMenu');
+const afTimePanel = document.getElementById('afTimePanel');
+const afTimeFrom = document.getElementById('afTimeFrom');
+const afTimeTo = document.getElementById('afTimeTo');
+const afTimeClear = document.getElementById('afTimeClear');
 const articleSortNew = document.getElementById('articleSortNew');
 const articleSortOld = document.getElementById('articleSortOld');
 const articleSortTitle = document.getElementById('articleSortTitle');
@@ -10260,10 +10319,8 @@ let articleFilters = {
   scope: 'all',
   user: '',
   tag: '',
-  timeMode: '',
-  timeDate: '',
-  timeStart: '',
-  timeEnd: '',
+  timeFrom: '',
+  timeTo: '',
   sort: 'new'
 };
 let editingArticleId = '';
@@ -10548,26 +10605,12 @@ function getFilteredArticles(){
     });
   }
 
-  // 时间筛选（之前/之后/区间）
-  if(articleFilters.timeMode){
+  // 时间筛选（日期范围）
+  if(articleFilters.timeFrom || articleFilters.timeTo){
     articles = articles.filter(a => {
       const created = new Date(a.createdAt);
-      const date = articleFilters.timeDate ? new Date(articleFilters.timeDate) : null;
-      const start = articleFilters.timeStart ? new Date(articleFilters.timeStart) : null;
-      const end = articleFilters.timeEnd ? new Date(articleFilters.timeEnd) : null;
-      if(articleFilters.timeMode === 'before' && date){
-        const d = new Date(date); d.setHours(23,59,59,999);
-        return created <= d;
-      }
-      if(articleFilters.timeMode === 'after' && date){
-        const d = new Date(date); d.setHours(0,0,0,0);
-        return created >= d;
-      }
-      if(articleFilters.timeMode === 'range' && start && end){
-        const s = new Date(start); s.setHours(0,0,0,0);
-        const e = new Date(end); e.setHours(23,59,59,999);
-        return created >= s && created <= e;
-      }
+      if(articleFilters.timeFrom && created < new Date(articleFilters.timeFrom + 'T00:00:00')) return false;
+      if(articleFilters.timeTo && created > new Date(articleFilters.timeTo + 'T23:59:59')) return false;
       return true;
     });
   }
@@ -10657,12 +10700,12 @@ function renderArticles(){
     else parts.push('公开文章');
     if(articleFilters.user) parts.push(`@${articleFilters.user}`);
     if(articleFilters.tag) parts.push(`#${articleFilters.tag}`);
-    if(articleFilters.timeMode){
-      if(articleFilters.timeMode === 'before') parts.push(`${articleFilters.timeDate}之前`);
-      else if(articleFilters.timeMode === 'after') parts.push(`${articleFilters.timeDate}之后`);
-      else if(articleFilters.timeMode === 'range') parts.push(`${articleFilters.timeStart}~${articleFilters.timeEnd}`);
+    if(articleFilters.timeFrom || articleFilters.timeTo){
+      const from = articleFilters.timeFrom || '更早';
+      const to = articleFilters.timeTo || '至今';
+      parts.push(`${from} ~ ${to}`);
     }
-    const emptyLabel = parts.join(' · ') || '文章收纳区';
+    const emptyLabel = parts.join(' · ');
     articleGrid.innerHTML = `
       <article class="article-card">
         <div class="article-card-image-wrap">
@@ -10699,19 +10742,13 @@ function renderArticles(){
   }
   articleScopeAllBtn?.classList.toggle('active', articleFilters.scope === 'all');
   articleScopeMineBtn?.classList.toggle('active', articleFilters.scope === 'mine');
-  if(articleUserFilterInput){
-    articleUserFilterInput.value = articleFilters.user || '';
-    articleUserFilterInput.classList.toggle('active', !!articleFilters.user);
-  }
-  if(articleTagFilterInput){
-    articleTagFilterInput.value = articleFilters.tag || '';
-    articleTagFilterInput.classList.toggle('active', !!articleFilters.tag);
-  }
-  if(articleTimeFilterBtn){
-    const timeBtnLabels = { '':'时间', before:'之前', after:'之后', range:'区间' };
-    articleTimeFilterBtn.textContent = timeBtnLabels[articleFilters.timeMode] || '时间';
-    articleTimeFilterBtn.classList.toggle('active', !!articleFilters.timeMode);
-  }
+  articleUserFilterBtn && (articleUserFilterBtn.textContent = articleFilters.user ? `@${articleFilters.user}` : '用户');
+  articleUserFilterBtn?.classList.toggle('active', !!articleFilters.user);
+  articleTagFilterBtn && (articleTagFilterBtn.textContent = articleFilters.tag ? `#${articleFilters.tag}` : '标签');
+  articleTagFilterBtn?.classList.toggle('active', !!articleFilters.tag);
+  const hasTime = !!articleFilters.timeFrom || !!articleFilters.timeTo;
+  articleTimeFilterBtn && (articleTimeFilterBtn.textContent = hasTime ? `${articleFilters.timeFrom || '...'} ~ ${articleFilters.timeTo || '...'}` : '时间');
+  articleTimeFilterBtn?.classList.toggle('active', hasTime);
   [articleSortNew, articleSortOld, articleSortTitle, articleSortImage].forEach(btn=>{
     btn?.classList.toggle('active', btn?.dataset.sort === articleFilters.sort);
   });
@@ -11123,7 +11160,7 @@ async function saveArticleFromEditor(){
       if(index >= 0) publicArticles[index] = result.article;
       else publicArticles.unshift(result.article);
       publicArticles.sort((a, b)=>String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
-      articleFilters = { scope:'all', user:'', tag:'', time:'', sort:'new' };
+      articleFilters = { scope:'all', user:'', tag:'', timeFrom:'', timeTo:'', sort:'new' };
       renderArticles();
       updateToolStats();
     }
@@ -11393,213 +11430,150 @@ if(articlePageInput){
 }
 if(articlePublishBtn) articlePublishBtn.addEventListener('click', ()=>openArticleEditor());
 if(articleOwnerDeleteModeBtn) articleOwnerDeleteModeBtn.addEventListener('click', ()=>toggleOwnerDeleteMode());
-function buildArticleUserFilterMenu(query = ''){
-  if(!articleUserFilterMenu) return;
+function closeAllAfPanels(){
+  afUserPanel?.classList.remove('open');
+  afTagPanel?.classList.remove('open');
+  afTimePanel?.classList.remove('open');
+}
+// 用户搜索筛选
+function renderAfUserResults(query){
+  if(!afUserResults) return;
+  const q = String(query || '').trim().toLowerCase();
   const authors = Array.from(new Set(publicArticles.map(a => a.author).filter(Boolean))).sort();
-  const q = query.trim().toLowerCase();
-  const filtered = q ? authors.filter(name => name.toLowerCase().includes(q)) : authors;
-  if(!filtered.length){
-    articleUserFilterMenu.innerHTML = `<button type="button" disabled>${q ? '未找到匹配用户' : '暂无用户'}</button>`;
+  const matched = q ? authors.filter(name => name.toLowerCase().includes(q)) : authors;
+  if(!matched.length){
+    afUserResults.innerHTML = '<button type="button" disabled>无匹配用户</button>';
     return;
   }
-  const items = [{ label:'全部用户', value:'' }, ...filtered.map(name => ({ label:`@${name}`, value:name }))];
-  articleUserFilterMenu.innerHTML = items.map(item => {
-    const active = articleFilters.user === item.value;
-    return `<button type="button" class="${active ? 'active' : ''}" data-filter-user="${escapeHtml(item.value)}">${escapeHtml(item.label)}</button>`;
+  afUserResults.innerHTML = matched.map(name => {
+    const active = articleFilters.user === name;
+    return `<button type="button" class="${active ? 'active' : ''}" data-af-user="${escapeHtml(name)}">@${escapeHtml(name)}</button>`;
   }).join('');
-  articleUserFilterMenu.querySelectorAll('[data-filter-user]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      articleFilters.user = btn.dataset.filterUser;
+  afUserResults.querySelectorAll('[data-af-user]').forEach(btn => {
+    btn.addEventListener('click', ()=>{
+      articleFilters.user = btn.dataset.afUser;
       articlePage = 1;
+      closeAllAfPanels();
+      afUserSearch && (afUserSearch.value = '');
       renderArticles();
-      articleUserFilterMenu.classList.remove('open');
     });
   });
 }
-function buildArticleTagFilterMenu(query = ''){
-  if(!articleTagFilterMenu) return;
+// 标签搜索筛选
+function renderAfTagResults(query){
+  if(!afTagResults) return;
+  const q = String(query || '').trim().toLowerCase();
   const allTags = Array.from(new Set(publicArticles.flatMap(a => {
     const tags = Array.isArray(a.tags) ? a.tags : [];
     return a.category ? [a.category, ...tags] : tags;
   }).filter(Boolean))).sort();
-  const q = query.trim().toLowerCase();
-  const filtered = q ? allTags.filter(tag => tag.toLowerCase().includes(q)) : allTags;
-  if(!filtered.length){
-    articleTagFilterMenu.innerHTML = `<button type="button" disabled>${q ? '未找到匹配标签' : '暂无标签'}</button>`;
+  const matched = q ? allTags.filter(tag => tag.toLowerCase().includes(q)) : allTags;
+  if(!matched.length){
+    afTagResults.innerHTML = '<button type="button" disabled>无匹配标签</button>';
     return;
   }
-  const items = [{ label:'全部标签', value:'' }, ...filtered.map(tag => ({ label:`#${tag}`, value:tag }))];
-  articleTagFilterMenu.innerHTML = items.map(item => {
-    const active = articleFilters.tag === item.value;
-    return `<button type="button" class="${active ? 'active' : ''}" data-filter-tag="${escapeHtml(item.value)}">${escapeHtml(item.label)}</button>`;
+  afTagResults.innerHTML = matched.map(tag => {
+    const active = articleFilters.tag === tag;
+    return `<button type="button" class="${active ? 'active' : ''}" data-af-tag="${escapeHtml(tag)}">#${escapeHtml(tag)}</button>`;
   }).join('');
-  articleTagFilterMenu.querySelectorAll('[data-filter-tag]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      articleFilters.tag = btn.dataset.filterTag;
+  afTagResults.querySelectorAll('[data-af-tag]').forEach(btn => {
+    btn.addEventListener('click', ()=>{
+      articleFilters.tag = btn.dataset.afTag;
       articlePage = 1;
+      closeAllAfPanels();
+      afTagSearch && (afTagSearch.value = '');
       renderArticles();
-      articleTagFilterMenu.classList.remove('open');
     });
   });
 }
-function buildArticleTimeFilterMenu(){
-  if(!articleTimeFilterMenu) return;
-  const mode = articleFilters.timeMode || '';
-  articleTimeFilterMenu.innerHTML = `
-    <div class="article-time-mode">
-      <button type="button" class="${mode === 'before' ? 'active' : ''}" data-time-mode="before">之前</button>
-      <button type="button" class="${mode === 'after' ? 'active' : ''}" data-time-mode="after">之后</button>
-      <button type="button" class="${mode === 'range' ? 'active' : ''}" data-time-mode="range">区间</button>
-    </div>
-    <div id="articleTimeFields"></div>
-    <div class="article-time-actions">
-      <button type="button" id="articleTimeClear">清除</button>
-      <button type="button" id="articleTimeApply">确定</button>
-    </div>
-  `;
-  const fields = document.getElementById('articleTimeFields');
-  if(!fields) return;
-  if(mode === 'before' || mode === 'after'){
-    fields.innerHTML = `<div class="article-time-field"><label>选择日期</label><input type="date" id="articleTimeDateInput" value="${escapeHtml(articleFilters.timeDate || '')}" /></div>`;
-  }else if(mode === 'range'){
-    fields.innerHTML = `<div class="article-time-field"><div class="article-time-range"><input type="date" id="articleTimeStartInput" value="${escapeHtml(articleFilters.timeStart || '')}" /><span>~</span><input type="date" id="articleTimeEndInput" value="${escapeHtml(articleFilters.timeEnd || '')}" /></div></div>`;
-  }else{
-    fields.innerHTML = '<div class="article-time-field"><label style="color:rgba(255,255,255,.4)">请选择时间筛选模式</label></div>';
-  }
-  articleTimeFilterMenu.querySelectorAll('[data-time-mode]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      articleFilters.timeMode = btn.dataset.timeMode;
-      buildArticleTimeFilterMenu();
-      positionFilterMenu(articleTimeFilterMenu, articleTimeFilterBtn);
-    });
-  });
-  document.getElementById('articleTimeClear')?.addEventListener('click', () => {
-    articleFilters.timeMode = '';
-    articleFilters.timeDate = '';
-    articleFilters.timeStart = '';
-    articleFilters.timeEnd = '';
-    articlePage = 1;
-    renderArticles();
-    articleTimeFilterMenu.classList.remove('open');
-  });
-  document.getElementById('articleTimeApply')?.addEventListener('click', () => {
-    if(articleFilters.timeMode === 'before' || articleFilters.timeMode === 'after'){
-      articleFilters.timeDate = document.getElementById('articleTimeDateInput')?.value || '';
-    }else if(articleFilters.timeMode === 'range'){
-      articleFilters.timeStart = document.getElementById('articleTimeStartInput')?.value || '';
-      articleFilters.timeEnd = document.getElementById('articleTimeEndInput')?.value || '';
-    }
-    articlePage = 1;
-    renderArticles();
-    articleTimeFilterMenu.classList.remove('open');
-  });
-}
-function positionFilterMenu(menu, anchor){
-  if(!menu || !anchor || !menu.classList.contains('open')) return;
-  requestAnimationFrame(()=>{
-    const rect = anchor.getBoundingClientRect();
-    const menuW = menu.getBoundingClientRect().width || 160;
-    const menuH = Math.min(menu.scrollHeight || 200, 260);
-    const viewH = window.innerHeight;
-    const viewW = window.innerWidth;
-    const spaceBelow = viewH - rect.bottom - 8;
-    const spaceAbove = rect.top - 8;
-    let top;
-    if(spaceBelow >= menuH){ top = rect.bottom + 5; }
-    else if(spaceAbove >= menuH){ top = rect.top - menuH - 5; }
-    else{ top = viewH - menuH - 8; }
-    menu.style.top = Math.max(4, top) + 'px';
-    menu.style.left = Math.max(8, Math.min(rect.left, viewW - menuW - 8)) + 'px';
-  });
-}
-function closeAllArticleFilterMenus(){
-  articleUserFilterMenu?.classList.remove('open');
-  articleTagFilterMenu?.classList.remove('open');
-  articleTimeFilterMenu?.classList.remove('open');
-}
-function openFilterMenu(menu, anchor){
-  closeAllArticleFilterMenus();
-  menu?.classList.add('open');
-  positionFilterMenu(menu, anchor);
-}
-if(articleUserFilterInput){
-  articleUserFilterInput.addEventListener('focus', ()=>{
-    buildArticleUserFilterMenu(articleUserFilterInput.value);
-    openFilterMenu(articleUserFilterMenu, articleUserFilterInput);
-  });
-  articleUserFilterInput.addEventListener('input', ()=>{
-    buildArticleUserFilterMenu(articleUserFilterInput.value);
-    openFilterMenu(articleUserFilterMenu, articleUserFilterInput);
-  });
-  articleUserFilterInput.addEventListener('keydown', (e)=>{
-    if(e.key === 'Enter'){
-      const q = articleUserFilterInput.value.trim();
-      const authors = Array.from(new Set(publicArticles.map(a => a.author).filter(Boolean)));
-      const match = authors.find(name => name.toLowerCase() === q.toLowerCase());
-      if(match){
-        articleFilters.user = match;
-        articlePage = 1;
-        renderArticles();
-      }
-      closeAllArticleFilterMenus();
-    }
-  });
-}
-if(articleTagFilterInput){
-  articleTagFilterInput.addEventListener('focus', ()=>{
-    buildArticleTagFilterMenu(articleTagFilterInput.value);
-    openFilterMenu(articleTagFilterMenu, articleTagFilterInput);
-  });
-  articleTagFilterInput.addEventListener('input', ()=>{
-    buildArticleTagFilterMenu(articleTagFilterInput.value);
-    openFilterMenu(articleTagFilterMenu, articleTagFilterInput);
-  });
-  articleTagFilterInput.addEventListener('keydown', (e)=>{
-    if(e.key === 'Enter'){
-      const q = articleTagFilterInput.value.trim();
-      const allTags = Array.from(new Set(publicArticles.flatMap(a => {
-        const tags = Array.isArray(a.tags) ? a.tags : [];
-        return a.category ? [a.category, ...tags] : tags;
-      }).filter(Boolean)));
-      const match = allTags.find(tag => tag.toLowerCase() === q.toLowerCase());
-      if(match){
-        articleFilters.tag = match;
-        articlePage = 1;
-        renderArticles();
-      }
-      closeAllArticleFilterMenus();
-    }
-  });
-}
+// 用户筛选面板事件
+if(articleUserFilterBtn) articleUserFilterBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const isOpen = afUserPanel?.classList.contains('open');
+  closeAllAfPanels();
+  if(!isOpen){ afUserPanel?.classList.add('open'); renderAfUserResults(''); afUserSearch?.focus(); }
+});
+if(afUserSearch) afUserSearch.addEventListener('input', ()=> renderAfUserResults(afUserSearch.value));
+if(afUserSearch) afUserSearch.addEventListener('click', e=> e.stopPropagation());
+// 标签筛选面板事件
+if(articleTagFilterBtn) articleTagFilterBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const isOpen = afTagPanel?.classList.contains('open');
+  closeAllAfPanels();
+  if(!isOpen){ afTagPanel?.classList.add('open'); renderAfTagResults(''); afTagSearch?.focus(); }
+});
+if(afTagSearch) afTagSearch.addEventListener('input', ()=> renderAfTagResults(afTagSearch.value));
+if(afTagSearch) afTagSearch.addEventListener('click', e=> e.stopPropagation());
+// 时间筛选面板事件
 if(articleTimeFilterBtn) articleTimeFilterBtn.addEventListener('click', (e)=>{
   e.stopPropagation();
-  if(articleTimeFilterMenu?.classList.contains('open')){
-    closeAllArticleFilterMenus();
-  }else{
-    buildArticleTimeFilterMenu();
-    openFilterMenu(articleTimeFilterMenu, articleTimeFilterBtn);
+  const isOpen = afTimePanel?.classList.contains('open');
+  closeAllAfPanels();
+  if(!isOpen){
+    afTimePanel?.classList.add('open');
+    if(afTimeFrom) afTimeFrom.value = articleFilters.timeFrom || '';
+    if(afTimeTo) afTimeTo.value = articleFilters.timeTo || '';
   }
 });
-document.addEventListener('click', ()=> closeAllArticleFilterMenus());
-window.addEventListener('scroll', ()=> closeAllArticleFilterMenus(), true);
-window.addEventListener('resize', ()=> closeAllArticleFilterMenus());
-if(articleScopeAllBtn) articleScopeAllBtn.addEventListener('click', ()=>{
-  articleFilters = { scope:'all', user:'', tag:'', timeMode:'', timeDate:'', timeStart:'', timeEnd:'', sort:'new' };
+if(afTimeFrom) afTimeFrom.addEventListener('change', ()=>{
+  articleFilters.timeFrom = afTimeFrom.value || '';
   articlePage = 1;
-  closeAllArticleFilterMenus();
+  renderArticles();
+});
+if(afTimeTo) afTimeTo.addEventListener('change', ()=>{
+  articleFilters.timeTo = afTimeTo.value || '';
+  articlePage = 1;
+  renderArticles();
+});
+if(afTimeFrom) afTimeFrom.addEventListener('click', e=> e.stopPropagation());
+if(afTimeTo) afTimeTo.addEventListener('click', e=> e.stopPropagation());
+// 时间快捷按钮
+document.querySelectorAll('.af-date-shortcuts button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const days = Number(btn.dataset.days) || 0;
+    const to = new Date();
+    const from = new Date();
+    from.setDate(from.getDate() - days);
+    articleFilters.timeFrom = from.toISOString().slice(0, 10);
+    articleFilters.timeTo = to.toISOString().slice(0, 10);
+    if(afTimeFrom) afTimeFrom.value = articleFilters.timeFrom;
+    if(afTimeTo) afTimeTo.value = articleFilters.timeTo;
+    articlePage = 1;
+    renderArticles();
+  });
+});
+// 清除时间
+if(afTimeClear) afTimeClear.addEventListener('click', ()=>{
+  articleFilters.timeFrom = '';
+  articleFilters.timeTo = '';
+  if(afTimeFrom) afTimeFrom.value = '';
+  if(afTimeTo) afTimeTo.value = '';
+  articlePage = 1;
+  renderArticles();
+});
+// 点击空白关闭面板
+document.addEventListener('click', ()=> closeAllAfPanels());
+// 阻止面板内部点击冒泡关闭
+[afUserPanel, afTagPanel, afTimePanel].forEach(panel=>{
+  if(panel) panel.addEventListener('click', e=> e.stopPropagation());
+});
+if(articleScopeAllBtn) articleScopeAllBtn.addEventListener('click', ()=>{
+  articleFilters = { scope:'all', user:'', tag:'', timeFrom:'', timeTo:'', sort:'new' };
+  articlePage = 1;
+  closeAllAfPanels();
   renderArticles();
 });
 if(articleScopeMineBtn) articleScopeMineBtn.addEventListener('click', ()=>{
   articleFilters.scope = articleFilters.scope === 'mine' ? 'all' : 'mine';
   articlePage = 1;
-  closeAllArticleFilterMenus();
+  closeAllAfPanels();
   renderArticles();
 });
 [articleSortNew, articleSortOld, articleSortTitle, articleSortImage].forEach(btn=>{
   if(btn) btn.addEventListener('click', ()=>{
     articleFilters.sort = btn.dataset.sort || 'new';
     articlePage = 1;
-    closeAllArticleFilterMenus();
+    closeAllAfPanels();
     renderArticles();
   });
 });
@@ -12345,7 +12319,7 @@ function renderPublicProfile(user){
     el.addEventListener('click', ()=>{
       const title = el.dataset.publicArticleTitle || '';
       const index = publicArticles.findIndex(article=>article.title === title);
-      articleFilters = { scope:'all', user:'', tag:'', time:'', sort:'new' };
+      articleFilters = { scope:'all', user:'', tag:'', timeFrom:'', timeTo:'', sort:'new' };
       goArticlePage(Math.floor(Math.max(0, index) / articlesPerPage) + 1);
       closePublicProfile();
       document.getElementById('blogPosts')?.scrollIntoView({ behavior:'smooth', block:'center' });
