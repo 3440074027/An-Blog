@@ -6348,14 +6348,6 @@
   .article-filter-dropdown > input.active{
     background:linear-gradient(135deg, rgba(127,247,255,.34), rgba(255,143,199,.28));
   }
-  .article-filter-menu{
-    z-index:9999;
-    top:calc(100% + 5px);
-    right:0;
-    min-width:160px;
-    max-height:260px;
-    padding:8px;
-  }
   .article-time-menu{min-width:240px;padding:14px;}
   .article-time-mode{
     display:flex;
@@ -11504,13 +11496,21 @@ function buildArticleTimeFilterMenu(){
 }
 function positionFilterMenu(menu, anchor){
   if(!menu || !anchor || !menu.classList.contains('open')) return;
-  const rect = anchor.getBoundingClientRect();
-  const menuH = Math.min(menu.scrollHeight, 260);
-  const viewH = window.innerHeight;
-  const spaceBelow = viewH - rect.bottom - 8;
-  const spaceAbove = rect.top - 8;
-  menu.style.top = spaceBelow >= menuH ? (rect.bottom + 5) + 'px' : (spaceAbove >= menuH ? (rect.top - menuH - 5) + 'px' : (viewH - menuH - 8) + 'px');
-  menu.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - menu.offsetWidth - 8)) + 'px';
+  requestAnimationFrame(()=>{
+    const rect = anchor.getBoundingClientRect();
+    const menuW = menu.getBoundingClientRect().width || 160;
+    const menuH = Math.min(menu.scrollHeight || 200, 260);
+    const viewH = window.innerHeight;
+    const viewW = window.innerWidth;
+    const spaceBelow = viewH - rect.bottom - 8;
+    const spaceAbove = rect.top - 8;
+    let top;
+    if(spaceBelow >= menuH){ top = rect.bottom + 5; }
+    else if(spaceAbove >= menuH){ top = rect.top - menuH - 5; }
+    else{ top = viewH - menuH - 8; }
+    menu.style.top = Math.max(4, top) + 'px';
+    menu.style.left = Math.max(8, Math.min(rect.left, viewW - menuW - 8)) + 'px';
+  });
 }
 function closeAllArticleFilterMenus(){
   articleUserFilterMenu?.classList.remove('open');
