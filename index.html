@@ -4587,36 +4587,14 @@
     align-items:center;
     justify-content:space-between;
     gap:14px;
-    margin-bottom:14px;
-    flex-wrap:wrap;
+    margin-bottom:auto;
   }
-  .blog-hero-topline span{
+  .blog-hero-topline span,
+  .blog-section-head span{
     color:#7ff7ff;
     font-size:11px;
     font-weight:900;
     letter-spacing:.18em;
-  }
-  .blog-section-head .section-title{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    color:#fff;
-    font-size:18px;
-    font-weight:800;
-    letter-spacing:.02em;
-  }
-  .blog-section-head .section-title::before{
-    content:'';
-    display:inline-block;
-    width:4px;
-    height:18px;
-    border-radius:2px;
-    background:linear-gradient(180deg, #7ff7ff, #ff8fc7);
-  }
-  .blog-section-head .section-count{
-    color:rgba(255,255,255,.5);
-    font-size:11px;
-    font-weight:700;
   }
   .blog-hero-topline small{
     color:rgba(255,255,255,.52);
@@ -6236,23 +6214,13 @@
   }
   .article-toolbar{
     display:flex;
-    flex-direction:column;
-    gap:10px;
-    align-items:stretch;
-  }
-  .article-toolbar-row{
-    display:flex;
     flex-wrap:wrap;
     gap:8px 10px;
     align-items:center;
-  }
-  .article-toolbar-row.filter-row{
-    justify-content:flex-start;
-  }
-  .article-toolbar-row.action-row{
     justify-content:flex-end;
   }
-  .article-toolbar button{
+  .article-toolbar button,
+  .article-filter-dropdown > button{
     min-height:30px;
     padding:0 12px;
     border-radius:999px;
@@ -6264,7 +6232,8 @@
     background:linear-gradient(135deg, rgba(127,247,255,.18), rgba(255,143,199,.16));
     transition:all .15s;
   }
-  .article-toolbar button.active{
+  .article-toolbar button.active,
+  .article-filter-dropdown > button.active{
     background:linear-gradient(135deg, rgba(127,247,255,.34), rgba(255,143,199,.28));
     box-shadow:0 0 0 3px rgba(127,247,255,.1), 0 12px 28px rgba(0,0,0,.2);
   }
@@ -6275,151 +6244,58 @@
     position:relative;
     display:inline-block;
   }
-  .article-filter-input{
-    min-height:30px;
-    padding:0 10px 0 28px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.18);
-    color:#fff;
-    font-size:11px;
-    font-weight:700;
-    background:rgba(255,255,255,.08);
-    backdrop-filter:blur(8px);
-    width:120px;
-    outline:none;
-    transition:all .2s;
+  .article-filter-dropdown > button::after{
+    content:"▼";
+    margin-left:5px;
+    font-size:9px;
+    opacity:.7;
   }
-  .article-filter-input::placeholder{color:rgba(255,255,255,.4);}
-  .article-filter-input:focus{
-    border-color:rgba(127,247,255,.5);
-    background:rgba(255,255,255,.12);
-    width:160px;
-  }
-  .article-filter-dropdown .article-filter-input{padding-left:10px;}
-  .article-filter-results{
+  .article-filter-menu{
     position:absolute;
     top:calc(100% + 5px);
-    left:0;
+    right:0;
     z-index:10;
-    min-width:180px;
+    min-width:140px;
     max-height:220px;
     overflow-y:auto;
     padding:8px;
     border-radius:14px;
-    background:rgba(12,16,38,.95);
+    background:rgba(12,16,38,.92);
     border:1px solid rgba(255,255,255,.16);
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
     display:none;
   }
-  .article-filter-results.open{display:block;}
-  .article-filter-results .result-item{
+  .article-filter-menu.open{display:block;}
+  .article-filter-menu button{
     width:100%;
     text-align:left;
+    margin:0 0 2px;
     border-radius:10px;
     background:transparent;
     border:none;
-    min-height:32px;
-    padding:6px 10px;
+    min-height:30px;
+    padding:5px 10px;
     font-size:11px;
-    color:rgba(255,255,255,.85);
+    color:rgba(255,255,255,.8);
     font-weight:700;
     cursor:pointer;
     transition:background .15s;
-    display:flex;
-    align-items:center;
-    gap:8px;
   }
-  .article-filter-results .result-item:hover{
+  .article-filter-menu button:hover{
     background:rgba(255,255,255,.12);
     color:#fff;
   }
-  .article-filter-results .result-item .nick{
-    color:rgba(255,255,255,.5);
-    font-size:10px;
-    font-weight:600;
-  }
-  .article-filter-results .result-empty{
-    padding:10px;
-    font-size:11px;
-    color:rgba(255,255,255,.45);
-    text-align:center;
-  }
-  .article-time-panel{
-    position:absolute;
-    top:calc(100% + 5px);
-    left:0;
-    z-index:10;
-    min-width:240px;
-    padding:12px;
-    border-radius:16px;
-    background:rgba(12,16,38,.95);
-    border:1px solid rgba(255,255,255,.16);
-    backdrop-filter:blur(16px);
-    -webkit-backdrop-filter:blur(16px);
-    display:none;
-  }
-  .article-time-panel.open{display:block;}
-  .article-time-panel label{
-    display:block;
-    color:rgba(255,255,255,.6);
-    font-size:10px;
-    font-weight:700;
-    margin-bottom:6px;
-  }
-  .article-time-panel select,
-  .article-time-panel input[type="date"]{
-    width:100%;
-    min-height:30px;
-    padding:0 8px;
-    border-radius:10px;
-    border:1px solid rgba(255,255,255,.18);
-    background:rgba(255,255,255,.08);
-    color:#fff;
-    font-size:11px;
-    font-weight:700;
-    outline:none;
-    margin-bottom:8px;
-  }
-  .article-time-panel select:focus,
-  .article-time-panel input[type="date"]:focus{
-    border-color:rgba(127,247,255,.5);
-  }
-  .article-time-panel .time-range-row{
-    display:flex;
-    gap:6px;
-    align-items:center;
-  }
-  .article-time-panel .time-range-row span{
-    color:rgba(255,255,255,.4);
-    font-size:10px;
-  }
-  .article-time-panel .time-actions{
-    display:flex;
-    gap:6px;
-    margin-top:4px;
-  }
-  .article-time-panel .time-actions button{
-    flex:1;
-    min-height:28px;
-    border-radius:10px;
-    border:none;
-    font-size:10px;
-    font-weight:800;
-    cursor:pointer;
+  .article-filter-menu button.active{
     background:linear-gradient(135deg, rgba(127,247,255,.22), rgba(255,143,199,.16));
     color:#fff;
-  }
-  .article-time-panel .time-actions button.secondary{
-    background:rgba(255,255,255,.1);
-    color:rgba(255,255,255,.7);
+    font-weight:800;
   }
   .article-sort-group{
     display:flex;
     flex-wrap:wrap;
     gap:6px;
     align-items:center;
-    margin-left:auto;
   }
   .article-sort-group::before{
     content:"排序:";
@@ -6448,6 +6324,122 @@
     background:linear-gradient(135deg, rgba(127,247,255,.28), rgba(255,143,199,.22));
     color:#fff;
     border-color:rgba(255,255,255,.28);
+  }
+  .article-filter-dropdown > input{
+    min-height:30px;
+    padding:0 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;
+    font-size:11px;
+    font-weight:950;
+    background:linear-gradient(135deg, rgba(127,247,255,.18), rgba(255,143,199,.16));
+    width:100px;
+    outline:none;
+    transition:all .15s;
+    font-family:inherit;
+  }
+  .article-filter-dropdown > input::placeholder{
+    color:rgba(255,255,255,.7);
+  }
+  .article-filter-dropdown > input:focus{
+    border-color:rgba(127,247,255,.5);
+    box-shadow:0 0 0 3px rgba(127,247,255,.1);
+  }
+  .article-filter-dropdown > input.active{
+    background:linear-gradient(135deg, rgba(127,247,255,.34), rgba(255,143,199,.28));
+  }
+  .article-filter-menu{
+    z-index:9999;
+    top:calc(100% + 5px);
+    right:0;
+    min-width:160px;
+    max-height:260px;
+    padding:8px;
+  }
+  .article-time-menu{min-width:240px;padding:14px;}
+  .article-time-mode{
+    display:flex;
+    gap:6px;
+    margin-bottom:12px;
+  }
+  .article-time-mode button{
+    flex:1;
+    text-align:center;
+    border-radius:999px;
+    font-size:10px;
+    padding:5px 8px;
+  }
+  .article-time-field{
+    margin-bottom:10px;
+  }
+  .article-time-field label{
+    display:block;
+    font-size:10px;
+    color:rgba(255,255,255,.6);
+    margin-bottom:5px;
+    font-weight:700;
+  }
+  .article-time-field input[type="date"]{
+    width:100%;
+    min-height:32px;
+    padding:0 10px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.1);
+    color:#fff;
+    font-size:11px;
+    font-family:inherit;
+    outline:none;
+  }
+  .article-time-field input[type="date"]::-webkit-calendar-picker-indicator{
+    filter:invert(1);
+    cursor:pointer;
+  }
+  .article-time-range{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .article-time-range span{
+    color:rgba(255,255,255,.5);
+    font-size:10px;
+  }
+  .article-time-actions{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+    justify-content:flex-end;
+  }
+  .article-time-actions button{
+    min-height:28px;
+    padding:0 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.1);
+    color:rgba(255,255,255,.8);
+    font-size:10px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .article-time-actions button:hover{
+    background:rgba(255,255,255,.18);
+    color:#fff;
+  }
+  .blog-section-head span{
+    font-size:22px;
+    font-weight:900;
+    letter-spacing:.5px;
+    background:linear-gradient(135deg, #7ff7ff, #ff8fc7);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .blog-section-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 8px 8px;
   }
   .article-editor-modal{
     position:fixed;
@@ -8253,61 +8245,33 @@
 
       <section class="blog-posts-card blog-glass-card" id="blogPosts">
         <div class="blog-section-head">
-          <div class="section-title">文章收纳区<span class="section-count" id="articleCountBadge"></span></div>
+          <span>文章收纳区</span>
           <div class="article-toolbar">
-            <div class="article-toolbar-row filter-row">
-              <button id="articleScopeAllBtn" type="button">全部文章</button>
-              <button id="articleScopeMineBtn" type="button">我的文章</button>
-              <div class="article-filter-dropdown" id="articleUserFilter">
-                <input class="article-filter-input" id="articleUserFilterInput" type="text" placeholder="搜索用户" autocomplete="off" />
-                <div class="article-filter-results" id="articleUserFilterResults"></div>
-              </div>
-              <div class="article-filter-dropdown" id="articleTagFilter">
-                <input class="article-filter-input" id="articleTagFilterInput" type="text" placeholder="搜索标签" autocomplete="off" />
-                <div class="article-filter-results" id="articleTagFilterResults"></div>
-              </div>
-              <div class="article-filter-dropdown" id="articleTimeFilter">
-                <button id="articleTimeFilterBtn" type="button">时间</button>
-                <div class="article-time-panel" id="articleTimePanel">
-                  <label>时间模式</label>
-                  <select id="articleTimeModeSelect">
-                    <option value="">全部时间</option>
-                    <option value="before">某一时间之前</option>
-                    <option value="after">某一时间之后</option>
-                    <option value="between">时间区间</option>
-                  </select>
-                  <div id="articleTimeSingleWrap">
-                    <label>选择日期</label>
-                    <input id="articleTimeSingleDate" type="date" />
-                  </div>
-                  <div id="articleTimeRangeWrap" style="display:none;">
-                    <label>时间区间</label>
-                    <div class="time-range-row">
-                      <input id="articleTimeStartDate" type="date" />
-                      <span>~</span>
-                      <input id="articleTimeEndDate" type="date" />
-                    </div>
-                  </div>
-                  <div class="time-actions">
-                    <button id="articleTimeApplyBtn" type="button">应用</button>
-                    <button id="articleTimeClearBtn" class="secondary" type="button">清除</button>
-                  </div>
-                </div>
-              </div>
-              <div class="article-sort-group" id="articleSortGroup">
-                <button id="articleSortNew" type="button" data-sort="new">最新发布</button>
-                <button id="articleSortOld" type="button" data-sort="old">最早发布</button>
-                <button id="articleSortTitle" type="button" data-sort="title">标题排序</button>
-                <button id="articleSortImage" type="button" data-sort="image">优先图文</button>
-              </div>
+            <button id="articleScopeAllBtn" type="button">全部文章</button>
+            <button id="articleScopeMineBtn" type="button">我的文章</button>
+            <div class="article-filter-dropdown" id="articleUserFilter">
+              <input id="articleUserFilterInput" type="text" placeholder="用户" autocomplete="off" />
+              <div class="article-filter-menu" id="articleUserFilterMenu"></div>
             </div>
-            <div class="article-toolbar-row action-row">
-              <button id="articlePublishBtn" type="button">发布文章</button>
-              <button id="articleOwnerDeleteModeBtn" class="danger" type="button" hidden>管理删除</button>
-              <div class="article-delete-tools" id="articleDeleteTools">
-                <button id="articleDeleteConfirmBtn" class="danger" type="button">确认删除</button>
-                <button id="articleDeleteCancelBtn" type="button">取消</button>
-              </div>
+            <div class="article-filter-dropdown" id="articleTagFilter">
+              <input id="articleTagFilterInput" type="text" placeholder="标签" autocomplete="off" />
+              <div class="article-filter-menu" id="articleTagFilterMenu"></div>
+            </div>
+            <div class="article-filter-dropdown" id="articleTimeFilter">
+              <button id="articleTimeFilterBtn" type="button">时间</button>
+              <div class="article-filter-menu article-time-menu" id="articleTimeFilterMenu"></div>
+            </div>
+            <div class="article-sort-group" id="articleSortGroup">
+              <button id="articleSortNew" type="button" data-sort="new">最新发布</button>
+              <button id="articleSortOld" type="button" data-sort="old">最早发布</button>
+              <button id="articleSortTitle" type="button" data-sort="title">标题排序</button>
+              <button id="articleSortImage" type="button" data-sort="image">优先图文</button>
+            </div>
+            <button id="articlePublishBtn" type="button">发布文章</button>
+            <button id="articleOwnerDeleteModeBtn" class="danger" type="button" hidden>管理删除</button>
+            <div class="article-delete-tools" id="articleDeleteTools">
+              <button id="articleDeleteConfirmBtn" class="danger" type="button">确认删除</button>
+              <button id="articleDeleteCancelBtn" type="button">取消</button>
             </div>
           </div>
         </div>
@@ -9881,7 +9845,6 @@ const accountDeleteText = document.getElementById('accountDeleteText');
 const accountDeleteCancelBtn = document.getElementById('accountDeleteCancelBtn');
 const accountDeleteConfirmBtn = document.getElementById('accountDeleteConfirmBtn');
 const articleGrid = document.getElementById('articleGrid');
-const articleCountBadge = document.getElementById('articleCountBadge');
 const articlePrevBtn = document.getElementById('articlePrevBtn');
 const articleNextBtn = document.getElementById('articleNextBtn');
 const articlePageInput = document.getElementById('articlePageInput');
@@ -9889,19 +9852,11 @@ const articleJumpBtn = document.getElementById('articleJumpBtn');
 const articleScopeAllBtn = document.getElementById('articleScopeAllBtn');
 const articleScopeMineBtn = document.getElementById('articleScopeMineBtn');
 const articleUserFilterInput = document.getElementById('articleUserFilterInput');
-const articleUserFilterResults = document.getElementById('articleUserFilterResults');
+const articleUserFilterMenu = document.getElementById('articleUserFilterMenu');
 const articleTagFilterInput = document.getElementById('articleTagFilterInput');
-const articleTagFilterResults = document.getElementById('articleTagFilterResults');
+const articleTagFilterMenu = document.getElementById('articleTagFilterMenu');
 const articleTimeFilterBtn = document.getElementById('articleTimeFilterBtn');
-const articleTimePanel = document.getElementById('articleTimePanel');
-const articleTimeModeSelect = document.getElementById('articleTimeModeSelect');
-const articleTimeSingleWrap = document.getElementById('articleTimeSingleWrap');
-const articleTimeSingleDate = document.getElementById('articleTimeSingleDate');
-const articleTimeRangeWrap = document.getElementById('articleTimeRangeWrap');
-const articleTimeStartDate = document.getElementById('articleTimeStartDate');
-const articleTimeEndDate = document.getElementById('articleTimeEndDate');
-const articleTimeApplyBtn = document.getElementById('articleTimeApplyBtn');
-const articleTimeClearBtn = document.getElementById('articleTimeClearBtn');
+const articleTimeFilterMenu = document.getElementById('articleTimeFilterMenu');
 const articleSortNew = document.getElementById('articleSortNew');
 const articleSortOld = document.getElementById('articleSortOld');
 const articleSortTitle = document.getElementById('articleSortTitle');
@@ -10320,7 +10275,6 @@ let articleFilters = {
   timeEnd: '',
   sort: 'new'
 };
-let authorsInfoCache = {};
 let editingArticleId = '';
 let currentDetailArticleId = '';
 let currentDetailArticleAuthor = '';
@@ -10603,27 +10557,25 @@ function getFilteredArticles(){
     });
   }
 
-  // 时间筛选
+  // 时间筛选（之前/之后/区间）
   if(articleFilters.timeMode){
     articles = articles.filter(a => {
       const created = new Date(a.createdAt);
-      const createdTs = created.getTime();
-      if(articleFilters.timeMode === 'before'){
-        const date = new Date(articleFilters.timeDate);
-        date.setHours(23,59,59,999);
-        return createdTs <= date.getTime();
+      const date = articleFilters.timeDate ? new Date(articleFilters.timeDate) : null;
+      const start = articleFilters.timeStart ? new Date(articleFilters.timeStart) : null;
+      const end = articleFilters.timeEnd ? new Date(articleFilters.timeEnd) : null;
+      if(articleFilters.timeMode === 'before' && date){
+        const d = new Date(date); d.setHours(23,59,59,999);
+        return created <= d;
       }
-      if(articleFilters.timeMode === 'after'){
-        const date = new Date(articleFilters.timeDate);
-        date.setHours(0,0,0,0);
-        return createdTs >= date.getTime();
+      if(articleFilters.timeMode === 'after' && date){
+        const d = new Date(date); d.setHours(0,0,0,0);
+        return created >= d;
       }
-      if(articleFilters.timeMode === 'between'){
-        const start = new Date(articleFilters.timeStart);
-        start.setHours(0,0,0,0);
-        const end = new Date(articleFilters.timeEnd);
-        end.setHours(23,59,59,999);
-        return createdTs >= start.getTime() && createdTs <= end.getTime();
+      if(articleFilters.timeMode === 'range' && start && end){
+        const s = new Date(start); s.setHours(0,0,0,0);
+        const e = new Date(end); e.setHours(23,59,59,999);
+        return created >= s && created <= e;
       }
       return true;
     });
@@ -10717,9 +10669,9 @@ function renderArticles(){
     if(articleFilters.timeMode){
       if(articleFilters.timeMode === 'before') parts.push(`${articleFilters.timeDate}之前`);
       else if(articleFilters.timeMode === 'after') parts.push(`${articleFilters.timeDate}之后`);
-      else if(articleFilters.timeMode === 'between') parts.push(`${articleFilters.timeStart} ~ ${articleFilters.timeEnd}`);
+      else if(articleFilters.timeMode === 'range') parts.push(`${articleFilters.timeStart}~${articleFilters.timeEnd}`);
     }
-    const emptyLabel = parts.join(' · ');
+    const emptyLabel = parts.join(' · ') || '文章收纳区';
     articleGrid.innerHTML = `
       <article class="article-card">
         <div class="article-card-image-wrap">
@@ -10754,14 +10706,21 @@ function renderArticles(){
     </article>
   `).join('');
   }
-  if(articleCountBadge) articleCountBadge.textContent = articles.length ? `(${articles.length})` : '';
   articleScopeAllBtn?.classList.toggle('active', articleFilters.scope === 'all');
   articleScopeMineBtn?.classList.toggle('active', articleFilters.scope === 'mine');
-  articleUserFilterInput && (articleUserFilterInput.value = articleFilters.user ? `@${articleFilters.user}` : '');
-  articleTagFilterInput && (articleTagFilterInput.value = articleFilters.tag ? `#${articleFilters.tag}` : '');
-  const timeActive = !!articleFilters.timeMode;
-  articleTimeFilterBtn?.classList.toggle('active', timeActive);
-  articleTimeFilterBtn && (articleTimeFilterBtn.textContent = timeActive ? '已筛选' : '时间');
+  if(articleUserFilterInput){
+    articleUserFilterInput.value = articleFilters.user || '';
+    articleUserFilterInput.classList.toggle('active', !!articleFilters.user);
+  }
+  if(articleTagFilterInput){
+    articleTagFilterInput.value = articleFilters.tag || '';
+    articleTagFilterInput.classList.toggle('active', !!articleFilters.tag);
+  }
+  if(articleTimeFilterBtn){
+    const timeBtnLabels = { '':'时间', before:'之前', after:'之后', range:'区间' };
+    articleTimeFilterBtn.textContent = timeBtnLabels[articleFilters.timeMode] || '时间';
+    articleTimeFilterBtn.classList.toggle('active', !!articleFilters.timeMode);
+  }
   [articleSortNew, articleSortOld, articleSortTitle, articleSortImage].forEach(btn=>{
     btn?.classList.toggle('active', btn?.dataset.sort === articleFilters.sort);
   });
@@ -10815,8 +10774,6 @@ async function loadPublicArticles(){
     publicArticles = freshArticles;
     renderArticles();
     updateToolStats();
-    // 异步加载作者信息，用于用户筛选的昵称搜索
-    loadAuthorsInfo().catch(()=>{});
   }catch(error){
     console.error('load articles error:', error);
   }
@@ -11445,163 +11402,165 @@ if(articlePageInput){
 }
 if(articlePublishBtn) articlePublishBtn.addEventListener('click', ()=>openArticleEditor());
 if(articleOwnerDeleteModeBtn) articleOwnerDeleteModeBtn.addEventListener('click', ()=>toggleOwnerDeleteMode());
-async function loadAuthorsInfo(){
-  const authors = Array.from(new Set(publicArticles.map(a => a.author).filter(Boolean)));
-  const needFetch = authors.filter(name => !authorsInfoCache[name]);
-  if(!needFetch.length) return;
-  await Promise.all(needFetch.map(async name => {
-    try{
-      const data = await authRequest(`/api/users/profile?username=${encodeURIComponent(name)}`, { method:'GET' });
-      if(data?.user) authorsInfoCache[name] = data.user;
-    }catch(_){ /* ignore */ }
-  }));
+function buildArticleUserFilterMenu(query = ''){
+  if(!articleUserFilterMenu) return;
+  const authors = Array.from(new Set(publicArticles.map(a => a.author).filter(Boolean))).sort();
+  const q = query.trim().toLowerCase();
+  const filtered = q ? authors.filter(name => name.toLowerCase().includes(q)) : authors;
+  if(!filtered.length){
+    articleUserFilterMenu.innerHTML = `<button type="button" disabled>${q ? '未找到匹配用户' : '暂无用户'}</button>`;
+    return;
+  }
+  const items = [{ label:'全部用户', value:'' }, ...filtered.map(name => ({ label:`@${name}`, value:name }))];
+  articleUserFilterMenu.innerHTML = items.map(item => {
+    const active = articleFilters.user === item.value;
+    return `<button type="button" class="${active ? 'active' : ''}" data-filter-user="${escapeHtml(item.value)}">${escapeHtml(item.label)}</button>`;
+  }).join('');
+  articleUserFilterMenu.querySelectorAll('[data-filter-user]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      articleFilters.user = btn.dataset.filterUser;
+      articlePage = 1;
+      renderArticles();
+      articleUserFilterMenu.classList.remove('open');
+    });
+  });
 }
-function getAllAuthorsList(){
-  return Array.from(new Set(publicArticles.map(a => a.author).filter(Boolean))).sort();
-}
-function getAllTagsList(){
-  return Array.from(new Set(publicArticles.flatMap(a => {
+function buildArticleTagFilterMenu(query = ''){
+  if(!articleTagFilterMenu) return;
+  const allTags = Array.from(new Set(publicArticles.flatMap(a => {
     const tags = Array.isArray(a.tags) ? a.tags : [];
     return a.category ? [a.category, ...tags] : tags;
   }).filter(Boolean))).sort();
-}
-function renderUserSearchResults(query){
-  if(!articleUserFilterResults) return;
-  const authors = getAllAuthorsList();
-  const q = String(query).trim().toLowerCase();
-  let results = authors;
-  if(q){
-    results = authors.filter(name => {
-      const info = authorsInfoCache[name] || {};
-      const nick = String(info.nickname || '').toLowerCase();
-      return name.toLowerCase().includes(q) || nick.includes(q);
-    });
-  }
-  if(!results.length){
-    articleUserFilterResults.innerHTML = '<div class="result-empty">未找到匹配用户</div>';
+  const q = query.trim().toLowerCase();
+  const filtered = q ? allTags.filter(tag => tag.toLowerCase().includes(q)) : allTags;
+  if(!filtered.length){
+    articleTagFilterMenu.innerHTML = `<button type="button" disabled>${q ? '未找到匹配标签' : '暂无标签'}</button>`;
     return;
   }
-  articleUserFilterResults.innerHTML = results.map(name => {
-    const info = authorsInfoCache[name] || {};
-    const nick = info.nickname ? ` <span class="nick">(${escapeHtml(info.nickname)})</span>` : '';
-    return `<button type="button" class="result-item" data-result-user="${escapeHtml(name)}">@${escapeHtml(name)}${nick}</button>`;
+  const items = [{ label:'全部标签', value:'' }, ...filtered.map(tag => ({ label:`#${tag}`, value:tag }))];
+  articleTagFilterMenu.innerHTML = items.map(item => {
+    const active = articleFilters.tag === item.value;
+    return `<button type="button" class="${active ? 'active' : ''}" data-filter-tag="${escapeHtml(item.value)}">${escapeHtml(item.label)}</button>`;
   }).join('');
-  articleUserFilterResults.querySelectorAll('[data-result-user]').forEach(btn => {
+  articleTagFilterMenu.querySelectorAll('[data-filter-tag]').forEach(btn => {
     btn.addEventListener('click', () => {
-      articleFilters.user = btn.dataset.resultUser;
+      articleFilters.tag = btn.dataset.filterTag;
       articlePage = 1;
       renderArticles();
-      articleUserFilterResults.classList.remove('open');
-      articleUserFilterInput.value = `@${articleFilters.user}`;
+      articleTagFilterMenu.classList.remove('open');
     });
   });
 }
-function renderTagSearchResults(query){
-  if(!articleTagFilterResults) return;
-  const allTags = getAllTagsList();
-  const q = String(query).trim().toLowerCase();
-  let results = allTags;
-  if(q){
-    results = allTags.filter(tag => tag.toLowerCase().includes(q));
+function buildArticleTimeFilterMenu(){
+  if(!articleTimeFilterMenu) return;
+  const mode = articleFilters.timeMode || '';
+  articleTimeFilterMenu.innerHTML = `
+    <div class="article-time-mode">
+      <button type="button" class="${mode === 'before' ? 'active' : ''}" data-time-mode="before">之前</button>
+      <button type="button" class="${mode === 'after' ? 'active' : ''}" data-time-mode="after">之后</button>
+      <button type="button" class="${mode === 'range' ? 'active' : ''}" data-time-mode="range">区间</button>
+    </div>
+    <div id="articleTimeFields"></div>
+    <div class="article-time-actions">
+      <button type="button" id="articleTimeClear">清除</button>
+      <button type="button" id="articleTimeApply">确定</button>
+    </div>
+  `;
+  const fields = document.getElementById('articleTimeFields');
+  if(!fields) return;
+  if(mode === 'before' || mode === 'after'){
+    fields.innerHTML = `<div class="article-time-field"><label>选择日期</label><input type="date" id="articleTimeDateInput" value="${escapeHtml(articleFilters.timeDate || '')}" /></div>`;
+  }else if(mode === 'range'){
+    fields.innerHTML = `<div class="article-time-field"><div class="article-time-range"><input type="date" id="articleTimeStartInput" value="${escapeHtml(articleFilters.timeStart || '')}" /><span>~</span><input type="date" id="articleTimeEndInput" value="${escapeHtml(articleFilters.timeEnd || '')}" /></div></div>`;
+  }else{
+    fields.innerHTML = '<div class="article-time-field"><label style="color:rgba(255,255,255,.4)">请选择时间筛选模式</label></div>';
   }
-  if(!results.length){
-    articleTagFilterResults.innerHTML = '<div class="result-empty">未找到匹配标签</div>';
-    return;
-  }
-  articleTagFilterResults.innerHTML = results.map(tag => {
-    return `<button type="button" class="result-item" data-result-tag="${escapeHtml(tag)}">#${escapeHtml(tag)}</button>`;
-  }).join('');
-  articleTagFilterResults.querySelectorAll('[data-result-tag]').forEach(btn => {
+  articleTimeFilterMenu.querySelectorAll('[data-time-mode]').forEach(btn => {
     btn.addEventListener('click', () => {
-      articleFilters.tag = btn.dataset.resultTag;
-      articlePage = 1;
-      renderArticles();
-      articleTagFilterResults.classList.remove('open');
-      articleTagFilterInput.value = `#${articleFilters.tag}`;
+      articleFilters.timeMode = btn.dataset.timeMode;
+      buildArticleTimeFilterMenu();
     });
+  });
+  document.getElementById('articleTimeClear')?.addEventListener('click', () => {
+    articleFilters.timeMode = '';
+    articleFilters.timeDate = '';
+    articleFilters.timeStart = '';
+    articleFilters.timeEnd = '';
+    articlePage = 1;
+    renderArticles();
+    articleTimeFilterMenu.classList.remove('open');
+  });
+  document.getElementById('articleTimeApply')?.addEventListener('click', () => {
+    if(articleFilters.timeMode === 'before' || articleFilters.timeMode === 'after'){
+      articleFilters.timeDate = document.getElementById('articleTimeDateInput')?.value || '';
+    }else if(articleFilters.timeMode === 'range'){
+      articleFilters.timeStart = document.getElementById('articleTimeStartInput')?.value || '';
+      articleFilters.timeEnd = document.getElementById('articleTimeEndInput')?.value || '';
+    }
+    articlePage = 1;
+    renderArticles();
+    articleTimeFilterMenu.classList.remove('open');
   });
 }
 function closeAllArticleFilterMenus(){
-  articleUserFilterResults?.classList.remove('open');
-  articleTagFilterResults?.classList.remove('open');
-  articleTimePanel?.classList.remove('open');
-}
-function syncTimePanelUI(){
-  if(!articleTimeModeSelect) return;
-  articleTimeModeSelect.value = articleFilters.timeMode || '';
-  const mode = articleFilters.timeMode;
-  if(articleTimeSingleWrap) articleTimeSingleWrap.style.display = (mode === 'before' || mode === 'after') ? 'block' : 'none';
-  if(articleTimeRangeWrap) articleTimeRangeWrap.style.display = mode === 'between' ? 'block' : 'none';
-  if(articleTimeSingleDate) articleTimeSingleDate.value = articleFilters.timeDate || '';
-  if(articleTimeStartDate) articleTimeStartDate.value = articleFilters.timeStart || '';
-  if(articleTimeEndDate) articleTimeEndDate.value = articleFilters.timeEnd || '';
+  articleUserFilterMenu?.classList.remove('open');
+  articleTagFilterMenu?.classList.remove('open');
+  articleTimeFilterMenu?.classList.remove('open');
 }
 if(articleUserFilterInput){
-  articleUserFilterInput.addEventListener('input', () => {
-    const val = articleUserFilterInput.value.trim();
-    articleUserFilterResults.classList.toggle('open', !!val);
-    renderUserSearchResults(val);
+  articleUserFilterInput.addEventListener('focus', ()=>{
+    buildArticleUserFilterMenu(articleUserFilterInput.value);
+    articleUserFilterMenu?.classList.add('open');
   });
-  articleUserFilterInput.addEventListener('focus', () => {
-    renderUserSearchResults(articleUserFilterInput.value.trim());
-    articleUserFilterResults.classList.add('open');
+  articleUserFilterInput.addEventListener('input', ()=>{
+    buildArticleUserFilterMenu(articleUserFilterInput.value);
+    articleUserFilterMenu?.classList.add('open');
   });
-  articleUserFilterInput.addEventListener('keydown', e => {
-    if(e.key === 'Enter' || e.key === 'Escape'){
-      articleUserFilterResults.classList.remove('open');
+  articleUserFilterInput.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+      const q = articleUserFilterInput.value.trim();
+      const authors = Array.from(new Set(publicArticles.map(a => a.author).filter(Boolean)));
+      const match = authors.find(name => name.toLowerCase() === q.toLowerCase());
+      if(match){
+        articleFilters.user = match;
+        articlePage = 1;
+        renderArticles();
+      }
+      articleUserFilterMenu?.classList.remove('open');
     }
   });
 }
 if(articleTagFilterInput){
-  articleTagFilterInput.addEventListener('input', () => {
-    const val = articleTagFilterInput.value.trim();
-    articleTagFilterResults.classList.toggle('open', true);
-    renderTagSearchResults(val);
+  articleTagFilterInput.addEventListener('focus', ()=>{
+    buildArticleTagFilterMenu(articleTagFilterInput.value);
+    articleTagFilterMenu?.classList.add('open');
   });
-  articleTagFilterInput.addEventListener('focus', () => {
-    renderTagSearchResults(articleTagFilterInput.value.trim());
-    articleTagFilterResults.classList.add('open');
+  articleTagFilterInput.addEventListener('input', ()=>{
+    buildArticleTagFilterMenu(articleTagFilterInput.value);
+    articleTagFilterMenu?.classList.add('open');
   });
-  articleTagFilterInput.addEventListener('keydown', e => {
-    if(e.key === 'Enter' || e.key === 'Escape'){
-      articleTagFilterResults.classList.remove('open');
+  articleTagFilterInput.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+      const q = articleTagFilterInput.value.trim();
+      const allTags = Array.from(new Set(publicArticles.flatMap(a => {
+        const tags = Array.isArray(a.tags) ? a.tags : [];
+        return a.category ? [a.category, ...tags] : tags;
+      }).filter(Boolean)));
+      const match = allTags.find(tag => tag.toLowerCase() === q.toLowerCase());
+      if(match){
+        articleFilters.tag = match;
+        articlePage = 1;
+        renderArticles();
+      }
+      articleTagFilterMenu?.classList.remove('open');
     }
   });
 }
 if(articleTimeFilterBtn) articleTimeFilterBtn.addEventListener('click', (e)=>{
   e.stopPropagation();
-  const isOpen = articleTimePanel?.classList.contains('open');
+  const isOpen = articleTimeFilterMenu?.classList.contains('open');
   closeAllArticleFilterMenus();
-  if(!isOpen){ articleTimePanel?.classList.add('open'); syncTimePanelUI(); }
-});
-if(articleTimeModeSelect) articleTimeModeSelect.addEventListener('change', ()=>{
-  const mode = articleTimeModeSelect.value;
-  if(articleTimeSingleWrap) articleTimeSingleWrap.style.display = (mode === 'before' || mode === 'after') ? 'block' : 'none';
-  if(articleTimeRangeWrap) articleTimeRangeWrap.style.display = mode === 'between' ? 'block' : 'none';
-});
-if(articleTimeApplyBtn) articleTimeApplyBtn.addEventListener('click', ()=>{
-  articleFilters.timeMode = articleTimeModeSelect?.value || '';
-  articleFilters.timeDate = articleTimeSingleDate?.value || '';
-  articleFilters.timeStart = articleTimeStartDate?.value || '';
-  articleFilters.timeEnd = articleTimeEndDate?.value || '';
-  articlePage = 1;
-  closeAllArticleFilterMenus();
-  renderArticles();
-});
-if(articleTimeClearBtn) articleTimeClearBtn.addEventListener('click', ()=>{
-  articleFilters.timeMode = '';
-  articleFilters.timeDate = '';
-  articleFilters.timeStart = '';
-  articleFilters.timeEnd = '';
-  if(articleTimeModeSelect) articleTimeModeSelect.value = '';
-  if(articleTimeSingleDate) articleTimeSingleDate.value = '';
-  if(articleTimeStartDate) articleTimeStartDate.value = '';
-  if(articleTimeEndDate) articleTimeEndDate.value = '';
-  if(articleTimeSingleWrap) articleTimeSingleWrap.style.display = 'none';
-  if(articleTimeRangeWrap) articleTimeRangeWrap.style.display = 'none';
-  articlePage = 1;
-  closeAllArticleFilterMenus();
-  renderArticles();
+  if(!isOpen){ buildArticleTimeFilterMenu(); articleTimeFilterMenu?.classList.add('open'); }
 });
 document.addEventListener('click', ()=> closeAllArticleFilterMenus());
 if(articleScopeAllBtn) articleScopeAllBtn.addEventListener('click', ()=>{
