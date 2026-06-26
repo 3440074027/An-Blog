@@ -6178,31 +6178,6 @@
     accent-color:#ff8fc7;
     cursor:pointer;
   }
-  .article-toolbar{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    align-items:center;
-    justify-content:flex-end;
-  }
-  .article-toolbar button{
-    min-height:34px;
-    padding:0 13px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.18);
-    color:#fff;
-    font-size:11px;
-    font-weight:950;
-    cursor:pointer;
-    background:linear-gradient(135deg, rgba(127,247,255,.18), rgba(255,143,199,.16));
-  }
-  .article-toolbar button.active{
-    background:linear-gradient(135deg, rgba(127,247,255,.34), rgba(255,143,199,.28));
-    box-shadow:0 0 0 3px rgba(127,247,255,.1), 0 12px 28px rgba(0,0,0,.2);
-  }
-  .article-toolbar button.danger{
-    background:linear-gradient(135deg, rgba(255,91,122,.28), rgba(255,143,199,.18));
-  }
   .article-delete-tools{
     display:none;
     align-items:center;
@@ -6237,56 +6212,118 @@
     background:rgba(255,255,255,.15);
     color:#fff;
   }
-  .article-user-filter{
+  .article-toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 10px;
+    align-items:center;
+    justify-content:flex-end;
+  }
+  .article-toolbar button,
+  .article-filter-dropdown > button{
+    min-height:30px;
+    padding:0 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;
+    font-size:11px;
+    font-weight:950;
+    cursor:pointer;
+    background:linear-gradient(135deg, rgba(127,247,255,.18), rgba(255,143,199,.16));
+    transition:all .15s;
+  }
+  .article-toolbar button.active,
+  .article-filter-dropdown > button.active{
+    background:linear-gradient(135deg, rgba(127,247,255,.34), rgba(255,143,199,.28));
+    box-shadow:0 0 0 3px rgba(127,247,255,.1), 0 12px 28px rgba(0,0,0,.2);
+  }
+  .article-toolbar button.danger{
+    background:linear-gradient(135deg, rgba(255,91,122,.28), rgba(255,143,199,.18));
+  }
+  .article-filter-dropdown{
     position:relative;
     display:inline-block;
   }
-  .article-user-filter > button::after{
+  .article-filter-dropdown > button::after{
     content:"▼";
-    margin-left:6px;
+    margin-left:5px;
     font-size:9px;
     opacity:.7;
   }
-  .article-user-filter-menu{
+  .article-filter-menu{
     position:absolute;
-    top:calc(100% + 6px);
+    top:calc(100% + 5px);
     right:0;
     z-index:10;
-    min-width:150px;
-    max-height:240px;
+    min-width:140px;
+    max-height:220px;
     overflow-y:auto;
     padding:8px;
-    border-radius:16px;
+    border-radius:14px;
     background:rgba(12,16,38,.92);
     border:1px solid rgba(255,255,255,.16);
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
     display:none;
   }
-  .article-user-filter-menu.open{display:block;}
-  .article-user-filter-menu button{
+  .article-filter-menu.open{display:block;}
+  .article-filter-menu button{
     width:100%;
     text-align:left;
     margin:0 0 2px;
     border-radius:10px;
     background:transparent;
     border:none;
-    min-height:32px;
-    padding:6px 10px;
+    min-height:30px;
+    padding:5px 10px;
     font-size:11px;
     color:rgba(255,255,255,.8);
     font-weight:700;
     cursor:pointer;
     transition:background .15s;
   }
-  .article-user-filter-menu button:hover{
+  .article-filter-menu button:hover{
     background:rgba(255,255,255,.12);
     color:#fff;
   }
-  .article-user-filter-menu button.active{
+  .article-filter-menu button.active{
     background:linear-gradient(135deg, rgba(127,247,255,.22), rgba(255,143,199,.16));
     color:#fff;
     font-weight:800;
+  }
+  .article-sort-group{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    align-items:center;
+  }
+  .article-sort-group::before{
+    content:"排序:";
+    color:rgba(255,255,255,.5);
+    font-size:10px;
+    font-weight:800;
+    margin-right:2px;
+  }
+  .article-sort-group button{
+    min-height:26px;
+    padding:0 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    color:rgba(255,255,255,.7);
+    font-size:10px;
+    font-weight:800;
+    cursor:pointer;
+    background:rgba(255,255,255,.08);
+    transition:all .15s;
+  }
+  .article-sort-group button:hover{
+    background:rgba(255,255,255,.14);
+    color:#fff;
+  }
+  .article-sort-group button.active{
+    background:linear-gradient(135deg, rgba(127,247,255,.28), rgba(255,143,199,.22));
+    color:#fff;
+    border-color:rgba(255,255,255,.28);
   }
   .article-editor-modal{
     position:fixed;
@@ -8095,10 +8132,25 @@
           <span>文章收纳区</span>
           <div class="article-toolbar">
             <small id="articlePageInfo">第 1 / 1 页</small>
-            <button id="articleAllBtn" type="button">全部文章</button>
-            <div class="article-user-filter" id="articleUserFilter">
-              <button id="articleUserFilterBtn" type="button">按用户</button>
-              <div class="article-user-filter-menu" id="articleUserFilterMenu"></div>
+            <button id="articleScopeAllBtn" type="button">全部文章</button>
+            <button id="articleScopeMineBtn" type="button">我的文章</button>
+            <div class="article-filter-dropdown" id="articleUserFilter">
+              <button id="articleUserFilterBtn" type="button">用户</button>
+              <div class="article-filter-menu" id="articleUserFilterMenu"></div>
+            </div>
+            <div class="article-filter-dropdown" id="articleTagFilter">
+              <button id="articleTagFilterBtn" type="button">标签</button>
+              <div class="article-filter-menu" id="articleTagFilterMenu"></div>
+            </div>
+            <div class="article-filter-dropdown" id="articleTimeFilter">
+              <button id="articleTimeFilterBtn" type="button">时间</button>
+              <div class="article-filter-menu" id="articleTimeFilterMenu"></div>
+            </div>
+            <div class="article-sort-group" id="articleSortGroup">
+              <button id="articleSortNew" type="button" data-sort="new">最新发布</button>
+              <button id="articleSortOld" type="button" data-sort="old">最早发布</button>
+              <button id="articleSortTitle" type="button" data-sort="title">标题排序</button>
+              <button id="articleSortImage" type="button" data-sort="image">优先图文</button>
             </div>
             <button id="articlePublishBtn" type="button">发布文章</button>
             <button id="articleOwnerDeleteModeBtn" class="danger" type="button" hidden>管理删除</button>
@@ -9683,9 +9735,18 @@ const articlePrevBtn = document.getElementById('articlePrevBtn');
 const articleNextBtn = document.getElementById('articleNextBtn');
 const articlePageInput = document.getElementById('articlePageInput');
 const articleJumpBtn = document.getElementById('articleJumpBtn');
-const articleAllBtn = document.getElementById('articleAllBtn');
+const articleScopeAllBtn = document.getElementById('articleScopeAllBtn');
+const articleScopeMineBtn = document.getElementById('articleScopeMineBtn');
 const articleUserFilterBtn = document.getElementById('articleUserFilterBtn');
 const articleUserFilterMenu = document.getElementById('articleUserFilterMenu');
+const articleTagFilterBtn = document.getElementById('articleTagFilterBtn');
+const articleTagFilterMenu = document.getElementById('articleTagFilterMenu');
+const articleTimeFilterBtn = document.getElementById('articleTimeFilterBtn');
+const articleTimeFilterMenu = document.getElementById('articleTimeFilterMenu');
+const articleSortNew = document.getElementById('articleSortNew');
+const articleSortOld = document.getElementById('articleSortOld');
+const articleSortTitle = document.getElementById('articleSortTitle');
+const articleSortImage = document.getElementById('articleSortImage');
 const articlePublishBtn = document.getElementById('articlePublishBtn');
 const articleOwnerDeleteModeBtn = document.getElementById('articleOwnerDeleteModeBtn');
 const articleDeleteTools = document.getElementById('articleDeleteTools');
@@ -10090,7 +10151,13 @@ let ownerDeleteArticleMode = false;
 let selectedArticleIds = new Set();
 let savedArticleRange = null;
 let publicArticles = [];
-let articleFilterMode = 'all';
+let articleFilters = {
+  scope: 'all',
+  user: '',
+  tag: '',
+  time: '',
+  sort: 'new'
+};
 let editingArticleId = '';
 let currentDetailArticleId = '';
 let currentDetailArticleAuthor = '';
@@ -10351,14 +10418,56 @@ function hideUserArticles(){
 }
 if(uaBackBtn) uaBackBtn.addEventListener('click', hideUserArticles);
 
-function getAllArticles(){
+function getFilteredArticles(){
+  let articles = publicArticles.slice();
   const user = readSavedUser();
-  if(articleFilterMode === 'mine') return getUserArticles(user);
-  if(articleFilterMode.startsWith('user:')){
-    const targetUser = articleFilterMode.slice(5);
-    return publicArticles.filter(a => a.author === targetUser);
+
+  // 范围筛选：我的文章
+  if(articleFilters.scope === 'mine'){
+    articles = getUserArticles(user);
   }
-  return publicArticles.slice();
+
+  // 用户筛选
+  if(articleFilters.user){
+    articles = articles.filter(a => a.author === articleFilters.user);
+  }
+
+  // 标签/分类筛选
+  if(articleFilters.tag){
+    articles = articles.filter(a => {
+      const tags = Array.isArray(a.tags) ? a.tags : [];
+      return tags.includes(articleFilters.tag) || a.category === articleFilters.tag;
+    });
+  }
+
+  // 时间筛选
+  if(articleFilters.time){
+    const now = new Date();
+    articles = articles.filter(a => {
+      const created = new Date(a.createdAt);
+      const diffMs = now - created;
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+      if(articleFilters.time === 'week') return diffDays <= 7;
+      if(articleFilters.time === 'month') return diffDays <= 30;
+      if(articleFilters.time === 'year') return diffDays <= 365;
+      return true;
+    });
+  }
+
+  // 排序
+  articles.sort((a, b) => {
+    if(articleFilters.sort === 'old') return String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
+    if(articleFilters.sort === 'title') return String(a.title || '').localeCompare(String(b.title || ''), 'zh-CN');
+    if(articleFilters.sort === 'image'){
+      const imgA = articleGalleryImages(a).length;
+      const imgB = articleGalleryImages(b).length;
+      return imgB - imgA || String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+    }
+    // 默认 new
+    return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+  });
+
+  return articles;
 }
 
 function articleThumbStyle(article){
@@ -10416,7 +10525,7 @@ function refreshArticlePageSize(){
 function renderArticles(){
   if(!articleGrid) return;
   articlesPerPage = computeArticlesPerPage();
-  const articles = getAllArticles();
+  const articles = getFilteredArticles();
   const totalPages = Math.max(1, Math.ceil(articles.length / articlesPerPage));
   articlePage = Math.min(Math.max(1, articlePage), totalPages);
   const start = (articlePage - 1) * articlesPerPage;
@@ -10425,10 +10534,16 @@ function renderArticles(){
   void articleGrid.offsetWidth;
   articleGrid.classList.add('turning');
   if(!items.length){
-    const isUserFilter = articleFilterMode.startsWith('user:');
-    const userFilterName = isUserFilter ? articleFilterMode.slice(5) : '';
-    const emptyTitle = articleFilterMode === 'mine' ? '你还没有发布文章' : isUserFilter ? `@${userFilterName} 还没有发布文章` : '还没有公开文章';
-    const emptyDesc = articleFilterMode === 'mine' ? '点击右上角“发布文章”，创建第一篇和账号绑定的文章。' : isUserFilter ? '该用户目前没有公开文章。' : '所有用户发布的文章都会在这里公开显示。';
+    const parts = [];
+    if(articleFilters.scope === 'mine') parts.push('我的文章');
+    else parts.push('公开文章');
+    if(articleFilters.user) parts.push(`@${articleFilters.user}`);
+    if(articleFilters.tag) parts.push(`#${articleFilters.tag}`);
+    if(articleFilters.time){
+      const timeLabels = { week:'一周内', month:'一月内', year:'一年内' };
+      parts.push(timeLabels[articleFilters.time] || articleFilters.time);
+    }
+    const emptyLabel = parts.join(' · ');
     articleGrid.innerHTML = `
       <article class="article-card">
         <div class="article-card-image-wrap">
@@ -10436,9 +10551,9 @@ function renderArticles(){
           <span class="article-card-category" style="background:${CATEGORY_COLORS['默认']}">EMPTY</span>
         </div>
         <div class="article-card-body">
-          <small>${articleFilterMode === 'mine' ? '我的文章' : isUserFilter ? `@${userFilterName}` : '公开文章'}</small>
-          <h3>${emptyTitle}</h3>
-          <p>${emptyDesc}</p>
+          <small>${emptyLabel}</small>
+          <h3>没有找到符合条件的文章</h3>
+          <p>尝试调整筛选条件，或点击“全部文章”查看所有内容。</p>
         </div>
       </article>
     `;
@@ -10464,8 +10579,18 @@ function renderArticles(){
   `).join('');
   }
   if(articlePageInfo) articlePageInfo.textContent = `第 ${articlePage} / ${totalPages} 页`;
-  articleAllBtn?.classList.toggle('active', articleFilterMode === 'all');
-  updateArticleUserFilter();
+  articleScopeAllBtn?.classList.toggle('active', articleFilters.scope === 'all');
+  articleScopeMineBtn?.classList.toggle('active', articleFilters.scope === 'mine');
+  articleUserFilterBtn && (articleUserFilterBtn.textContent = articleFilters.user ? `@${articleFilters.user}` : '用户');
+  articleUserFilterBtn?.classList.toggle('active', !!articleFilters.user);
+  articleTagFilterBtn && (articleTagFilterBtn.textContent = articleFilters.tag ? `#${articleFilters.tag}` : '标签');
+  articleTagFilterBtn?.classList.toggle('active', !!articleFilters.tag);
+  const timeBtnLabels = { '':'时间', week:'一周内', month:'一月内', year:'一年内' };
+  articleTimeFilterBtn && (articleTimeFilterBtn.textContent = timeBtnLabels[articleFilters.time] || '时间');
+  articleTimeFilterBtn?.classList.toggle('active', !!articleFilters.time);
+  [articleSortNew, articleSortOld, articleSortTitle, articleSortImage].forEach(btn=>{
+    btn?.classList.toggle('active', btn?.dataset.sort === articleFilters.sort);
+  });
   if(articlePageInput){
     articlePageInput.max = totalPages;
     articlePageInput.value = articlePage;
@@ -10874,7 +10999,7 @@ async function saveArticleFromEditor(){
       if(index >= 0) publicArticles[index] = result.article;
       else publicArticles.unshift(result.article);
       publicArticles.sort((a, b)=>String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
-      articleFilterMode = 'all';
+      articleFilters = { scope:'all', user:'', tag:'', time:'', sort:'new' };
       renderArticles();
       updateToolStats();
     }
@@ -11151,37 +11276,108 @@ function buildArticleUserFilterMenu(){
     articleUserFilterMenu.innerHTML = '<button type="button" disabled>暂无用户</button>';
     return;
   }
-  articleUserFilterMenu.innerHTML = authors.map(name => {
-    const active = articleFilterMode === `user:${name}`;
-    return `<button type="button" class="${active ? 'active' : ''}" data-filter-user="${escapeHtml(name)}">@${escapeHtml(name)}</button>`;
+  const items = [{ label:'全部用户', value:'' }, ...authors.map(name => ({ label:`@${name}`, value:name }))];
+  articleUserFilterMenu.innerHTML = items.map(item => {
+    const active = articleFilters.user === item.value;
+    return `<button type="button" class="${active ? 'active' : ''}" data-filter-user="${escapeHtml(item.value)}">${escapeHtml(item.label)}</button>`;
   }).join('');
   articleUserFilterMenu.querySelectorAll('[data-filter-user]').forEach(btn => {
     btn.addEventListener('click', () => {
-      articleFilterMode = `user:${btn.dataset.filterUser}`;
+      articleFilters.user = btn.dataset.filterUser;
       articlePage = 1;
       renderArticles();
       articleUserFilterMenu.classList.remove('open');
     });
   });
 }
-function updateArticleUserFilter(){
-  if(!articleUserFilterBtn) return;
-  const isUserFilter = articleFilterMode.startsWith('user:');
-  const targetUser = isUserFilter ? articleFilterMode.slice(5) : '';
-  articleUserFilterBtn.textContent = isUserFilter ? `@${targetUser}` : '按用户';
-  articleUserFilterBtn.classList.toggle('active', isUserFilter);
-  buildArticleUserFilterMenu();
+function buildArticleTagFilterMenu(){
+  if(!articleTagFilterMenu) return;
+  const allTags = Array.from(new Set(publicArticles.flatMap(a => {
+    const tags = Array.isArray(a.tags) ? a.tags : [];
+    return a.category ? [a.category, ...tags] : tags;
+  }).filter(Boolean))).sort();
+  if(!allTags.length){
+    articleTagFilterMenu.innerHTML = '<button type="button" disabled>暂无标签</button>';
+    return;
+  }
+  const items = [{ label:'全部标签', value:'' }, ...allTags.map(tag => ({ label:`#${tag}`, value:tag }))];
+  articleTagFilterMenu.innerHTML = items.map(item => {
+    const active = articleFilters.tag === item.value;
+    return `<button type="button" class="${active ? 'active' : ''}" data-filter-tag="${escapeHtml(item.value)}">${escapeHtml(item.label)}</button>`;
+  }).join('');
+  articleTagFilterMenu.querySelectorAll('[data-filter-tag]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      articleFilters.tag = btn.dataset.filterTag;
+      articlePage = 1;
+      renderArticles();
+      articleTagFilterMenu.classList.remove('open');
+    });
+  });
+}
+function buildArticleTimeFilterMenu(){
+  if(!articleTimeFilterMenu) return;
+  const items = [
+    { label:'全部时间', value:'' },
+    { label:'一周内', value:'week' },
+    { label:'一月内', value:'month' },
+    { label:'一年内', value:'year' }
+  ];
+  articleTimeFilterMenu.innerHTML = items.map(item => {
+    const active = articleFilters.time === item.value;
+    return `<button type="button" class="${active ? 'active' : ''}" data-filter-time="${escapeHtml(item.value)}">${escapeHtml(item.label)}</button>`;
+  }).join('');
+  articleTimeFilterMenu.querySelectorAll('[data-filter-time]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      articleFilters.time = btn.dataset.filterTime;
+      articlePage = 1;
+      renderArticles();
+      articleTimeFilterMenu.classList.remove('open');
+    });
+  });
+}
+function closeAllArticleFilterMenus(){
+  articleUserFilterMenu?.classList.remove('open');
+  articleTagFilterMenu?.classList.remove('open');
+  articleTimeFilterMenu?.classList.remove('open');
 }
 if(articleUserFilterBtn) articleUserFilterBtn.addEventListener('click', (e)=>{
   e.stopPropagation();
-  articleUserFilterMenu?.classList.toggle('open');
+  const isOpen = articleUserFilterMenu?.classList.contains('open');
+  closeAllArticleFilterMenus();
+  if(!isOpen) articleUserFilterMenu?.classList.add('open');
 });
-document.addEventListener('click', ()=> articleUserFilterMenu?.classList.remove('open'));
-if(articleAllBtn) articleAllBtn.addEventListener('click', ()=>{
-  articleFilterMode = 'all';
+if(articleTagFilterBtn) articleTagFilterBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const isOpen = articleTagFilterMenu?.classList.contains('open');
+  closeAllArticleFilterMenus();
+  if(!isOpen) articleTagFilterMenu?.classList.add('open');
+});
+if(articleTimeFilterBtn) articleTimeFilterBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const isOpen = articleTimeFilterMenu?.classList.contains('open');
+  closeAllArticleFilterMenus();
+  if(!isOpen) articleTimeFilterMenu?.classList.add('open');
+});
+document.addEventListener('click', ()=> closeAllArticleFilterMenus());
+if(articleScopeAllBtn) articleScopeAllBtn.addEventListener('click', ()=>{
+  articleFilters = { scope:'all', user:'', tag:'', time:'', sort:'new' };
   articlePage = 1;
-  articleUserFilterMenu?.classList.remove('open');
+  closeAllArticleFilterMenus();
   renderArticles();
+});
+if(articleScopeMineBtn) articleScopeMineBtn.addEventListener('click', ()=>{
+  articleFilters.scope = articleFilters.scope === 'mine' ? 'all' : 'mine';
+  articlePage = 1;
+  closeAllArticleFilterMenus();
+  renderArticles();
+});
+[articleSortNew, articleSortOld, articleSortTitle, articleSortImage].forEach(btn=>{
+  if(btn) btn.addEventListener('click', ()=>{
+    articleFilters.sort = btn.dataset.sort || 'new';
+    articlePage = 1;
+    closeAllArticleFilterMenus();
+    renderArticles();
+  });
 });
 if(articleDeleteCancelBtn) articleDeleteCancelBtn.addEventListener('click', ()=>{
   if(ownerDeleteArticleMode) toggleOwnerDeleteMode(false);
@@ -11925,7 +12121,7 @@ function renderPublicProfile(user){
     el.addEventListener('click', ()=>{
       const title = el.dataset.publicArticleTitle || '';
       const index = publicArticles.findIndex(article=>article.title === title);
-      articleFilterMode = 'all';
+      articleFilters = { scope:'all', user:'', tag:'', time:'', sort:'new' };
       goArticlePage(Math.floor(Math.max(0, index) / articlesPerPage) + 1);
       closePublicProfile();
       document.getElementById('blogPosts')?.scrollIntoView({ behavior:'smooth', block:'center' });
