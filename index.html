@@ -6260,11 +6260,8 @@
     border-color:rgba(127,247,255,.35);
   }
   .af-panel{
-    position:absolute;
-    top:calc(100% + 6px);
-    left:50%;
-    transform:translateX(-50%);
-    z-index:50;
+    position:fixed;
+    z-index:9999;
     min-width:200px;
     max-width:280px;
     padding:10px;
@@ -8318,7 +8315,7 @@
             <button id="articleDeleteCancelBtn" type="button">取消</button>
           </div>
         </div>
-        <div class="blog-post-grid article-grid" id="articleGrid"></div>
+        <div class="article-grid" id="articleGrid"></div>
         <div class="article-pager">
           <button id="articlePrevBtn" type="button">上一页</button>
           <div class="article-page-jump">
@@ -11430,11 +11427,25 @@ if(articlePageInput){
 }
 if(articlePublishBtn) articlePublishBtn.addEventListener('click', ()=>openArticleEditor());
 if(articleOwnerDeleteModeBtn) articleOwnerDeleteModeBtn.addEventListener('click', ()=>toggleOwnerDeleteMode());
+function positionAfPanel(triggerBtn, panel){
+  if(!triggerBtn || !panel) return;
+  const rect = triggerBtn.getBoundingClientRect();
+  panel.style.top = (rect.bottom + 6) + 'px';
+  const panelWidth = 240;
+  let left = rect.left + rect.width / 2 - panelWidth / 2;
+  if(left < 8) left = 8;
+  if(left + panelWidth > window.innerWidth - 8) left = window.innerWidth - 8 - panelWidth;
+  panel.style.left = left + 'px';
+}
 function closeAllAfPanels(){
   afUserPanel?.classList.remove('open');
   afTagPanel?.classList.remove('open');
   afTimePanel?.classList.remove('open');
 }
+// 将面板移到 body 顶层，避免被 dashboard 的 transform 动画影响 fixed 定位
+[afUserPanel, afTagPanel, afTimePanel].forEach(p=>{
+  if(p && p.parentElement !== document.body) document.body.appendChild(p);
+});
 // 用户搜索筛选
 function renderAfUserResults(query){
   if(!afUserResults) return;
@@ -11491,7 +11502,7 @@ if(articleUserFilterBtn) articleUserFilterBtn.addEventListener('click', (e)=>{
   e.stopPropagation();
   const isOpen = afUserPanel?.classList.contains('open');
   closeAllAfPanels();
-  if(!isOpen){ afUserPanel?.classList.add('open'); renderAfUserResults(''); afUserSearch?.focus(); }
+  if(!isOpen){ afUserPanel?.classList.add('open'); positionAfPanel(articleUserFilterBtn, afUserPanel); renderAfUserResults(''); afUserSearch?.focus(); }
 });
 if(afUserSearch) afUserSearch.addEventListener('input', ()=> renderAfUserResults(afUserSearch.value));
 if(afUserSearch) afUserSearch.addEventListener('click', e=> e.stopPropagation());
@@ -11500,7 +11511,7 @@ if(articleTagFilterBtn) articleTagFilterBtn.addEventListener('click', (e)=>{
   e.stopPropagation();
   const isOpen = afTagPanel?.classList.contains('open');
   closeAllAfPanels();
-  if(!isOpen){ afTagPanel?.classList.add('open'); renderAfTagResults(''); afTagSearch?.focus(); }
+  if(!isOpen){ afTagPanel?.classList.add('open'); positionAfPanel(articleTagFilterBtn, afTagPanel); renderAfTagResults(''); afTagSearch?.focus(); }
 });
 if(afTagSearch) afTagSearch.addEventListener('input', ()=> renderAfTagResults(afTagSearch.value));
 if(afTagSearch) afTagSearch.addEventListener('click', e=> e.stopPropagation());
@@ -11511,6 +11522,7 @@ if(articleTimeFilterBtn) articleTimeFilterBtn.addEventListener('click', (e)=>{
   closeAllAfPanels();
   if(!isOpen){
     afTimePanel?.classList.add('open');
+    positionAfPanel(articleTimeFilterBtn, afTimePanel);
     if(afTimeFrom) afTimeFrom.value = articleFilters.timeFrom || '';
     if(afTimeTo) afTimeTo.value = articleFilters.timeTo || '';
   }
