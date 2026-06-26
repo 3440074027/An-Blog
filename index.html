@@ -10325,10 +10325,8 @@ function renderArticleThumb(article){
 
 function computeArticlesPerPage(){
   if(!articleGrid) return 8;
-  const rect = articleGrid.getBoundingClientRect();
-  const width = rect.width || window.innerWidth;
-  if(width >= 1120) return 8;
-  if(width >= 820) return 6;
+  const width = window.innerWidth;
+  if(width >= 768) return 8;
   if(width >= 560) return 4;
   return 4;
 }
