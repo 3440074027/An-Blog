@@ -6237,6 +6237,57 @@
     background:rgba(255,255,255,.15);
     color:#fff;
   }
+  .article-user-filter{
+    position:relative;
+    display:inline-block;
+  }
+  .article-user-filter > button::after{
+    content:"▼";
+    margin-left:6px;
+    font-size:9px;
+    opacity:.7;
+  }
+  .article-user-filter-menu{
+    position:absolute;
+    top:calc(100% + 6px);
+    right:0;
+    z-index:10;
+    min-width:150px;
+    max-height:240px;
+    overflow-y:auto;
+    padding:8px;
+    border-radius:16px;
+    background:rgba(12,16,38,.92);
+    border:1px solid rgba(255,255,255,.16);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    display:none;
+  }
+  .article-user-filter-menu.open{display:block;}
+  .article-user-filter-menu button{
+    width:100%;
+    text-align:left;
+    margin:0 0 2px;
+    border-radius:10px;
+    background:transparent;
+    border:none;
+    min-height:32px;
+    padding:6px 10px;
+    font-size:11px;
+    color:rgba(255,255,255,.8);
+    font-weight:700;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .article-user-filter-menu button:hover{
+    background:rgba(255,255,255,.12);
+    color:#fff;
+  }
+  .article-user-filter-menu button.active{
+    background:linear-gradient(135deg, rgba(127,247,255,.22), rgba(255,143,199,.16));
+    color:#fff;
+    font-weight:800;
+  }
   .article-editor-modal{
     position:fixed;
     inset:0;
@@ -8045,6 +8096,10 @@
           <div class="article-toolbar">
             <small id="articlePageInfo">第 1 / 1 页</small>
             <button id="articleAllBtn" type="button">全部文章</button>
+            <div class="article-user-filter" id="articleUserFilter">
+              <button id="articleUserFilterBtn" type="button">按用户</button>
+              <div class="article-user-filter-menu" id="articleUserFilterMenu"></div>
+            </div>
             <button id="articlePublishBtn" type="button">发布文章</button>
             <button id="articleOwnerDeleteModeBtn" class="danger" type="button" hidden>管理删除</button>
             <div class="article-delete-tools" id="articleDeleteTools">
@@ -9629,6 +9684,8 @@ const articleNextBtn = document.getElementById('articleNextBtn');
 const articlePageInput = document.getElementById('articlePageInput');
 const articleJumpBtn = document.getElementById('articleJumpBtn');
 const articleAllBtn = document.getElementById('articleAllBtn');
+const articleUserFilterBtn = document.getElementById('articleUserFilterBtn');
+const articleUserFilterMenu = document.getElementById('articleUserFilterMenu');
 const articlePublishBtn = document.getElementById('articlePublishBtn');
 const articleOwnerDeleteModeBtn = document.getElementById('articleOwnerDeleteModeBtn');
 const articleDeleteTools = document.getElementById('articleDeleteTools');
@@ -10182,8 +10239,13 @@ async function uaInit(username){
   uaSearchInput.value = '';
   if(!username){ uaArticleCountText.textContent = '缺少用户名'; uaEmptyState.hidden = false; uaEmptyState.textContent = '没有指定要查看的用户。'; return; }
   try{
-    const [profileData, articlesData] = await Promise.all([uaFetchJson(`/api/users/profile?username=${encodeURIComponent(username)}`), uaFetchJson('/api/articles')]);
-    uaAllArticles = (articlesData.articles || []).filter(article => article.author === username);
+    // 优化：复用已有的 publicArticles，避免重复请求 /api/articles
+    if(!publicArticles.length){
+      const data = await uaFetchJson('/api/articles');
+      publicArticles = Array.isArray(data.articles) ? data.articles : [];
+    }
+    const profileData = await uaFetchJson(`/api/users/profile?username=${encodeURIComponent(username)}`);
+    uaAllArticles = publicArticles.filter(article => article.author === username);
     uaRenderHero(profileData.user || { username });
     document.getElementById('uaStatArticle').textContent = uaAllArticles.length;
     document.getElementById('uaStatImage').textContent = uaAllArticles.filter(article => uaGalleryImages(article).length).length;
@@ -10292,6 +10354,10 @@ if(uaBackBtn) uaBackBtn.addEventListener('click', hideUserArticles);
 function getAllArticles(){
   const user = readSavedUser();
   if(articleFilterMode === 'mine') return getUserArticles(user);
+  if(articleFilterMode.startsWith('user:')){
+    const targetUser = articleFilterMode.slice(5);
+    return publicArticles.filter(a => a.author === targetUser);
+  }
   return publicArticles.slice();
 }
 
@@ -10359,6 +10425,10 @@ function renderArticles(){
   void articleGrid.offsetWidth;
   articleGrid.classList.add('turning');
   if(!items.length){
+    const isUserFilter = articleFilterMode.startsWith('user:');
+    const userFilterName = isUserFilter ? articleFilterMode.slice(5) : '';
+    const emptyTitle = articleFilterMode === 'mine' ? '你还没有发布文章' : isUserFilter ? `@${userFilterName} 还没有发布文章` : '还没有公开文章';
+    const emptyDesc = articleFilterMode === 'mine' ? '点击右上角“发布文章”，创建第一篇和账号绑定的文章。' : isUserFilter ? '该用户目前没有公开文章。' : '所有用户发布的文章都会在这里公开显示。';
     articleGrid.innerHTML = `
       <article class="article-card">
         <div class="article-card-image-wrap">
@@ -10366,9 +10436,9 @@ function renderArticles(){
           <span class="article-card-category" style="background:${CATEGORY_COLORS['默认']}">EMPTY</span>
         </div>
         <div class="article-card-body">
-          <small>${articleFilterMode === 'mine' ? '我的文章' : '公开文章'}</small>
-          <h3>${articleFilterMode === 'mine' ? '你还没有发布文章' : '还没有公开文章'}</h3>
-          <p>${articleFilterMode === 'mine' ? '点击右上角“发布文章”，创建第一篇和账号绑定的文章。' : '所有用户发布的文章都会在这里公开显示。'}</p>
+          <small>${articleFilterMode === 'mine' ? '我的文章' : isUserFilter ? `@${userFilterName}` : '公开文章'}</small>
+          <h3>${emptyTitle}</h3>
+          <p>${emptyDesc}</p>
         </div>
       </article>
     `;
@@ -10395,6 +10465,7 @@ function renderArticles(){
   }
   if(articlePageInfo) articlePageInfo.textContent = `第 ${articlePage} / ${totalPages} 页`;
   articleAllBtn?.classList.toggle('active', articleFilterMode === 'all');
+  updateArticleUserFilter();
   if(articlePageInput){
     articlePageInput.max = totalPages;
     articlePageInput.value = articlePage;
@@ -11073,9 +11144,43 @@ if(articlePageInput){
 }
 if(articlePublishBtn) articlePublishBtn.addEventListener('click', ()=>openArticleEditor());
 if(articleOwnerDeleteModeBtn) articleOwnerDeleteModeBtn.addEventListener('click', ()=>toggleOwnerDeleteMode());
+function buildArticleUserFilterMenu(){
+  if(!articleUserFilterMenu) return;
+  const authors = Array.from(new Set(publicArticles.map(a => a.author).filter(Boolean))).sort();
+  if(!authors.length){
+    articleUserFilterMenu.innerHTML = '<button type="button" disabled>暂无用户</button>';
+    return;
+  }
+  articleUserFilterMenu.innerHTML = authors.map(name => {
+    const active = articleFilterMode === `user:${name}`;
+    return `<button type="button" class="${active ? 'active' : ''}" data-filter-user="${escapeHtml(name)}">@${escapeHtml(name)}</button>`;
+  }).join('');
+  articleUserFilterMenu.querySelectorAll('[data-filter-user]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      articleFilterMode = `user:${btn.dataset.filterUser}`;
+      articlePage = 1;
+      renderArticles();
+      articleUserFilterMenu.classList.remove('open');
+    });
+  });
+}
+function updateArticleUserFilter(){
+  if(!articleUserFilterBtn) return;
+  const isUserFilter = articleFilterMode.startsWith('user:');
+  const targetUser = isUserFilter ? articleFilterMode.slice(5) : '';
+  articleUserFilterBtn.textContent = isUserFilter ? `@${targetUser}` : '按用户';
+  articleUserFilterBtn.classList.toggle('active', isUserFilter);
+  buildArticleUserFilterMenu();
+}
+if(articleUserFilterBtn) articleUserFilterBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  articleUserFilterMenu?.classList.toggle('open');
+});
+document.addEventListener('click', ()=> articleUserFilterMenu?.classList.remove('open'));
 if(articleAllBtn) articleAllBtn.addEventListener('click', ()=>{
   articleFilterMode = 'all';
   articlePage = 1;
+  articleUserFilterMenu?.classList.remove('open');
   renderArticles();
 });
 if(articleDeleteCancelBtn) articleDeleteCancelBtn.addEventListener('click', ()=>{
@@ -11675,16 +11780,13 @@ function renderSearchResults(items){
   });
   searchResultsPanel.querySelectorAll('[data-result-type="article"]').forEach(btn=>{
     const index = Number(btn.dataset.index);
-    const articleTitle = items[index]?.article?.title || '';
-    const articleIndex = publicArticles.findIndex(article=>article.title === articleTitle);
-    if(articleIndex >= 0){
-      btn.addEventListener('click', ()=>{
-        articleFilterMode = 'all';
-        goArticlePage(Math.floor(articleIndex / articlesPerPage) + 1);
+    btn.addEventListener('click', ()=>{
+      const article = items[index]?.article;
+      if(article?.id){
+        openArticleDetail(article.id);
         searchResultsPanel.classList.remove('open');
-        document.getElementById('blogPosts')?.scrollIntoView({ behavior:'smooth', block:'center' });
-      });
-    }
+      }
+    });
   });
 }
 
