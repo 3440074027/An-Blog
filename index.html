@@ -5497,6 +5497,7 @@
     border-radius:30px;
     padding:22px;
     min-height:0;
+    overflow:visible;
   }
   .blog-post-grid{
     display:grid;
@@ -6214,20 +6215,21 @@
   .article-toolbar{
     display:flex;
     flex-wrap:wrap;
-    gap:8px 10px;
+    gap:6px 8px;
     align-items:center;
-    justify-content:flex-end;
+    justify-content:flex-start;
     position:relative;
     z-index:100;
+    width:100%;
   }
   .article-toolbar button,
   .article-filter-dropdown > button{
-    min-height:30px;
-    padding:0 12px;
+    min-height:28px;
+    padding:0 10px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.18);
     color:#fff;
-    font-size:11px;
+    font-size:10px;
     font-weight:950;
     cursor:pointer;
     background:linear-gradient(135deg, rgba(127,247,255,.18), rgba(255,143,199,.16));
@@ -6306,12 +6308,12 @@
     margin-right:2px;
   }
   .article-sort-group button{
-    min-height:26px;
-    padding:0 10px;
+    min-height:24px;
+    padding:0 8px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.12);
     color:rgba(255,255,255,.7);
-    font-size:10px;
+    font-size:9px;
     font-weight:800;
     cursor:pointer;
     background:rgba(255,255,255,.08);
@@ -6327,15 +6329,15 @@
     border-color:rgba(255,255,255,.28);
   }
   .article-filter-dropdown > input{
-    min-height:30px;
-    padding:0 12px;
+    min-height:28px;
+    padding:0 10px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.18);
     color:#fff;
-    font-size:11px;
+    font-size:10px;
     font-weight:950;
     background:linear-gradient(135deg, rgba(127,247,255,.18), rgba(255,143,199,.16));
-    width:100px;
+    width:90px;
     outline:none;
     transition:all .15s;
     font-family:inherit;
@@ -6357,6 +6359,11 @@
     min-width:160px;
     max-height:260px;
     padding:8px;
+  }
+  .article-filter-menu.fixed{
+    position:fixed;
+    top:auto;
+    right:auto;
   }
   .article-time-menu{min-width:240px;padding:14px;}
   .article-time-mode{
@@ -6428,19 +6435,22 @@
     color:#fff;
   }
   .blog-section-head span{
-    font-size:22px;
+    font-size:20px;
     font-weight:900;
     letter-spacing:.5px;
     background:linear-gradient(135deg, #7ff7ff, #ff8fc7);
     -webkit-background-clip:text;
     -webkit-text-fill-color:transparent;
     background-clip:text;
+    white-space:nowrap;
+    flex-shrink:0;
   }
   .blog-section-head{
     display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 8px 8px;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+    padding:0 8px 12px;
   }
   .article-editor-modal{
     position:fixed;
@@ -11503,19 +11513,31 @@ function buildArticleTimeFilterMenu(){
     articleTimeFilterMenu.classList.remove('open');
   });
 }
+function positionFilterMenu(menu, trigger){
+  if(!menu || !trigger) return;
+  const rect = trigger.getBoundingClientRect();
+  menu.style.top = (rect.bottom + 6) + 'px';
+  menu.style.left = rect.left + 'px';
+  menu.style.width = Math.max(rect.width, 160) + 'px';
+  menu.classList.add('fixed');
+}
 function closeAllArticleFilterMenus(){
-  articleUserFilterMenu?.classList.remove('open');
-  articleTagFilterMenu?.classList.remove('open');
-  articleTimeFilterMenu?.classList.remove('open');
+  [articleUserFilterMenu, articleTagFilterMenu, articleTimeFilterMenu].forEach(menu=>{
+    menu?.classList.remove('open');
+    menu?.classList.remove('fixed');
+    if(menu){ menu.style.top = ''; menu.style.left = ''; menu.style.width = ''; }
+  });
 }
 if(articleUserFilterInput){
   articleUserFilterInput.addEventListener('focus', ()=>{
     buildArticleUserFilterMenu(articleUserFilterInput.value);
     articleUserFilterMenu?.classList.add('open');
+    positionFilterMenu(articleUserFilterMenu, articleUserFilterInput);
   });
   articleUserFilterInput.addEventListener('input', ()=>{
     buildArticleUserFilterMenu(articleUserFilterInput.value);
     articleUserFilterMenu?.classList.add('open');
+    positionFilterMenu(articleUserFilterMenu, articleUserFilterInput);
   });
   articleUserFilterInput.addEventListener('keydown', (e)=>{
     if(e.key === 'Enter'){
@@ -11535,10 +11557,12 @@ if(articleTagFilterInput){
   articleTagFilterInput.addEventListener('focus', ()=>{
     buildArticleTagFilterMenu(articleTagFilterInput.value);
     articleTagFilterMenu?.classList.add('open');
+    positionFilterMenu(articleTagFilterMenu, articleTagFilterInput);
   });
   articleTagFilterInput.addEventListener('input', ()=>{
     buildArticleTagFilterMenu(articleTagFilterInput.value);
     articleTagFilterMenu?.classList.add('open');
+    positionFilterMenu(articleTagFilterMenu, articleTagFilterInput);
   });
   articleTagFilterInput.addEventListener('keydown', (e)=>{
     if(e.key === 'Enter'){
@@ -11561,7 +11585,7 @@ if(articleTimeFilterBtn) articleTimeFilterBtn.addEventListener('click', (e)=>{
   e.stopPropagation();
   const isOpen = articleTimeFilterMenu?.classList.contains('open');
   closeAllArticleFilterMenus();
-  if(!isOpen){ buildArticleTimeFilterMenu(); articleTimeFilterMenu?.classList.add('open'); }
+  if(!isOpen){ buildArticleTimeFilterMenu(); articleTimeFilterMenu?.classList.add('open'); positionFilterMenu(articleTimeFilterMenu, articleTimeFilterBtn); }
 });
 document.addEventListener('click', ()=> closeAllArticleFilterMenus());
 if(articleScopeAllBtn) articleScopeAllBtn.addEventListener('click', ()=>{
