@@ -7988,6 +7988,14 @@
   }
 
 </style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
 </head>
 <body>
 <div class="video-bg" aria-hidden="true"></div>
@@ -8386,7 +8394,6 @@
       <button class="owner-contact-btn" id="contactOwnerBtn" type="button">联系站主 An</button>
       <div class="profile-quick-grid">
         <button class="profile-quick-btn" id="profileEditBtn" type="button">编辑资料</button>
-        <button class="profile-quick-btn" id="profileMoodBtn" type="button">今日灵感</button>
       </div>
       <div class="profile-clock-card" aria-label="实时时间">
         <strong id="profileClockTime">00:00:00</strong>
@@ -10084,7 +10091,6 @@ const profileEmailText = document.getElementById('profileEmailText');
 const contactOwnerBtn = document.getElementById('contactOwnerBtn');
 const blogVisitorIdentity = document.getElementById('blogVisitorIdentity');
 const profileEditBtn = document.getElementById('profileEditBtn');
-const profileMoodBtn = document.getElementById('profileMoodBtn');
 const profileEditor = document.getElementById('profileEditor');
 const profileEditorClose = document.getElementById('profileEditorClose');
 const profileNameInput = document.getElementById('profileNameInput');
@@ -13170,11 +13176,6 @@ function getCalendarInspiration(user = readSavedUser()){
   ].join('\n');
 }
 
-if(profileMoodBtn){
-  profileMoodBtn.addEventListener('click', ()=>{
-    showLoginToast(getCalendarInspiration(), 'success', '今日灵感');
-  });
-}
 if(profileAvatarUpload) profileAvatarUpload.addEventListener('click', ()=>profileAvatarInput?.click());
 if(profileAvatarInput){
   profileAvatarInput.addEventListener('change', async ()=>{
@@ -15079,57 +15080,31 @@ startSiteVersionPoll();
   /* 机器人悬浮按钮 */
   .ai-bot-fab{
     position:fixed;
-    bottom:32px;
-    right:32px;
+    bottom:24px;
+    right:24px;
     z-index:900;
-    width:64px;
-    height:64px;
-    border-radius:50%;
+    width:84px;height:84px;
     border:none;
     cursor:grab;
-    background:linear-gradient(135deg, #e8d5f5, #ffd1dc, #b5ead7);
-    background-size:200% 200%;
-    animation:aiBotGradient 5s ease infinite, aiBotFloat 3.5s ease-in-out infinite;
-    box-shadow:0 8px 28px rgba(212,187,255,.4), 0 0 0 4px rgba(255,255,255,.2), inset 0 2px 4px rgba(255,255,255,.3);
-    display:grid;
-    place-items:center;
-    transition:transform .22s, box-shadow .22s;
+    background:transparent;
+    display:grid;place-items:center;
+    transition:transform .22s;
     touch-action:none;
     user-select:none;
-    overflow:hidden;
-  }
-  .ai-bot-fab::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    border-radius:50%;
-    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 50%);
-    pointer-events:none;
+    filter:drop-shadow(0 6px 18px rgba(0,0,0,.35));
   }
   .ai-bot-fab:active{cursor:grabbing;}
-  .ai-bot-fab:hover{
-    transform:scale(1.1);
-    box-shadow:0 14px 42px rgba(212,187,255,.55), 0 0 0 6px rgba(255,255,255,.25), inset 0 2px 6px rgba(255,255,255,.4);
-  }
-  .ai-bot-fab.dragging{
-    animation:none !important;
-    transform:scale(1.15);
-    box-shadow:0 18px 50px rgba(212,187,255,.6), 0 0 0 8px rgba(255,255,255,.3);
-  }
-  @keyframes aiBotGradient{
-    0%,100%{background-position:0% 50%;}
-    50%{background-position:100% 50%;}
-  }
-  @keyframes aiBotFloat{
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(-8px);}
-  }
-  .ai-bot-fab svg{
-    width:42px;
-    height:42px;
-    filter:drop-shadow(0 2px 4px rgba(0,0,0,.15));
+  .ai-bot-fab:hover{transform:scale(1.06);}
+  .ai-bot-fab.dragging{transform:scale(1.1);}
+  .an3d-canvas{
+    width:84px;height:84px;
+    border-radius:16px;
+    overflow:hidden;
     position:relative;
-    z-index:1;
+    pointer-events:none;
+  }
+  .an3d-canvas canvas{
+    display:block;width:100%;height:100%;
   }
   /* 机器人对话窗口 */
   .ai-bot-panel{
@@ -15171,12 +15146,31 @@ startSiteVersionPoll();
     height:38px;
     min-width:38px;
     min-height:38px;
-    border-radius:50%;
-    background:linear-gradient(135deg, #7c5cff, #ff8fc7);
     display:grid;
     place-items:center;
+    background:transparent;
   }
-  .ai-bot-header-avatar svg{width:20px;height:20px;}
+  /* 面板头像最小CSS */
+  .an-robot-sm{width:30px;height:38px;position:relative;display:flex;flex-direction:column;align-items:center;z-index:1;}
+  .an-robot-sm .an-antenna{width:2px;height:5px;background:linear-gradient(to top,#d4bbff,#ffe0f0);border-radius:2px;display:flex;align-items:flex-start;justify-content:center;}
+  .an-robot-sm .an-antenna-ball{width:4px;height:4px;border-radius:50%;background:radial-gradient(circle,#ffe066,#ffb7c5);animation:anAntennaPulse 2s ease-in-out infinite;}
+  .an-robot-sm .an-head{width:26px;height:22px;border-radius:50% 50% 45% 45%;background:linear-gradient(145deg,#e8d5f5,#ffd1dc,#b5ead7);position:relative;box-shadow:inset 0 -2px 4px rgba(0,0,0,.08), inset 0 1px 3px rgba(255,255,255,.4);}
+  .an-robot-sm .an-face{position:absolute;inset:3px 2px;display:flex;flex-direction:column;align-items:center;gap:1px;}
+  .an-robot-sm .an-eyes{display:flex;gap:6px;margin-top:1px;}
+  .an-robot-sm .an-eye{width:5px;height:6px;border-radius:50%;background:#fff;position:relative;overflow:hidden;animation:anBlink 4s ease-in-out infinite;}
+  .an-robot-sm .an-pupil{width:3px;height:3px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#6b5ce7,#3d2b8c);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);animation:anPupilLook 6s ease-in-out infinite;}
+  .an-robot-sm .an-pupil::after{content:"";position:absolute;width:1px;height:1px;border-radius:50%;background:#fff;top:0;right:0;}
+  .an-robot-sm .an-cheek{width:5px;height:2.5px;border-radius:50%;background:rgba(255,143,199,.4);position:absolute;top:10px;}
+  .an-robot-sm .an-cheek-l{left:1px;}
+  .an-robot-sm .an-cheek-r{right:1px;}
+  .an-robot-sm .an-mouth{width:6px;height:2px;border-radius:0 0 6px 6px;background:rgba(74,59,140,.35);transition:all .3s;}
+  .an-robot-sm .an-ear{width:6px;height:8px;border-radius:50% 50% 30% 30%;background:linear-gradient(to bottom,#ffd1dc,#e8d5f5);position:absolute;top:-1px;box-shadow:inset 0 1px 2px rgba(255,255,255,.3);}
+  .an-robot-sm .an-ear-l{left:-3px;transform:rotate(-15deg);}
+  .an-robot-sm .an-ear-r{right:-3px;transform:rotate(15deg);}
+  .an-robot-sm .an-antenna{height:5px;}
+  @keyframes anBlink{0%,42%,48%,100%{transform:scaleY(1);}45%{transform:scaleY(0.1);}}
+  @keyframes anPupilLook{0%,100%{transform:translate(-50%,-50%) translateX(0);}25%{transform:translate(-50%,-50%) translateX(1px);}50%{transform:translate(-50%,-50%) translateX(-1px);}75%{transform:translate(-50%,-50%) translateX(0) translateY(-.5px);}}
+  @keyframes anAntennaPulse{0%,100%{box-shadow:0 0 3px rgba(255,224,102,.5);transform:scale(1);}50%{box-shadow:0 0 8px rgba(255,224,102,.8);transform:scale(1.2);}}
   .ai-bot-header-info{flex:1;min-width:0;}
   .ai-bot-header-info strong{display:block;font-size:14px;color:#fff;}
   .ai-bot-header-info span{display:block;font-size:11px;color:rgba(255,255,255,.5);}
@@ -15332,54 +15326,28 @@ startSiteVersionPoll();
 </style>
 
 <div class="ai-bot-fab" id="aiBotFab" title="An 小助手">
-  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- 身体 -->
-    <ellipse cx="32" cy="48" rx="18" ry="14" fill="url(#botBody)" opacity="0.95"/>
-    <!-- 头部 -->
-    <circle cx="32" cy="26" r="18" fill="url(#botHead)"/>
-    <!-- 腮红 -->
-    <ellipse cx="20" cy="30" rx="4" ry="2.5" fill="#ff8fc7" opacity="0.45"/>
-    <ellipse cx="44" cy="30" rx="4" ry="2.5" fill="#ff8fc7" opacity="0.45"/>
-    <!-- 左眼 -->
-    <ellipse cx="24" cy="24" rx="4.5" ry="5.5" fill="white"/>
-    <circle cx="25" cy="24" r="3" fill="#4a3b8c"/>
-    <circle cx="26" cy="22.5" r="1.2" fill="white"/>
-    <!-- 右眼 -->
-    <ellipse cx="40" cy="24" rx="4.5" ry="5.5" fill="white"/>
-    <circle cx="41" cy="24" r="3" fill="#4a3b8c"/>
-    <circle cx="42" cy="22.5" r="1.2" fill="white"/>
-    <!-- 嘴巴 -->
-    <path d="M28 32 Q32 36 36 32" stroke="#4a3b8c" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-    <!-- 猫耳左 -->
-    <path d="M18 14 Q12 4 22 8" fill="url(#botEar)" stroke="white" stroke-width="1.2" stroke-linejoin="round"/>
-    <!-- 猫耳右 -->
-    <path d="M46 14 Q52 4 42 8" fill="url(#botEar)" stroke="white" stroke-width="1.2" stroke-linejoin="round"/>
-    <!-- 星星装饰 -->
-    <path d="M10 16 L11 19 L14 19 L12 21 L13 24 L10 22 L7 24 L8 21 L6 19 L9 19 Z" fill="#ffe066" opacity="0.9"/>
-    <path d="M54 12 L55 15 L58 15 L56 17 L57 20 L54 18 L51 20 L52 17 L50 15 L53 15 Z" fill="#ffb7c5" opacity="0.9"/>
-    <!-- 渐变定义 -->
-    <defs>
-      <linearGradient id="botHead" x1="14" y1="8" x2="50" y2="44" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stop-color="#e8d5f5"/>
-        <stop offset="50%" stop-color="#ffd1dc"/>
-        <stop offset="100%" stop-color="#b5ead7"/>
-      </linearGradient>
-      <linearGradient id="botBody" x1="14" y1="34" x2="50" y2="62" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stop-color="#d4bbff"/>
-        <stop offset="100%" stop-color="#7c5cff"/>
-      </linearGradient>
-      <linearGradient id="botEar" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#ffd1dc"/>
-        <stop offset="100%" stop-color="#e8d5f5"/>
-      </linearGradient>
-    </defs>
-  </svg>
+  <div class="an3d-canvas" id="an3dCanvas"></div>
 </div>
 
 <div class="ai-bot-panel" id="aiBotPanel">
   <div class="ai-bot-header">
-    <div class="ai-bot-header-avatar">
-      <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="26" r="18" fill="url(#botHead2)"/><ellipse cx="20" cy="30" rx="4" ry="2.5" fill="#ff8fc7" opacity="0.45"/><ellipse cx="44" cy="30" rx="4" ry="2.5" fill="#ff8fc7" opacity="0.45"/><ellipse cx="24" cy="24" rx="4.5" ry="5.5" fill="white"/><circle cx="25" cy="24" r="3" fill="#4a3b8c"/><circle cx="26" cy="22.5" r="1.2" fill="white"/><ellipse cx="40" cy="24" rx="4.5" ry="5.5" fill="white"/><circle cx="41" cy="24" r="3" fill="#4a3b8c"/><circle cx="42" cy="22.5" r="1.2" fill="white"/><path d="M28 32 Q32 36 36 32" stroke="#4a3b8c" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M18 14 Q12 4 22 8" fill="url(#botEar2)" stroke="white" stroke-width="1.2" stroke-linejoin="round"/><path d="M46 14 Q52 4 42 8" fill="url(#botEar2)" stroke="white" stroke-width="1.2" stroke-linejoin="round"/><defs><linearGradient id="botHead2" x1="14" y1="8" x2="50" y2="44"><stop offset="0%" stop-color="#e8d5f5"/><stop offset="50%" stop-color="#ffd1dc"/><stop offset="100%" stop-color="#b5ead7"/></linearGradient><linearGradient id="botEar2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffd1dc"/><stop offset="100%" stop-color="#e8d5f5"/></linearGradient></defs></svg>
+    <div class="ai-bot-header-avatar" id="anHeaderAvatar">
+      <div class="an-robot an-robot-sm" id="anRobotHeader">
+        <div class="an-antenna"><span class="an-antenna-ball"></span></div>
+        <div class="an-head">
+          <div class="an-face">
+            <div class="an-eyes">
+              <div class="an-eye an-eye-l"><span class="an-pupil"></span></div>
+              <div class="an-eye an-eye-r"><span class="an-pupil"></span></div>
+            </div>
+            <div class="an-cheek an-cheek-l"></div>
+            <div class="an-cheek an-cheek-r"></div>
+            <div class="an-mouth"></div>
+          </div>
+          <div class="an-ear an-ear-l"></div>
+          <div class="an-ear an-ear-r"></div>
+        </div>
+      </div>
     </div>
     <div class="ai-bot-header-info">
       <strong>An</strong>
@@ -15651,6 +15619,11 @@ startSiteVersionPoll();
         if(username && typeof showUserArticles === 'function') showUserArticles(username);
       }, 300);
       return '已为你打开个人主页~ 🏠';
+    },
+    '今日灵感': ()=>{
+      setBotMood('happy');
+      const inspiration = typeof getCalendarInspiration === 'function' ? getCalendarInspiration() : '灵感功能暂未加载，请稍后再试~';
+      return inspiration + '\n\n💡 你也可以对我说"今日灵感"随时获取每日推送哦~';
     }
   };
 
@@ -15670,7 +15643,8 @@ startSiteVersionPoll();
       { keys: ['退出','退出登录','登出','下线','注销登录'], action: '退出登录' },
       { keys: ['首页','回到首页','回首页','主页'], action: '回到首页' },
       { keys: ['刷新','刷新页面','重新加载','reload','更新页面'], action: '刷新页面' },
-      { keys: ['我的主页','个人主页','查看主页','我的页面'], action: '查看我的主页' }
+      { keys: ['我的主页','个人主页','查看主页','我的页面'], action: '查看我的主页' },
+      { keys: ['今日灵感','灵感','每日灵感','今日运势','运势','今日提示','灵感推送','灵感','mood','今日心情'], action: '今日灵感' }
     ];
     for(const item of actionMap){
       for(const kw of item.keys){
@@ -15682,7 +15656,7 @@ startSiteVersionPoll();
 
   /* ---- 欢迎消息 ---- */
   function showWelcome(){
-    addMessage('你好呀！我是 An，你的智能小助手~ 我不仅能解答问题，还能帮你直接操作哦！比如"帮我联系站主"、"我要发文章"、"打开聊天"等等，尽管吩咐我吧！', 'bot', ['帮我联系站主', '我要发文章', '打开聊天', '编辑资料', '网站功能介绍', '账号安全']);
+    addMessage('你好呀！我是 An，你的智能小助手~ 我不仅能解答问题，还能帮你直接操作哦！比如"帮我联系站主"、"我要发文章"、"今日灵感"等等，尽管吩咐我吧！', 'bot', ['帮我联系站主', '我要发文章', '今日灵感', '编辑资料', '网站功能介绍', '账号安全']);
   }
 
   /* ---- 知识库 ---- */
@@ -15825,10 +15799,22 @@ startSiteVersionPoll();
     return response;
   }
 
+  /* ---- 3D机器人占位 ---- */
+  let botMoodTimer = null;
+  function setBotMood(mood){
+    if(typeof window._an3dSetMood === 'function') window._an3dSetMood(mood);
+  }
+  function botIdleAction(){
+    const moods = ['wave','think','happy'];
+    setBotMood(moods[Math.floor(Math.random()*moods.length)]);
+  }
+  setInterval(botIdleAction, 18000);
+
   /* ---- 发送消息 ---- */
   function sendMessage(text){
     if(!text || !text.trim()) return;
     text = text.trim();
+    setBotMood('think');
     addMessage(text, 'user');
     input.value = '';
     // 检测是否为操作指令
@@ -15839,7 +15825,8 @@ startSiteVersionPoll();
       setTimeout(()=>{
         hideTyping();
         const result = botActions[actionName]();
-        addMessage(result, 'bot', ['帮我联系站主', '我要发文章', '打开聊天', '编辑资料', '网站功能介绍']);
+        setBotMood(actionName === '今日灵感' ? 'excite' : 'happy');
+        addMessage(result, 'bot', ['帮我联系站主', '我要发文章', '今日灵感', '编辑资料', '网站功能介绍']);
       }, delay);
       return;
     }
@@ -15848,6 +15835,7 @@ startSiteVersionPoll();
     setTimeout(()=>{
       hideTyping();
       const match = findAnswer(text);
+      setBotMood(match ? 'happy' : 'wave');
       if(match){
         addMessage(match.answer, 'bot', match.quickActions);
       }else{
@@ -15865,6 +15853,192 @@ startSiteVersionPoll();
   });
 })();
 
+</script>
+
+<script type="module">
+import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+import { GLTFLoader } from 'https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+
+const container = document.getElementById('an3dCanvas');
+const fab = document.getElementById('aiBotFab');
+if(!container){ console.warn('an3dCanvas not found'); }
+
+let scene, camera, renderer, mixer, model, clock, actions = {};
+let currentAction = null, moodTimer = null, ready = false;
+
+function init(){
+  if(!container) return;
+  container.innerHTML = '<div id="an3dLoading" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-size:10px;font-weight:800;">An…</div>';
+  try{
+    clock = new THREE.Clock();
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x12162a);
+
+    camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+    camera.position.set(0, 0.5, 2.8);
+    camera.lookAt(0, 0, 0);
+
+    renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
+    renderer.setSize(84, 84);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+    container.appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+    const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+    dir.position.set(3, 4, 3);
+    scene.add(dir);
+    const fill = new THREE.DirectionalLight(0xb5c6ff, 0.5);
+    fill.position.set(-2, 2, -2);
+    scene.add(fill);
+    const rim = new THREE.DirectionalLight(0xffd1dc, 0.4);
+    rim.position.set(-1, 3, -3);
+    scene.add(rim);
+
+    const loader = new GLTFLoader();
+    loader.load('./assets/An.glb', (gltf)=>{
+      const loadingEl = document.getElementById('an3dLoading');
+      if(loadingEl) loadingEl.remove();
+      model = gltf.scene;
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const scale = 1.6 / maxDim;
+      model.scale.set(scale, scale, scale);
+      model.position.sub(center.multiplyScalar(scale));
+      model.position.y += 0.05;
+      scene.add(model);
+
+      if(gltf.animations && gltf.animations.length){
+        mixer = new THREE.AnimationMixer(model);
+        gltf.animations.forEach((clip)=>{
+          actions[clip.name.toLowerCase()] = mixer.clipAction(clip);
+        });
+      }
+      ready = true;
+      setMood('idle');
+    }, (xhr)=>{
+      if(xhr.total > 0){
+        const pct = Math.round((xhr.loaded / xhr.total) * 100);
+        const el = document.getElementById('an3dLoading');
+        if(el) el.textContent = pct + '%';
+      }
+    }, (err)=>{
+      console.warn('An.glb加载失败:', err);
+      const msg = err && err.target && err.target.status ? '加载失败 ' + err.target.status : '加载失败';
+      container.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:rgba(255,255,255,.4);font-size:9px;font-weight:800;"><span>An</span><span style="font-size:7px;color:rgba(255,255,255,.2);">' + msg + '</span></div>';
+      // 尝试备用路径
+      setTimeout(()=>{
+        const loader2 = new GLTFLoader();
+        loader2.load('assets/An.glb', (gltf)=>{
+          const loadingEl = document.getElementById('an3dLoading');
+          if(loadingEl) loadingEl.remove();
+          model = gltf.scene;
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale = 1.6 / maxDim;
+          model.scale.set(scale, scale, scale);
+          model.position.sub(center.multiplyScalar(scale));
+          model.position.y += 0.05;
+          scene.add(model);
+          if(gltf.animations && gltf.animations.length){
+            mixer = new THREE.AnimationMixer(model);
+            gltf.animations.forEach((clip)=>{
+              actions[clip.name.toLowerCase()] = mixer.clipAction(clip);
+            });
+          }
+          ready = true;
+          setMood('idle');
+        }, undefined, (e2)=>{ console.warn('备用路径也失败:', e2); });
+      }, 200);
+    });
+
+    function animate(){
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      if(mixer) mixer.update(delta);
+      if(model && ready && (!currentAction || currentAction === 'idle') && !model.userData.dragging){
+        model.rotation.y += delta * 0.35;
+      }
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    if(fab){
+      fab.addEventListener('pointerdown', ()=>{ if(model) model.userData.dragging = true; });
+      fab.addEventListener('pointerup', ()=>{ if(model) model.userData.dragging = false; });
+    }
+  }catch(e){
+    console.warn('Three.js初始化失败:', e);
+    const errMsg = e && e.message ? e.message.substring(0, 20) : '3D错误';
+    container.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:rgba(255,255,255,.4);font-size:9px;font-weight:800;"><span>An</span><span style="font-size:7px;color:rgba(255,255,255,.2);">' + errMsg + '</span></div>';
+  }
+}
+
+function setMood(mood){
+  if(!ready || !model) return;
+  if(moodTimer){ clearTimeout(moodTimer); moodTimer = null; }
+  Object.values(actions).forEach(a=>{ if(a) a.stop(); });
+  currentAction = mood;
+  const actionName = mood.toLowerCase();
+  let action = actions[actionName];
+  if(!action){
+    const map = {
+      idle: ['idle','stand','default','rest'],
+      happy: ['happy','joy','excited','smile','laugh'],
+      think: ['think','thinking','ponder','wonder'],
+      wave: ['wave','hello','greet','hi','welcome'],
+      sleep: ['sleep','sleeping','rest','idle'],
+      excite: ['excited','excitement','happy','joy','jump']
+    };
+    const candidates = map[mood] || [];
+    for(const c of candidates){ if(actions[c]){ action = actions[c]; break; } }
+  }
+  if(action){
+    action.reset().setLoop(THREE.LoopRepeat, mood === 'wave' ? 3 : mood === 'happy' ? 2 : Infinity);
+    action.clampWhenFinished = true;
+    action.fadeIn(0.3).play();
+    if(mood !== 'idle' && mood !== 'sleep'){
+      const duration = action.getClip().duration * 1000 * (mood === 'wave' ? 3 : mood === 'happy' ? 2 : 1);
+      moodTimer = setTimeout(()=> setMood('idle'), Math.min(duration + 500, 5000));
+    }
+  }else{
+    if(mood === 'wave') procWave();
+    else if(mood === 'happy') procHappy();
+    else if(mood === 'think') procThink();
+    else if(mood === 'excite') procExcite();
+  }
+}
+
+let procId = null;
+function clearProc(){ if(procId){ cancelAnimationFrame(procId); procId = null; } }
+function procWave(){
+  clearProc(); let t = 0;
+  function step(){ t += 0.08; if(model){ model.rotation.z = Math.sin(t) * 0.15; model.position.y = Math.sin(t*2) * 0.05 - 0.1; } if(t < Math.PI * 4){ procId = requestAnimationFrame(step); }else{ model && (model.rotation.z = 0); setMood('idle'); } }
+  step(); moodTimer = setTimeout(()=> setMood('idle'), 2500);
+}
+function procHappy(){
+  clearProc(); let t = 0;
+  function step(){ t += 0.1; if(model){ model.scale.setScalar(1 + Math.sin(t) * 0.06); model.position.y = Math.abs(Math.sin(t)) * 0.08 - 0.1; } if(t < Math.PI * 3){ procId = requestAnimationFrame(step); }else{ model && model.scale.setScalar(1); setMood('idle'); } }
+  step(); moodTimer = setTimeout(()=> setMood('idle'), 3500);
+}
+function procThink(){
+  clearProc(); let t = 0;
+  function step(){ t += 0.05; if(model){ model.rotation.x = Math.sin(t) * 0.08; model.rotation.y += 0.01; } if(t < Math.PI * 4){ procId = requestAnimationFrame(step); }else{ model && (model.rotation.x = 0); setMood('idle'); } }
+  step(); moodTimer = setTimeout(()=> setMood('idle'), 3000);
+}
+function procExcite(){
+  clearProc(); let t = 0;
+  function step(){ t += 0.15; if(model){ model.scale.setScalar(1 + Math.sin(t*3) * 0.1); model.rotation.y += 0.08; } if(t < Math.PI * 4){ procId = requestAnimationFrame(step); }else{ model && model.scale.setScalar(1); setMood('idle'); } }
+  step(); moodTimer = setTimeout(()=> setMood('idle'), 2500);
+}
+
+window._an3dSetMood = setMood;
+setTimeout(init, 300);
 </script>
 
 </body>
