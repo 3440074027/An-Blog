@@ -8387,13 +8387,11 @@
         </div>
         <div class="article-grid" id="articleGrid"></div>
         <div class="article-pager">
-          <button id="articlePrevBtn" type="button">上一页</button>
           <div class="article-page-jump">
             <span>跳转</span>
             <input id="articlePageInput" type="number" min="1" value="1" />
             <button id="articleJumpBtn" type="button">GO</button>
           </div>
-          <button id="articleNextBtn" type="button">下一页</button>
         </div>
       </section>
     </section>
@@ -8506,7 +8504,7 @@
       <div class="article-editor-switches">
         <button id="articleItalicBtn" type="button" title="切换斜体样式">斜体开关</button>
         <button id="articleUnderlineBtn" type="button" title="切换下划线样式">下划线开关</button>
-        <button id="articleInsertImageBtn" type="button" title="从本地选择图片插入到文章中，支持多选，单张不超过3MB">插入图片（可多选）≤3MB</button>
+        <button id="articleInsertImageBtn" type="button" title="从本地选择图片插入到文章中，支持多选，单张不超过3MB">插画如图片/封面</button>
         <button id="articleInsertPageBtn" type="button" title="在当前页后插入新的空白页，实现文章分页显示">插入新页</button>
         <button id="articleClearFormatBtn" type="button" title="清除编辑器中所有文字格式，恢复为默认样式">清除格式</button>
       </div>
@@ -9955,8 +9953,6 @@ const accountDeleteText = document.getElementById('accountDeleteText');
 const accountDeleteCancelBtn = document.getElementById('accountDeleteCancelBtn');
 const accountDeleteConfirmBtn = document.getElementById('accountDeleteConfirmBtn');
 const articleGrid = document.getElementById('articleGrid');
-const articlePrevBtn = document.getElementById('articlePrevBtn');
-const articleNextBtn = document.getElementById('articleNextBtn');
 const articlePageInput = document.getElementById('articlePageInput');
 const articleJumpBtn = document.getElementById('articleJumpBtn');
 const articleScopeAllBtn = document.getElementById('articleScopeAllBtn');
@@ -10825,8 +10821,6 @@ function renderArticles(){
     articlePageInput.max = totalPages;
     articlePageInput.value = articlePage;
   }
-  if(articlePrevBtn) articlePrevBtn.disabled = articlePage <= 1;
-  if(articleNextBtn) articleNextBtn.disabled = articlePage >= totalPages;
   articleGrid.querySelectorAll('.article-card.selectable').forEach(card=>{
     const toggle = ()=>{
       const id = card.dataset.articleId;
@@ -11483,8 +11477,6 @@ async function editCurrentDetailArticle(){
   openArticleEditor(article);
 }
 
-if(articlePrevBtn) articlePrevBtn.addEventListener('click', ()=>goArticlePage(articlePage - 1));
-if(articleNextBtn) articleNextBtn.addEventListener('click', ()=>goArticlePage(articlePage + 1));
 if(articleJumpBtn) articleJumpBtn.addEventListener('click', ()=>goArticlePage(articlePageInput?.value || 1));
 if(articlePageInput){
   articlePageInput.addEventListener('keydown', event=>{
