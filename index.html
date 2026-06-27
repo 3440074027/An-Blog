@@ -10701,7 +10701,8 @@ function getFilteredArticles(){
 function articleThumbStyle(article){
   const thumb = String(article?.thumb || '');
   if(thumb.startsWith('data:image/')) return `url('${thumb}')`;
-  return thumb || 'assets/Article-Cover.png';
+  if(thumb.startsWith('assets/') || thumb.startsWith('http')) return `url('${thumb}')`;
+  return thumb || `url('assets/Article-Cover.png')`;
 }
 
 function articleGalleryImages(article){
