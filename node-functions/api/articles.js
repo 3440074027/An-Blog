@@ -55,7 +55,7 @@ function sanitizeArticle(input = {}, fallbackAuthor = ''){
     tags,
     summary: String(input.summary || '').trim().slice(0, 260),
     content,
-    thumb: finalGallery[0] || (typeof input.thumb === 'string' && input.thumb.length <= 420_000 && (input.thumb.startsWith('data:image/') || input.thumb.startsWith('linear-gradient(')) ? input.thumb : 'linear-gradient(135deg,#7c5cff,#ff8fc7)'),
+    thumb: finalGallery[0] || (typeof input.thumb === 'string' && input.thumb.length <= 420_000 && (input.thumb.startsWith('data:image/') || input.thumb.startsWith('linear-gradient(') || input.thumb.startsWith('assets/')) ? input.thumb : 'assets/Article-Cover.png'),
     gallery: finalGallery,
     fontFamily: typeof input.fontFamily === 'string' ? input.fontFamily.slice(0, 120) : '',
     author,
