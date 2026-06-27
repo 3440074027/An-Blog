@@ -5856,6 +5856,134 @@
     resize:none;
   }
   .profile-editor textarea{min-height:82px;}
+  .profile-birthday-row{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .profile-birthday-row input{
+    width:56px;
+    text-align:center;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+    padding:7px 0;
+    outline:none;
+    transition:all .15s;
+  }
+  .profile-birthday-row input:focus{
+    border-color:rgba(127,247,255,.4);
+    box-shadow:0 0 10px rgba(127,247,255,.08);
+  }
+  .profile-birthday-row span{
+    color:rgba(255,255,255,.5);
+    font-size:14px;
+    font-weight:900;
+  }
+  .profile-tags-edit{
+    display:grid;
+    gap:8px;
+  }
+  .profile-tags-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    min-height:28px;
+  }
+  .profile-tags-list .tag-chip{
+    padding:4px 10px;
+    border-radius:999px;
+    background:linear-gradient(135deg, rgba(127,247,255,.14), rgba(255,143,199,.1));
+    border:1px solid rgba(255,255,255,.1);
+    color:#fff;
+    font-size:11px;
+    font-weight:800;
+    cursor:default;
+    transition:all .15s;
+  }
+  .profile-tags-list .tag-chip.deleting{
+    background:linear-gradient(135deg, rgba(255,91,122,.2), rgba(255,143,199,.12));
+    border-color:rgba(255,91,122,.3);
+    cursor:pointer;
+  }
+  .profile-tags-list .tag-chip.deleting:hover{
+    background:linear-gradient(135deg, rgba(255,91,122,.3), rgba(255,143,199,.2));
+    transform:scale(1.05);
+  }
+  .profile-tags-actions{
+    display:flex;
+    gap:8px;
+  }
+  .profile-tags-actions button{
+    min-height:28px;
+    padding:0 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.06);
+    color:rgba(255,255,255,.72);
+    font-size:10.5px;
+    font-weight:900;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .profile-tags-actions button:hover{
+    background:rgba(127,247,255,.1);
+    border-color:rgba(127,247,255,.25);
+    color:#fff;
+  }
+  .profile-tag-form{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+  }
+  .profile-tag-form[hidden]{display:none;}
+  .profile-tag-form input{
+    flex:1 1 auto;
+    min-width:100px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    font-size:12px;
+    font-weight:700;
+    padding:7px 10px;
+    outline:none;
+  }
+  .profile-tag-form input:focus{
+    border-color:rgba(127,247,255,.4);
+    box-shadow:0 0 10px rgba(127,247,255,.08);
+  }
+  .profile-tag-form-actions{
+    display:flex;
+    gap:6px;
+  }
+  .profile-tag-form-actions button{
+    min-height:28px;
+    padding:0 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.06);
+    color:rgba(255,255,255,.72);
+    font-size:10px;
+    font-weight:900;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .profile-tag-form-actions button:hover{
+    background:rgba(127,247,255,.1);
+    border-color:rgba(127,247,255,.25);
+    color:#fff;
+  }
+  .profile-tag-form-hint{
+    width:100%;
+    color:rgba(255,91,122,.65);
+    font-size:10px;
+    font-weight:900;
+  }
   .account-security-box{
     display:grid;
     gap:11px;
@@ -8292,11 +8420,40 @@
         <label>身份说明<input id="profileRoleInput" type="text" maxlength="120" placeholder="例如：江大计算机学子 ｜ AI Agent 开发者" /></label>
         <label>个性签名<input id="profileSignatureInput" type="text" maxlength="120" /></label>
         <label>个人简介<textarea id="profileIntroInput" maxlength="500"></textarea></label>
-        <label>生日<input id="profileBirthdayInput" type="text" maxlength="40" placeholder="例如：2000-01-01" /></label>
+        <label>生日
+          <div class="profile-birthday-row">
+            <input id="profileBirthdayYear" type="text" maxlength="4" placeholder="年" />
+            <span>.</span>
+            <input id="profileBirthdayMonth" type="text" maxlength="2" placeholder="月" />
+            <span>.</span>
+            <input id="profileBirthdayDay" type="text" maxlength="2" placeholder="日" />
+          </div>
+        </label>
         <label>星座<input id="profileZodiacInput" type="text" maxlength="20" placeholder="例如：白羊座" /></label>
         <label>QQ<input id="profileQqInput" type="text" maxlength="40" placeholder="用于展示联系方式" /></label>
         <label>邮箱<input id="profileEmailInput" type="email" maxlength="120" placeholder="用于展示联系方式" /></label>
-        <label>身份标签<input id="profileTagsInput" type="text" placeholder="用逗号分隔，例如 AI, Python, 生活" /></label>
+        <label>标签
+          <div class="profile-tags-edit" id="profileTagsEdit">
+            <div class="profile-tags-list" id="profileTagsList"></div>
+            <div class="profile-tags-actions">
+              <button id="profileTagAddBtn" type="button">新增标签</button>
+              <button id="profileTagDelBtn" type="button">删除标签</button>
+            </div>
+            <div class="profile-tag-form" id="profileTagAddForm" hidden>
+              <input id="profileTagNewInput" type="text" maxlength="20" placeholder="输入标签名称" />
+              <div class="profile-tag-form-actions">
+                <button id="profileTagAddConfirm" type="button">添加</button>
+                <button id="profileTagAddCancel" type="button">取消</button>
+              </div>
+            </div>
+            <div class="profile-tag-form" id="profileTagDelForm" hidden>
+              <div class="profile-tag-form-hint">点击要删除的标签</div>
+              <div class="profile-tag-form-actions">
+                <button id="profileTagDelCancel" type="button">取消</button>
+              </div>
+            </div>
+          </div>
+        </label>
         <input id="profileAvatarInput" type="file" accept="image/*" hidden />
         <section class="account-security-box">
           <div>
@@ -9935,11 +10092,21 @@ const profileMetaInput = document.getElementById('profileMetaInput');
 const profileRoleInput = document.getElementById('profileRoleInput');
 const profileSignatureInput = document.getElementById('profileSignatureInput');
 const profileIntroInput = document.getElementById('profileIntroInput');
-const profileBirthdayInput = document.getElementById('profileBirthdayInput');
+const profileBirthdayYear = document.getElementById('profileBirthdayYear');
+const profileBirthdayMonth = document.getElementById('profileBirthdayMonth');
+const profileBirthdayDay = document.getElementById('profileBirthdayDay');
 const profileZodiacInput = document.getElementById('profileZodiacInput');
 const profileQqInput = document.getElementById('profileQqInput');
 const profileEmailInput = document.getElementById('profileEmailInput');
-const profileTagsInput = document.getElementById('profileTagsInput');
+const profileTagsList = document.getElementById('profileTagsList');
+const profileTagAddBtn = document.getElementById('profileTagAddBtn');
+const profileTagDelBtn = document.getElementById('profileTagDelBtn');
+const profileTagAddForm = document.getElementById('profileTagAddForm');
+const profileTagNewInput = document.getElementById('profileTagNewInput');
+const profileTagAddConfirm = document.getElementById('profileTagAddConfirm');
+const profileTagAddCancel = document.getElementById('profileTagAddCancel');
+const profileTagDelForm = document.getElementById('profileTagDelForm');
+const profileTagDelCancel = document.getElementById('profileTagDelCancel');
 const profileAvatarUpload = document.getElementById('profileAvatarUpload');
 const profileAvatarInput = document.getElementById('profileAvatarInput');
 const profileEditorAvatarPreview = document.getElementById('profileEditorAvatarPreview');
@@ -10352,11 +10519,17 @@ function renderBlogHomeUser(userLike){
   if(profileRoleInput) profileRoleInput.value = profileRole;
   if(profileSignatureInput) profileSignatureInput.value = signature;
   if(profileIntroInput) profileIntroInput.value = intro;
-  if(profileBirthdayInput) profileBirthdayInput.value = profileTexts.birthday || '';
+  // 生日回填：兼容 2000.01.01 和 2000-01-01 格式
+  const bdRaw = String(profileTexts.birthday || '');
+  const bdParts = bdRaw.includes('.') ? bdRaw.split('.') : bdRaw.includes('-') ? bdRaw.split('-') : [];
+  if(profileBirthdayYear) profileBirthdayYear.value = bdParts[0] || '';
+  if(profileBirthdayMonth) profileBirthdayMonth.value = bdParts[1] || '';
+  if(profileBirthdayDay) profileBirthdayDay.value = bdParts[2] || '';
   if(profileZodiacInput) profileZodiacInput.value = profileTexts.zodiac || '';
   if(profileQqInput) profileQqInput.value = profileTexts.qq || '';
   if(profileEmailInput) profileEmailInput.value = profileTexts.email || '';
-  if(profileTagsInput) profileTagsInput.value = tags.join(', ');
+  // 标签回填
+  renderProfileTagsEditor(tags);
   document.body.classList.toggle('site-owner', isSiteOwnerUser(user));
   if(contactOwnerBtn) contactOwnerBtn.style.display = isSiteOwnerUser(user) ? 'none' : '';
   if(articleOwnerDeleteModeBtn) articleOwnerDeleteModeBtn.hidden = !isSiteOwnerUser(user);
@@ -12797,11 +12970,42 @@ function openProfileEditor(){
   profileEditor?.setAttribute('aria-hidden', 'false');
 }
 
+function renderProfileTagsEditor(tagList){
+  if(!profileTagsList) return;
+  profileTagsList.innerHTML = '';
+  const list = Array.isArray(tagList) ? tagList : [];
+  if(!list.length){
+    profileTagsList.innerHTML = '<span style="color:rgba(255,255,255,.3);font-size:11px;">暂无标签</span>';
+    return;
+  }
+  list.forEach(tag=>{
+    const chip = document.createElement('span');
+    chip.className = 'tag-chip';
+    chip.textContent = tag;
+    chip.addEventListener('click', ()=>{
+      if(profileTagsList.classList.contains('deleting')){
+        chip.remove();
+        if(!profileTagsList.querySelectorAll('.tag-chip').length){
+          profileTagsList.innerHTML = '<span style="color:rgba(255,255,255,.3);font-size:11px;">暂无标签</span>';
+        }
+        profileTagsList.classList.remove('deleting');
+        if(profileTagDelForm) profileTagDelForm.hidden = true;
+      }
+    });
+    profileTagsList.appendChild(chip);
+  });
+}
+
 function closeProfileEditor(){
   pendingProfileAvatar = '';
   resetAccountEditor();
   profileEditor?.classList.remove('open');
   profileEditor?.setAttribute('aria-hidden', 'true');
+  // 重置标签编辑状态
+  if(profileTagAddForm) profileTagAddForm.hidden = true;
+  if(profileTagDelForm) profileTagDelForm.hidden = true;
+  if(profileTagNewInput) profileTagNewInput.value = '';
+  profileTagsList?.classList.remove('deleting');
 }
 
 async function saveProfileEditor(){
@@ -12811,11 +13015,16 @@ async function saveProfileEditor(){
     return;
   }
   const currentProfile = user.profile || {};
-  const tags = String(profileTagsInput?.value || '')
-    .split(/[,，]/)
-    .map(tag=>tag.trim())
+  // 从标签列表读取标签
+  const tags = Array.from(profileTagsList?.querySelectorAll('.tag-chip') || [])
+    .map(chip=>chip.textContent.trim())
     .filter(Boolean)
     .slice(0, 12);
+  // 生日：三个框合并为 年.月.日
+  const bdYear = String(profileBirthdayYear?.value || '').trim();
+  const bdMonth = String(profileBirthdayMonth?.value || '').trim();
+  const bdDay = String(profileBirthdayDay?.value || '').trim();
+  const birthday = bdYear && bdMonth && bdDay ? `${bdYear}.${bdMonth}.${bdDay}` : '';
   const nextProfile = {
     ...currentProfile,
     avatar:pendingProfileAvatar || currentProfile.avatar || '',
@@ -12827,7 +13036,7 @@ async function saveProfileEditor(){
       ...(currentProfile.texts && typeof currentProfile.texts === 'object' ? currentProfile.texts : {}),
       profileMeta:String(profileMetaInput?.value || '').trim().slice(0, 80),
       profileRole:String(profileRoleInput?.value || '').trim().slice(0, 120),
-      birthday:String(profileBirthdayInput?.value || '').trim().slice(0, 40),
+      birthday,
       zodiac:String(profileZodiacInput?.value || '').trim().slice(0, 20),
       qq:String(profileQqInput?.value || '').trim().slice(0, 40),
       email:String(profileEmailInput?.value || '').trim().slice(0, 120)
@@ -12857,6 +13066,66 @@ async function saveProfileEditor(){
 if(profileEditBtn) profileEditBtn.addEventListener('click', openProfileEditor);
 if(profileEditorClose) profileEditorClose.addEventListener('click', closeProfileEditor);
 if(profileSaveBtn) profileSaveBtn.addEventListener('click', saveProfileEditor);
+// 标签增删交互
+if(profileTagAddBtn) profileTagAddBtn.addEventListener('click', ()=>{
+  if(profileTagAddForm) profileTagAddForm.hidden = false;
+  if(profileTagDelForm) profileTagDelForm.hidden = true;
+  profileTagsList?.classList.remove('deleting');
+  profileTagNewInput?.focus();
+});
+if(profileTagAddCancel) profileTagAddCancel.addEventListener('click', ()=>{
+  if(profileTagAddForm) profileTagAddForm.hidden = true;
+  if(profileTagNewInput) profileTagNewInput.value = '';
+});
+if(profileTagAddConfirm) profileTagAddConfirm.addEventListener('click', ()=>{
+  const newTag = String(profileTagNewInput?.value || '').trim();
+  if(!newTag) return;
+  const existing = Array.from(profileTagsList?.querySelectorAll('.tag-chip') || []).map(c=>c.textContent.trim());
+  if(existing.includes(newTag)){
+    showLoginToast('该标签已存在', 'warn', '重复标签');
+    return;
+  }
+  if(existing.length >= 12){
+    showLoginToast('最多只能添加12个标签', 'warn', '标签上限');
+    return;
+  }
+  // 移除"暂无标签"提示
+  const emptyHint = profileTagsList?.querySelector('span[style*="暂无标签"]');
+  if(emptyHint) emptyHint.remove();
+  const chip = document.createElement('span');
+  chip.className = 'tag-chip';
+  chip.textContent = newTag;
+  chip.addEventListener('click', ()=>{
+    if(profileTagsList?.classList.contains('deleting')){
+      chip.remove();
+      if(!profileTagsList.querySelectorAll('.tag-chip').length){
+        profileTagsList.innerHTML = '<span style="color:rgba(255,255,255,.3);font-size:11px;">暂无标签</span>';
+      }
+      profileTagsList.classList.remove('deleting');
+      if(profileTagDelForm) profileTagDelForm.hidden = true;
+    }
+  });
+  profileTagsList?.appendChild(chip);
+  if(profileTagNewInput) profileTagNewInput.value = '';
+  if(profileTagAddForm) profileTagAddForm.hidden = true;
+});
+if(profileTagDelBtn) profileTagDelBtn.addEventListener('click', ()=>{
+  const hasTags = profileTagsList?.querySelectorAll('.tag-chip').length;
+  if(!hasTags){
+    showLoginToast('当前没有可删除的标签', 'warn', '无标签');
+    return;
+  }
+  profileTagsList?.classList.add('deleting');
+  if(profileTagDelForm) profileTagDelForm.hidden = false;
+  if(profileTagAddForm) profileTagAddForm.hidden = true;
+});
+if(profileTagDelCancel) profileTagDelCancel.addEventListener('click', ()=>{
+  profileTagsList?.classList.remove('deleting');
+  if(profileTagDelForm) profileTagDelForm.hidden = true;
+});
+if(profileTagNewInput) profileTagNewInput.addEventListener('keydown', e=>{
+  if(e.key === 'Enter') profileTagAddConfirm?.click();
+});
 if(accountVerifyOpenBtn) accountVerifyOpenBtn.addEventListener('click', openAccountVerifyModal);
 if(accountVerifyCloseBtn) accountVerifyCloseBtn.addEventListener('click', closeAccountVerifyModal);
 if(accountVerifySubmitBtn) accountVerifySubmitBtn.addEventListener('click', verifyAccountForEdit);
