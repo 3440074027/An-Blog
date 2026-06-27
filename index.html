@@ -4596,6 +4596,36 @@
     letter-spacing:.18em;
     text-shadow:0 0 12px rgba(127,247,255,.35);
   }
+  .section-title-wrap{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .section-title-wrap button{
+    min-height:28px;
+    padding:0 14px;
+    border-radius:999px;
+    border:1px solid rgba(255,150,170,.25);
+    color:rgba(255,240,245,.85);
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.03em;
+    cursor:pointer;
+    background:linear-gradient(135deg, rgba(255,150,170,.15), rgba(255,182,193,.1));
+    transition:all .2s ease;
+  }
+  .section-title-wrap button:hover{
+    background:linear-gradient(135deg, rgba(255,150,170,.25), rgba(255,182,193,.18));
+    border-color:rgba(255,150,170,.4);
+    box-shadow:0 2px 12px rgba(255,150,170,.12);
+    transform:translateY(-1px);
+  }
+  .section-title-wrap button.active{
+    background:linear-gradient(135deg, rgba(255,150,170,.3), rgba(255,182,193,.2));
+    border-color:rgba(255,150,170,.5);
+    box-shadow:0 2px 14px rgba(255,150,170,.15);
+  }
   .blog-hero-topline small{
     color:rgba(255,255,255,.52);
     font-size:10px;
@@ -8296,7 +8326,10 @@
 
       <section class="blog-posts-card blog-glass-card" id="blogPosts">
         <div class="blog-section-head">
-          <span>文章收纳区</span>
+          <div class="section-title-wrap">
+            <span>文章收纳区</span>
+            <button id="articleOwnerDeleteModeBtn" class="danger" type="button" hidden>管理删除</button>
+          </div>
           <div class="article-filter-bar" id="articleFilterBar">
             <div class="af-trigger" id="afUserTrigger">
               <button id="articleUserFilterBtn" type="button">用户</button>
@@ -8345,7 +8378,6 @@
               <button id="articleScopeAllBtn" type="button">全部文章</button>
               <button id="articleScopeMineBtn" type="button">我的文章</button>
               <button id="articlePublishBtn" type="button">发布文章</button>
-              <button id="articleOwnerDeleteModeBtn" class="danger" type="button" hidden>管理删除</button>
             </div>
           </div>
           <div class="article-delete-tools" id="articleDeleteTools">
