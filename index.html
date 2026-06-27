@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="preload" as="image" href="assets/page-bg-optimized.webp" type="image/webp" fetchpriority="high" />
+<link rel="preload" as="image" href="assets/Home-Page-Background.webp" type="image/webp" fetchpriority="high" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&family=ZCOOL+QingKe+HuangYou&family=Long+Cang&family=Liu+Jian+Mao+Cao&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
@@ -220,7 +220,7 @@
     opacity:0;
     transform:scale(1.055);
     filter:blur(16px) saturate(.86) brightness(1.08);
-    background:url("assets/page-bg-optimized.webp") center/cover no-repeat;
+    background:url("assets/Home-Page-Background.webp") center/cover no-repeat;
     transition:opacity 1.18s cubic-bezier(.22,.08,.28,1), transform 1.18s cubic-bezier(.22,.08,.28,1), filter 1.18s cubic-bezier(.22,.08,.28,1);
     will-change:opacity, transform, filter;
   }
@@ -10701,7 +10701,7 @@ function getFilteredArticles(){
 function articleThumbStyle(article){
   const thumb = String(article?.thumb || '');
   if(thumb.startsWith('data:image/')) return `url('${thumb}')`;
-  return thumb || 'linear-gradient(135deg,#7c5cff,#ff8fc7)';
+  return thumb || 'assets/Article-Cover.png';
 }
 
 function articleGalleryImages(article){
@@ -11073,7 +11073,7 @@ function goArticleEditorPage(direction){
 
 function getFirstArticleImage(html){
   const match = String(html || '').match(/<img[^>]+src=["']([^"']+)["']/i);
-  return match ? match[1] : 'linear-gradient(135deg,#7c5cff,#ff8fc7)';
+  return match ? match[1] : 'assets/Article-Cover.png';
 }
 
 function compressArticleImageFile(file, maxSize = 520, quality = .52){
@@ -11184,12 +11184,6 @@ async function saveArticleFromEditor(){
   }).join('');
   if(!title || !allContent){
     showLoginToast('请填写文章标题和正文。', 'warn', '内容不完整');
-    return;
-  }
-  // 检查是否包含图片
-  const hasImage = /<img[^>]+src=["']([^"']+)["']/i.test(allContent);
-  if(!hasImage){
-    showLoginToast('发布文章需要至少上传一张图片作为封面。请点击"插入图片"按钮添加图片。', 'warn', '需要图片');
     return;
   }
   if(allContent.length > 1_600_000){
