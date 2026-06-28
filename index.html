@@ -10826,13 +10826,16 @@ let currentDetailArticleAuthor = '';
 function refreshToolReactionCounts(username){
   // 从服务端获取用户真实的点赞/收藏总数
   if(!username || username === 'guest') return;
-  authRequest(`/api/article-reactions?user=${encodeURIComponent(username)}`, { method:'GET' })
+  const url = authApiUrl(`/api/article-reactions?user=${encodeURIComponent(username)}`);
+  fetch(url)
+    .then(r => r.json())
     .then(data => {
       const toolLikeCountEl = document.getElementById('toolLikeCount');
       const toolFavCountEl = document.getElementById('toolFavCount');
       if(toolLikeCountEl) toolLikeCountEl.textContent = data.likeCount || 0;
       if(toolFavCountEl) toolFavCountEl.textContent = data.favoriteCount || 0;
-    }).catch(()=>{});
+    })
+    .catch(()=>{});
 }
 
 function updateToolStats(user = readSavedUser()){
@@ -11982,8 +11985,13 @@ async function toggleArticleReaction(action){
     if(action === 'like') _reactionState.liked = isAdd;
     else _reactionState.favorited = isAdd;
     renderReactionButtons();
-    // 实时同步工具箱的点赞/收藏数量（从服务端获取最新总数）
-    refreshToolReactionCounts(user.username);
+    // 实时增减工具箱数字（+1 或 -1），无需等 GET 请求
+    const toolId = action === 'like' ? 'toolLikeCount' : 'toolFavCount';
+    const toolEl = document.getElementById(toolId);
+    if(toolEl){
+      const cur = parseInt(toolEl.textContent) || 0;
+      toolEl.textContent = Math.max(0, cur + (isAdd ? 1 : -1));
+    }
   }catch(error){
     showLoginToast(error.message || '操作失败。', 'error', '操作失败');
   }finally{
@@ -11993,9 +12001,9 @@ async function toggleArticleReaction(action){
 
 function toggleSharePopup(){
   if(!sharePopup) return;
-  const isOpen = !sharePopup.hidden;
-  if(!isOpen){ sharePopup.hidden = true; return; }
-  // 未登录提示
+  const isHidden = sharePopup.hidden;
+  if(!isHidden){ sharePopup.hidden = true; return; } // 当前已打开，关闭
+  // 以下为打开逻辑
   const user = readSavedUser();
   if(!getAuthToken() || !user?.username || user.username === 'guest'){
     showLoginToast('请先登录后再分享。', 'warn', '需要登录');
