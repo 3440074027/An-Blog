@@ -7021,10 +7021,15 @@
     position:relative;
     overflow:visible;
   }
+  .article-detail-footer.has-pager{
+    justify-content:space-between;
+  }
   .article-detail-pager{
     display:flex;
     align-items:center;
     gap:14px;
+    flex:1;
+    justify-content:center;
   }
   .article-detail-pager button{
     min-height:34px;
@@ -7058,7 +7063,7 @@
     align-items:center;
     gap:8px;
     flex-wrap:wrap;
-    margin-left:auto;
+    position:relative;
   }
   .reaction-btn{
     display:inline-flex;
@@ -8906,7 +8911,7 @@
       <div class="article-detail-scroll">
         <div class="article-detail-content" id="articleDetailContent"></div>
       </div>
-      <div class="article-detail-footer">
+      <div class="article-detail-footer" id="articleDetailFooter">
         <div class="article-detail-pager" id="articleDetailPager" hidden>
           <button id="articleDetailPrevPage" type="button">上一页</button>
           <span id="articleDetailPageInfo">第 1 / 1 页</span>
@@ -10408,6 +10413,7 @@ const articleDetailTitle = document.getElementById('articleDetailTitle');
 const articleDetailMeta = document.getElementById('articleDetailMeta');
 const articleDetailContent = document.getElementById('articleDetailContent');
 const articleDetailPager = document.getElementById('articleDetailPager');
+const articleDetailFooter = document.getElementById('articleDetailFooter');
 const articleDetailPrevPage = document.getElementById('articleDetailPrevPage');
 const articleDetailNextPage = document.getElementById('articleDetailNextPage');
 const articleDetailPageInfo = document.getElementById('articleDetailPageInfo');
@@ -10841,8 +10847,10 @@ function updateToolStats(user = readSavedUser()){
   if(user?.username && user.username !== 'guest'){
     authRequest(`/api/article-reactions?user=${encodeURIComponent(user.username)}`, { method:'GET' })
       .then(data => {
-        if(toolLikeCount) toolLikeCount.textContent = data.likeCount || 0;
-        if(toolFavCount) toolFavCount.textContent = data.favoriteCount || 0;
+        const el1 = document.getElementById('toolLikeCount');
+        const el2 = document.getElementById('toolFavCount');
+        if(el1) el1.textContent = data.likeCount || 0;
+        if(el2) el2.textContent = data.favoriteCount || 0;
       }).catch(()=>{});
   }
   const activeTool = document.querySelector('.feature-pill.active');
@@ -11849,10 +11857,12 @@ async function openArticleDetail(id){
         articleDetailCurrentPage = 0;
         articleDetailContent.innerHTML = content;
         if(articleDetailPager) articleDetailPager.hidden = true;
+        if(articleDetailFooter) articleDetailFooter.classList.remove('has-pager');
       }else{
         articleDetailCurrentPage = 0;
         articleDetailContent.innerHTML = articleDetailPages[0] || '<p>空白页。</p>';
         if(articleDetailPager) articleDetailPager.hidden = false;
+        if(articleDetailFooter) articleDetailFooter.classList.add('has-pager');
         updateArticleDetailPager();
       }
     }else{
@@ -11860,6 +11870,7 @@ async function openArticleDetail(id){
       articleDetailCurrentPage = 0;
       articleDetailContent.innerHTML = content;
       if(articleDetailPager) articleDetailPager.hidden = true;
+      if(articleDetailFooter) articleDetailFooter.classList.remove('has-pager');
     }
   }
   const user = readSavedUser();
@@ -12004,13 +12015,40 @@ function toggleSharePopup(){
   }
   // 渲染好友列表
   if(!shareFriendList) return;
-  const friends = (window.friendsState && window.friendsState.friends) ? window.friendsState.friends : [];
-  const siteOwner = (window.friendsState && window.friendsState.siteOwner) ? window.friendsState.siteOwner : null;
-  const user = readSavedUser();
-  if(!friends.length && !siteOwner){
-    shareFriendList.innerHTML = '<p style="color:rgba(255,255,255,.35);font-size:12px;text-align:center;padding:12px;">暂无好友，请先添加好友后再分享。</p>';
-    return;
+  shareFriendList.innerHTML = '<p style="color:rgba(255,255,255,.35);font-size:12px;text-align:center;padding:12px;">加载好友列表...</p>';
+  // 确保有好友数据
+  const loadAndRender = () => {
+    const fs = window.friendsState;
+    const friends = (fs && fs.friends) ? fs.friends : [];
+    const siteOwner = (fs && fs.siteOwner) ? fs.siteOwner : null;
+    const user = readSavedUser();
+    if(!friends.length && !siteOwner){
+      shareFriendList.innerHTML = '<p style="color:rgba(255,255,255,.35);font-size:12px;text-align:center;padding:12px;">暂无好友，请先添加好友后再分享。</p>';
+      return;
+    }
+    renderShareFriendList(friends, siteOwner, user);
+  };
+  // 如果好友数据已加载，直接渲染；否则先请求
+  if(window.friendsState){
+    loadAndRender();
+  }else{
+    authRequest('/api/friends', { method:'GET', headers:authorizedHeaders() })
+      .then(data => {
+        window.friendsState = {
+          friends: data.friends || [],
+          incoming: data.incoming || [],
+          outgoing: data.outgoing || [],
+          siteOwner: data.siteOwner || null
+        };
+        loadAndRender();
+      }).catch(() => {
+        shareFriendList.innerHTML = '<p style="color:rgba(255,255,255,.35);font-size:12px;text-align:center;padding:12px;">加载好友失败，请重试。</p>';
+      });
   }
+}
+
+function renderShareFriendList(friends, siteOwner, user){
+  if(!shareFriendList) return;
   let html = '';
   // 渲染站主
   if(siteOwner){
