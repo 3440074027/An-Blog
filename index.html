@@ -6685,7 +6685,7 @@
   .article-detail-card{
     width:min(1100px, 96vw);
     max-height:90vh;
-    overflow:hidden;
+    overflow:clip;
     display:flex;
     flex-direction:row;
     gap:0;
@@ -6704,6 +6704,7 @@
   .article-detail-body{
     width:100%;display:flex;flex-direction:column;min-width:0;position:relative;
     transition: all .35s cubic-bezier(.4,0,.2,1);
+    overflow:visible;
   }
   .article-detail-scroll{
     flex:1 1 auto;
@@ -7011,12 +7012,14 @@
   .article-detail-footer{
     display:flex;
     align-items:center;
-    justify-content:space-between;
-    gap:12px;
+    justify-content:center;
+    gap:16px;
     padding:14px 0 4px;
     border-top:1px solid rgba(255,255,255,.1);
     margin-top:8px;
     flex-wrap:wrap;
+    position:relative;
+    overflow:visible;
   }
   .article-detail-pager{
     display:flex;
@@ -7055,6 +7058,7 @@
     align-items:center;
     gap:8px;
     flex-wrap:wrap;
+    margin-left:auto;
   }
   .reaction-btn{
     display:inline-flex;
@@ -7168,6 +7172,50 @@
   }
   .share-friend-item .sf-name{font-size:13px;color:rgba(255,255,255,.85);font-weight:500;}
   .share-friend-item .sf-label{font-size:11px;color:rgba(255,255,255,.35);margin-left:auto;}
+  /* 点赞/收藏列表弹窗头部 */
+  .reaction-list-head{
+    position:relative;
+    padding:20px 20px 12px;
+    text-align:center;
+  }
+  .reaction-list-head button:hover{
+    background:rgba(255,255,255,.12);
+    color:rgba(255,255,255,.8);
+    border-color:rgba(255,255,255,.3);
+  }
+  .reaction-article-item{
+    display:flex;
+    gap:14px;
+    padding:14px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.07);
+    margin-bottom:8px;
+    cursor:pointer;
+    transition:all .2s;
+  }
+  .reaction-article-item:hover{
+    background:rgba(212,175,55,.06);
+    border-color:rgba(212,175,55,.15);
+    transform:translateY(-1px);
+  }
+  .reaction-article-item:last-child{margin-bottom:0;}
+  .reaction-article-item .rai-thumb{
+    width:52px;height:52px;border-radius:14px;
+    background:rgba(212,175,55,.06);overflow:hidden;flex-shrink:0;
+  }
+  .reaction-article-item .rai-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .reaction-article-item .rai-icon{
+    width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+    font-size:20px;color:rgba(212,175,55,.3);
+  }
+  .reaction-article-item .rai-info{min-width:0;flex:1;}
+  .reaction-article-item .rai-title{
+    font-size:14px;font-weight:600;color:#fff;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .reaction-article-item .rai-meta{
+    font-size:11px;color:rgba(255,255,255,.35);margin-top:4px;
+  }
   /* 确认弹窗 */
   .confirm-dialog-overlay{
     position:fixed;
@@ -8277,19 +8325,14 @@
 
 <!-- 点赞/收藏文章列表弹窗 -->
 <div class="article-detail-modal" id="reactionListModal" aria-hidden="true">
-  <div class="article-detail-card" role="dialog" aria-modal="true" style="max-width:520px;">
-    <div class="article-detail-body">
-      <div class="article-detail-head">
-        <div class="article-detail-head-left"></div>
-        <div class="article-detail-head-center">
-          <h2 id="reactionListTitle">点赞文章</h2>
-          <div class="article-detail-meta" id="reactionListMeta"></div>
-        </div>
-        <div class="article-detail-head-right">
-          <button id="reactionListCloseBtn" type="button">关闭</button>
-        </div>
+  <div class="article-detail-card" role="dialog" aria-modal="true" style="max-width:480px;">
+    <div class="article-detail-body" style="overflow:visible;">
+      <div class="reaction-list-head">
+        <h2 id="reactionListTitle" style="color:#D4AF37;font-size:18px;font-weight:700;margin:0;">点赞文章</h2>
+        <div id="reactionListMeta" style="font-size:12px;color:rgba(255,255,255,.4);margin-top:4px;"></div>
+        <button id="reactionListCloseBtn" type="button" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1;">&#10005;</button>
       </div>
-      <div class="article-detail-scroll" style="max-height:60vh;">
+      <div class="article-detail-scroll" style="max-height:60vh;padding:0 20px 20px;">
         <div id="reactionListContent"></div>
       </div>
     </div>
@@ -10779,6 +10822,14 @@ let editingArticleId = '';
 let currentDetailArticleId = '';
 let currentDetailArticleAuthor = '';
 
+function updateToolStatsCounters(likeCount, favCount){
+  // 直接更新工具箱中的点赞/收藏数字（无需发请求）
+  const toolLikeCountEl = document.getElementById('toolLikeCount');
+  const toolFavCountEl = document.getElementById('toolFavCount');
+  if(toolLikeCountEl) toolLikeCountEl.textContent = likeCount;
+  if(toolFavCountEl) toolFavCountEl.textContent = favCount;
+}
+
 function updateToolStats(user = readSavedUser()){
   const profile = user?.profile || {};
   const tags = Array.isArray(profile.tags) ? profile.tags : [];
@@ -11932,6 +11983,8 @@ async function toggleArticleReaction(action){
     if(action === 'like') _reactionState.liked = isAdd;
     else _reactionState.favorited = isAdd;
     renderReactionButtons();
+    // 实时同步工具箱的点赞/收藏数量
+    updateToolStatsCounters(_reactionState.likeCount, _reactionState.favoriteCount);
   }catch(error){
     showLoginToast(error.message || '操作失败。', 'error', '操作失败');
   }finally{
@@ -11942,12 +11995,17 @@ async function toggleArticleReaction(action){
 function toggleSharePopup(){
   if(!sharePopup) return;
   const isOpen = !sharePopup.hidden;
-  sharePopup.hidden = isOpen;
-  if(!isOpen) return; // 关闭弹窗，不需要渲染好友列表
+  if(!isOpen){ sharePopup.hidden = true; return; }
+  // 未登录提示
+  if(!getAuthToken() || !readSavedUser()?.username || readSavedUser()?.username === 'guest'){
+    showLoginToast('请先登录后再分享。', 'warn', '需要登录');
+    sharePopup.hidden = true;
+    return;
+  }
   // 渲染好友列表
   if(!shareFriendList) return;
-  const friends = (typeof friendsState !== 'undefined' && friendsState.friends) ? friendsState.friends : [];
-  const siteOwner = (typeof friendsState !== 'undefined' && friendsState.siteOwner) ? friendsState.siteOwner : null;
+  const friends = (window.friendsState && window.friendsState.friends) ? window.friendsState.friends : [];
+  const siteOwner = (window.friendsState && window.friendsState.siteOwner) ? window.friendsState.siteOwner : null;
   const user = readSavedUser();
   if(!friends.length && !siteOwner){
     shareFriendList.innerHTML = '<p style="color:rgba(255,255,255,.35);font-size:12px;text-align:center;padding:12px;">暂无好友，请先添加好友后再分享。</p>';
@@ -12033,13 +12091,13 @@ async function openReactionList(type){
       return;
     }
     reactionListContent.innerHTML = articles.map(a => `
-      <div class="reaction-article-item" style="display:flex;gap:12px;padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.08);margin-bottom:8px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='transparent'" onclick="closeReactionList();openArticleDetail('${a.id}')">
-        <div style="width:48px;height:48px;border-radius:12px;background:rgba(212,175,55,.08);overflow:hidden;flex-shrink:0;">
-          ${a.thumb ? `<img src="${a.thumb}" style="width:100%;height:100%;object-fit:cover;" alt="">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(212,175,55,.4);">&#9998;</div>'}
+      <div class="reaction-article-item" onclick="closeReactionList();openArticleDetail('${a.id}')">
+        <div class="rai-thumb">
+          ${a.thumb ? `<img src="${a.thumb}" alt="">` : '<div class="rai-icon">&#9998;</div>'}
         </div>
-        <div style="min-width:0;flex:1;">
-          <div style="font-size:14px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(a.title || '未命名文章')}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:3px;">@${escapeHtml(a.author || '')} · ${escapeHtml(a.category || '随笔')}</div>
+        <div class="rai-info">
+          <div class="rai-title">${escapeHtml(a.title || '未命名文章')}</div>
+          <div class="rai-meta">@${escapeHtml(a.author || '')} · ${escapeHtml(a.category || '随笔')}</div>
         </div>
       </div>
     `).join('');
@@ -14399,6 +14457,7 @@ function startSiteVersionPoll(){
         outgoing: data.outgoing || [],
         siteOwner: data.siteOwner || null
       };
+      window.friendsState = friendsState;
       renderFriendsTab();
       renderRequestsTab();
       renderConvList({ preserve:true }); // 会话列表里也要更新头像/昵称
@@ -15385,6 +15444,7 @@ function startSiteVersionPoll(){
   window.refreshFriends = refreshFriends;
   window.refreshChats = refreshChats;
   window.renderPublicProfileActions = renderPublicProfileActions;
+  window.friendsState = friendsState;
 
   // 登录后预热一次（更新顶部聊天图标的小红点）
   if(typeof window.addEventListener === 'function'){
