@@ -7,7 +7,8 @@ import {
 } from './_lib/auth.js';
 import {
   DB_ARTICLE_LIKES_HASH,
-  DB_ARTICLE_FAVORITES_HASH
+  DB_ARTICLE_FAVORITES_HASH,
+  DB_ARTICLES_HASH
 } from './_lib/db-keys.js';
 
 /**
@@ -73,7 +74,70 @@ export async function onRequestGet(context){
   try{
     const url = new URL(context.request.url);
     const articleId = String(url.searchParams.get('id') || '').trim().slice(0, 80);
-    if(!articleId) return json({ error:'缺少文章 ID。' }, 400);
+    const username = String(url.searchParams.get('user') || '').trim().slice(0, 20);
+    const type = String(url.searchParams.get('type') || '').trim(); // "like" or "favorite"
+
+    // 模式1: 获取某用户点赞/收藏的文章列表
+    if(username && type){
+      const hashKey = type === 'like' ? DB_ARTICLE_LIKES_HASH : DB_ARTICLE_FAVORITES_HASH;
+      if(type !== 'like' && type !== 'favorite') return json({ error:'type 只能是 like 或 favorite。' }, 400);
+      // 从所有 reactions 中找出该用户点赞/收藏的文章 ID
+      const allEntries = await redis.hgetall(hashKey);
+      const articleIds = [];
+      for(const [aid, val] of Object.entries(allEntries || {})){
+        try{
+          const data = typeof val === 'string' ? JSON.parse(val) : val;
+          if(data && typeof data === 'object' && username in data){
+            articleIds.push(aid);
+          }
+        }catch(_){}
+      }
+      // 获取文章详情（标题、封面等）
+      if(!articleIds.length) return json({ ok: true, articles: [] });
+      const articleDetails = [];
+      for(const aid of articleIds.slice(0, 100)){
+        const raw = await redis.hget(DB_ARTICLES_HASH, aid);
+        if(!raw) continue;
+        try{
+          const a = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          articleDetails.push({
+            id: a.id,
+            title: a.title || '未命名文章',
+            summary: a.summary || '',
+            thumb: a.thumb || '',
+            author: a.author || '',
+            category: a.category || '随笔',
+            createdAt: a.createdAt || ''
+          });
+        }catch(_){}
+      }
+      return json({ ok: true, articles: articleDetails });
+    }
+
+    // 模式2: 获取某用户所有点赞/收藏的文章ID（用于计数）
+    if(username){
+      const [likesRaw, favsRaw] = await Promise.all([
+        redis.hgetall(DB_ARTICLE_LIKES_HASH),
+        redis.hgetall(DB_ARTICLE_FAVORITES_HASH)
+      ]);
+      let likeCount = 0, favCount = 0;
+      for(const val of Object.values(likesRaw || {})){
+        try{
+          const data = typeof val === 'string' ? JSON.parse(val) : val;
+          if(data && typeof data === 'object' && username in data) likeCount++;
+        }catch(_){}
+      }
+      for(const val of Object.values(favsRaw || {})){
+        try{
+          const data = typeof val === 'string' ? JSON.parse(val) : val;
+          if(data && typeof data === 'object' && username in data) favCount++;
+        }catch(_){}
+      }
+      return json({ ok: true, likeCount, favoriteCount });
+    }
+
+    // 模式3: 获取单篇文章的互动数据（原有逻辑）
+    if(!articleId) return json({ error:'缺少文章 ID 或用户名。' }, 400);
 
     const reactions = await readReactions(articleId);
 
