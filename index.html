@@ -12333,8 +12333,11 @@ if(articleDetailPrevPage) articleDetailPrevPage.addEventListener('click', ()=>go
 if(articleDetailNextPage) articleDetailNextPage.addEventListener('click', ()=>goArticleDetailPage(1));
 if(reactionLikeBtn) reactionLikeBtn.addEventListener('click', ()=>toggleArticleReaction('like'));
 if(reactionFavBtn) reactionFavBtn.addEventListener('click', ()=>toggleArticleReaction('favorite'));
-if(reactionShareBtn) reactionShareBtn.addEventListener('click', toggleSharePopup);
-// 点击外部关闭分享弹窗
+if(reactionShareBtn) reactionShareBtn.addEventListener('click', event=>{
+  event.stopPropagation();
+  toggleSharePopup();
+});
+// 点击外部关闭分享弹窗（使用捕获阶段，在 toggleSharePopup 之前关闭；用 setTimeout 跳过当前事件的冒泡）
 document.addEventListener('click', event=>{
   if(sharePopup && !sharePopup.hidden && !sharePopup.contains(event.target) && event.target !== reactionShareBtn && !reactionShareBtn?.contains(event.target)){
     sharePopup.hidden = true;
