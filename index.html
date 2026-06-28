@@ -7105,15 +7105,14 @@
   .reaction-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
   /* 分享弹窗 */
   .share-popup{
-    position:absolute;
-    bottom:calc(100% + 8px);
-    right:0;
-    z-index:100;
+    position:fixed;
+    z-index:10000;
     background:rgba(22,28,60,.96);
     border:1px solid rgba(212,175,55,.2);
     border-radius:16px;
     padding:14px;
     min-width:220px;
+    max-width:280px;
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
     box-shadow:0 8px 32px rgba(0,0,0,.4);
@@ -8925,14 +8924,16 @@
           <span class="reaction-icon">&#8689;</span>
           <span>分享</span>
         </button>
-        <div class="share-popup" id="sharePopup" hidden>
-          <div class="share-popup-title">选择好友分享</div>
-          <div id="shareFriendList" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
-        </div>
         </div><!-- /article-detail-footer -->
       </div><!-- /article-detail-body -->
     </div>
   </div>
+</div>
+
+<!-- 分享好友弹窗（fixed 定位，需要在 modal 外部） -->
+<div class="share-popup" id="sharePopup" hidden>
+  <div class="share-popup-title">选择好友分享</div>
+  <div id="shareFriendList" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
 </div>
 
 <div class="owner-contact-modal" id="ownerContactModal" aria-hidden="true">
@@ -12001,6 +12002,14 @@ function toggleSharePopup(){
     sharePopup.hidden = true;
     return;
   }
+  // 定位弹窗在分享按钮上方
+  if(reactionShareBtn){
+    const rect = reactionShareBtn.getBoundingClientRect();
+    sharePopup.style.left = Math.max(8, rect.left) + 'px';
+    sharePopup.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+    sharePopup.style.right = 'auto';
+    sharePopup.style.top = 'auto';
+  }
   if(!shareFriendList) return;
   const friends = (window.friendsState && window.friendsState.friends) ? window.friendsState.friends : [];
   const siteOwner = (window.friendsState && window.friendsState.siteOwner) ? window.friendsState.siteOwner : null;
@@ -12101,6 +12110,11 @@ async function openReactionList(type){
     const data = await authRequest(`/api/article-reactions?user=${encodeURIComponent(user.username)}&type=${type}`, { method:'GET' });
     const articles = data.articles || [];
     if(reactionListMeta) reactionListMeta.innerHTML = `<span>共 ${articles.length} 篇</span>`;
+    // 同步更新工具箱中对应的数字
+    const countEl = type === 'like'
+      ? document.getElementById('toolLikeCount')
+      : document.getElementById('toolFavCount');
+    if(countEl) countEl.textContent = articles.length;
     if(!articles.length){
       reactionListContent.innerHTML = '<p style="color:rgba(255,255,255,.4);text-align:center;padding:30px;">还没有' + title + '。</p>';
       return;
@@ -12129,6 +12143,7 @@ function closeReactionList(){
 function closeArticleDetail(){
   articleDetailModal?.classList.remove('open');
   articleDetailModal?.setAttribute('aria-hidden', 'true');
+  if(sharePopup) sharePopup.hidden = true;
   unlockBodyScroll();
 }
 
