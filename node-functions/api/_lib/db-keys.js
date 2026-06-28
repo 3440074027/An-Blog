@@ -14,6 +14,8 @@
  *  db:announcements   STRING  公告：JSON 数组（站主统一编辑）
  *  db:versions        HASH    版本号表：field=announcements/articles/user:<u>/friends:<u>/chat:<u>, value=int
  *  db:visitor-count   STRING  访问量计数器
+ *  db:article-likes      HASH    文章点赞：field=articleId, value={ username:isoTimestamp, ... }
+ *  db:article-favorites  HASH    文章收藏：field=articleId, value={ username:isoTimestamp, ... }
  *
  * 历史遗留键（仅在新键缺失时读取并自动迁移到上面的集中表，新代码不再写入）：
  *   user:<username>          / site:user-index / users
@@ -33,6 +35,10 @@ export const DB_ARTICLES_HASH = 'db:articles';
 export const DB_ANNOUNCEMENTS_KEY = 'db:announcements';
 export const DB_VERSIONS_HASH = 'db:versions';
 export const DB_VISITOR_COUNT_KEY = 'db:visitor-count';
+
+// 文章互动数据
+export const DB_ARTICLE_LIKES_HASH = 'db:article-likes';    // field=articleId, value={ username:isoTimestamp, ... }
+export const DB_ARTICLE_FAVORITES_HASH = 'db:article-favorites'; // field=articleId, value={ username:isoTimestamp, ... }
 
 // 邮件相关键（旧版数据，清理用）
 export const LEGACY_DB_MAILS_HASH = 'db:mails';

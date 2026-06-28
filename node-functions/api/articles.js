@@ -10,6 +10,8 @@ import {
 } from './_lib/auth.js';
 import {
   DB_ARTICLES_HASH,
+  DB_ARTICLE_LIKES_HASH,
+  DB_ARTICLE_FAVORITES_HASH,
   LEGACY_ARTICLE_INDEX_KEY,
   LEGACY_ARTICLES_KEY,
   legacyArticleKey
@@ -221,6 +223,9 @@ export async function onRequestDelete(context){
     if(forbidden && !ownerForce) return json({ error:'只能删除自己发布的文章。' }, 403);
     for(const article of targetArticles){
       await redis.hdel(DB_ARTICLES_HASH, article.id);
+      // 同时清理该文章的点赞和收藏数据
+      await redis.hdel(DB_ARTICLE_LIKES_HASH, article.id);
+      await redis.hdel(DB_ARTICLE_FAVORITES_HASH, article.id);
     }
     await bumpArticlesVersion();
     return json({ ok:true, deleted:targetArticles.length });
