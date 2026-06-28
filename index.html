@@ -10826,16 +10826,30 @@ let currentDetailArticleAuthor = '';
 function refreshToolReactionCounts(username){
   // 从服务端获取用户真实的点赞/收藏总数
   if(!username || username === 'guest') return;
-  const url = authApiUrl(`/api/article-reactions?user=${encodeURIComponent(username)}`);
-  fetch(url)
-    .then(r => r.json())
+  authRequest(`/api/article-reactions?user=${encodeURIComponent(username)}`, { method:'GET' })
     .then(data => {
+      const likeCount = data.likeCount || 0;
+      const favCount = data.favoriteCount || 0;
       const toolLikeCountEl = document.getElementById('toolLikeCount');
       const toolFavCountEl = document.getElementById('toolFavCount');
-      if(toolLikeCountEl) toolLikeCountEl.textContent = data.likeCount || 0;
-      if(toolFavCountEl) toolFavCountEl.textContent = data.favoriteCount || 0;
+      if(toolLikeCountEl) toolLikeCountEl.textContent = likeCount;
+      if(toolFavCountEl) toolFavCountEl.textContent = favCount;
+      // 缓存到 localStorage，下次页面加载时立即显示
+      try{ localStorage.setItem('blog_reaction_like', likeCount); localStorage.setItem('blog_reaction_fav', favCount); }catch(_){}
     })
-    .catch(()=>{});
+    .catch(err => { console.warn('refreshToolReactionCounts failed:', err); });
+}
+
+// 页面加载时立即从 localStorage 恢复计数（不等 API）
+function restoreReactionCountsFromCache(){
+  try{
+    const like = localStorage.getItem('blog_reaction_like');
+    const fav = localStorage.getItem('blog_reaction_fav');
+    const toolLikeCountEl = document.getElementById('toolLikeCount');
+    const toolFavCountEl = document.getElementById('toolFavCount');
+    if(toolLikeCountEl && like !== null) toolLikeCountEl.textContent = like;
+    if(toolFavCountEl && fav !== null) toolFavCountEl.textContent = fav;
+  }catch(_){}
 }
 
 function updateToolStats(user = readSavedUser()){
@@ -11990,7 +12004,10 @@ async function toggleArticleReaction(action){
     const toolEl = document.getElementById(toolId);
     if(toolEl){
       const cur = parseInt(toolEl.textContent) || 0;
-      toolEl.textContent = Math.max(0, cur + (isAdd ? 1 : -1));
+      const newVal = Math.max(0, cur + (isAdd ? 1 : -1));
+      toolEl.textContent = newVal;
+      // 同步缓存
+      try{ localStorage.setItem(action === 'like' ? 'blog_reaction_like' : 'blog_reaction_fav', newVal); }catch(_){}
     }
   }catch(error){
     showLoginToast(error.message || '操作失败。', 'error', '操作失败');
@@ -12018,12 +12035,15 @@ function toggleSharePopup(){
     sharePopup.style.right = 'auto';
     sharePopup.style.top = 'auto';
   }
+  // 显示弹窗
+  sharePopup.hidden = false;
   if(!shareFriendList) return;
   const friends = (window.friendsState && window.friendsState.friends) ? window.friendsState.friends : [];
   const siteOwner = (window.friendsState && window.friendsState.siteOwner) ? window.friendsState.siteOwner : null;
 
   // 如果好友数据未加载，先请求再渲染
   if(!window.friendsState){
+    sharePopup.hidden = false;
     shareFriendList.innerHTML = '<p style="color:rgba(255,255,255,.35);font-size:12px;text-align:center;padding:12px;">加载好友列表...</p>';
     authRequest('/api/friends', { method:'GET', headers: authorizedHeaders() })
       .then(data => {
@@ -12679,6 +12699,7 @@ if(articleContentEditor){
 }
 
 if(articleSaveBtn) articleSaveBtn.addEventListener('click', saveArticleFromEditor);
+restoreReactionCountsFromCache();
 renderArticles();
 loadPublicArticles();
 if(window.ResizeObserver && articleGrid){
