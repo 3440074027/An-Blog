@@ -161,7 +161,36 @@ export async function onRequestGet(context){
       return json({ ok:true, article });
     }
     const articles = await readArticleIndex();
-    return json({ ok:true, articles:articles.sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt))) });
+
+    // 如果提供了 user 参数，返回该用户的点赞/收藏总数
+    const username = String(url.searchParams.get('user') || '').trim().slice(0, 20);
+    let likeCount = 0, favoriteCount = 0;
+    if(username){
+      try{
+        const [likesRaw, favsRaw] = await Promise.all([
+          redis.hgetall(DB_ARTICLE_LIKES_HASH),
+          redis.hgetall(DB_ARTICLE_FAVORITES_HASH)
+        ]);
+        for(const val of Object.values(likesRaw || {})){
+          try{
+            const d = typeof val === 'string' ? JSON.parse(val) : val;
+            if(d && typeof d === 'object' && username in d) likeCount++;
+          }catch(_){}
+        }
+        for(const val of Object.values(favsRaw || {})){
+          try{
+            const d = typeof val === 'string' ? JSON.parse(val) : val;
+            if(d && typeof d === 'object' && username in d) favoriteCount++;
+          }catch(_){}
+        }
+      }catch(_){}
+    }
+
+    return json({
+      ok:true,
+      articles: articles.sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt))),
+      ...(username ? { likeCount, favoriteCount } : {})
+    });
   }catch(error){
     console.error('articles get error:', error);
     return json({ error:'读取文章失败。' }, 500);
