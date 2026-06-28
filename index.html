@@ -5065,6 +5065,30 @@
     border-radius:20px 18px 6px 22px / 18px 20px 24px 16px;
   }
   .chat-msg.mine:hover{animation:chatBubbleShimmer 2.5s ease-in-out;}
+  /* 聊天中分享的文章卡片 */
+  .chat-share-card{
+    display:flex;gap:10px;border-radius:14px;
+    border:1px solid rgba(212,175,55,.18);
+    background:rgba(212,175,55,.05);
+    padding:10px;cursor:pointer;max-width:260px;
+    transition:all .2s;overflow:hidden;
+  }
+  .chat-share-card:hover{background:rgba(212,175,55,.12);border-color:rgba(212,175,55,.3);transform:translateY(-1px);}
+  .chat-share-card .csc-thumb{
+    width:56px;height:56px;border-radius:10px;flex-shrink:0;
+    background-size:cover;background-position:center;
+    background-color:rgba(212,175,55,.08);
+  }
+  .chat-share-card .csc-thumb.csc-no-img{
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;color:rgba(212,175,55,.3);
+  }
+  .chat-share-card .csc-body{min-width:0;flex:1;overflow:hidden;}
+  .chat-share-card .csc-label{font-size:10px;color:rgba(212,175,55,.6);font-weight:600;letter-spacing:.5px;margin-bottom:3px;}
+  .chat-share-card .csc-title{font-size:13px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3;}
+  .chat-share-card .csc-summary{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3;}
+  .chat-share-card .csc-meta{font-size:10px;color:rgba(255,255,255,.3);margin-top:4px;display:flex;align-items:center;gap:6px;}
+  .chat-share-card .csc-cat{font-size:9px;padding:1px 6px;border-radius:4px;background:rgba(212,175,55,.1);color:rgba(212,175,55,.5);}
   /* 手绘尾巴 - 对方的消息在左侧 */
   .chat-msg.theirs::after{
     content:''; position:absolute; left:-8px; bottom:8px;
@@ -8933,7 +8957,8 @@
 <!-- 分享好友弹窗（fixed 定位，需要在 modal 外部） -->
 <div class="share-popup" id="sharePopup" hidden>
   <div class="share-popup-title">选择好友分享</div>
-  <div id="shareFriendList" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
+  <input type="text" id="shareSearchInput" placeholder="搜索用户名或昵称..." style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#fff;font-size:12px;outline:none;margin-bottom:8px;" oninput="filterShareFriendList(this.value)">
+  <div id="shareFriendList" style="max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
 </div>
 
 <div class="owner-contact-modal" id="ownerContactModal" aria-hidden="true">
@@ -10823,7 +10848,7 @@ let editingArticleId = '';
 let currentDetailArticleId = '';
 let currentDetailArticleAuthor = '';
 
-function refreshToolReactionCounts(username){
+function refreshToolReactionCounts(username, retries = 1){
   // 从服务端获取用户真实的点赞/收藏总数
   if(!username || username === 'guest') return;
   authRequest(`/api/article-reactions?user=${encodeURIComponent(username)}`, { method:'GET' })
@@ -10837,7 +10862,10 @@ function refreshToolReactionCounts(username){
       // 缓存到 localStorage，下次页面加载时立即显示
       try{ localStorage.setItem('blog_reaction_like', likeCount); localStorage.setItem('blog_reaction_fav', favCount); }catch(_){}
     })
-    .catch(err => { console.warn('refreshToolReactionCounts failed:', err); });
+    .catch(err => {
+      console.warn('refreshToolReactionCounts failed:', err);
+      if(retries > 0) setTimeout(() => refreshToolReactionCounts(username, retries - 1), 1500);
+    });
 }
 
 // 页面加载时立即从 localStorage 恢复计数（不等 API）
@@ -12037,6 +12065,9 @@ function toggleSharePopup(){
   }
   // 显示弹窗
   sharePopup.hidden = false;
+  // 清空搜索
+  const shareSearchInput = document.getElementById('shareSearchInput');
+  if(shareSearchInput) shareSearchInput.value = '';
   if(!shareFriendList) return;
   const friends = (window.friendsState && window.friendsState.friends) ? window.friendsState.friends : [];
   const siteOwner = (window.friendsState && window.friendsState.siteOwner) ? window.friendsState.siteOwner : null;
@@ -12087,6 +12118,28 @@ function renderShareFriendList(friends, siteOwner, user){
     </div>`;
   });
   shareFriendList.innerHTML = html;
+  // 缓存完整好友列表供搜索过滤用
+  window._shareFriendsData = { friends, siteOwner, user };
+}
+
+function filterShareFriendList(query){
+  if(!window._shareFriendsData || !shareFriendList) return;
+  const q = (query || '').trim().toLowerCase();
+  const { friends, siteOwner, user } = window._shareFriendsData;
+  if(!q){ renderShareFriendList(friends, siteOwner, user); return; }
+  const filtered = friends.filter(f => {
+    if(!f) return false;
+    const nick = (f.profile?.nickname || f.nickname || f.username || '').toLowerCase();
+    const uname = (f.username || '').toLowerCase();
+    return nick.includes(q) || uname.includes(q);
+  });
+  // 站主也参与搜索
+  const ownerMatch = siteOwner ? (() => {
+    const nick = (siteOwner.profile?.nickname || siteOwner.nickname || siteOwner.username || '').toLowerCase();
+    const uname = (siteOwner.username || '').toLowerCase();
+    return nick.includes(q) || uname.includes(q);
+  })() : false;
+  renderShareFriendList(filtered, ownerMatch ? siteOwner : null, user);
 }
 
 async function shareArticleToFriend(targetUsername){
@@ -12107,7 +12160,10 @@ async function shareArticleToFriend(targetUsername){
     if(el.dataset.username === targetUsername) el.style.opacity = '.5';
   });
   try{
-    const cardBody = `[分享文章]\u200B${article.title || '未命名文章'}\u200B|by @${article.author || '未知'}\u200B|id:${articleId}`;
+    const summary = (article.summary || '').slice(0, 80);
+    const thumb = article.thumb || '';
+    const category = article.category || '随笔';
+    const cardBody = `[分享文章]\u200B${article.title || '未命名文章'}\u200B|by @${article.author || '未知'}\u200B|cat:${category}\u200B|sum:${summary}\u200B|img:${thumb}\u200B|id:${articleId}`;
     await authRequest('/api/chat', {
       method: 'POST',
       headers: authorizedHeaders(),
@@ -12700,6 +12756,11 @@ if(articleContentEditor){
 
 if(articleSaveBtn) articleSaveBtn.addEventListener('click', saveArticleFromEditor);
 restoreReactionCountsFromCache();
+// 首页加载时立即刷新点赞/收藏数量（不等 renderArticles）
+const initUser = readSavedUser();
+if(initUser?.username && initUser.username !== 'guest'){
+  refreshToolReactionCounts(initUser.username);
+}
 renderArticles();
 loadPublicArticles();
 if(window.ResizeObserver && articleGrid){
@@ -14797,16 +14858,27 @@ function startSiteVersionPoll(){
 
   function renderMessageBody(body){
     if(!body) return '';
-    // 检测文章卡片格式：[分享文章]<零宽空格>标题<零宽空格>|by @作者<零宽空格>|id:articleId
-    const cardMatch = body.match(/^\[分享文章\]\u200B(.+?)\u200B\|by @(.+?)\u200B\|id:(.+)$/);
+    // 检测文章卡片格式（兼容新旧格式）
+    const cardRegex = /^\[分享文章\]\u200B(.+?)\u200B\|by @(.+?)(?:\u200B\|cat:(.+?))?(?:\u200B\|sum:(.+?))?(?:\u200B\|img:(.+?))?\u200B\|id:(.+)$/;
+    const cardMatch = body.match(cardRegex);
     if(cardMatch){
-      const title = escapeHtmlSafe(cardMatch[1]);
-      const author = escapeHtmlSafe(cardMatch[2]);
-      const articleId = escapeHtmlSafe(cardMatch[3]);
-      return `<div class="chat-share-card" style="border-radius:12px;border:1px solid rgba(212,175,55,.2);background:rgba(212,175,55,.06);padding:10px 14px;cursor:pointer;max-width:280px;transition:background .15s;" onclick="openArticleDetail('${articleId}')" onmouseover="this.style.background='rgba(212,175,55,.14)'" onmouseout="this.style.background='rgba(212,175,55,.06)'">
-  <div style="font-size:11px;color:rgba(212,175,55,.7);margin-bottom:4px;font-weight:500;">分享的文章</div>
-  <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${title}</div>
-  <div style="font-size:11px;color:rgba(255,255,255,.4);">@${author}</div>
+      const title = cardMatch[1] || '未命名文章';
+      const author = cardMatch[2] || '未知';
+      const category = cardMatch[3] || '';
+      const summary = cardMatch[4] || '';
+      const thumb = cardMatch[5] || '';
+      const articleId = cardMatch[6] || '';
+      return `<div class="chat-share-card" onclick="closeChatPanel();openArticleDetail('${escapeHtml(articleId)}')">
+  ${thumb ? `<div class="csc-thumb" style="background-image:url(${escapeHtml(thumb)})"></div>` : '<div class="csc-thumb csc-no-img"><span>&#9998;</span></div>'}
+  <div class="csc-body">
+    <div class="csc-label">分享的文章</div>
+    <div class="csc-title">${escapeHtml(title)}</div>
+    ${summary ? `<div class="csc-summary">${escapeHtml(summary)}</div>` : ''}
+    <div class="csc-meta">
+      <span>@${escapeHtml(author)}</span>
+      ${category ? `<span class="csc-cat">${escapeHtml(category)}</span>` : ''}
+    </div>
+  </div>
 </div>`;
     }
     return escapeHtmlSafe(body);
