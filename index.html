@@ -1570,8 +1570,10 @@
   .ua-detail-scroll{
     flex:1 1 auto;overflow-y:auto;overflow-x:hidden;min-height:0;
   }
-  .ua-detail-scroll::-webkit-scrollbar{width:0;height:0;display:none}
-  .ua-detail-scroll{-ms-overflow-style:none;scrollbar-width:none}
+  .ua-detail-scroll::-webkit-scrollbar{width:6px;}
+  .ua-detail-scroll::-webkit-scrollbar-track{background:transparent;}
+  .ua-detail-scroll::-webkit-scrollbar-thumb{background:rgba(212,175,55,.25);border-radius:3px;}
+  .ua-detail-scroll::-webkit-scrollbar-thumb:hover{background:rgba(212,175,55,.4);}
   .ua-detail-author-inline{
     display:flex;align-items:center;gap:10px;
     padding:0 28px 8px;
@@ -8945,6 +8947,7 @@ function getUserManageElements(){
 
 function openUserManagePanel(){
   getUserManageElements();
+  lockBodyScroll();
   if(userManageOverlay) userManageOverlay.classList.add('open');
   if(userManagePanel) userManagePanel.classList.add('open');
   loadUserManageData();
@@ -8954,6 +8957,7 @@ function closeUserManagePanel(){
   getUserManageElements();
   if(userManageOverlay) userManageOverlay.classList.remove('open');
   if(userManagePanel) userManagePanel.classList.remove('open');
+  unlockBodyScroll();
 }
 
 // 美化弹窗（延迟获取DOM元素）
@@ -8986,12 +8990,14 @@ function openUmModal(title, bodyHtml, onConfirm, confirmText){
   if(umModalBody) umModalBody.innerHTML = bodyHtml;
   if(umModalConfirm) umModalConfirm.textContent = confirmText || '确认';
   umModalCallback = onConfirm;
+  lockBodyScroll();
   if(umModalOverlay) umModalOverlay.classList.add('open');
 }
 function closeUmModal(){
   getUmModalElements();
   if(umModalOverlay) umModalOverlay.classList.remove('open');
   umModalCallback = null;
+  unlockBodyScroll();
 }
 
 // 从API加载真实用户数据
@@ -10317,6 +10323,25 @@ function triggerLightFeathers(){
   setTimeout(() => lightFeathers.classList.remove('active'), 1800);
 }
 
+/* --- 弹窗打开时锁定 body 滚动，防止穿透滚动条 --- */
+const _bodyScrollLock = { count: 0, saved: '' };
+function lockBodyScroll(){
+  if (_bodyScrollLock.count === 0) {
+    _bodyScrollLock.saved = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = '';
+  }
+  _bodyScrollLock.count++;
+}
+function unlockBodyScroll(){
+  _bodyScrollLock.count--;
+  if (_bodyScrollLock.count <= 0) {
+    _bodyScrollLock.count = 0;
+    document.body.style.overflow = _bodyScrollLock.saved;
+    document.body.style.paddingRight = '';
+  }
+}
+
 function escapeHtml(value){
   return String(value)
     .replace(/&/g, '&amp;')
@@ -11115,6 +11140,7 @@ function openArticleEditor(article = null){
   updateArticleEditorPager();
   if(articleEditorTitle) articleEditorTitle.textContent = article ? '修改文章' : '发布文章';
   if(articleSaveBtn) articleSaveBtn.textContent = article ? '保存修改' : '发布';
+  lockBodyScroll();
   articleEditorModal?.classList.add('open');
   articleEditorModal?.setAttribute('aria-hidden', 'false');
   setTimeout(()=>articleContentEditor?.focus(), 80);
@@ -11124,6 +11150,7 @@ function closeArticleEditor(){
   editingArticleId = '';
   articleEditorModal?.classList.remove('open');
   articleEditorModal?.setAttribute('aria-hidden', 'true');
+  unlockBodyScroll();
 }
 
 function saveArticleSelection(){
@@ -11583,6 +11610,7 @@ async function openArticleDetail(id){
   const isAuthor = isCurrentUserAuthor(article);
   if(articleDetailEditBtn) articleDetailEditBtn.style.display = isAuthor ? 'inline-flex' : 'none';
   if(articleDetailDeleteBtn) articleDetailDeleteBtn.hidden = !(isAuthor || isOwner);
+  lockBodyScroll();
   articleDetailModal?.classList.add('open');
   articleDetailModal?.setAttribute('aria-hidden', 'false');
 }
@@ -11644,6 +11672,7 @@ function goArticleDetailPage(direction){
 function closeArticleDetail(){
   articleDetailModal?.classList.remove('open');
   articleDetailModal?.setAttribute('aria-hidden', 'true');
+  unlockBodyScroll();
 }
 
 async function editCurrentDetailArticle(){
@@ -12261,6 +12290,7 @@ function openNoticeEditor(){
     return;
   }
   renderNoticeEditor();
+  lockBodyScroll();
   noticeEditorModal?.classList.add('open');
   noticeEditorModal?.setAttribute('aria-hidden', 'false');
 }
@@ -12268,6 +12298,7 @@ function openNoticeEditor(){
 function closeNoticeEditor(){
   noticeEditorModal?.classList.remove('open');
   noticeEditorModal?.setAttribute('aria-hidden', 'true');
+  unlockBodyScroll();
 }
 
 function renderNoticeEditor(){
@@ -12522,6 +12553,7 @@ async function refreshSearchUserProfile(username){
 function closePublicProfile(){
   publicProfileModal?.classList.remove('open');
   publicProfileModal?.setAttribute('aria-hidden', 'true');
+  unlockBodyScroll();
 }
 
 function renderPublicProfile(user){
@@ -12593,6 +12625,7 @@ async function openPublicUserProfile(username, prefetchedUser = null){
   try{
     const data = prefetchedUser ? { user:prefetchedUser } : await authRequest(`/api/users/profile?username=${encodeURIComponent(username)}`, { method:'GET' });
     renderPublicProfile(data.user);
+    lockBodyScroll();
     publicProfileModal?.classList.add('open');
     publicProfileModal?.setAttribute('aria-hidden', 'false');
     searchResultsPanel?.classList.remove('open');
@@ -12609,6 +12642,7 @@ async function contactSiteOwner(){
     ownerContactUser = data.user;
     const texts = userTexts(ownerContactUser);
     if(ownerContactInfo) ownerContactInfo.textContent = `站主 QQ：${texts.qq || '未填写'}；邮箱：${texts.email || '未填写'}。你可以复制联系方式，或直接发送站内信息。`;
+    lockBodyScroll();
     ownerContactModal?.classList.add('open');
     ownerContactModal?.setAttribute('aria-hidden', 'false');
   }catch(error){
@@ -12619,6 +12653,7 @@ async function contactSiteOwner(){
 function closeOwnerContact(){
   ownerContactModal?.classList.remove('open');
   ownerContactModal?.setAttribute('aria-hidden', 'true');
+  unlockBodyScroll();
 }
 
 if(homeSearchBtn) homeSearchBtn.addEventListener('click', ()=>{
@@ -12702,7 +12737,7 @@ if(ownerContactModal) ownerContactModal.addEventListener('click', event=>{ if(ev
 if(ownerMailBtn) ownerMailBtn.addEventListener('click', ()=>{ closeOwnerContact(); if(typeof openChatPanel === 'function') openChatPanel(SITE_OWNER_USERNAME); });
 if(ownerCopyQqBtn) ownerCopyQqBtn.addEventListener('click', ()=>copyText(userTexts(ownerContactUser).qq, '站主 QQ'));
 if(ownerCopyEmailBtn) ownerCopyEmailBtn.addEventListener('click', ()=>copyText(userTexts(ownerContactUser).email, '站主邮箱'));
-if(ownerViewProfileBtn) ownerViewProfileBtn.addEventListener('click', ()=>{ closeOwnerContact(); if(ownerContactUser){ renderPublicProfile(ownerContactUser); publicProfileModal?.classList.add('open'); publicProfileModal?.setAttribute('aria-hidden','false'); } });
+if(ownerViewProfileBtn) ownerViewProfileBtn.addEventListener('click', ()=>{ closeOwnerContact(); if(ownerContactUser){ renderPublicProfile(ownerContactUser); lockBodyScroll(); publicProfileModal?.classList.add('open'); publicProfileModal?.setAttribute('aria-hidden','false'); } });
 
 function getProfileCompleteness(user = readSavedUser()){
   const profile = user?.profile || {};
@@ -12808,6 +12843,7 @@ function openAccountVerifyModal(){
   }
   if(accountVerifyUsername) accountVerifyUsername.value = user.username || '';
   if(accountVerifyPassword) accountVerifyPassword.value = '';
+  lockBodyScroll();
   accountVerifyModal?.classList.add('open');
   accountVerifyModal?.setAttribute('aria-hidden', 'false');
   setTimeout(()=>accountVerifyPassword?.focus(), 80);
@@ -12816,6 +12852,7 @@ function openAccountVerifyModal(){
 function closeAccountVerifyModal(){
   accountVerifyModal?.classList.remove('open');
   accountVerifyModal?.setAttribute('aria-hidden', 'true');
+  unlockBodyScroll();
 }
 
 async function verifyAccountForEdit(){
@@ -12916,6 +12953,7 @@ function openAccountDeleteModal(){
     return;
   }
   if(accountDeleteText) accountDeleteText.textContent = `确定要注销账号 ${user.username} 吗？注销后将删除当前账号数据，无法恢复。`;
+  lockBodyScroll();
   accountDeleteModal?.classList.add('open');
   accountDeleteModal?.setAttribute('aria-hidden', 'false');
 }
@@ -12923,6 +12961,7 @@ function openAccountDeleteModal(){
 function closeAccountDeleteModal(){
   accountDeleteModal?.classList.remove('open');
   accountDeleteModal?.setAttribute('aria-hidden', 'true');
+  unlockBodyScroll();
 }
 
 async function confirmDeleteCurrentAccount(){
@@ -12963,6 +13002,7 @@ function openProfileEditor(){
   resetAccountEditor();
   renderBlogHomeUser(user);
   if(accountUsernameInput) accountUsernameInput.value = user.username || '';
+  lockBodyScroll();
   profileEditor?.classList.add('open');
   profileEditor?.setAttribute('aria-hidden', 'false');
 }
@@ -12998,6 +13038,7 @@ function closeProfileEditor(){
   resetAccountEditor();
   profileEditor?.classList.remove('open');
   profileEditor?.setAttribute('aria-hidden', 'true');
+  unlockBodyScroll();
   // 重置标签编辑状态
   if(profileTagAddForm) profileTagAddForm.hidden = true;
   if(profileTagDelForm) profileTagDelForm.hidden = true;
@@ -13469,6 +13510,7 @@ async function compressAvatarFile(file){
 }
 
 function openRegisterModal(){
+  lockBodyScroll();
   registerModal.classList.add('open');
   registerModal.setAttribute('aria-hidden', 'false');
   triggerLightFeathers();
@@ -13478,6 +13520,7 @@ function openRegisterModal(){
 function closeRegisterModal(){
   registerModal.classList.remove('open');
   registerModal.setAttribute('aria-hidden', 'true');
+  unlockBodyScroll();
 }
 
 function resetRegisterAvatar(){
@@ -14474,6 +14517,7 @@ function startSiteVersionPoll(){
     if(deleteFriendConfirmText){
       deleteFriendConfirmText.textContent = `确认删除好友「${pendingDeleteFriendName}」吗？删除后需要重新发送好友申请才能继续聊天。`;
     }
+    lockBodyScroll();
     deleteFriendConfirmModal.classList.add('open');
     deleteFriendConfirmModal.setAttribute('aria-hidden', 'false');
   }
@@ -14483,6 +14527,7 @@ function startSiteVersionPoll(){
     if(!deleteFriendConfirmModal) return;
     deleteFriendConfirmModal.classList.remove('open');
     deleteFriendConfirmModal.setAttribute('aria-hidden', 'true');
+    unlockBodyScroll();
   }
 
   async function confirmDeleteFriend(){
@@ -14617,9 +14662,9 @@ function startSiteVersionPoll(){
       return;
     }
     if(!chatModal) return;
+    lockBodyScroll();
     chatModal.classList.add('open');
     chatModal.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('lock-scroll');
     await Promise.all([refreshFriends(), refreshChats()]);
     if(focusPeer){
       switchTab('conversations');
@@ -14635,7 +14680,7 @@ function startSiteVersionPoll(){
     if(!chatModal) return;
     chatModal.classList.remove('open');
     chatModal.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('lock-scroll');
+    unlockBodyScroll();
   }
 
   function openAddFriendDialog(prefill){
@@ -14644,6 +14689,7 @@ function startSiteVersionPoll(){
       return;
     }
     if(!addFriendModal) return;
+    lockBodyScroll();
     addFriendModal.classList.add('open');
     addFriendModal.setAttribute('aria-hidden', 'false');
     if(addFriendUsernameInput) addFriendUsernameInput.value = prefill || '';
@@ -14659,6 +14705,7 @@ function startSiteVersionPoll(){
     if(!addFriendModal) return;
     addFriendModal.classList.remove('open');
     addFriendModal.setAttribute('aria-hidden', 'true');
+    unlockBodyScroll();
     if(addFriendPreviewResults){
       addFriendPreviewResults.hidden = true;
       addFriendPreviewResults.innerHTML = '';
@@ -14693,6 +14740,7 @@ function startSiteVersionPoll(){
       try{
         document.getElementById('publicProfileModal')?.classList.remove('open');
         document.getElementById('publicProfileModal')?.setAttribute('aria-hidden', 'true');
+        unlockBodyScroll();
       }catch(_){ }
       openChatPanel(user.username);
     });
