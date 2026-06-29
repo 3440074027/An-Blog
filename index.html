@@ -5038,7 +5038,7 @@
     width:fit-content;
     min-width:32px;
     max-width:min(78%, 380px); padding:8px 14px; font-size:13px; line-height:1.55;
-    overflow-wrap:break-word; word-break:normal; white-space:normal;
+    overflow-wrap:break-word; word-break:break-all; white-space:normal;
     box-shadow:0 3px 10px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.2);
     position:relative;
     border:2px solid rgba(255,255,255,.22);
@@ -5054,6 +5054,12 @@
     max-width:min(85%, 420px);
     padding:6px 8px;
     overflow:hidden;
+  }
+  /* 纯文本消息：36个数字等宽后换行 */
+  .chat-msg-text{
+    display:block;
+    max-inline-size:36ch;
+    overflow-wrap:break-word;
   }
   .chat-msg:hover{box-shadow:0 5px 16px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.24); transform:translateY(-1px);}
   /* 手绘尾巴 - 自己的消息在右侧 */
@@ -5131,7 +5137,7 @@
   }
   .chat-input-area textarea{
     grid-column:2/3;
-    width:100%; resize:none; min-height:40px; max-height:160px;
+    width:100%; resize:none; min-height:40px; max-height:160px; max-width:36ch;
     border-radius:18px; border:1px solid rgba(255,255,255,.16);
     background:rgba(255,255,255,.07); color:#fff;
     padding:10px 14px; font-size:13.5px; font-family:inherit;
@@ -14775,7 +14781,7 @@ function startSiteVersionPoll(){
   </div>
 </div>`;
     }
-    return escapeHtmlSafe(body).replace(/\n+/g, '<br>');
+    return `<span class="chat-msg-text">${escapeHtmlSafe(body).replace(/\n+/g, '<br>')}</span>`;
   }
 
   function renderMessages(conv, peerInfo, opts = {}){
@@ -15099,7 +15105,7 @@ function startSiteVersionPoll(){
     if(chatMessages){
       chatMessages.insertAdjacentHTML('beforeend', `
         <div class="chat-msg-row mine" data-sending-id="${sendingId}">
-          <div class="chat-msg mine">${escapeHtmlSafe(raw).replace(/\n+/g, '<br>')}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
+          <div class="chat-msg mine"><span class="chat-msg-text">${escapeHtmlSafe(raw).replace(/\n+/g, '<br>')}</span><span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
           <time class="chat-msg-time">发送中</time>
         </div>`);
       chatMessages.scrollTop = chatMessages.scrollHeight;
