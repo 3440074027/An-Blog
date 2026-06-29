@@ -13433,6 +13433,8 @@ function enterDashboard(userLike){
   }
   pulseTransitionFlare();
   triggerLightFeathers();
+  // 登录后立即刷新文章列表和点赞/收藏数量
+  loadPublicArticles();
   setTimeout(()=>{
     if(loginStage) loginStage.classList.add('hidden');
   }, 520);
