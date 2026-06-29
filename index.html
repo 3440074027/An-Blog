@@ -14186,91 +14186,6 @@ if(returnLoginBtn) returnLoginBtn.addEventListener('click', returnToLogin);
   }
 })();
 
-/* ------------------ 实时同步：版本号轮询 ------------------
- * 高频轻量拉取 /api/site-versions，对比版本号，变了就只刷对应模块。
- * 聊天窗口打开时会更积极刷新好友/会话，保证申请数量和信息尽快变化。
- */
-const SITE_VERSION_POLL_MS = 1200;
-let _siteVersions = { announcements:0, articles:0, user:0, friends:0, chat:0 };
-let _siteVersionTimer = null;
-let _siteVersionInFlight = false;
-
-async function pollSiteVersions(){
-  if(_siteVersionInFlight) return;
-  if(document.hidden) return; // 页面不可见时不轮询，省流量
-  _siteVersionInFlight = true;
-  try{
-    const headers = authorizedHeaders();
-    const data = await authRequest('/api/site-versions', { method:'GET', headers });
-    const next = data && data.versions ? data.versions : {};
-    const previous = _siteVersions;
-
-    if(next.announcements && next.announcements !== previous.announcements){
-      try{ await loadAnnouncements(); }catch(_){ }
-    }
-    if(next.articles && next.articles !== previous.articles){
-      try{ await loadPublicArticles(); }catch(_){ }
-    }
-    const chatIsOpen = !!document.getElementById('chatModal')?.classList.contains('open');
-    const friendVersionChanged = next.friends !== undefined && next.friends !== previous.friends;
-    const chatVersionChanged = next.chat !== undefined && next.chat !== previous.chat;
-    if((friendVersionChanged || chatIsOpen) && getAuthToken()){
-      try{ if(typeof refreshFriends === 'function') await refreshFriends({ silent:true }); }catch(_){ }
-    }
-    if((chatVersionChanged || chatIsOpen) && getAuthToken()){
-      try{ if(typeof refreshChats === 'function') await refreshChats({ silent:true }); }catch(_){ }
-    }
-    if(next.user && next.user !== previous.user && getAuthToken()){
-      try{
-        const me = await authRequest('/api/me', { method:'GET', headers:authorizedHeaders() });
-        if(me && me.user){
-          const token = getAuthToken();
-          saveLoginSession(token, me.user);
-          if(typeof renderBlogHomeUser === 'function') renderBlogHomeUser(me.user);
-        }
-      }catch(_){ }
-    }
-
-    _siteVersions = {
-      announcements: next.announcements || previous.announcements || 0,
-      articles: next.articles || previous.articles || 0,
-      user: next.user || previous.user || 0,
-      friends: next.friends !== undefined ? next.friends : (previous.friends || 0),
-      chat: next.chat !== undefined ? next.chat : (previous.chat || 0)
-    };
-  }catch(error){
-    // 静默失败，下个周期会再试
-  }finally{
-    _siteVersionInFlight = false;
-  }
-}
-
-function startSiteVersionPoll(){
-  if(_siteVersionTimer) return;
-  // 第一次先静默拉一次拿到基准版本号，避免首跑就刷一次全量
-  (async ()=>{
-    try{
-      const data = await authRequest('/api/site-versions', { method:'GET', headers:authorizedHeaders() });
-      if(data && data.versions){
-        _siteVersions = {
-          announcements: data.versions.announcements || 0,
-          articles: data.versions.articles || 0,
-          user: data.versions.user || 0,
-          friends: data.versions.friends || 0,
-          chat: data.versions.chat || 0
-        };
-      }
-    }catch(_){ }
-  })();
-  _siteVersionTimer = setInterval(pollSiteVersions, SITE_VERSION_POLL_MS);
-  // 切换可见时立刻校对一次
-  document.addEventListener('visibilitychange', ()=>{
-    if(!document.hidden) pollSiteVersions();
-  });
-  // 重新联网时校对一次
-  window.addEventListener('online', pollSiteVersions);
-}
-
 /* =====================================================================
  * 聊天 / 好友 模块（替代旧的邮件模块）
  * - 数据：/api/friends 与 /api/chat
@@ -14474,9 +14389,6 @@ function startSiteVersionPoll(){
       renderConvList({ preserve:true }); // 会话列表里也要更新头像/昵称
       renderOwnerBanner();
       updateChatBadgeNumbers();
-      if((friendsState.incoming || []).length !== prevIncomingCount && typeof pollSiteVersions === 'function'){
-        _siteVersions.friends = 0;
-      }
     }catch(error){
       if(!opts || !opts.silent) chatToast(error.message || '读取好友失败。', 'error');
     }
@@ -15490,8 +15402,6 @@ function startSiteVersionPoll(){
     }, 1500);
   }
 })();
-
-startSiteVersionPoll();
 </script>
 
 <!-- 用户控制台弹窗 -->
