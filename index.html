@@ -6591,7 +6591,7 @@
   }
   .af-sort-group{
     display:flex;
-    flex-wrap:wrap;
+    align-items:center;
     gap:4px;
     margin-left:2px;
     padding:3px;
@@ -6599,28 +6599,45 @@
     background:rgba(255,255,255,.03);
     border:1px solid rgba(255,182,193,.08);
   }
-  .af-sort-group button{
-    min-height:24px;
-    padding:0 10px;
-    border-radius:999px;
-    border:1px solid transparent;
-    color:rgba(255,240,245,.5);
-    font-size:10px;
-    font-weight:800;
-    cursor:pointer;
-    background:transparent;
-    transition:all .22s ease;
+  /* 排序下拉按钮 */
+  .sort-dropdown{position:relative;}
+  .sort-dropdown-trigger{
+    display:flex;align-items:center;gap:4px;
+    min-height:24px; padding:0 10px;
+    border-radius:999px; border:1px solid transparent;
+    color:rgba(255,240,245,.7); font-size:10px; font-weight:800;
+    cursor:pointer; background:transparent; transition:all .15s; white-space:nowrap;
   }
-  .af-sort-group button:hover{
-    color:rgba(255,240,245,.8);
-    background:rgba(255,255,255,.06);
+  .sort-dropdown-trigger:hover{ color:rgba(255,240,245,.9); background:rgba(255,255,255,.06); }
+  .sort-dropdown-trigger .sort-arrow{font-size:8px;opacity:.5;transition:transform .2s;}
+  .sort-dropdown.open .sort-arrow{transform:rotate(180deg);}
+  .sort-dropdown-menu{
+    position:absolute; top:calc(100% + 6px); left:0; z-index:100;
+    min-width:120px; padding:4px;
+    border-radius:10px; border:1px solid rgba(255,182,193,.12);
+    background:rgba(30,20,50,.95); backdrop-filter:blur(16px);
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
+    display:none;
   }
-  .af-sort-group button.active{
-    background:linear-gradient(135deg, rgba(255,182,193,.22), rgba(200,180,255,.16));
-    color:#fff;
-    border-color:rgba(255,182,193,.3);
-    box-shadow:0 2px 10px rgba(255,182,193,.1);
+  .sort-dropdown.open .sort-dropdown-menu{display:block;}
+  .sort-dropdown-menu button{
+    display:block; width:100%; text-align:left;
+    padding:7px 12px; border-radius:7px; border:none;
+    color:rgba(255,240,245,.6); font-size:11px; font-weight:600;
+    cursor:pointer; background:transparent; transition:all .12s; white-space:nowrap;
   }
+  .sort-dropdown-menu button:hover{ color:#fff; background:rgba(255,255,255,.08); }
+  .sort-dropdown-menu button.active{ color:#ff6b8a; background:rgba(255,107,138,.1); }
+  /* 排序方向切换按钮 */
+  .sort-dir-btn{
+    min-height:24px; width:24px;
+    border-radius:50%; border:1px solid rgba(255,182,193,.12);
+    color:rgba(255,240,245,.5); font-size:12px;
+    cursor:pointer; background:transparent; transition:all .2s;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .sort-dir-btn:hover{ color:rgba(255,240,245,.8); background:rgba(255,255,255,.06); }
+  .sort-dir-btn.asc{ color:#a29bfe; border-color:rgba(162,155,254,.3); }
   .af-bar-actions{
     display:flex;
     gap:6px;
@@ -8824,13 +8841,21 @@
                 <button class="af-clear" type="button" id="afTimeClear">清除时间</button>
               </div>
             </div>
-            <div class="af-sort-group">
-              <button id="articleSortNew" type="button" data-sort="new">最新发布</button>
-              <button id="articleSortOld" type="button" data-sort="old">最早发布</button>
-              <button id="articleSortTitle" type="button" data-sort="title">标题排序</button>
-              <button id="articleSortImage" type="button" data-sort="image">优先图文</button>
-              <button id="articleSortLike" type="button" data-sort="likes">点赞最多</button>
-              <button id="articleSortFav" type="button" data-sort="favs">收藏最多</button>
+            <div class="af-sort-group" style="gap:4px;">
+              <div class="sort-dropdown" id="sortDropdown">
+                <button class="sort-dropdown-trigger" id="sortDropdownBtn" type="button">
+                  <span id="sortDropdownLabel">最新发布</span>
+                  <span class="sort-arrow">&#9662;</span>
+                </button>
+                <div class="sort-dropdown-menu" id="sortDropdownMenu">
+                  <button type="button" data-sort="new">最新发布</button>
+                  <button type="button" data-sort="title">标题排序</button>
+                  <button type="button" data-sort="image">优先图文</button>
+                  <button type="button" data-sort="likes">点赞最多</button>
+                  <button type="button" data-sort="favs">收藏最多</button>
+                </div>
+              </div>
+              <button class="sort-dir-btn" id="sortDirBtn" type="button" title="切换排序方向">&#8595;</button>
             </div>
             <div class="af-bar-actions">
               <button id="articleScopeAllBtn" type="button">全部文章</button>
@@ -8866,11 +8891,20 @@
           <div class="tool-stat"><strong id="toolTagCount">0</strong><span>资料标签</span></div>
         </div>
         <div id="collectionsSection" style="margin-top:16px;display:none;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <span style="font-size:13px;font-weight:600;color:#e8e8ff;">我的收藏夹</span>
-            <button id="newCollectionBtn" type="button" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(108,92,231,.3);background:rgba(108,92,231,.1);color:#a29bfe;cursor:pointer;">+ 新建</button>
+          <div id="collectionsEntryCard" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(108,92,231,.15);background:linear-gradient(135deg,rgba(108,92,231,.06),rgba(162,155,254,.04));cursor:pointer;transition:all .2s;">
+            <div style="width:32px;height:32px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;">&#9733;</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:600;color:#e8e8ff;">我的收藏夹</div>
+              <div id="collectionsSummary" style="font-size:11px;color:#777;">正在加载...</div>
+            </div>
+            <span id="collectionsExpandIcon" style="font-size:10px;color:#555;transition:transform .2s;">&#9662;</span>
           </div>
-          <div id="collectionsList"></div>
+          <div id="collectionsDetail" style="display:none;margin-top:8px;">
+            <div id="collectionsList"></div>
+            <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+              <button id="newCollectionBtn" type="button" style="font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid rgba(108,92,231,.3);background:rgba(108,92,231,.1);color:#a29bfe;cursor:pointer;transition:all .15s;">+ 新建收藏夹</button>
+            </div>
+          </div>
         </div>
         <p id="featureDescription">结合生日、星座、标签和文章记录，为你生成今日灵感。</p>
       </section>
@@ -8899,6 +8933,7 @@
         <div id="collectNewForm" style="display:none;margin-top:12px;">
           <input id="collectNameInput" type="text" placeholder="收藏夹名称" maxlength="40" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:13px;outline:none;margin-bottom:8px;box-sizing:border-box;" />
           <input id="collectSummaryInput" type="text" placeholder="简介（可选）" maxlength="200" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:13px;outline:none;margin-bottom:8px;box-sizing:border-box;" />
+          <input id="collectTagInput" type="text" placeholder="标签，用逗号分隔（可选）" maxlength="200" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:12px;outline:none;margin-bottom:8px;box-sizing:border-box;" />
           <input id="collectCoverInput" type="text" placeholder="封面图片 URL（可选）" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:12px;outline:none;margin-bottom:8px;box-sizing:border-box;" />
           <div style="display:flex;gap:8px;">
             <button id="collectCreateBtn" type="button" style="flex:1;padding:8px;border-radius:8px;border:none;background:#6c5ce7;color:#fff;cursor:pointer;font-size:13px;">创建并收藏</button>
@@ -10497,12 +10532,13 @@ const afTimePanel = document.getElementById('afTimePanel');
 const afTimeFrom = document.getElementById('afTimeFrom');
 const afTimeTo = document.getElementById('afTimeTo');
 const afTimeClear = document.getElementById('afTimeClear');
-const articleSortNew = document.getElementById('articleSortNew');
-const articleSortOld = document.getElementById('articleSortOld');
-const articleSortTitle = document.getElementById('articleSortTitle');
-const articleSortImage = document.getElementById('articleSortImage');
-const articleSortLike = document.getElementById('articleSortLike');
-const articleSortFav = document.getElementById('articleSortFav');
+const sortDropdownBtn = document.getElementById('sortDropdownBtn');
+const sortDropdownLabel = document.getElementById('sortDropdownLabel');
+const sortDropdownMenu = document.getElementById('sortDropdownMenu');
+const sortDropdown = document.getElementById('sortDropdown');
+const sortDirBtn = document.getElementById('sortDirBtn');
+const SORT_LABELS = { new:'最新发布', old:'最早发布', title:'标题排序', image:'优先图文', likes:'点赞最多', favs:'收藏最多' };
+const SORT_TYPES = ['new','title','image','likes','favs'];
 const articlePublishBtn = document.getElementById('articlePublishBtn');
 const articleOwnerDeleteModeBtn = document.getElementById('articleOwnerDeleteModeBtn');
 const articleDeleteTools = document.getElementById('articleDeleteTools');
@@ -10959,38 +10995,97 @@ function updateToolStats(user = readSavedUser()){
   loadCollectionsInToolbox();
 }
 
+let _collectionsCache = [];
+
 async function loadCollectionsInToolbox(){
   const section = document.getElementById('collectionsSection');
-  const list = document.getElementById('collectionsList');
-  if(!section || !list || !getAuthToken()) return;
+  const summary = document.getElementById('collectionsSummary');
+  if(!section || !getAuthToken()) return;
   try{
     const data = await authRequest('/api/collections', { method:'GET', headers:authorizedHeaders() });
     const cols = Array.isArray(data.collections) ? data.collections : [];
+    _collectionsCache = cols;
     if(!cols.length){ section.style.display = 'none'; return; }
     section.style.display = 'block';
-    list.innerHTML = cols.map(c => `
-      <div class="col-tool-item" data-cid="${c.id}" style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);margin-bottom:6px;cursor:pointer;transition:all .15s;">
-        <div style="width:28px;height:28px;border-radius:5px;flex-shrink:0;background:${c.cover ? 'url('+c.cover+') center/cover' : 'linear-gradient(135deg,#6c5ce7,#a29bfe)'};border:1px solid rgba(255,255,255,.06);"></div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:12px;font-weight:600;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>
-          <div style="font-size:10px;color:#777;">${c.articleCount || 0} 篇</div>
-        </div>
-        <button class="col-delete-btn" data-cid="${c.id}" type="button" style="width:22px;height:22px;border-radius:50%;border:none;background:rgba(255,80,80,.08);color:rgba(255,80,80,.5);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">&#10005;</button>
-      </div>
-    `).join('');
-    list.querySelectorAll('.col-delete-btn').forEach(btn => {
-      btn.addEventListener('click', async(e) => {
-        e.stopPropagation();
-        if(!confirm('确定删除该收藏夹？')) return;
-        try{
-          await authRequest('/api/collections', { method:'DELETE', headers:authorizedHeaders(), body:JSON.stringify({ id:btn.dataset.cid }) });
-          loadCollectionsInToolbox();
-        }catch(_){}
-      });
-    });
+    const total = cols.reduce((s, c) => s + (c.articleCount || 0), 0);
+    if(summary) summary.textContent = `${cols.length} 个收藏夹 · ${total} 篇文章`;
   }catch(_){
     section.style.display = 'none';
   }
+}
+
+async function openCollectionsDetail(){
+  const detail = document.getElementById('collectionsDetail');
+  const list = document.getElementById('collectionsList');
+  const icon = document.getElementById('collectionsExpandIcon');
+  const card = document.getElementById('collectionsEntryCard');
+  if(!detail || !list) return;
+  // 切换展开/收起
+  if(detail.style.display !== 'none'){
+    detail.style.display = 'none';
+    if(icon) icon.style.transform = '';
+    if(card) card.style.borderColor = 'rgba(108,92,231,.15)';
+    return;
+  }
+  detail.style.display = 'block';
+  if(icon) icon.style.transform = 'rotate(180deg)';
+  if(card) card.style.borderColor = 'rgba(108,92,231,.35)';
+  // 渲染收藏夹列表
+  list.innerHTML = _collectionsCache.map(c => `
+    <div class="col-tool-item" data-cid="${c.id}" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);margin-bottom:6px;cursor:pointer;transition:all .15s;">
+      <div style="width:28px;height:28px;border-radius:5px;flex-shrink:0;background:${c.cover ? 'url('+c.cover+') center/cover' : 'linear-gradient(135deg,#6c5ce7,#a29bfe)'};border:1px solid rgba(255,255,255,.06);"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:600;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>
+        <div style="font-size:10px;color:#777;">${c.articleCount || 0} 篇${c.tags && c.tags.length ? ' · ' + c.tags.slice(0,3).join(', ') : ''}</div>
+      </div>
+      <span class="col-expand-icon" style="font-size:10px;color:#555;transition:transform .2s;">&#9662;</span>
+      <button class="col-delete-btn" data-cid="${c.id}" type="button" style="width:22px;height:22px;border-radius:50%;border:none;background:rgba(255,80,80,.08);color:rgba(255,80,80,.5);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">&#10005;</button>
+    </div>
+    <div class="col-articles-panel" data-panel="${c.id}" style="display:none;margin:0 0 8px 0;padding:0 0 0 44px;border-left:2px solid rgba(108,92,231,.2);"></div>
+  `).join('');
+  // 收藏夹点击展开文章
+  list.querySelectorAll('.col-tool-item').forEach(item => {
+    item.addEventListener('click', async(e) => {
+      if(e.target.closest('.col-delete-btn')) return;
+      const cid = item.dataset.cid;
+      const panel = list.querySelector(`[data-panel="${cid}"]`);
+      const expIcon = item.querySelector('.col-expand-icon');
+      if(!panel) return;
+      if(panel.style.display !== 'none'){
+        panel.style.display = 'none';
+        if(expIcon) expIcon.style.transform = '';
+        return;
+      }
+      list.querySelectorAll('.col-articles-panel').forEach(p => { p.style.display = 'none'; });
+      list.querySelectorAll('.col-expand-icon').forEach(ic => { ic.style.transform = ''; });
+      panel.innerHTML = '<div style="font-size:11px;color:#666;padding:4px 0;">加载中...</div>';
+      panel.style.display = 'block';
+      if(expIcon) expIcon.style.transform = 'rotate(180deg)';
+      try{
+        const res = await authRequest('/api/collections?id=' + encodeURIComponent(cid), { method:'GET', headers:authorizedHeaders() });
+        const articles = res.collection?.articles || [];
+        if(!articles.length){ panel.innerHTML = '<div style="font-size:11px;color:#555;padding:4px 0;">暂无文章</div>'; return; }
+        panel.innerHTML = articles.map(a => {
+          const art = (Array.isArray(publicArticles) ? publicArticles : []).find(p => p.id === a.articleId);
+          return `<div style="font-size:11px;color:#999;padding:3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" onclick="event.stopPropagation();openArticleDetail('${a.articleId}')" title="${art ? art.title : a.articleId}">${art ? art.title : '未知文章'}</div>`;
+        }).join('');
+      }catch(_){ panel.innerHTML = '<div style="font-size:11px;color:#666;padding:4px 0;">加载失败</div>'; }
+    });
+  });
+  // 删除按钮
+  list.querySelectorAll('.col-delete-btn').forEach(btn => {
+    btn.addEventListener('click', async(e) => {
+      e.stopPropagation();
+      if(!confirm('确定删除该收藏夹？')) return;
+      try{
+        await authRequest('/api/collections', { method:'DELETE', headers:authorizedHeaders(), body:JSON.stringify({ id:btn.dataset.cid }) });
+        // 从缓存移除
+        _collectionsCache = _collectionsCache.filter(c => c.id !== btn.dataset.cid);
+        openCollectionsDetail(); // 收起并刷新
+        loadCollectionsInToolbox(); // 更新总览
+      }catch(_){}
+    });
+  });
 }
 
 function getUserArticles(user = readSavedUser()){
@@ -11270,19 +11365,37 @@ function getFilteredArticles(){
 
   // 排序
   articles.sort((a, b) => {
-    if(articleFilters.sort === 'old') return String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
-    if(articleFilters.sort === 'title') return String(a.title || '').localeCompare(String(b.title || ''), 'zh-CN');
-    if(articleFilters.sort === 'image'){
-      const imgA = articleGalleryImages(a).length;
-      const imgB = articleGalleryImages(b).length;
-      return imgB - imgA || String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+    const isAsc = articleFilters.sort.endsWith('-asc');
+    const sortType = articleFilters.sort.replace(/-asc$/, '');
+    const ts = (v) => String(v || '');
+    const cmp = (x, y) => x.localeCompare ? x.localeCompare(y) : (x > y ? 1 : x < y ? -1 : 0);
+    switch(sortType){
+      case 'old':
+        return isAsc
+          ? cmp(ts(b.createdAt), ts(a.createdAt))
+          : cmp(ts(a.createdAt), ts(b.createdAt));
+      case 'title':
+        return isAsc
+          ? cmp(ts(b.title), ts(a.title)) || cmp(ts(a.createdAt), ts(b.createdAt))
+          : cmp(ts(a.title), ts(b.title)) || cmp(ts(b.createdAt), ts(a.createdAt));
+      case 'image': {
+        const imgA = articleGalleryImages(a).length;
+        const imgB = articleGalleryImages(b).length;
+        return isAsc ? (imgA - imgB) : (imgB - imgA) || cmp(ts(b.createdAt), ts(a.createdAt));
+      }
+      case 'likes':
+        return isAsc
+          ? (a.likeCount||0) - (b.likeCount||0) || cmp(ts(a.createdAt), ts(b.createdAt))
+          : (b.likeCount||0) - (a.likeCount||0) || cmp(ts(b.createdAt), ts(a.createdAt));
+      case 'favs':
+        return isAsc
+          ? (a.favoriteCount||0) - (b.favoriteCount||0) || cmp(ts(a.createdAt), ts(b.createdAt))
+          : (b.favoriteCount||0) - (a.favoriteCount||0) || cmp(ts(b.createdAt), ts(a.createdAt));
+      default: // new
+        return isAsc
+          ? cmp(ts(a.createdAt), ts(b.createdAt))
+          : cmp(ts(b.createdAt), ts(a.createdAt));
     }
-    if(articleFilters.sort === 'likes') return (b.likeCount || 0) - (a.likeCount || 0) || String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
-    if(articleFilters.sort === 'favs') return (b.favoriteCount || 0) - (a.favoriteCount || 0) || String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
-    if(articleFilters.sort === 'likes-asc') return (a.likeCount || 0) - (b.likeCount || 0) || String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
-    if(articleFilters.sort === 'favs-asc') return (a.favoriteCount || 0) - (b.favoriteCount || 0) || String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
-    // 默认 new
-    return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
   });
 
   return articles;
@@ -11408,8 +11521,21 @@ function renderArticles(){
   const hasTime = !!articleFilters.timeFrom || !!articleFilters.timeTo;
   articleTimeFilterBtn && (articleTimeFilterBtn.textContent = hasTime ? `${articleFilters.timeFrom || '...'} ~ ${articleFilters.timeTo || '...'}` : '时间');
   articleTimeFilterBtn?.classList.toggle('active', hasTime);
-  [articleSortNew, articleSortOld, articleSortTitle, articleSortImage, articleSortLike, articleSortFav].forEach(btn=>{
-    btn?.classList.toggle('active', btn?.dataset.sort === articleFilters.sort || (articleFilters.sort === 'likes-asc' && btn?.dataset.sort === 'likes') || (articleFilters.sort === 'favs-asc' && btn?.dataset.sort === 'favs'));
+  // 更新排序下拉和方向按钮
+  let currentSortType = articleFilters.sort;
+  let isAsc = false;
+  if(currentSortType.endsWith('-asc')){
+    isAsc = true;
+    currentSortType = currentSortType.slice(0, -4);
+  }
+  if(sortDropdownLabel) sortDropdownLabel.textContent = SORT_LABELS[currentSortType] || '最新发布';
+  if(sortDirBtn){
+    sortDirBtn.innerHTML = isAsc ? '&#8593;' : '&#8595;';
+    sortDirBtn.classList.toggle('asc', isAsc);
+  }
+  // Highlight active menu item
+  sortDropdownMenu?.querySelectorAll('button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.sort === currentSortType);
   });
   if(articlePageInput){
     articlePageInput.max = totalPages;
@@ -12446,19 +12572,34 @@ if(articleScopeMineBtn) articleScopeMineBtn.addEventListener('click', ()=>{
   closeAllAfPanels();
   renderArticles();
 });
-[articleSortNew, articleSortOld, articleSortTitle, articleSortImage, articleSortLike, articleSortFav].forEach(btn=>{
-  if(btn) btn.addEventListener('click', ()=>{
+// 排序下拉菜单
+if(sortDropdownBtn) sortDropdownBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  sortDropdown?.classList.toggle('open');
+});
+document.addEventListener('click', () => { sortDropdown?.classList.remove('open'); });
+
+sortDropdownMenu?.querySelectorAll('button[data-sort]').forEach(btn => {
+  btn.addEventListener('click', () => {
     const newSort = btn.dataset.sort || 'new';
-    // Toggle direction for same sort type
-    if(articleFilters.sort === newSort){
-      articleFilters.sort = newSort === 'likes' ? 'likes-asc' : newSort === 'favs' ? 'favs-asc' : newSort;
-    } else {
-      articleFilters.sort = newSort;
-    }
+    const isAsc = articleFilters.sort.endsWith('-asc');
+    articleFilters.sort = isAsc ? newSort + '-asc' : newSort;
+    if(sortDropdownLabel) sortDropdownLabel.textContent = SORT_LABELS[newSort] || '最新发布';
+    sortDropdown?.classList.remove('open');
     articlePage = 1;
     closeAllAfPanels();
     renderArticles();
   });
+});
+
+// 排序方向切换
+if(sortDirBtn) sortDirBtn.addEventListener('click', () => {
+  const isAsc = articleFilters.sort.endsWith('-asc');
+  const base = articleFilters.sort.replace(/-asc$/, '');
+  articleFilters.sort = isAsc ? base : base + '-asc';
+  articlePage = 1;
+  closeAllAfPanels();
+  renderArticles();
 });
 if(articleDeleteCancelBtn) articleDeleteCancelBtn.addEventListener('click', ()=>{
   if(ownerDeleteArticleMode) toggleOwnerDeleteMode(false);
@@ -12499,11 +12640,10 @@ const collectNewForm = document.getElementById('collectNewForm');
 const collectNameInput = document.getElementById('collectNameInput');
 const collectSummaryInput = document.getElementById('collectSummaryInput');
 const collectCoverInput = document.getElementById('collectCoverInput');
+const collectTagInput = document.getElementById('collectTagInput');
 const collectCreateBtn = document.getElementById('collectCreateBtn');
 const collectCancelNewBtn = document.getElementById('collectCancelNewBtn');
 const collectCloseBtn = document.getElementById('collectCloseBtn');
-
-let _collectionsCache = [];
 
 async function openCollectPopup(){
   if(!collectModal || !getAuthToken()) return;
@@ -12530,7 +12670,7 @@ function closeCollectPopup(){
 function renderCollectList(){
   if(!collectExistingList) return;
   if(!_collectionsCache.length){
-    collectExistingList.innerHTML = '<p style="color:#888;font-size:12px;text-align:center;">暂无收藏夹，请新建一个</p>';
+    collectExistingList.innerHTML = '<p style="color:#888;font-size:12px;text-align:center;padding:12px 0;">暂无收藏夹，请新建一个</p>';
     return;
   }
   collectExistingList.innerHTML = _collectionsCache.map(c => `
@@ -12538,12 +12678,15 @@ function renderCollectList(){
       <div style="width:36px;height:36px;border-radius:6px;flex-shrink:0;background:${c.cover ? 'url('+c.cover+') center/cover' : 'linear-gradient(135deg,#6c5ce7,#a29bfe)'};border:1px solid rgba(255,255,255,.08);"></div>
       <div style="flex:1;min-width:0;overflow:hidden;">
         <div style="font-weight:600;color:#e8e8ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>
-        <div style="font-size:11px;color:#888;">${c.articleCount || 0} 篇文章</div>
+        <div style="font-size:11px;color:#888;">${c.articleCount || 0} 篇文章${c.tags && c.tags.length ? ' · ' + c.tags.slice(0,3).join(', ') : ''}</div>
       </div>
+      <span style="font-size:11px;color:#6c5ce7;flex-shrink:0;">收藏</span>
     </button>
   `).join('');
   collectExistingList.querySelectorAll('.collect-item').forEach(btn => {
     btn.addEventListener('click', () => collectToExisting(btn.dataset.cid));
+    btn.addEventListener('mouseenter', () => { btn.style.borderColor = 'rgba(108,92,231,.3)'; btn.style.background = 'rgba(108,92,231,.06)'; });
+    btn.addEventListener('mouseleave', () => { btn.style.borderColor = 'rgba(255,255,255,.08)'; btn.style.background = 'rgba(255,255,255,.03)'; });
   });
 }
 
@@ -12560,6 +12703,7 @@ async function collectToExisting(cid){
     if(col) col.articleCount = (col.articleCount || 0) + 1;
     renderCollectList();
     chatToast('已收藏。', 'success');
+    loadCollectionsInToolbox();
     closeCollectPopup();
   }catch(error){
     chatToast(error.message || '收藏失败', 'error');
@@ -12569,18 +12713,28 @@ async function collectToExisting(cid){
 async function createAndCollect(){
   const name = collectNameInput ? collectNameInput.value.trim() : '';
   if(!name){ chatToast('请输入收藏夹名称。', 'warn'); return; }
+  const tags = collectTagInput ? collectTagInput.value.split(/[,，]/).map(t=>t.trim()).filter(Boolean).slice(0,8) : [];
   try{
-    await authRequest('/api/collections', {
+    const res = await authRequest('/api/collections', {
       method:'POST', headers:authorizedHeaders(),
       body: JSON.stringify({
         name,
         summary: collectSummaryInput ? collectSummaryInput.value.trim() : '',
-        cover: collectCoverInput ? collectCoverInput.value.trim() : ''
+        cover: collectCoverInput ? collectCoverInput.value.trim() : '',
+        tags
       })
     });
+    // 创建成功后立即收藏文章
+    if(res.collection && currentDetailArticleId){
+      await authRequest('/api/collections', {
+        method:'POST', headers:authorizedHeaders(),
+        body: JSON.stringify({ action:'collect', collectionId:res.collection.id, articleId:currentDetailArticleId })
+      });
+    }
     _articleReactionState.favorited = true;
     renderReactionState(undefined, undefined);
     chatToast('收藏夹创建成功并已收藏。', 'success');
+    loadCollectionsInToolbox();
     closeCollectPopup();
   }catch(error){
     chatToast(error.message || '创建失败', 'error');
@@ -12596,6 +12750,8 @@ if(collectCloseBtn) collectCloseBtn.addEventListener('click', closeCollectPopup)
 if(collectModal) collectModal.addEventListener('click', event => { if(event.target === collectModal) closeCollectPopup(); });
 
 const newCollectionBtn = document.getElementById('newCollectionBtn');
+const collectionsEntryCard = document.getElementById('collectionsEntryCard');
+if(collectionsEntryCard) collectionsEntryCard.addEventListener('click', openCollectionsDetail);
 if(newCollectionBtn) newCollectionBtn.addEventListener('click', openCollectPopup);
 
 if(toolArticleCount) toolArticleCount.closest('.tool-stat')?.addEventListener('click', ()=>goUserArticles(readSavedUser()?.username));
