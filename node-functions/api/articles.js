@@ -1,0 +1,284 @@
+import crypto from 'crypto';
+import {
+  json,
+  readJsonBody,
+  requireUser,
+  isSiteOwner,
+  redis,
+  nowIso,
+  bumpArticlesVersion
+} from './_lib/auth.js';
+import {
+  DB_ARTICLES_HASH,
+  DB_ARTICLE_LIKES_HASH,
+  DB_ARTICLE_FAVORITES_HASH,
+  LEGACY_ARTICLE_INDEX_KEY,
+  LEGACY_ARTICLES_KEY,
+  legacyArticleKey,
+  userLikeCountKey,
+  userFavCountKey
+} from './_lib/db-keys.js';
+
+function cleanHtml(html){
+  return String(html || '')
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+    .replace(/\son\w+="[^"]*"/gi, '')
+    .replace(/\son\w+='[^']*'/gi, '')
+    .slice(0, 1_800_000);
+}
+
+function extractImagesFromHtml(html){
+  const matches = String(html || '').match(/<img[^>]+src=["']([^"']+)["']/gi) || [];
+  return matches
+    .map(tag=>{
+      const match = tag.match(/src=["']([^"']+)["']/i);
+      return match ? match[1] : '';
+    })
+    .filter(src=>src.startsWith('data:image/') && src.length <= 420_000)
+    .slice(0, 5);
+}
+
+function sanitizeArticle(input = {}, fallbackAuthor = ''){
+  const author = String(input.author || fallbackAuthor || '').trim().slice(0, 20);
+  const title = String(input.title || '').trim().slice(0, 120) || '未命名文章';
+  const category = String(input.category || '随笔').trim().slice(0, 40) || '随笔';
+  const tags = Array.isArray(input.tags)
+    ? input.tags.map(tag=>String(tag).trim()).filter(Boolean).slice(0, 8).map(tag=>tag.slice(0, 24))
+    : String(input.tags || category).split(/[,，/、\s]+/).map(tag=>tag.trim()).filter(Boolean).slice(0, 8).map(tag=>tag.slice(0, 24));
+  const content = cleanHtml(input.content);
+  const inputGallery = Array.isArray(input.gallery)
+    ? input.gallery.filter(src=>typeof src === 'string' && src.startsWith('data:image/') && src.length <= 420_000).slice(0, 5)
+    : [];
+  const gallery = extractImagesFromHtml(content);
+  const finalGallery = gallery.length ? gallery : inputGallery;
+  const now = nowIso();
+  return {
+    id: typeof input.id === 'string' && input.id ? input.id.slice(0, 80) : crypto.randomUUID(),
+    title,
+    category,
+    tags,
+    summary: String(input.summary || '').trim().slice(0, 260),
+    content,
+    thumb: finalGallery[0] || (typeof input.thumb === 'string' && input.thumb.length <= 420_000 && (input.thumb.startsWith('data:image/') || input.thumb.startsWith('linear-gradient(') || input.thumb.startsWith('assets/')) ? input.thumb : 'assets/Article-Cover.png'),
+    gallery: finalGallery,
+    fontFamily: typeof input.fontFamily === 'string' ? input.fontFamily.slice(0, 120) : '',
+    author,
+    createdAt: typeof input.createdAt === 'string' ? input.createdAt.slice(0, 40) : now,
+    updatedAt: now
+  };
+}
+
+function toArticleMeta(article){
+  return {
+    id: article.id,
+    title: article.title,
+    category: article.category,
+    tags: article.tags,
+    summary: article.summary,
+    thumb: article.thumb,
+    gallery: Array.isArray(article.gallery) ? article.gallery.slice(0, 5) : [],
+    fontFamily: article.fontFamily,
+    author: article.author,
+    createdAt: article.createdAt,
+    updatedAt: article.updatedAt
+  };
+}
+
+async function readArticleIndex(){
+  try{
+    const articles = await redis.hvals(DB_ARTICLES_HASH);
+    if(Array.isArray(articles) && articles.length){
+      return articles
+        .map(article=>toArticleMeta(sanitizeArticle(article, article.author)))
+        .filter(item=>item.author && item.id)
+        .sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+    }
+  }catch(error){
+    console.error('read articles hash error:', error);
+  }
+
+  const legacyIndex = await redis.get(LEGACY_ARTICLE_INDEX_KEY);
+  if(Array.isArray(legacyIndex) && legacyIndex.length){
+    const migrated = [];
+    for(const item of legacyIndex.slice(0, 1000)){
+      const full = await redis.get(legacyArticleKey(item.id));
+      migrated.push(sanitizeArticle(full || item, item.author));
+    }
+    const valid = migrated.filter(article=>article.author && article.id);
+    if(valid.length){
+      const payload = Object.fromEntries(valid.map(article=>[article.id, article]));
+      await redis.hset(DB_ARTICLES_HASH, payload);
+      return valid.map(toArticleMeta).sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+    }
+  }
+
+  try{
+    const legacyArticles = await redis.get(LEGACY_ARTICLES_KEY);
+    if(Array.isArray(legacyArticles) && legacyArticles.length){
+      const migrated = legacyArticles.map(article=>sanitizeArticle(article, article.author)).filter(article=>article.author && article.id);
+      if(migrated.length){
+        const payload = Object.fromEntries(migrated.slice(0, 1000).map(article=>[article.id, article]));
+        await redis.hset(DB_ARTICLES_HASH, payload);
+      }
+      return migrated.map(toArticleMeta).sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+    }
+  }catch(error){
+    console.error('legacy articles migration skipped:', error);
+  }
+  return [];
+}
+
+async function writeArticleIndex(index){
+  // 集中表模式下不再维护单独索引；列表由 db:articles 的 HVALS 生成。
+  return index;
+}
+
+async function getArticle(id){
+  const article = await redis.hget(DB_ARTICLES_HASH, id);
+  if(article){
+    const result = sanitizeArticle(article, article.author);
+    return result;
+  }
+  const legacy = await redis.get(legacyArticleKey(id));
+  if(legacy){
+    const migrated = sanitizeArticle(legacy, legacy.author);
+    await redis.hset(DB_ARTICLES_HASH, { [migrated.id]: migrated });
+    return migrated;
+  }
+  return null;
+}
+
+async function saveArticle(article){
+  await redis.hset(DB_ARTICLES_HASH, { [article.id]: article });
+  await bumpArticlesVersion();
+}
+
+export async function onRequestGet(context){
+  try{
+    const url = new URL(context.request.url);
+    const id = url.searchParams.get('id');
+    if(id){
+      const article = await getArticle(id);
+      if(!article) return json({ error:'文章不存在。' }, 404);
+      return json({ ok:true, article });
+    }
+    const articles = await readArticleIndex();
+
+    // 如果提供了 user 参数，返回该用户的点赞/收藏总数（O(1) 读计数器）
+    const username = String(url.searchParams.get('user') || '').trim().slice(0, 20);
+    let likeCount = 0, favoriteCount = 0;
+    if(username){
+      try{
+        const [likeCounter, favCounter] = await Promise.all([
+          redis.get(userLikeCountKey(username)),
+          redis.get(userFavCountKey(username))
+        ]);
+        likeCount = parseInt(likeCounter) || 0;
+        favoriteCount = parseInt(favCounter) || 0;
+        // 如果计数器不存在，回退到扫描并回填
+        if(likeCounter === null || favCounter === null){
+          const [likesRaw, favsRaw] = await Promise.all([
+            redis.hgetall(DB_ARTICLE_LIKES_HASH),
+            redis.hgetall(DB_ARTICLE_FAVORITES_HASH)
+          ]);
+          for(const val of Object.values(likesRaw || {})){
+            try{
+              const d = typeof val === 'string' ? JSON.parse(val) : val;
+              if(d && typeof d === 'object' && username in d) likeCount++;
+            }catch(_){}
+          }
+          for(const val of Object.values(favsRaw || {})){
+            try{
+              const d = typeof val === 'string' ? JSON.parse(val) : val;
+              if(d && typeof d === 'object' && username in d) favoriteCount++;
+            }catch(_){}
+          }
+          try{
+            if(likeCount > 0) await redis.set(userLikeCountKey(username), likeCount);
+            if(favoriteCount > 0) await redis.set(userFavCountKey(username), favoriteCount);
+          }catch(_){}
+        }
+      }catch(_){}
+    }
+
+    return json({
+      ok:true,
+      articles: articles.sort((a, b)=>String(b.createdAt).localeCompare(String(a.createdAt))),
+      ...(username ? { likeCount, favoriteCount } : {})
+    });
+  }catch(error){
+    console.error('articles get error:', error);
+    return json({ error:'读取文章失败。' }, 500);
+  }
+}
+
+export async function onRequestPost(context){
+  const auth = await requireUser(context.request);
+  if(auth.error) return json({ error:auth.error }, auth.status);
+  try{
+    // 检查发布权限
+    const tags = auth.user.profile?.tags || [];
+    if(tags.includes('no_post')){
+      return json({ error:'您已被禁止发布文章。' }, 403);
+    }
+    const body = await readJsonBody(context.request);
+    const article = sanitizeArticle(body.article || body || {}, auth.user.username);
+    if(!article.content) return json({ error:'文章正文不能为空。' }, 400);
+    await saveArticle(article);
+    return json({ ok:true, article });
+  }catch(error){
+    console.error('articles post error:', error);
+    return json({ error:error.message || '发布文章失败。' }, 500);
+  }
+}
+
+export async function onRequestPut(context){
+  const auth = await requireUser(context.request);
+  if(auth.error) return json({ error:auth.error }, auth.status);
+  try{
+    const body = await readJsonBody(context.request);
+    const next = sanitizeArticle(body.article || {}, auth.user.username);
+    const previous = await getArticle(next.id);
+    if(!previous) return json({ error:'文章不存在。' }, 404);
+    if(previous.author !== auth.user.username) return json({ error:'只能修改自己发布的文章。' }, 403);
+    const article = { ...next, author:auth.user.username, createdAt:previous.createdAt, updatedAt:nowIso() };
+    await saveArticle(article);
+    return json({ ok:true, article });
+  }catch(error){
+    console.error('articles put error:', error);
+    return json({ error:error.message || '修改文章失败。' }, 500);
+  }
+}
+
+export async function onRequestDelete(context){
+  const auth = await requireUser(context.request);
+  if(auth.error) return json({ error:auth.error }, auth.status);
+  try{
+    const body = await readJsonBody(context.request);
+    const ids = Array.isArray(body.ids) ? body.ids.map(id=>String(id)) : [];
+    if(!ids.length) return json({ error:'请选择要删除的文章。' }, 400);
+    const targetArticles = [];
+    for(const id of ids){
+      const article = await getArticle(id);
+      if(article) targetArticles.push(article);
+    }
+    const forbidden = targetArticles.some(article=>article.author !== auth.user.username);
+    const ownerForce = body.forceOwner === true && isSiteOwner(auth.user);
+    if(forbidden && !ownerForce) return json({ error:'只能删除自己发布的文章。' }, 403);
+    for(const article of targetArticles){
+      await redis.hdel(DB_ARTICLES_HASH, article.id);
+      // 同时清理该文章的点赞和收藏数据
+      await redis.hdel(DB_ARTICLE_LIKES_HASH, article.id);
+      await redis.hdel(DB_ARTICLE_FAVORITES_HASH, article.id);
+    }
+    await bumpArticlesVersion();
+    return json({ ok:true, deleted:targetArticles.length });
+  }catch(error){
+    console.error('articles delete error:', error);
+    return json({ error:error.message || '删除文章失败。' }, 500);
+  }
+}
+
+export function onRequest(){
+  return json({ error:'只支持 GET、POST、PUT 或 DELETE 请求。' }, 405);
+}

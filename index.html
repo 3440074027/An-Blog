@@ -10921,7 +10921,7 @@ function updateToolStats(user = readSavedUser()){
   if(toolArticleCount) toolArticleCount.textContent = articleCount;
   if(toolRegisterDays) toolRegisterDays.textContent = daysSince(user?.createdAt);
   if(toolTagCount) toolTagCount.textContent = tags.length;
-  // 异步加载点赞/收藏数量
+  // 异步校准点赞/收藏数量（O(1) 计数器，可靠且快速）
   refreshToolReactionCounts(user?.username);
   const activeTool = document.querySelector('.feature-pill.active');
   if(featureDescription && activeTool && typeof getFeatureText === 'function'){
