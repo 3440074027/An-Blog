@@ -5038,7 +5038,7 @@
     width:fit-content;
     min-width:32px;
     max-width:min(68%, 340px); padding:8px 14px; font-size:13px; line-height:1.55;
-    overflow-wrap:anywhere; word-break:break-word; white-space:normal;
+    overflow-wrap:break-word; word-break:normal; white-space:normal;
     box-shadow:0 3px 10px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.2);
     position:relative;
     border:2px solid rgba(255,255,255,.22);
@@ -12092,7 +12092,7 @@ async function shareArticleToFriend(targetUsername){
     const summary = (article.summary || '').slice(0, 80);
     const category = article.category || '随笔';
     const createdAt = article.createdAt || '';
-    const cardBody = `[分享文章]\u200B${article.title || '未命名文章'}\u200B|by @${article.author || '未知'}\u200B|cat:${category}\u200B|sum:${summary}\u200B|time:${createdAt}\u200B|id:${articleId}`;
+    const cardBody = `\u0002ARTICLE\u0002${article.title || '未命名文章'}\u0002by:${article.author || '未知'}\u0002cat:${category}\u0002sum:${summary}\u0002time:${createdAt}\u0002id:${articleId}`;
     await authRequest('/api/chat', {
       method: 'POST',
       headers: authorizedHeaders(),
@@ -14734,11 +14734,13 @@ function startSiteVersionPoll(){
 
   function renderMessageBody(body){
     if(!body) return '';
-    // 检测文章卡片格式
-    const cardMatch = body.match(/^\[分享文章\]\u200B(.+?)\u200B\|by @(.+?)\u200B\|cat:(.+?)\u200B\|sum:(.*?)\u200B\|time:(.*?)\u200B\|id:(.+)$/);
+    // 检测文章卡片格式：\x02ARTICLE\x02标题\x02by:作者\x02cat:分类\x02sum:摘要\x02time:时间\x02id:articleId
+    // 兼容旧格式：[分享文章]<ZWS>标题<ZWS>|by @作者<ZWS>|cat:分类<ZWS>|sum:摘要<ZWS>|time:时间<ZWS>|id:articleId
+    const cardMatch = body.match(/^\x02ARTICLE\x02(.+?)\x02by:(.+?)\x02cat:(.+?)\x02sum:(.*?)\x02time:(.*?)\x02id:(.+)$/)
+      || body.match(/^\[分享文章\]\u200B(.+?)\u200B\|by @(.+?)\u200B\|cat:(.+?)\u200B\|sum:(.*?)\u200B\|time:(.*?)\u200B\|id:(.+)$/);
     if(cardMatch){
       const title = escapeHtmlSafe(cardMatch[1]);
-      const authorName = escapeHtmlSafe(cardMatch[2]);
+      const authorName = escapeHtmlSafe(cardMatch[2].replace(/^@/, ''));
       const category = escapeHtmlSafe(cardMatch[3]);
       const summary = escapeHtmlSafe(cardMatch[4]);
       const time = cardMatch[5] ? escapeHtmlSafe(cardMatch[5].slice(0,10)) : '';
@@ -14767,7 +14769,7 @@ function startSiteVersionPoll(){
   </div>
 </div>`;
     }
-    return escapeHtmlSafe(body).replace(/\n/g, '<br>');
+    return escapeHtmlSafe(body).replace(/\n+/g, '<br>');
   }
 
   function renderMessages(conv, peerInfo, opts = {}){
@@ -15078,8 +15080,8 @@ function startSiteVersionPoll(){
 
   async function sendChatMessage(){
     if(!activePeer) return;
-    const raw = chatInputText && chatInputText.value || '';
-    const text = raw.trim();
+    const raw = (chatInputText && chatInputText.value || '').replace(/\n/g, ' ').trim();
+    const text = raw;
     if(!text){
       chatToast('消息不能为空。', 'error');
       return;
@@ -15091,7 +15093,7 @@ function startSiteVersionPoll(){
     if(chatMessages){
       chatMessages.insertAdjacentHTML('beforeend', `
         <div class="chat-msg-row mine" data-sending-id="${sendingId}">
-          <div class="chat-msg mine">${escapeHtmlSafe(raw).replace(/\n/g, '<br>')}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
+          <div class="chat-msg mine">${escapeHtmlSafe(raw).replace(/\n+/g, '<br>')}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
           <time class="chat-msg-time">发送中</time>
         </div>`);
       chatMessages.scrollTop = chatMessages.scrollHeight;
