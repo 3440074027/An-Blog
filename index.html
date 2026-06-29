@@ -5038,7 +5038,7 @@
     width:fit-content;
     min-width:32px;
     max-width:min(68%, 340px); padding:8px 14px; font-size:13px; line-height:1.55;
-    overflow-wrap:anywhere; word-break:break-word; white-space:pre-wrap;
+    overflow-wrap:anywhere; word-break:break-word; white-space:normal;
     box-shadow:0 3px 10px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.2);
     position:relative;
     border:2px solid rgba(255,255,255,.22);
@@ -7118,58 +7118,56 @@
     box-shadow:0 8px 32px rgba(0,0,0,.4);
   }
   .share-popup-title{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:10px;font-weight:500;}
-  /* 聊天中的文章分享卡片 */
+  /* 聊天中的文章分享卡片 — 横向深色 */
   .chat-share-card{
-    border-radius:12px;
-    border:1px solid rgba(180,160,220,.25);
-    background:linear-gradient(135deg, rgba(140,120,200,.12), rgba(100,140,200,.08));
-    padding:0;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.08);
+    background:#1a1a2e;
     cursor:pointer;
-    max-width:280px;
-    transition:all .2s;
+    max-width:260px;
+    min-width:200px;
+    display:flex;
+    flex-direction:row;
     overflow:hidden;
-    word-break:break-word;
     white-space:normal;
+    transition:all .2s;
   }
   .chat-share-card:hover{
-    background:linear-gradient(135deg, rgba(140,120,200,.22), rgba(100,140,200,.14));
-    border-color:rgba(180,160,220,.45);
+    background:#222240;
+    border-color:rgba(255,255,255,.15);
     transform:translateY(-1px);
-    box-shadow:0 4px 16px rgba(140,120,200,.15);
+    box-shadow:0 4px 20px rgba(0,0,0,.4);
   }
-  .csc-badge{
-    font-size:9px;
-    color:rgba(200,180,240,.8);
-    font-weight:600;
-    letter-spacing:.8px;
-    text-transform:uppercase;
-    padding:5px 12px;
-    background:rgba(140,120,200,.1);
-    border-bottom:1px solid rgba(180,160,220,.15);
-  }
-  .csc-body{
-    padding:10px 12px;
-    display:flex;
-    gap:10px;
-    align-items:stretch;
-  }
-  .csc-accent{
-    width:3px;
-    min-height:100%;
-    border-radius:99px;
-    background:linear-gradient(180deg, rgba(180,140,255,.6), rgba(120,160,255,.4));
+  /* 左侧缩略图 */
+  .csc-thumb{
+    width:88px;
+    min-height:100px;
     flex-shrink:0;
+    background-size:cover;
+    background-position:center;
+    background-color:#12121f;
   }
-  .csc-info{
+  /* 右侧内容 */
+  .csc-body{
     flex:1;
     min-width:0;
+    padding:10px 12px 8px;
+    display:flex;
+    flex-direction:column;
     overflow:hidden;
   }
+  .csc-cat{
+    font-size:9px;
+    font-weight:600;
+    color:#8b8bcc;
+    letter-spacing:.5px;
+    margin-bottom:4px;
+  }
   .csc-title{
-    font-size:13px;
+    font-size:12.5px;
     font-weight:700;
-    color:#e8e0f8;
-    line-height:1.4;
+    color:#e8e8ff;
+    line-height:1.35;
     margin-bottom:4px;
     display:-webkit-box;
     -webkit-line-clamp:2;
@@ -7177,32 +7175,51 @@
     overflow:hidden;
   }
   .csc-summary{
-    font-size:11px;
+    font-size:10.5px;
     color:rgba(255,255,255,.4);
-    line-height:1.45;
+    line-height:1.4;
     margin-bottom:6px;
     display:-webkit-box;
     -webkit-line-clamp:1;
     -webkit-box-orient:vertical;
     overflow:hidden;
   }
-  .csc-meta{
+  .csc-footer{
     display:flex;
     align-items:center;
+    justify-content:space-between;
+    margin-top:auto;
     gap:6px;
+  }
+  .csc-author{
+    display:flex;
+    align-items:center;
+    gap:5px;
     font-size:10px;
-    color:rgba(255,255,255,.35);
-    flex-wrap:wrap;
+    color:rgba(255,255,255,.45);
+    min-width:0;
+    overflow:hidden;
   }
-  .csc-cat{
-    background:rgba(140,120,200,.15);
-    color:rgba(200,180,240,.7);
-    padding:1px 7px;
-    border-radius:99px;
+  .csc-author span{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .csc-avatar{
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    flex-shrink:0;
+    background-size:cover;
+    background-position:center;
+    background-color:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.1);
+  }
+  .csc-time{
     font-size:9px;
-    font-weight:500;
+    color:rgba(255,255,255,.25);
+    flex-shrink:0;
   }
-  .csc-time{opacity:.6;}
   .share-popup input{
     width:100%;
     padding:8px 12px;
@@ -8407,21 +8424,7 @@
 </div>
 
 
-<!-- 点赞/收藏文章列表弹窗 -->
-<div class="article-detail-modal" id="reactionListModal" aria-hidden="true">
-  <div class="article-detail-card" role="dialog" aria-modal="true" style="max-width:480px;">
-    <div class="article-detail-body" style="overflow:visible;">
-      <div class="reaction-list-head">
-        <h2 id="reactionListTitle" style="color:#D4AF37;font-size:18px;font-weight:700;margin:0;">点赞文章</h2>
-        <div id="reactionListMeta" style="font-size:12px;color:rgba(255,255,255,.4);margin-top:4px;"></div>
-        <button id="reactionListCloseBtn" type="button" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1;">&#10005;</button>
-      </div>
-      <div class="article-detail-scroll" style="max-height:60vh;padding:0 20px 20px;">
-        <div id="reactionListContent"></div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- (点赞/收藏弹窗已移除) -->
 <div class="transition-flare" id="transitionFlare" aria-hidden="true"></div>
 <div class="light-feathers" id="lightFeathers" aria-hidden="true"></div>
 <div class="login-toast" id="loginToast" role="status" aria-live="polite"></div>
@@ -8845,10 +8848,6 @@
           <div class="tool-stat"><strong id="toolRegisterDays">0</strong><span>注册天数</span></div>
           <div class="tool-stat"><strong id="toolTagCount">0</strong><span>资料标签</span></div>
         </div>
-        <div class="tool-stats-grid" style="margin-top:8px;">
-          <div class="tool-stat" id="toolLikeStat"><strong id="toolLikeCount">0</strong><span>点赞文章</span></div>
-          <div class="tool-stat" id="toolFavStat"><strong id="toolFavCount">0</strong><span>收藏文章</span></div>
-        </div>
         <p id="featureDescription">结合生日、星座、标签和文章记录，为你生成今日灵感。</p>
       </section>
       <section class="blog-tech-card blog-glass-card" id="blogTech">
@@ -8997,14 +8996,6 @@
           <button id="articleDetailNextPage" type="button">下一页</button>
         </div>
         <div class="article-detail-reactions" id="articleDetailReactions">
-        <button class="reaction-btn" id="reactionLikeBtn" type="button">
-          <span class="reaction-icon">&#9825;</span>
-          <span class="reaction-count" id="reactionLikeCount">0</span>
-        </button>
-        <button class="reaction-btn" id="reactionFavBtn" type="button">
-          <span class="reaction-icon">&#9734;</span>
-          <span class="reaction-count" id="reactionFavCount">0</span>
-        </button>
         <button class="reaction-btn" id="reactionShareBtn" type="button">
           <span class="reaction-icon">&#8689;</span>
           <span>分享</span>
@@ -10498,18 +10489,9 @@ const articleDetailPager = document.getElementById('articleDetailPager');
 const articleDetailPrevPage = document.getElementById('articleDetailPrevPage');
 const articleDetailNextPage = document.getElementById('articleDetailNextPage');
 const articleDetailPageInfo = document.getElementById('articleDetailPageInfo');
-const reactionLikeBtn = document.getElementById('reactionLikeBtn');
-const reactionFavBtn = document.getElementById('reactionFavBtn');
 const reactionShareBtn = document.getElementById('reactionShareBtn');
-const reactionLikeCount = document.getElementById('reactionLikeCount');
-const reactionFavCount = document.getElementById('reactionFavCount');
 const sharePopup = document.getElementById('sharePopup');
 const shareFriendList = document.getElementById('shareFriendList');
-const reactionListModal = document.getElementById('reactionListModal');
-const reactionListTitle = document.getElementById('reactionListTitle');
-const reactionListMeta = document.getElementById('reactionListMeta');
-const reactionListContent = document.getElementById('reactionListContent');
-const reactionListCloseBtn = document.getElementById('reactionListCloseBtn');
 const articleDetailAuthorAvatar = document.getElementById('articleDetailAuthorAvatar');
 const articleDetailAuthorName = document.getElementById('articleDetailAuthorName');
 const articleDetailAuthorTime = document.getElementById('articleDetailAuthorTime');
@@ -10535,8 +10517,6 @@ const publicProfileCloseBtn = document.getElementById('publicProfileCloseBtn');
 const publicProfileBody = document.getElementById('publicProfileBody');
 const featureDescription = document.getElementById('featureDescription');
 const toolArticleCount = document.getElementById('toolArticleCount');
-const toolRegisterDays = document.getElementById('toolRegisterDays');
-const toolTagCount = document.getElementById('toolTagCount');
 const ownerContactModal = document.getElementById('ownerContactModal');
 const ownerContactCloseBtn = document.getElementById('ownerContactCloseBtn');
 const ownerContactInfo = document.getElementById('ownerContactInfo');
@@ -10909,44 +10889,7 @@ let editingArticleId = '';
 let currentDetailArticleId = '';
 let currentDetailArticleAuthor = '';
 
-function refreshToolReactionCounts(username){
-  // 从服务端获取用户真实的点赞/收藏总数
-  if(!username || username === 'guest') return;
-  authRequest(`/api/article-reactions?user=${encodeURIComponent(username)}`, { method:'GET' })
-    .then(data => {
-      const likeCount = data.likeCount || 0;
-      const favCount = data.favoriteCount || 0;
-      const toolLikeCountEl = document.getElementById('toolLikeCount');
-      const toolFavCountEl = document.getElementById('toolFavCount');
-      if(toolLikeCountEl) toolLikeCountEl.textContent = likeCount;
-      if(toolFavCountEl) toolFavCountEl.textContent = favCount;
-      // 缓存到 localStorage，下次页面加载时立即显示
-      try{ localStorage.setItem('blog_reaction_like', likeCount); localStorage.setItem('blog_reaction_fav', favCount); }catch(_){}
-    })
-    .catch(err => { console.warn('refreshToolReactionCounts failed:', err); });
-}
-
-// 页面加载时立即从 localStorage 恢复计数（不等 API）
-function restoreReactionCountsFromCache(){
-  try{
-    const like = localStorage.getItem('blog_reaction_like');
-    const fav = localStorage.getItem('blog_reaction_fav');
-    const toolLikeCountEl = document.getElementById('toolLikeCount');
-    const toolFavCountEl = document.getElementById('toolFavCount');
-    if(toolLikeCountEl && like !== null) toolLikeCountEl.textContent = like;
-    if(toolFavCountEl && fav !== null) toolFavCountEl.textContent = fav;
-  }catch(_){}
-}
-
 function updateToolStats(user = readSavedUser()){
-  const profile = user?.profile || {};
-  const tags = Array.isArray(profile.tags) ? profile.tags : [];
-  const articleCount = getUserArticles(user).length;
-  if(toolArticleCount) toolArticleCount.textContent = articleCount;
-  if(toolRegisterDays) toolRegisterDays.textContent = daysSince(user?.createdAt);
-  if(toolTagCount) toolTagCount.textContent = tags.length;
-  // 异步校准点赞/收藏数量（O(1) 计数器，可靠且快速）
-  refreshToolReactionCounts(user?.username);
   const activeTool = document.querySelector('.feature-pill.active');
   if(featureDescription && activeTool && typeof getFeatureText === 'function'){
     featureDescription.textContent = getFeatureText(activeTool.dataset.feature);
@@ -11412,24 +11355,9 @@ function requireRealUser(actionText = '使用文章功能'){
 
 async function loadPublicArticles(){
   try{
-    const user = readSavedUser();
-    const username = (user?.username && user.username !== 'guest') ? user.username : '';
-    const url = username ? `/api/articles?user=${encodeURIComponent(username)}` : '/api/articles';
-    const data = await authRequest(url, { method:'GET' });
+    const data = await authRequest('/api/articles', { method:'GET' });
     const freshArticles = Array.isArray(data.articles) ? data.articles : [];
     publicArticles = freshArticles;
-    // 如果后端返回了 likeCount/favoriteCount，直接更新工具箱
-    if(data.likeCount !== undefined){
-      const toolLikeCountEl = document.getElementById('toolLikeCount');
-      const toolFavCountEl = document.getElementById('toolFavCount');
-      if(toolLikeCountEl) toolLikeCountEl.textContent = data.likeCount || 0;
-      if(toolFavCountEl) toolFavCountEl.textContent = data.favoriteCount || 0;
-      // 同步缓存
-      try{
-        localStorage.setItem('blog_reaction_like', data.likeCount || 0);
-        localStorage.setItem('blog_reaction_fav', data.favoriteCount || 0);
-      }catch(_){}
-    }
     renderArticles();
     updateToolStats();
   }catch(error){
@@ -11984,8 +11912,6 @@ async function openArticleDetail(id){
   const isAuthor = isCurrentUserAuthor(article);
   if(articleDetailEditBtn) articleDetailEditBtn.style.display = isAuthor ? 'inline-flex' : 'none';
   if(articleDetailDeleteBtn) articleDetailDeleteBtn.hidden = !(isAuthor || isOwner);
-  // 加载互动数据（点赞/收藏）
-  loadArticleReactions(id);
   // 关闭分享弹窗
   if(sharePopup) sharePopup.hidden = true;
   lockBodyScroll();
@@ -12045,76 +11971,6 @@ function goArticleDetailPage(direction){
   if(articleDetailContent) articleDetailContent.innerHTML = articleDetailPages[newPage] || '<p>空白页。</p>';
   updateArticleDetailPager();
   articleDetailContent.scrollTop = 0;
-}
-
-/* --- 文章互动：点赞 / 收藏 / 分享 --- */
-let _reactionState = { liked: false, favorited: false, likeCount: 0, favoriteCount: 0 };
-
-async function loadArticleReactions(articleId){
-  _reactionState = { liked: false, favorited: false, likeCount: 0, favoriteCount: 0 };
-  try{
-    const token = getAuthToken();
-    const url = `/api/article-reactions?id=${encodeURIComponent(articleId)}${token ? '&me=true' : ''}`;
-    const data = await authRequest(url, { method: 'GET' });
-    _reactionState.likeCount = data.likeCount || 0;
-    _reactionState.favoriteCount = data.favoriteCount || 0;
-    _reactionState.liked = !!data.liked;
-    _reactionState.favorited = !!data.favorited;
-  }catch(_){}
-  renderReactionButtons();
-}
-
-function renderReactionButtons(){
-  if(reactionLikeCount) reactionLikeCount.textContent = _reactionState.likeCount;
-  if(reactionFavCount) reactionFavCount.textContent = _reactionState.favoriteCount;
-  if(reactionLikeBtn){
-    reactionLikeBtn.classList.toggle('active-like', _reactionState.liked);
-    reactionLikeBtn.querySelector('.reaction-icon').innerHTML = _reactionState.liked ? '&#9829;' : '&#9825;';
-  }
-  if(reactionFavBtn){
-    reactionFavBtn.classList.toggle('active-fav', _reactionState.favorited);
-    reactionFavBtn.querySelector('.reaction-icon').innerHTML = _reactionState.favorited ? '&#9733;' : '&#9734;';
-  }
-}
-
-async function toggleArticleReaction(action){
-  const user = readSavedUser();
-  if(!getAuthToken() || !user || user.username === 'guest'){
-    showLoginToast('请先登录后再操作。', 'warn', '需要登录');
-    return;
-  }
-  const articleId = currentDetailArticleId;
-  if(!articleId) return;
-  const isAdd = action === 'like' ? !_reactionState.liked : !_reactionState.favorited;
-  const btn = action === 'like' ? reactionLikeBtn : reactionFavBtn;
-  if(btn) btn.disabled = true;
-  try{
-    const method = isAdd ? 'POST' : 'DELETE';
-    const data = await authRequest('/api/article-reactions', {
-      method,
-      headers: authorizedHeaders(),
-      body: JSON.stringify({ id: articleId, action })
-    });
-    const countKey = action === 'like' ? 'likeCount' : 'favoriteCount';
-    _reactionState[countKey] = data[countKey] || 0;
-    if(action === 'like') _reactionState.liked = isAdd;
-    else _reactionState.favorited = isAdd;
-    renderReactionButtons();
-    // 实时增减工具箱数字（+1 或 -1），无需等 GET 请求
-    const toolId = action === 'like' ? 'toolLikeCount' : 'toolFavCount';
-    const toolEl = document.getElementById(toolId);
-    if(toolEl){
-      const cur = parseInt(toolEl.textContent) || 0;
-      const newVal = Math.max(0, cur + (isAdd ? 1 : -1));
-      toolEl.textContent = newVal;
-      // 同步缓存
-      try{ localStorage.setItem(action === 'like' ? 'blog_reaction_like' : 'blog_reaction_fav', newVal); }catch(_){}
-    }
-  }catch(error){
-    showLoginToast(error.message || '操作失败。', 'error', '操作失败');
-  }finally{
-    if(btn) btn.disabled = false;
-  }
 }
 
 // 存储分享好友的完整数据（供搜索过滤）
@@ -12248,53 +12104,6 @@ async function shareArticleToFriend(targetUsername){
     showLoginToast(error.message || '分享失败。', 'error', '分享失败');
     items.forEach(el => { if(el.dataset.username === targetUsername) el.style.opacity = '1'; });
   }
-}
-
-/* --- 点赞/收藏文章列表弹窗 --- */
-async function openReactionList(type){
-  const user = readSavedUser();
-  if(!getAuthToken() || !user || user.username === 'guest'){
-    showLoginToast('请先登录后再查看。', 'warn', '需要登录');
-    return;
-  }
-  const title = type === 'like' ? '点赞文章' : '收藏文章';
-  if(reactionListTitle) reactionListTitle.textContent = title;
-  if(reactionListContent) reactionListContent.innerHTML = '<p style="color:rgba(255,255,255,.4);text-align:center;padding:20px;">加载中...</p>';
-  lockBodyScroll();
-  reactionListModal?.classList.add('open');
-  reactionListModal?.setAttribute('aria-hidden', 'false');
-  try{
-    const data = await authRequest(`/api/article-reactions?user=${encodeURIComponent(user.username)}&type=${type}`, { method:'GET' });
-    const articles = data.articles || [];
-    if(reactionListMeta) reactionListMeta.innerHTML = `<span>共 ${articles.length} 篇</span>`;
-    // 同步更新工具箱中对应的数字
-    const countEl = type === 'like'
-      ? document.getElementById('toolLikeCount')
-      : document.getElementById('toolFavCount');
-    if(countEl) countEl.textContent = articles.length;
-    if(!articles.length){
-      reactionListContent.innerHTML = '<p style="color:rgba(255,255,255,.4);text-align:center;padding:30px;">还没有' + title + '。</p>';
-      return;
-    }
-    reactionListContent.innerHTML = articles.map(a => `
-      <div class="reaction-article-item" onclick="closeReactionList();openArticleDetail('${a.id}')">
-        <div class="rai-thumb">
-          ${a.thumb ? `<img src="${a.thumb}" alt="">` : '<div class="rai-icon">&#9998;</div>'}
-        </div>
-        <div class="rai-info">
-          <div class="rai-title">${escapeHtml(a.title || '未命名文章')}</div>
-          <div class="rai-meta">@${escapeHtml(a.author || '')} · ${escapeHtml(a.category || '随笔')}</div>
-        </div>
-      </div>
-    `).join('');
-  }catch(error){
-    if(reactionListContent) reactionListContent.innerHTML = '<p style="color:rgba(255,100,100,.6);text-align:center;padding:20px;">加载失败。</p>';
-  }
-}
-function closeReactionList(){
-  reactionListModal?.classList.remove('open');
-  reactionListModal?.setAttribute('aria-hidden', 'true');
-  unlockBodyScroll();
 }
 
 function closeArticleDetail(){
@@ -12503,8 +12312,6 @@ if(articleDeleteCancelBtn) articleDeleteCancelBtn.addEventListener('click', ()=>
 if(articleDeleteConfirmBtn) articleDeleteConfirmBtn.addEventListener('click', deleteSelectedArticles);
 if(articleDetailPrevPage) articleDetailPrevPage.addEventListener('click', ()=>goArticleDetailPage(-1));
 if(articleDetailNextPage) articleDetailNextPage.addEventListener('click', ()=>goArticleDetailPage(1));
-if(reactionLikeBtn) reactionLikeBtn.addEventListener('click', ()=>toggleArticleReaction('like'));
-if(reactionFavBtn) reactionFavBtn.addEventListener('click', ()=>toggleArticleReaction('favorite'));
 if(reactionShareBtn) reactionShareBtn.addEventListener('click', event=>{
   event.stopPropagation();
   toggleSharePopup();
@@ -12522,12 +12329,6 @@ document.addEventListener('click', event=>{
   }
 });
 if(toolArticleCount) toolArticleCount.closest('.tool-stat')?.addEventListener('click', ()=>goUserArticles(readSavedUser()?.username));
-const toolLikeStat = document.getElementById('toolLikeStat');
-const toolFavStat = document.getElementById('toolFavStat');
-if(toolLikeStat) toolLikeStat.addEventListener('click', ()=>openReactionList('like'));
-if(toolFavStat) toolFavStat.addEventListener('click', ()=>openReactionList('favorite'));
-if(reactionListCloseBtn) reactionListCloseBtn.addEventListener('click', closeReactionList);
-if(reactionListModal) reactionListModal.addEventListener('click', event=>{ if(event.target === reactionListModal) closeReactionList(); });
 if(articleDetailCloseBtn) articleDetailCloseBtn.addEventListener('click', closeArticleDetail);
 if(articleDetailEditBtn) articleDetailEditBtn.addEventListener('click', editCurrentDetailArticle);
 if(articleDetailDeleteBtn) articleDetailDeleteBtn.addEventListener('click', deleteCurrentDetailArticle);
@@ -12834,7 +12635,6 @@ if(articleContentEditor){
 }
 
 if(articleSaveBtn) articleSaveBtn.addEventListener('click', saveArticleFromEditor);
-restoreReactionCountsFromCache();
 renderArticles();
 loadPublicArticles();
 if(window.ResizeObserver && articleGrid){
@@ -14934,32 +14734,40 @@ function startSiteVersionPoll(){
 
   function renderMessageBody(body){
     if(!body) return '';
-    // 检测文章卡片格式：[分享文章]<ZWS>标题<ZWS>|by @作者<ZWS>|cat:分类<ZWS>|sum:摘要<ZWS>|time:时间<ZWS>|id:articleId
+    // 检测文章卡片格式
     const cardMatch = body.match(/^\[分享文章\]\u200B(.+?)\u200B\|by @(.+?)\u200B\|cat:(.+?)\u200B\|sum:(.*?)\u200B\|time:(.*?)\u200B\|id:(.+)$/);
     if(cardMatch){
       const title = escapeHtmlSafe(cardMatch[1]);
-      const author = escapeHtmlSafe(cardMatch[2]);
+      const authorName = escapeHtmlSafe(cardMatch[2]);
       const category = escapeHtmlSafe(cardMatch[3]);
       const summary = escapeHtmlSafe(cardMatch[4]);
       const time = cardMatch[5] ? escapeHtmlSafe(cardMatch[5].slice(0,10)) : '';
-      const articleId = escapeHtmlSafe(cardMatch[6]);
+      const articleId = cardMatch[6];
+      // 从文章缓存获取缩略图和作者信息
+      const cached = (Array.isArray(publicArticles) ? publicArticles : []).find(a => a.id === articleId);
+      const thumb = cached?.thumb || '';
+      const thumbStyle = thumb ? `background-image:url(${thumb})` : '';
+      // 尝试从 friendsState 获取作者头像
+      const friendData = (window.friendsState?.friends || []).find(f => f.username === authorName);
+      const authorAvatar = friendData?.profile?.avatar || friendData?.avatar || '';
+      const avatarStyle = authorAvatar ? `background-image:url(${authorAvatar})` : '';
       return `<div class="chat-share-card" onclick="closeChatPanel();openArticleDetail('${articleId}')">
-  <div class="csc-badge">分享的文章</div>
+  <div class="csc-thumb" style="${thumbStyle}"></div>
   <div class="csc-body">
-    <div class="csc-accent"></div>
-    <div class="csc-info">
-      <div class="csc-title">${title}</div>
-      ${summary ? `<div class="csc-summary">${summary}</div>` : ''}
-      <div class="csc-meta">
-        <span>@${author}</span>
-        ${category ? `<span class="csc-cat">${category}</span>` : ''}
-        ${time ? `<span class="csc-time">${time}</span>` : ''}
+    <div class="csc-cat">${category}</div>
+    <div class="csc-title">${title}</div>
+    ${summary ? `<div class="csc-summary">${summary}</div>` : ''}
+    <div class="csc-footer">
+      <div class="csc-author">
+        <div class="csc-avatar" style="${avatarStyle}"></div>
+        <span>@${authorName}</span>
       </div>
+      ${time ? `<span class="csc-time">${time}</span>` : ''}
     </div>
   </div>
 </div>`;
     }
-    return escapeHtmlSafe(body);
+    return escapeHtmlSafe(body).replace(/\n/g, '<br>');
   }
 
   function renderMessages(conv, peerInfo, opts = {}){
@@ -15283,7 +15091,7 @@ function startSiteVersionPoll(){
     if(chatMessages){
       chatMessages.insertAdjacentHTML('beforeend', `
         <div class="chat-msg-row mine" data-sending-id="${sendingId}">
-          <div class="chat-msg mine">${escapeHtmlSafe(raw)}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
+          <div class="chat-msg mine">${escapeHtmlSafe(raw).replace(/\n/g, '<br>')}<span class="chat-expire-tip">⏳ 发送中，请稍候…</span></div>
           <time class="chat-msg-time">发送中</time>
         </div>`);
       chatMessages.scrollTop = chatMessages.scrollHeight;
