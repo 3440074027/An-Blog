@@ -5037,7 +5037,7 @@
   .chat-msg{
     width:fit-content;
     min-width:32px;
-    max-width:min(68%, 340px); padding:8px 14px; font-size:13px; line-height:1.55;
+    max-width:min(78%, 380px); padding:8px 14px; font-size:13px; line-height:1.55;
     overflow-wrap:break-word; word-break:normal; white-space:normal;
     box-shadow:0 3px 10px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.2);
     position:relative;
@@ -5048,6 +5048,12 @@
     transition:box-shadow .2s, transform .15s;
     /* 手绘涂鸦不规则圆角 */
     border-radius:18px 22px 14px 20px / 20px 16px 24px 14px;
+  }
+  /* 包含分享卡片时放宽宽度限制 */
+  .chat-msg:has(.chat-share-card){
+    max-width:min(85%, 420px);
+    padding:6px 8px;
+    overflow:hidden;
   }
   .chat-msg:hover{box-shadow:0 5px 16px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.24); transform:translateY(-1px);}
   /* 手绘尾巴 - 自己的消息在右侧 */
@@ -7124,8 +7130,8 @@
     border:1px solid rgba(255,255,255,.08);
     background:#1a1a2e;
     cursor:pointer;
-    max-width:260px;
-    min-width:200px;
+    width:260px;
+    max-width:100%;
     display:flex;
     flex-direction:row;
     overflow:hidden;
@@ -15080,8 +15086,8 @@ function startSiteVersionPoll(){
 
   async function sendChatMessage(){
     if(!activePeer) return;
-    const raw = (chatInputText && chatInputText.value || '').replace(/\n/g, ' ').trim();
-    const text = raw;
+    const raw = (chatInputText && chatInputText.value || '').trimEnd();
+    const text = raw.trim();
     if(!text){
       chatToast('消息不能为空。', 'error');
       return;
