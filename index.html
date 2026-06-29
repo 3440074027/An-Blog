@@ -7113,7 +7113,10 @@
     border-color:rgba(255,190,50,.5);
   }
   .reaction-btn .reaction-icon{font-size:15px;line-height:1;}
-  .reaction-btn .reaction-count{min-width:8px;text-align:center;}
+  .reaction-btn .reaction-count{font-size:12px;min-width:14px;text-align:center;}
+  #reactionLikeBtn.active-like .reaction-icon{color:#ff4d6d;}
+  #reactionFavBtn.active-fav .reaction-icon{color:#ffd43b;}
+  .reaction-btn.active-like, .reaction-btn.active-fav{background:rgba(255,255,255,.12);}
   .reaction-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
   /* 分享弹窗 */
   .share-popup{
@@ -8826,6 +8829,8 @@
               <button id="articleSortOld" type="button" data-sort="old">最早发布</button>
               <button id="articleSortTitle" type="button" data-sort="title">标题排序</button>
               <button id="articleSortImage" type="button" data-sort="image">优先图文</button>
+              <button id="articleSortLike" type="button" data-sort="likes">点赞最多</button>
+              <button id="articleSortFav" type="button" data-sort="favs">收藏最多</button>
             </div>
             <div class="af-bar-actions">
               <button id="articleScopeAllBtn" type="button">全部文章</button>
@@ -8860,6 +8865,13 @@
           <div class="tool-stat"><strong id="toolRegisterDays">0</strong><span>注册天数</span></div>
           <div class="tool-stat"><strong id="toolTagCount">0</strong><span>资料标签</span></div>
         </div>
+        <div id="collectionsSection" style="margin-top:16px;display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <span style="font-size:13px;font-weight:600;color:#e8e8ff;">我的收藏夹</span>
+            <button id="newCollectionBtn" type="button" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(108,92,231,.3);background:rgba(108,92,231,.1);color:#a29bfe;cursor:pointer;">+ 新建</button>
+          </div>
+          <div id="collectionsList"></div>
+        </div>
         <p id="featureDescription">结合生日、星座、标签和文章记录，为你生成今日灵感。</p>
       </section>
       <section class="blog-tech-card blog-glass-card" id="blogTech">
@@ -8874,6 +8886,28 @@
         </div>
       </section>
     </aside>
+  </div>
+  <!-- 收藏夹弹窗 -->
+  <div class="article-detail-modal" id="collectModal" aria-hidden="true">
+    <div class="article-detail-card" role="dialog" aria-modal="true" style="max-width:400px;">
+      <div class="article-detail-body" style="overflow:visible;">
+        <h3 style="color:#e8e8ff;font-size:16px;font-weight:700;margin:0 0 16px 0;">收藏到收藏夹</h3>
+        <div id="collectExistingList" style="margin-bottom:12px;"></div>
+        <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:12px;">
+          <button id="collectNewBtn" type="button" style="width:100%;padding:10px;border-radius:10px;border:1px dashed rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:#bbb;cursor:pointer;font-size:13px;transition:all .15s;">+ 新建收藏夹</button>
+        </div>
+        <div id="collectNewForm" style="display:none;margin-top:12px;">
+          <input id="collectNameInput" type="text" placeholder="收藏夹名称" maxlength="40" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:13px;outline:none;margin-bottom:8px;box-sizing:border-box;" />
+          <input id="collectSummaryInput" type="text" placeholder="简介（可选）" maxlength="200" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:13px;outline:none;margin-bottom:8px;box-sizing:border-box;" />
+          <input id="collectCoverInput" type="text" placeholder="封面图片 URL（可选）" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:12px;outline:none;margin-bottom:8px;box-sizing:border-box;" />
+          <div style="display:flex;gap:8px;">
+            <button id="collectCreateBtn" type="button" style="flex:1;padding:8px;border-radius:8px;border:none;background:#6c5ce7;color:#fff;cursor:pointer;font-size:13px;">创建并收藏</button>
+            <button id="collectCancelNewBtn" type="button" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#aaa;cursor:pointer;font-size:13px;">取消</button>
+          </div>
+        </div>
+      </div>
+      <button id="collectCloseBtn" type="button" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#10005;</button>
+    </div>
   </div>
 </main>
 
@@ -9008,6 +9042,14 @@
           <button id="articleDetailNextPage" type="button">下一页</button>
         </div>
         <div class="article-detail-reactions" id="articleDetailReactions">
+        <button class="reaction-btn" id="reactionLikeBtn" type="button">
+          <span class="reaction-icon" id="reactionLikeIcon">&#9825;</span>
+          <span class="reaction-count" id="reactionLikeCount">0</span>
+        </button>
+        <button class="reaction-btn" id="reactionFavBtn" type="button">
+          <span class="reaction-icon" id="reactionFavIcon">&#9734;</span>
+          <span class="reaction-count" id="reactionFavCount">0</span>
+        </button>
         <button class="reaction-btn" id="reactionShareBtn" type="button">
           <span class="reaction-icon">&#8689;</span>
           <span>分享</span>
@@ -10459,6 +10501,8 @@ const articleSortNew = document.getElementById('articleSortNew');
 const articleSortOld = document.getElementById('articleSortOld');
 const articleSortTitle = document.getElementById('articleSortTitle');
 const articleSortImage = document.getElementById('articleSortImage');
+const articleSortLike = document.getElementById('articleSortLike');
+const articleSortFav = document.getElementById('articleSortFav');
 const articlePublishBtn = document.getElementById('articlePublishBtn');
 const articleOwnerDeleteModeBtn = document.getElementById('articleOwnerDeleteModeBtn');
 const articleDeleteTools = document.getElementById('articleDeleteTools');
@@ -10502,6 +10546,12 @@ const articleDetailPrevPage = document.getElementById('articleDetailPrevPage');
 const articleDetailNextPage = document.getElementById('articleDetailNextPage');
 const articleDetailPageInfo = document.getElementById('articleDetailPageInfo');
 const reactionShareBtn = document.getElementById('reactionShareBtn');
+const reactionLikeBtn = document.getElementById('reactionLikeBtn');
+const reactionFavBtn = document.getElementById('reactionFavBtn');
+const reactionLikeCount = document.getElementById('reactionLikeCount');
+const reactionFavCount = document.getElementById('reactionFavCount');
+const reactionLikeIcon = document.getElementById('reactionLikeIcon');
+const reactionFavIcon = document.getElementById('reactionFavIcon');
 const sharePopup = document.getElementById('sharePopup');
 const shareFriendList = document.getElementById('shareFriendList');
 const articleDetailAuthorAvatar = document.getElementById('articleDetailAuthorAvatar');
@@ -10906,6 +10956,41 @@ function updateToolStats(user = readSavedUser()){
   if(featureDescription && activeTool && typeof getFeatureText === 'function'){
     featureDescription.textContent = getFeatureText(activeTool.dataset.feature);
   }
+  loadCollectionsInToolbox();
+}
+
+async function loadCollectionsInToolbox(){
+  const section = document.getElementById('collectionsSection');
+  const list = document.getElementById('collectionsList');
+  if(!section || !list || !getAuthToken()) return;
+  try{
+    const data = await authRequest('/api/collections', { method:'GET', headers:authorizedHeaders() });
+    const cols = Array.isArray(data.collections) ? data.collections : [];
+    if(!cols.length){ section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    list.innerHTML = cols.map(c => `
+      <div class="col-tool-item" data-cid="${c.id}" style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);margin-bottom:6px;cursor:pointer;transition:all .15s;">
+        <div style="width:28px;height:28px;border-radius:5px;flex-shrink:0;background:${c.cover ? 'url('+c.cover+') center/cover' : 'linear-gradient(135deg,#6c5ce7,#a29bfe)'};border:1px solid rgba(255,255,255,.06);"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:600;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>
+          <div style="font-size:10px;color:#777;">${c.articleCount || 0} 篇</div>
+        </div>
+        <button class="col-delete-btn" data-cid="${c.id}" type="button" style="width:22px;height:22px;border-radius:50%;border:none;background:rgba(255,80,80,.08);color:rgba(255,80,80,.5);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">&#10005;</button>
+      </div>
+    `).join('');
+    list.querySelectorAll('.col-delete-btn').forEach(btn => {
+      btn.addEventListener('click', async(e) => {
+        e.stopPropagation();
+        if(!confirm('确定删除该收藏夹？')) return;
+        try{
+          await authRequest('/api/collections', { method:'DELETE', headers:authorizedHeaders(), body:JSON.stringify({ id:btn.dataset.cid }) });
+          loadCollectionsInToolbox();
+        }catch(_){}
+      });
+    });
+  }catch(_){
+    section.style.display = 'none';
+  }
 }
 
 function getUserArticles(user = readSavedUser()){
@@ -11192,6 +11277,10 @@ function getFilteredArticles(){
       const imgB = articleGalleryImages(b).length;
       return imgB - imgA || String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
     }
+    if(articleFilters.sort === 'likes') return (b.likeCount || 0) - (a.likeCount || 0) || String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+    if(articleFilters.sort === 'favs') return (b.favoriteCount || 0) - (a.favoriteCount || 0) || String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+    if(articleFilters.sort === 'likes-asc') return (a.likeCount || 0) - (b.likeCount || 0) || String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
+    if(articleFilters.sort === 'favs-asc') return (a.favoriteCount || 0) - (b.favoriteCount || 0) || String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
     // 默认 new
     return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
   });
@@ -11319,8 +11408,8 @@ function renderArticles(){
   const hasTime = !!articleFilters.timeFrom || !!articleFilters.timeTo;
   articleTimeFilterBtn && (articleTimeFilterBtn.textContent = hasTime ? `${articleFilters.timeFrom || '...'} ~ ${articleFilters.timeTo || '...'}` : '时间');
   articleTimeFilterBtn?.classList.toggle('active', hasTime);
-  [articleSortNew, articleSortOld, articleSortTitle, articleSortImage].forEach(btn=>{
-    btn?.classList.toggle('active', btn?.dataset.sort === articleFilters.sort);
+  [articleSortNew, articleSortOld, articleSortTitle, articleSortImage, articleSortLike, articleSortFav].forEach(btn=>{
+    btn?.classList.toggle('active', btn?.dataset.sort === articleFilters.sort || (articleFilters.sort === 'likes-asc' && btn?.dataset.sort === 'likes') || (articleFilters.sort === 'favs-asc' && btn?.dataset.sort === 'favs'));
   });
   if(articlePageInput){
     articlePageInput.max = totalPages;
@@ -11835,6 +11924,7 @@ async function openArticleDetail(id){
   if(!article) return;
   currentDetailArticleId = id;
   currentDetailArticleAuthor = article.author || '';
+  loadArticleReactions(id);
   // 将文章详情（含评论）同步到 publicArticles 缓存
   const idx = publicArticles.findIndex(a => a.id === id);
   if(idx >= 0){
@@ -11989,6 +12079,53 @@ function goArticleDetailPage(direction){
 let _shareAllFriends = [];
 let _shareSiteOwner = null;
 let _shareCurrentUser = null;
+
+let _articleReactionState = { liked:false, favorited:false };
+
+async function loadArticleReactions(articleId){
+  if(!articleId) return;
+  try{
+    const token = getAuthToken();
+    const url = `/api/article-reactions?id=${encodeURIComponent(articleId)}${token ? '&me=true' : ''}`;
+    const data = await authRequest(url, { method:'GET' });
+    _articleReactionState.liked = !!data.liked;
+    _articleReactionState.favorited = !!data.favorited;
+    renderReactionState(data.likeCount || 0, data.favoriteCount || 0);
+  }catch(_){}
+}
+
+function renderReactionState(likeCount, favCount){
+  if(likeCount !== undefined && reactionLikeCount) reactionLikeCount.textContent = likeCount || 0;
+  if(favCount !== undefined && reactionFavCount) reactionFavCount.textContent = favCount || 0;
+  if(reactionLikeBtn){
+    reactionLikeBtn.classList.toggle('active-like', _articleReactionState.liked);
+    reactionLikeIcon.textContent = _articleReactionState.liked ? '\u2665' : '\u2661';
+  }
+  if(reactionFavBtn){
+    reactionFavBtn.classList.toggle('active-fav', _articleReactionState.favorited);
+    reactionFavIcon.textContent = _articleReactionState.favorited ? '\u2605' : '\u2606';
+  }
+}
+
+async function toggleArticleReaction(action){
+  if(!currentDetailArticleId) return;
+  const add = action === 'like' ? !_articleReactionState.liked : !_articleReactionState.favorited;
+  try{
+    const method = add ? 'POST' : 'DELETE';
+    const data = await authRequest('/api/article-reactions', {
+      method,
+      headers: authorizedHeaders(),
+      body: JSON.stringify({ id: currentDetailArticleId, action })
+    });
+    const key = action === 'like' ? 'likeCount' : 'favoriteCount';
+    const count = data[key] || 0;
+    if(action === 'like') _articleReactionState.liked = add;
+    else _articleReactionState.favorited = add;
+    renderReactionState(count, undefined);
+  }catch(error){
+    console.warn('toggle reaction error:', error);
+  }
+}
 
 function toggleSharePopup(){
   if(!sharePopup) return;
@@ -12309,9 +12446,15 @@ if(articleScopeMineBtn) articleScopeMineBtn.addEventListener('click', ()=>{
   closeAllAfPanels();
   renderArticles();
 });
-[articleSortNew, articleSortOld, articleSortTitle, articleSortImage].forEach(btn=>{
+[articleSortNew, articleSortOld, articleSortTitle, articleSortImage, articleSortLike, articleSortFav].forEach(btn=>{
   if(btn) btn.addEventListener('click', ()=>{
-    articleFilters.sort = btn.dataset.sort || 'new';
+    const newSort = btn.dataset.sort || 'new';
+    // Toggle direction for same sort type
+    if(articleFilters.sort === newSort){
+      articleFilters.sort = newSort === 'likes' ? 'likes-asc' : newSort === 'favs' ? 'favs-asc' : newSort;
+    } else {
+      articleFilters.sort = newSort;
+    }
     articlePage = 1;
     closeAllAfPanels();
     renderArticles();
@@ -12324,6 +12467,14 @@ if(articleDeleteCancelBtn) articleDeleteCancelBtn.addEventListener('click', ()=>
 if(articleDeleteConfirmBtn) articleDeleteConfirmBtn.addEventListener('click', deleteSelectedArticles);
 if(articleDetailPrevPage) articleDetailPrevPage.addEventListener('click', ()=>goArticleDetailPage(-1));
 if(articleDetailNextPage) articleDetailNextPage.addEventListener('click', ()=>goArticleDetailPage(1));
+if(reactionLikeBtn) reactionLikeBtn.addEventListener('click', () => toggleArticleReaction('like'));
+if(reactionFavBtn) reactionFavBtn.addEventListener('click', () => {
+  if(_articleReactionState.favorited){
+    toggleArticleReaction('favorite');
+  }else{
+    openCollectPopup();
+  }
+});
 if(reactionShareBtn) reactionShareBtn.addEventListener('click', event=>{
   event.stopPropagation();
   toggleSharePopup();
@@ -12340,6 +12491,113 @@ document.addEventListener('click', event=>{
     sharePopup.hidden = true;
   }
 });
+/* ---- 收藏夹弹窗 ---- */
+const collectModal = document.getElementById('collectModal');
+const collectExistingList = document.getElementById('collectExistingList');
+const collectNewBtn = document.getElementById('collectNewBtn');
+const collectNewForm = document.getElementById('collectNewForm');
+const collectNameInput = document.getElementById('collectNameInput');
+const collectSummaryInput = document.getElementById('collectSummaryInput');
+const collectCoverInput = document.getElementById('collectCoverInput');
+const collectCreateBtn = document.getElementById('collectCreateBtn');
+const collectCancelNewBtn = document.getElementById('collectCancelNewBtn');
+const collectCloseBtn = document.getElementById('collectCloseBtn');
+
+let _collectionsCache = [];
+
+async function openCollectPopup(){
+  if(!collectModal || !getAuthToken()) return;
+  collectModal.classList.add('open');
+  collectModal.setAttribute('aria-hidden','false');
+  if(collectNewForm) collectNewForm.style.display = 'none';
+  if(collectNameInput) collectNameInput.value = '';
+  if(collectSummaryInput) collectSummaryInput.value = '';
+  if(collectCoverInput) collectCoverInput.value = '';
+  try{
+    const data = await authRequest('/api/collections', { method:'GET', headers:authorizedHeaders() });
+    _collectionsCache = Array.isArray(data.collections) ? data.collections : [];
+    renderCollectList();
+  }catch(error){
+    console.warn('load collections error:', error);
+    collectExistingList.innerHTML = '<p style="color:#888;font-size:12px;text-align:center;">加载失败</p>';
+  }
+}
+
+function closeCollectPopup(){
+  if(collectModal){ collectModal.classList.remove('open'); collectModal.setAttribute('aria-hidden','true'); }
+}
+
+function renderCollectList(){
+  if(!collectExistingList) return;
+  if(!_collectionsCache.length){
+    collectExistingList.innerHTML = '<p style="color:#888;font-size:12px;text-align:center;">暂无收藏夹，请新建一个</p>';
+    return;
+  }
+  collectExistingList.innerHTML = _collectionsCache.map(c => `
+    <button class="collect-item" data-cid="${c.id}" type="button" style="width:100%;display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#ccc;cursor:pointer;margin-bottom:6px;transition:all .15s;text-align:left;font-size:13px;">
+      <div style="width:36px;height:36px;border-radius:6px;flex-shrink:0;background:${c.cover ? 'url('+c.cover+') center/cover' : 'linear-gradient(135deg,#6c5ce7,#a29bfe)'};border:1px solid rgba(255,255,255,.08);"></div>
+      <div style="flex:1;min-width:0;overflow:hidden;">
+        <div style="font-weight:600;color:#e8e8ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>
+        <div style="font-size:11px;color:#888;">${c.articleCount || 0} 篇文章</div>
+      </div>
+    </button>
+  `).join('');
+  collectExistingList.querySelectorAll('.collect-item').forEach(btn => {
+    btn.addEventListener('click', () => collectToExisting(btn.dataset.cid));
+  });
+}
+
+async function collectToExisting(cid){
+  if(!currentDetailArticleId) return;
+  try{
+    await authRequest('/api/collections', {
+      method:'POST', headers:authorizedHeaders(),
+      body: JSON.stringify({ action:'collect', collectionId:cid, articleId:currentDetailArticleId })
+    });
+    _articleReactionState.favorited = true;
+    renderReactionState(undefined, undefined);
+    const col = _collectionsCache.find(c => c.id === cid);
+    if(col) col.articleCount = (col.articleCount || 0) + 1;
+    renderCollectList();
+    chatToast('已收藏。', 'success');
+    closeCollectPopup();
+  }catch(error){
+    chatToast(error.message || '收藏失败', 'error');
+  }
+}
+
+async function createAndCollect(){
+  const name = collectNameInput ? collectNameInput.value.trim() : '';
+  if(!name){ chatToast('请输入收藏夹名称。', 'warn'); return; }
+  try{
+    await authRequest('/api/collections', {
+      method:'POST', headers:authorizedHeaders(),
+      body: JSON.stringify({
+        name,
+        summary: collectSummaryInput ? collectSummaryInput.value.trim() : '',
+        cover: collectCoverInput ? collectCoverInput.value.trim() : ''
+      })
+    });
+    _articleReactionState.favorited = true;
+    renderReactionState(undefined, undefined);
+    chatToast('收藏夹创建成功并已收藏。', 'success');
+    closeCollectPopup();
+  }catch(error){
+    chatToast(error.message || '创建失败', 'error');
+  }
+}
+
+if(collectNewBtn) collectNewBtn.addEventListener('click', () => {
+  if(collectNewForm) collectNewForm.style.display = collectNewForm.style.display === 'none' ? 'block' : 'none';
+});
+if(collectCancelNewBtn) collectCancelNewBtn.addEventListener('click', () => { if(collectNewForm) collectNewForm.style.display = 'none'; });
+if(collectCreateBtn) collectCreateBtn.addEventListener('click', createAndCollect);
+if(collectCloseBtn) collectCloseBtn.addEventListener('click', closeCollectPopup);
+if(collectModal) collectModal.addEventListener('click', event => { if(event.target === collectModal) closeCollectPopup(); });
+
+const newCollectionBtn = document.getElementById('newCollectionBtn');
+if(newCollectionBtn) newCollectionBtn.addEventListener('click', openCollectPopup);
+
 if(toolArticleCount) toolArticleCount.closest('.tool-stat')?.addEventListener('click', ()=>goUserArticles(readSavedUser()?.username));
 if(articleDetailCloseBtn) articleDetailCloseBtn.addEventListener('click', closeArticleDetail);
 if(articleDetailEditBtn) articleDetailEditBtn.addEventListener('click', editCurrentDetailArticle);
