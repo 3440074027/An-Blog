@@ -6661,6 +6661,30 @@
   #collectionsList::-webkit-scrollbar-track{background:transparent;}
   #collectionsList::-webkit-scrollbar-thumb{background:rgba(108,92,231,.25);border-radius:99px;}
   #collectionsList::-webkit-scrollbar-thumb:hover{background:rgba(108,92,231,.45);}
+  /* 收藏夹区域 */
+  #collectionsTotalStats{
+    background:rgba(108,92,231,.12) !important;
+    border-color:rgba(108,92,231,.25) !important;
+  }
+  #collectionsTotalStats div[style*="font-size:18px"]{color:#b8b0ff !important;}
+  #collectionsTotalStats div[style*="font-size:10px"]{color:rgba(255,255,255,.5) !important;}
+  .col-tool-item{
+    border-color:rgba(255,255,255,.12) !important;
+    background:rgba(255,255,255,.04) !important;
+  }
+  .col-tool-item:hover{
+    background:rgba(108,92,231,.1) !important;
+    border-color:rgba(108,92,231,.25) !important;
+  }
+  .col-tool-item .col-delete-btn{
+    background:rgba(255,70,70,.12) !important;
+    color:rgba(255,100,100,.7) !important;
+    border:1px solid rgba(255,70,70,.15) !important;
+  }
+  .col-tool-item .col-delete-btn:hover{
+    background:rgba(255,70,70,.25) !important;
+    color:#ff6666 !important;
+  }
   .af-bar-actions{
     display:flex;
     gap:6px;
@@ -8913,7 +8937,7 @@
         <div id="collectionsSection" style="margin-top:16px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <span style="font-size:13px;font-weight:600;color:#e8e8ff;">我的收藏夹</span>
-            <button id="newCollectionBtn" type="button" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(108,92,231,.3);background:rgba(108,92,231,.1);color:#a29bfe;cursor:pointer;">+ 新建</button>
+            <button id="newCollectionBtn" type="button" style="font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid rgba(108,92,231,.4);background:rgba(108,92,231,.15);color:#c4b5fd;cursor:pointer;font-weight:600;">+ 新建</button>
           </div>
           <div id="collectionsTotalStats" style="display:flex;gap:12px;margin-bottom:10px;padding:8px 10px;border-radius:8px;background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.1);"></div>
           <div id="collectionsList" style="max-height:280px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(108,92,231,.3) transparent;padding-right:4px;"></div>
@@ -11033,19 +11057,19 @@ async function loadCollectionsInToolbox(){
     }
     list.innerHTML = cols.map(c => {
       const coverStyle = c.cover ? `background:url('${c.cover}') center/cover` : 'background:linear-gradient(135deg,#6c5ce7,#a29bfe)';
-      const tagHtml = (c.tags || []).slice(0, 3).map(t => `<span style="font-size:9px;padding:1px 5px;border-radius:99px;background:rgba(108,92,231,.12);color:#a29bfe;">${t}</span>`).join('');
+      const tagHtml = (c.tags || []).slice(0, 3).map(t => `<span style="font-size:9px;padding:1px 6px;border-radius:99px;background:rgba(108,92,231,.2);color:#c4b5fd;">${t}</span>`).join('');
       return `
-      <div class="col-tool-item" data-cid="${c.id}" style="display:flex;gap:10px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);margin-bottom:6px;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(108,92,231,.08)';this.style.borderColor='rgba(108,92,231,.15)'" onmouseout="this.style.background='rgba(255,255,255,.02)';this.style.borderColor='rgba(255,255,255,.06)'">
-        <div style="width:44px;height:44px;border-radius:8px;flex-shrink:0;${coverStyle};border:1px solid rgba(255,255,255,.06);"></div>
+      <div class="col-tool-item" data-cid="${c.id}" style="display:flex;gap:10px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);margin-bottom:6px;cursor:pointer;transition:all .15s;">
+        <div style="width:44px;height:44px;border-radius:8px;flex-shrink:0;${coverStyle};border:1px solid rgba(255,255,255,.1);"></div>
         <div style="flex:1;min-width:0;overflow:hidden;">
-          <div style="font-size:12.5px;font-weight:600;color:#e8e8ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>
-          ${c.summary ? `<div style="font-size:10px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">${c.summary}</div>` : ''}
+          <div style="font-size:13px;font-weight:700;color:#f0eeff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>
+          ${c.summary ? `<div style="font-size:11px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">${c.summary}</div>` : ''}
           <div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;">
-            <span style="font-size:10px;color:#888;">${c.articleCount || 0} 篇</span>
+            <span style="font-size:11px;color:#b0a8d0;font-weight:600;">${c.articleCount || 0} 篇</span>
             ${tagHtml}
           </div>
         </div>
-        <button class="col-delete-btn" data-cid="${c.id}" type="button" style="width:22px;height:22px;border-radius:50%;border:none;background:rgba(255,80,80,.06);color:rgba(255,80,80,.4);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:flex-start;transition:all .15s;" onmouseover="this.style.background='rgba(255,80,80,.15)';this.style.color='rgba(255,80,80,.8)'" onmouseout="this.style.background='rgba(255,80,80,.06)';this.style.color='rgba(255,80,80,.4)'">&#10005;</button>
+        <button class="col-delete-btn" data-cid="${c.id}" type="button" style="width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,70,70,.15);background:rgba(255,70,70,.12);color:rgba(255,100,100,.7);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:flex-start;transition:all .15s;">&#10005;</button>
       </div>`;
     }).join('');
     // 点击收藏夹查看详情
@@ -12354,6 +12378,19 @@ function closeArticleDetail(){
   articleDetailModal?.classList.remove('open');
   articleDetailModal?.setAttribute('aria-hidden', 'true');
   if(sharePopup) sharePopup.hidden = true;
+  // 恢复收藏夹详情隐藏的元素
+  const headLeft = articleDetailModal?.querySelector('.article-detail-head-left');
+  const pager = document.getElementById('articleDetailPager');
+  const metaEl = document.getElementById('articleDetailMeta');
+  const footer = document.getElementById('articleDetailReactions');
+  const editBtn = document.getElementById('articleDetailEditBtn');
+  const deleteBtn = document.getElementById('articleDetailDeleteBtn');
+  if(headLeft) headLeft.style.display = '';
+  if(pager) pager.style.display = '';
+  if(metaEl) metaEl.style.display = '';
+  if(footer) footer.style.display = '';
+  if(editBtn) editBtn.style.display = '';
+  if(deleteBtn) deleteBtn.style.display = '';
   unlockBodyScroll();
 }
 
@@ -12717,41 +12754,46 @@ async function openCollectionDetail(cid){
     const data = await authRequest(`/api/collections?id=${encodeURIComponent(cid)}`, { method:'GET', headers:authorizedHeaders() });
     const col = data.collection;
     if(!col){ chatToast('收藏夹不存在', 'error'); return; }
-    // 用文章详情弹窗样式展示
+    // 复用文章详情弹窗
     const modal = document.getElementById('articleDetailModal');
-    const body = document.getElementById('articleDetailBody');
     const titleEl = document.getElementById('articleDetailTitle');
     const contentEl = document.getElementById('articleDetailContent');
     const footer = document.getElementById('articleDetailReactions');
-    const authorArea = document.getElementById('articleDetailAuthorArea');
-    const navArea = document.getElementById('articleDetailNav');
-    if(!modal || !body || !titleEl || !contentEl) return;
+    const headLeft = modal?.querySelector('.article-detail-head-left');
+    const pager = document.getElementById('articleDetailPager');
+    const metaEl = document.getElementById('articleDetailMeta');
+    const editBtn = document.getElementById('articleDetailEditBtn');
+    const deleteBtn = document.getElementById('articleDetailDeleteBtn');
+    if(!modal || !titleEl || !contentEl) return;
     // 标题
     titleEl.innerHTML = `<span style="font-size:20px;">📁</span> ${escapeHtmlSafe(col.name)}`;
-    // 隐藏作者区和导航
-    if(authorArea) authorArea.style.display = 'none';
-    if(navArea) navArea.style.display = 'none';
+    // 隐藏文章相关元素
+    if(headLeft) headLeft.style.display = 'none';
     if(footer) footer.style.display = 'none';
+    if(pager) pager.style.display = 'none';
+    if(metaEl) metaEl.style.display = 'none';
+    if(editBtn) editBtn.style.display = 'none';
+    if(deleteBtn) deleteBtn.style.display = 'none';
     // 内容区：收藏夹信息 + 文章列表
     const articleList = Array.isArray(col.articles) ? col.articles : [];
-    const tagHtml = (col.tags || []).map(t => `<span style="font-size:10px;padding:2px 8px;border-radius:99px;background:rgba(108,92,231,.12);color:#a29bfe;">${escapeHtmlSafe(t)}</span>`).join(' ');
+    const tagHtml = (col.tags || []).map(t => `<span style="font-size:10px;padding:2px 8px;border-radius:99px;background:rgba(108,92,231,.2);color:#c4b5fd;">${escapeHtmlSafe(t)}</span>`).join(' ');
     let html = `<div style="margin-bottom:16px;">
-      ${col.summary ? `<p style="font-size:13px;color:#888;margin:0 0 8px;">${escapeHtmlSafe(col.summary)}</p>` : ''}
+      ${col.summary ? `<p style="font-size:13px;color:#bbb;margin:0 0 8px;">${escapeHtmlSafe(col.summary)}</p>` : ''}
       ${tagHtml ? `<div style="display:flex;gap:4px;flex-wrap:wrap;">${tagHtml}</div>` : ''}
-      <div style="margin-top:8px;font-size:12px;color:#666;">共 ${articleList.length} 篇收藏文章</div>
+      <div style="margin-top:10px;font-size:13px;color:#a29bfe;font-weight:600;">共 ${articleList.length} 篇收藏文章</div>
     </div>`;
     // 渲染收藏的文章列表
     for(const item of articleList){
       const article = (Array.isArray(publicArticles) ? publicArticles : []).find(a => a.id === item.articleId);
       if(!article) continue;
-      const thumb = article.thumb ? `<div style="width:48px;height:48px;border-radius:6px;flex-shrink:0;background:url('${article.thumb}') center/cover;background-color:#1a1a2e;border:1px solid rgba(255,255,255,.06);"></div>` : '';
-      html += `<div onclick="closeArticleDetail();openArticleDetail('${article.id}')" style="display:flex;gap:10px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02);margin-bottom:6px;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(108,92,231,.06)'" onmouseout="this.style.background='rgba(255,255,255,.02)'">
+      const thumb = article.thumb ? `<div style="width:48px;height:48px;border-radius:6px;flex-shrink:0;background:url('${article.thumb}') center/cover;background-color:#1a1a2e;border:1px solid rgba(255,255,255,.1);"></div>` : '';
+      html += `<div onclick="closeArticleDetail();openArticleDetail('${article.id}')" style="display:flex;gap:10px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);margin-bottom:6px;cursor:pointer;transition:all .15s;">
         ${thumb}
         <div style="flex:1;min-width:0;">
-          <div style="font-size:12.5px;font-weight:600;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtmlSafe(article.title || '未命名')}</div>
-          <div style="font-size:10px;color:#666;margin-top:2px;">@${escapeHtmlSafe(article.author || '')} · ${item.collectedAt ? item.collectedAt.slice(0,10) : ''}</div>
+          <div style="font-size:13px;font-weight:600;color:#e8e8ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtmlSafe(article.title || '未命名')}</div>
+          <div style="font-size:11px;color:#999;margin-top:2px;">@${escapeHtmlSafe(article.author || '')} · ${item.collectedAt ? item.collectedAt.slice(0,10) : ''}</div>
         </div>
-        <button onclick="event.stopPropagation();uncollectFromDetail('${col.id}','${article.id}')" type="button" style="align-self:center;width:22px;height:22px;border-radius:50%;border:none;background:rgba(255,80,80,.06);color:rgba(255,80,80,.4);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#10005;</button>
+        <button onclick="event.stopPropagation();uncollectFromDetail('${col.id}','${article.id}')" type="button" style="align-self:center;width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,70,70,.15);background:rgba(255,70,70,.12);color:rgba(255,100,100,.7);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#10005;</button>
       </div>`;
     }
     if(!articleList.length){
